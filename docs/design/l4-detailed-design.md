@@ -1,6 +1,6 @@
 # AIFlow UI —— L4 AI 约束层详细设计
 
-> 本文档覆盖 L4 AI 约束层的总体设计：三层防线、114 白名单封闭集、System Prompt 骨架、16 条 ESLint 规则、自动修正 3 轮流程、项目级扩展机制、CI 保护链路。
+> 本文档覆盖 L4 AI 约束层的总体设计：三层防线、115 白名单封闭集、System Prompt 骨架、15 条 ESLint 规则、自动修正 3 轮流程、项目级扩展机制、CI 保护链路。
 >
 > 范围：AI 代码生成的约束系统（Prompt + ESLint + CI 纵深防御）。
 > L1 Token / L2 配方原子 / L3 真组件另见对应文档。
@@ -10,9 +10,9 @@
 ## 目录
 
 - [0. 概述：三层防线机制](#0-概述三层防线机制)
-- [1. 白名单封闭集：104 类 + 10 组件](#1-白名单封闭集104-类--10-组件)
+- [1. 白名单封闭集：105 类 + 10 组件](#1-白名单封闭集105-类--10-组件)
 - [2. System Prompt 骨架（结构 + 生成参数 + 动态注入）](#2-system-prompt-骨架结构--生成参数--动态注入)
-- [3. ESLint 插件：16 条规则完整定义](#3-eslint-插件16-条规则完整定义)
+- [3. ESLint 插件：15 条规则完整定义](#3-eslint-插件15-条规则完整定义)
 - [4. AI 代码生成修正流程（4 步 · 最多 3 轮）](#4-ai-代码生成修正流程4-步--最多-3-轮)
 - [5. 项目级扩展机制](#5-项目级扩展机制)
 - [6. CI 保护链路（PR 三步 + 发布阶段附加检查）](#6-ci-保护链路pr-三步--发布阶段附加检查)
@@ -28,7 +28,7 @@
 | 层 | 内容 | 防护方式 | 阻断位置 |
 |---|---|---|---|
 | L1 | Token（43 变量） | `no-token-modification` + `no-inline-style` | ESLint error |
-| L2 | 配方 52 + 原子 52 = 104 类 | `token-whitelist` + `no-recipe-break` + 覆盖矩阵 | ESLint error/warn |
+| L2 | 配方 53 + 原子 52 = 105 类 | `token-whitelist` + `no-recipe-break` + 覆盖矩阵 | ESLint error/warn |
 | L3 | 10 个真组件（WC） | `wc-light-no-style` + `wc-shadow-use-token` + `wc-event-naming` 等 | ESLint error |
 | **L4** | **AI 约束层** | **Prompt 引导 + ESLint 兜底 + CI 保护** | **Prompt 第一道 + ESLint 第二道 + CI 第三道** |
 
@@ -38,12 +38,12 @@
 AI 生成代码请求
     │
     ▼  第 1 道防线（事前 · Prompt 引导）
-System Prompt（114 白名单 + 25 条禁令 + 5 正反示例 + 项目级扩展）
+System Prompt（115 白名单 + 25 条禁令 + 5 正反示例 + 项目级扩展）
 temperature = 0.1（极低，白名单确定性空间无需创意）
     │  通过 → 生成合规代码
     │  泄露 → 生成不合规代码
     ▼  第 2 道防线（事后 · ESLint 阻断 + 自动修正 3 轮）
-ESLint plugin-aiflow（16 规则：13 error + 3 warn，5 条可自动修）
+ESLint plugin-aiflow（15 规则：10 error + 5 warn，5 条可自动修）
     ├─ 自动修复（fixable 规则）：--fix diff
     ├─ 非自动修复：错误信息 + 正例 → 构造修正 Prompt → AI 重写违规点
     ├─ 最多循环 3 轮 →
@@ -65,7 +65,7 @@ CI Pipeline
 
 | 层 | 预算 gzip | 说明 |
 |---|---|---|
-| L1 + L2 CSS | ≤ 4.2KB | 43 变量 + 52 配方 + 52 原子（实测 3.91KB + 7% 余量） |
+| L1 + L2 CSS | ≤ 4.2KB | 43 变量 + 53 配方 + 52 原子（实测 3.91KB + 7% 余量） |
 | L3 JS（10 组件+基类） | ≤ 10.5KB | ESM 命名导出 + Tree Shaking（含完整 ARIA/键盘，详 L3 §1.4） |
 | L3 JS（按需 2 组件） | ≤ 4.5KB | Tree Shaking 效果验证（worst-case 2 大组件） |
 | L3 单组件（JS+CSS） | ≤ 2.5KB | 单组件体积约束 |
@@ -73,11 +73,11 @@ CI Pipeline
 
 ---
 
-## 1. 白名单封闭集：104 类 + 10 组件
+## 1. 白名单封闭集：105 类 + 10 组件
 
-### 1.1 完整清单（合计 114 标识符）
+### 1.1 完整清单（合计 115 标识符）
 
-**L2 配方（52）**
+**L2 配方（53）**
 
 ```
 [按钮 7]     btn btn-sm btn-lg btn-ghost btn-danger btn-success btn-block
@@ -88,6 +88,7 @@ CI Pipeline
 [反馈 9]     empty skeleton skeleton-line tag tag-ok tag-warn tag-danger badge toast
 [导航 5]     navbar navbar-fixed tabbar tabbar-fixed tab-item
 [布局 5]     hero stats-grid actions input-bar checkout-bar
+[状态修饰符 1] active
 ```
 
 **L2 原子（52）**
@@ -114,8 +115,8 @@ af-action-sheet af-picker af-dropdown af-img af-backtop
 
 | aiflow-ui 版本 | 白名单文件 | 条目数 | 备注 |
 |---|---|---|---|
-| 1.0.x（补丁） | whitelist-v1.json | 114 | 补丁不增条目 |
-| 1.1.0（次版本） | whitelist-v2.json | 114 + N | 次版本可扩展 |
+| 1.0.x（补丁） | whitelist-v1.json | 115 | 补丁不增条目 |
+| 1.1.0（次版本） | whitelist-v2.json | 115 + N | 次版本可扩展 |
 | 2.0.0（主版本） | whitelist-v3.json | TBD | 主版本允许破坏性变更 |
 
 **决策 D1**：白名单随次版本号递增。新增条目需三处同步：
@@ -158,7 +159,7 @@ CI Step 1 检查三处同步，缺一阻断。
 ┌─────────────────────────────────────────────────────┐
 │ ① 角色与输出规范（代码只输出单文件 HTML / 无解释）   │
 │ ② 设计体系速查（4 层分述 + L4 约束说明）             │
-│ ③ L2 白名单（构建时注入：104 class 分组列出）        │
+│ ③ L2 白名单（构建时注入：105 class 分组列出）        │
 │ ④ L3 组件 API（10 个组件的属性/事件/示例）           │
 │ ⑤ 25 条禁令（ESLint error 级，务必遵守）            │
 │ ⑥ 正反示例（5 对，含原因解析）                       │
@@ -192,9 +193,9 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 
 ---
 
-## 3. ESLint 插件：16 条规则完整定义
+## 3. ESLint 插件：15 条规则完整定义
 
-### 3.1 规则矩阵（16 条，推荐配置：13 error + 3 warn）
+### 3.1 规则矩阵（15 条 ESLint + 1 CI 辅助，推荐配置：10 error + 5 warn）
 
 | # | 规则名 | 层 | 级别 | 可自动修 |
 |---|---|---|---|---|
@@ -215,7 +216,7 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 | L3-5 | `wc-aria-required` | L3 | error | 否 |
 | L3-6 | `wc-cleanup` | L3 | warn | 否 |
 
-### 3.2 L1 规则（3 条，全部 error）
+### 3.2 L1 规则（2 条 ESLint error + 1 CI 辅助）
 
 #### L1-1 `aiflow/no-token-modification`
 
@@ -253,7 +254,7 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 
 | 项 | 内容 |
 |---|---|
-| **检测** | HTML `class=""` / 自定义元素 tagName → 与 whitelist 114 条目 + extraClass/extraComponents（项目扩展）逐一对比 |
+| **检测** | HTML `class=""` / 自定义元素 tagName → 与 whitelist 115 条目 + extraClass/extraComponents（项目扩展）逐一对比 |
 | **错误信息** | `Class 'custom-btn' not in whitelist. Use recipe/atomic or register in 'aiflow/token-whitelist' rule's extraClass` |
 | **配置项** | `{ extraClass: string[], extraComponents: string[], allowProjectTokens: boolean }` |
 | **实现** | 读 whitelist-v*.json + 项目 `.eslintrc` 的配置，取并集 |
@@ -304,7 +305,7 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 | **错误信息** | `Duplicate padding: 'p-4' is overwritten by 'p-2'. Keep only 'p-2'` |
 | **自动修正** | 删除前写的，保留最后写的 |
 
-### 3.4 L3 规则（6 条：3 error + 2 warn + 1 辅助）
+### 3.4 L3 规则（6 条：4 error + 2 warn）
 
 #### L3-1 `aiflow/wc-light-no-style`（error）
 
@@ -597,7 +598,7 @@ PR 可合并
 核心逻辑（双向 diff）：
 ```
 A = CSS/JS 实际存在的 class 和组件（扫描源码）
-B = whitelist-v1.json 声明的 114 条目
+B = whitelist-v1.json 声明的 115 条目
 C = 构建后 Prompt 中的白名单（注入结果）
 
 if (A \ B) 非空 → "源码有但 whitelist 未登记：..."
@@ -657,11 +658,11 @@ eslint-plugin-aiflow/rules/**                @aiflow-ui/l4-owners
 
 # 设计体系速查
 L1 Token（43 变量）：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 var(--c-*) / var(--s-*) 等引用，禁止硬编码
-L2 配方（52）+ 原子（52）= 104 个白名单 class → 白名单外 class 触发 ESLint error 阻断
+L2 配方（53）+ 原子（52）= 105 个白名单 class → 白名单外 class 触发 ESLint error 阻断
 L3 真组件（10 个 af-* 自定义元素）→ 需要 JS 行为时使用（见"L3 API"节）
-L4 约束层：ESLint 16 规则（13 error + 3 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
+L4 约束层：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
-<!-- {{{ WHITELIST_INJECTION_POINT }}} 构建时替换为 whitelist-v*.json 生成的 104 class 分组列表 -->
+<!-- {{{ WHITELIST_INJECTION_POINT }}} 构建时替换为 whitelist-v*.json 生成的 105 class 分组列表 -->
 
 # L3 真组件 API（10 个）
 ## <af-list> 长列表虚拟滚动
@@ -724,7 +725,7 @@ L4 约束层：ESLint 16 规则（13 error + 3 warn）+ 最多 3 轮自动修正
 01. 禁止 tokens.css 以外重定义 --c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*
 02. 禁止 style="" 设置 color/background*/padding*/margin*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-03. 禁止使用 114 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
+03. 禁止使用 115 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 .btn（非 ghost）叠加 text-brand/text-danger/text-success（破坏 onbrand 对比度）
 05. 禁止 .input 叠加 t-sm/t-xs（iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 .cell/.list-item 叠加 f/fc 原子（自带 display:flex，再设会破坏布局）
@@ -734,7 +735,7 @@ L4 约束层：ESLint 16 规则（13 error + 3 warn）+ 最多 3 轮自动修正
 09. 禁止 .list-item/.list-item-compact 自带 border-top（分隔线由 .list 容器管理）
 10. 禁止 .sheet 手动 display 切换（显隐必须走原生 popover API showPopover/hidePopover）
 11. 禁止 .tab-item 同时设 active class 与 aria-selected="true"（二选一）
-12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop）
+12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img）
     内含 <style> 或 this.style.xxx（纯 L2 配方，自定义样式请用 Shadow 组件或 recipes.project.css）
 13. 禁止 Shadow 组件 CSS 字符串硬编码颜色/间距/字号/圆角（dialog::backdrop 遮罩 rgba(0,0,0,.5) 例外）
 14. 禁止事件名不符合 af-{组件}:{动作} 格式；emit 必须 composed:true（Shadow 事件穿透）
@@ -785,9 +786,11 @@ module.exports = {
   plugins: ['aiflow'],
   extends: ['eslint:recommended', 'plugin:aiflow/recommended'],
   rules: {
-    // （可选）严格模式：3 warn → error
+    // （可选）严格模式：5 warn → error
     // 'aiflow/no-variant-conflict': 'error',
     // 'aiflow/prefer-component': 'error',
+    // 'aiflow/atomic-duplicate': 'error',
+    // 'aiflow/wc-part-naming': 'error',
     // 'aiflow/wc-cleanup': 'error',
 
     'aiflow/token-whitelist': ['error', {
@@ -830,14 +833,14 @@ jobs:
         with: { node-version: 20, cache: npm }
       - run: npm ci
 
-      - name: Step 0 — Lint（ESLint 16 规则）
-        run: npm run lint
+      - name: Step 0 — Lint（ESLint 15 规则）
+        run: npx eslint src/ --max-warnings 0
 
       - name: Step 1 — 白名单三处同步检查
-        run: node ./ci/check-whitelist-sync.js
+        run: npm run whitelist:check
 
       - name: Step 2 — 体积检查（5 阈值）
-        run: node ./ci/check-volume.js
+        run: npm run size
 
       # Step 3 — CODEOWNERS 审批由 GitHub Branch Protection Rules 自动处理
 ```

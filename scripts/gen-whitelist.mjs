@@ -12,7 +12,7 @@ const SRC = join(ROOT, 'src');
 export function extractClasses(file) {
   const css = readFileSync(file, 'utf8');
   const set = new Set();
-  const re = /\.([a-z][a-z0-9-]+)/g;
+  const re = /\.([a-z][a-z0-9-]*)/g;
   let m;
   while ((m = re.exec(css))) set.add(m[1]);
   return [...set].sort();

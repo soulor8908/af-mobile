@@ -68,7 +68,7 @@ async function runEslint(code) {
 const RULE_HINTS = {
   'aiflow/no-token-modification': '不要重定义 L1 token 变量。如需新 token，写在 tokens.css 或 tokens.project.css',
   'aiflow/no-inline-style': '改用对应的 atomic class：padding:16px → p-4；color:var(--c-brand) → text-brand；border-radius:8px → r-m',
-  'aiflow/token-whitelist': '该 class 不在 114 白名单内。改用最接近的 L2 配方/原子，或在 .eslintrc 的 extraClass 登记',
+  'aiflow/token-whitelist': '该 class 不在 115 白名单内。改用最接近的 L2 配方/原子，或在 .eslintrc 的 extraClass 登记',
   'aiflow/no-recipe-break': '该 class 组合会破坏配方：.btn 不要叠加 text-* 颜色；.input 不要叠加 t-sm/t-xs；.cell 不要叠加 f/fc',
   'aiflow/no-variant-conflict': '互斥变体只能保留最后一个：btn-sm+btn-lg → 删 btn-sm',
   'aiflow/no-arbitrary-value': '改用最接近的原子档位：p-[13px] → p-3 (12px)；p-7 → p-6 (32px)',

@@ -10,9 +10,9 @@
 # 设计体系速查
 
 - **L1 Token（43 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
-- **L2 配方（52）+ 原子（52）= 104 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
+- **L2 配方（53）+ 原子（52）= 105 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
 - **L3 真组件（10 个 af-\* 自定义元素）** → 需要 JS 行为时使用（见"L3 API"节）
-- **L4 约束层**：ESLint 16 规则（13 error + 3 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
+- **L4 约束层**：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
 
@@ -30,7 +30,7 @@
 **布局（5）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar`
 **状态修饰符（与其他 class 组合使用）：** `active`
 
-## L2 原子（51 个，按用途分组）
+## L2 原子（52 个，按用途分组）
 
 **间距 padding（9）：** `p-0` `p-1` `p-2` `p-3` `p-4` `p-5` `p-6` `p-8` `p-10`
 **间距 margin（5）：** `m-0` `m-1` `m-2` `m-3` `m-4`
@@ -135,7 +135,7 @@
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-03. 禁止使用 114 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
+03. 禁止使用 115 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success`（破坏 onbrand 对比度）
 05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fc` 原子（自带 `display:flex`，再设会破坏布局）
@@ -144,7 +144,7 @@
 09. 禁止 `.list-item`/`.list-item-compact` 自带 border-top（分隔线由 `.list` 容器管理）
 10. 禁止 `.sheet` 手动 display 切换（显隐必须走原生 popover API `showPopover`/`hidePopover`）
 11. 禁止 `.tab-item` 同时设 active class 与 `aria-selected="true"`（二选一）
-12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop）内含 `<style>` 或 `this.style.xxx`（纯 L2 配方，自定义样式请用 Shadow 组件或 `recipes.project.css`）
+12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img）内含 `<style>` 或 `this.style.xxx`（纯 L2 配方，自定义样式请用 Shadow 组件或 `recipes.project.css`）
 13. 禁止 Shadow 组件 CSS 字符串硬编码颜色/间距/字号/圆角（`dialog::backdrop` 遮罩 `rgba(0,0,0,.5)` 例外）
 14. 禁止事件名不符合 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`（Shadow 事件穿透）
 15. 禁止 af-dialog/af-action-sheet 无焦点陷阱（Tab 不逃出；关闭时还原焦点到触发元素）

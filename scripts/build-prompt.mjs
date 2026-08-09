@@ -1,6 +1,6 @@
 // AIFlow UI —— System Prompt 构建器（§2.3 / D3 / D9）
 // 两个注入点：
-//   {{{ WHITELIST_INJECTION_POINT }}}       ← whitelist-v1.json + CSS 分组注释 → 104 class 分组列表
+//   {{{ WHITELIST_INJECTION_POINT }}}       ← whitelist-v1.json + CSS 分组注释 → 105 class 分组列表
 //   {{{ PROJECT_EXTENSION_INJECTION_POINT }}} ← recipes.project.css 的 /* === N. 用途 === */ 注释块
 // 用法：
 //   node scripts/build-prompt.mjs                          # 输出到 stdout
@@ -76,7 +76,7 @@ export function extractProjectExtensions(css) {
     const num = Number(m[1]);
     const desc = m[2].trim();
     const body = m[3] || '';
-    const classes = [...body.matchAll(/\.([a-z][a-z0-9-]+)/g)].map(x => x[1]);
+    const classes = [...body.matchAll(/\.([a-z][a-z0-9-]*)/g)].map(x => x[1]);
     const seen = new Set();
     const uniq = classes.filter(c => seen.has(c) ? false : (seen.add(c), true));
     items.push({ num, desc, classes: uniq });

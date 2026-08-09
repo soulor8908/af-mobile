@@ -7,6 +7,7 @@ export class AfActionSheet extends AfElement {
 
   constructor() {
     super();
+    this._previouslyFocused = null;
   }
 
   mounted() {
@@ -38,14 +39,55 @@ export class AfActionSheet extends AfElement {
     this._cancelBtn?.addEventListener('click', this._onCancelClick);
 
     this._onToggle = (e) => {
-      if (e.newState === 'closed' && !this._isSelecting) {
-        this.emit('af-action-sheet:close', {});
-      }
       if (e.newState === 'open') {
+        this._previouslyFocused = document.activeElement;
+        this._focusFirst();
         this.emit('af-action-sheet:open', {});
+      }
+      if (e.newState === 'closed') {
+        if (!this._isSelecting) {
+          this.emit('af-action-sheet:close', {});
+        }
+        this._restoreFocus();
       }
     };
     this._sheet.addEventListener('toggle', this._onToggle);
+
+    // 焦点陷阱补强（原生 popover 焦点陷阱行为不一致，与 af-dialog 对称）
+    this._onKeydown = (e) => this._trapKeydown(e);
+    this._sheet.addEventListener('keydown', this._onKeydown);
+  }
+
+  _getFocusable() {
+    return [...this._sheet.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )].filter(el => !el.disabled && el.offsetParent !== null);
+  }
+
+  _focusFirst() {
+    const focusable = this._getFocusable();
+    if (focusable.length) focusable[0].focus();
+    else { this._sheet.tabIndex = -1; this._sheet.focus(); }
+  }
+
+  _trapKeydown(e) {
+    if (e.key !== 'Tab') return;
+    const focusable = this._getFocusable();
+    if (focusable.length < 2) { e.preventDefault(); return; }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  }
+
+  _restoreFocus() {
+    if (this._previouslyFocused && typeof this._previouslyFocused.focus === 'function') {
+      this._previouslyFocused.focus();
+      this._previouslyFocused = null;
+    }
   }
 
   _render() {
@@ -97,6 +139,7 @@ export class AfActionSheet extends AfElement {
     // Light DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
     this._sheet?.removeEventListener('click', this._onClick);
     this._sheet?.removeEventListener('toggle', this._onToggle);
+    this._sheet?.removeEventListener('keydown', this._onKeydown);
     this._cancelBtn?.removeEventListener('click', this._onCancelClick);
   }
 }

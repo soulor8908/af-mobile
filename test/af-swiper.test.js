@@ -106,3 +106,72 @@ describe('af-swiper Shadow DOM', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
+
+describe('af-swiper roving tabindex / 焦点跟随（禁令 #22）', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('dots 实现 roving tabindex：仅活跃 dot 为 0，其余 -1', async () => {
+    const el = makeSwiper(3);
+    await Promise.resolve();
+    const dots = el.$$('.dot');
+    expect(dots[0].getAttribute('tabindex')).toBe('0');
+    expect(dots[1].getAttribute('tabindex')).toBe('-1');
+    expect(dots[2].getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('goTo 后 tabindex 跟随活跃索引移动', async () => {
+    const el = makeSwiper(3);
+    await Promise.resolve();
+    el.goTo(2);
+    const dots = el.$$('.dot');
+    expect(dots[0].getAttribute('tabindex')).toBe('-1');
+    expect(dots[1].getAttribute('tabindex')).toBe('-1');
+    expect(dots[2].getAttribute('tabindex')).toBe('0');
+  });
+
+  it('ArrowRight 切换后焦点跟随到新活跃 dot', async () => {
+    const el = makeSwiper(3);
+    await Promise.resolve();
+    const dots = el.$$('.dot');
+    dots[0].focus();
+    expect(el.shadowRoot.activeElement).toBe(dots[0]);
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    expect(el.activeIndex).toBe(1);
+    expect(el.shadowRoot.activeElement).toBe(dots[1]);
+  });
+
+  it('ArrowLeft 在非 loop 边界不越界，焦点留在当前 dot', async () => {
+    const el = makeSwiper(3, { loop: false });
+    await Promise.resolve();
+    const dots = el.$$('.dot');
+    dots[0].focus();
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    expect(el.activeIndex).toBe(0);
+    expect(el.shadowRoot.activeElement).toBe(dots[0]);
+  });
+
+  it('Home/End 跳到首/末并聚焦', async () => {
+    const el = makeSwiper(3);
+    await Promise.resolve();
+    const dots = el.$$('.dot');
+    dots[1].focus();
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+    expect(el.activeIndex).toBe(2);
+    expect(el.shadowRoot.activeElement).toBe(dots[2]);
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+    expect(el.activeIndex).toBe(0);
+    expect(el.shadowRoot.activeElement).toBe(dots[0]);
+  });
+
+  it('dots 容器有 role=tablist', async () => {
+    const el = makeSwiper(3);
+    await Promise.resolve();
+    expect(el.$('.dots').getAttribute('role')).toBe('tablist');
+  });
+});

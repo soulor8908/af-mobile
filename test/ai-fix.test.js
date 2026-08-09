@@ -95,7 +95,7 @@ describe('ai-fix / buildFixPrompt', () => {
     expect(p).toContain('## 错误 1（第 5 行）— aiflow/token-whitelist');
     expect(p).toContain("Class 'custom-btn' not in whitelist");
     expect(p).toContain('【建议】');
-    expect(p).toContain('该 class 不在 114 白名单内');
+    expect(p).toContain('该 class 不在 115 白名单内');
   });
 
   it('warn 列出但不强制修改（截断到 5 条）', () => {

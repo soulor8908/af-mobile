@@ -43,7 +43,7 @@ export class AfSwiper extends AfElement {
       <div class="viewport" part="viewport">
         <div class="track" part="track"><slot></slot></div>
       </div>
-      <div class="dots" part="dots"></div>
+      <div class="dots" part="dots" role="tablist"></div>
     `;
     this._viewport = this.$('.viewport');
     this._track = this.$('.track');
@@ -78,6 +78,7 @@ export class AfSwiper extends AfElement {
       btn.className = 'dot' + (i === this.activeIndex ? ' active' : '');
       btn.setAttribute('role', 'tab');
       btn.setAttribute('aria-selected', String(i === this.activeIndex));
+      btn.setAttribute('tabindex', i === this.activeIndex ? '0' : '-1');
       btn.setAttribute('aria-label', `第 ${i + 1} 张，共 ${n} 张`);
       btn.dataset.idx = String(i);
       this._dots.appendChild(btn);
@@ -89,6 +90,7 @@ export class AfSwiper extends AfElement {
       const active = i === this.activeIndex;
       dot.classList.toggle('active', active);
       dot.setAttribute('aria-selected', String(active));
+      dot.setAttribute('tabindex', active ? '0' : '-1');
     });
   }
 
@@ -178,14 +180,19 @@ export class AfSwiper extends AfElement {
   }
 
   _bindKeydown() {
-    this.addEventListener('keydown', (e) => {
+    this._onKeydown = (e) => {
       switch (e.key) {
-        case 'ArrowRight': e.preventDefault(); this.next(); break;
-        case 'ArrowLeft':  e.preventDefault(); this.prev(); break;
-        case 'Home':       e.preventDefault(); this.goTo(0); break;
-        case 'End':        e.preventDefault(); this.goTo(this.slideCount - 1); break;
+        case 'ArrowRight': e.preventDefault(); this.next(); this._focusActiveDot(); break;
+        case 'ArrowLeft':  e.preventDefault(); this.prev(); this._focusActiveDot(); break;
+        case 'Home':       e.preventDefault(); this.goTo(0); this._focusActiveDot(); break;
+        case 'End':        e.preventDefault(); this.goTo(this.slideCount - 1); this._focusActiveDot(); break;
       }
-    });
+    };
+    this.addEventListener('keydown', this._onKeydown);
+  }
+
+  _focusActiveDot() {
+    this.$('.dot.active')?.focus();
   }
 
   _bindResize() {
@@ -243,6 +250,7 @@ export class AfSwiper extends AfElement {
     this.removeEventListener('touchstart', this._onTouchStart);
     this.removeEventListener('touchmove', this._onTouchMove);
     this.removeEventListener('touchend', this._onTouchEnd);
+    this.removeEventListener('keydown', this._onKeydown);
   }
 }
 

@@ -1,5 +1,5 @@
 // AIFlow UI —— eslint-plugin-aiflow 入口（ESLint 9 flat config 兼容）
-// 16 条规则（13 error + 3 warn），L1(3) + L2(7) + L3(6)
+// 15 条规则（10 error + 5 warn），L1(2) + L2(7) + L3(6)
 import noTokenModification from './rules/no-token-modification.js';
 import noInlineStyle from './rules/no-inline-style.js';
 import tokenWhitelist from './rules/token-whitelist.js';
@@ -19,7 +19,7 @@ import wcCleanup from './rules/wc-cleanup.js';
 const plugin = {
   meta: { name: 'eslint-plugin-aiflow', version: '1.0.0' },
   rules: {
-    // L1（3 条，全部 error）
+    // L1（2 条，全部 error；tokens-css-locked 由 CODEOWNERS + 分支保护，非 ESLint 规则）
     'no-token-modification': noTokenModification,
     'no-inline-style': noInlineStyle,
     // L1-3 tokens-css-locked 是 CODEOWNERS + 分支保护，非 ESLint 规则
@@ -31,7 +31,7 @@ const plugin = {
     'no-tailwind-syntax': noTailwindSyntax,
     'prefer-component': preferComponent,
     'atomic-duplicate': atomicDuplicate,
-    // L3（6 条：3 error + 2 warn + 1 辅助）
+    // L3（6 条：4 error + 2 warn）
     'wc-light-no-style': wcLightNoStyle,
     'wc-shadow-use-token': wcShadowUseToken,
     'wc-part-naming': wcPartNaming,

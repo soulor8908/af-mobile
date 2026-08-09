@@ -108,3 +108,73 @@ describe('af-action-sheet', () => {
     expect(el.$$('.list-item').length).toBe(3);
   });
 });
+
+describe('af-action-sheet 焦点陷阱（禁令 #15）', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  // jsdom 的 offsetParent 恒为 null，mock 为非 null 使 _getFocusable 放行
+  function mockOffsetParent(el) {
+    for (const btn of el.$$('button')) {
+      Object.defineProperty(btn, 'offsetParent', { value: document.body, configurable: true });
+    }
+  }
+
+  it('open 时保存触发元素焦点 + 派发 af-action-sheet:open', () => {
+    const trigger = document.createElement('button');
+    trigger.textContent = '打开';
+    document.body.appendChild(trigger);
+    trigger.focus();
+
+    const el = makeSheet({ options: OPTIONS });
+    const handler = vi.fn();
+    el.addEventListener('af-action-sheet:open', handler);
+    el.showPopover();
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(el._previouslyFocused).toBe(trigger);
+  });
+
+  it('Tab 在末尾折回首项（焦点不逃出）', () => {
+    const el = makeSheet({ options: OPTIONS, showCancel: false });
+    mockOffsetParent(el);
+    el.showPopover();
+
+    const items = el.$$('.list-item');
+    const last = items[items.length - 1];
+    last.focus();
+    const e = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    el.$('.sheet').dispatchEvent(e);
+    expect(e.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(el.$$('.list-item')[0]);
+  });
+
+  it('Shift+Tab 在首项折回末尾', () => {
+    const el = makeSheet({ options: OPTIONS, showCancel: false });
+    mockOffsetParent(el);
+    el.showPopover();
+
+    const first = el.$$('.list-item')[0];
+    first.focus();
+    const e = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true });
+    el.$('.sheet').dispatchEvent(e);
+    expect(e.defaultPrevented).toBe(true);
+    const items = el.$$('.list-item');
+    expect(document.activeElement).toBe(items[items.length - 1]);
+  });
+
+  it('close 时还原焦点到触发元素', () => {
+    const trigger = document.createElement('button');
+    trigger.textContent = '打开';
+    document.body.appendChild(trigger);
+    trigger.focus();
+
+    const el = makeSheet({ options: OPTIONS });
+    el.showPopover();
+    expect(el._previouslyFocused).toBe(trigger);
+
+    el.hidePopover();
+    expect(document.activeElement).toBe(trigger);
+    expect(el._previouslyFocused).toBeNull();
+  });
+});

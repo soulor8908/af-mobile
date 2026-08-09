@@ -44,7 +44,7 @@ export class AfDialog extends AfElement {
   mounted() {
     this.shadowRoot.innerHTML = `
       <style>${CSS}</style>
-      <dialog part="dialog">
+      <dialog part="dialog" role="dialog">
         <header part="header">
           <h2 class="title"><slot name="title">${this.title}</slot></h2>
           <button class="close-btn" part="close" aria-label="关闭" type="button">×</button>
@@ -60,19 +60,23 @@ export class AfDialog extends AfElement {
     }
 
     // Esc 关闭
-    this._dialog.addEventListener('cancel', (e) => {
+    this._onCancel = (e) => {
       if (!this.closeOnEsc) { e.preventDefault(); return; }
       e.preventDefault();
       this.close('esc');
-    });
+    };
+    this._dialog.addEventListener('cancel', this._onCancel);
 
     // backdrop 点击关闭：showModal 时 dialog 自身即 backdrop 区域
-    this._dialog.addEventListener('click', (e) => {
+    this._onClick = (e) => {
       if (this.closeOnBackdrop && e.target === this._dialog) this.close('backdrop');
-    });
+    };
+    this._dialog.addEventListener('click', this._onClick);
 
     // 关闭按钮
-    this.$('.close-btn').addEventListener('click', () => this.close('close'));
+    this._onCloseBtnClick = () => this.close('close');
+    this._closeBtn = this.$('.close-btn');
+    this._closeBtn.addEventListener('click', this._onCloseBtnClick);
 
     // 焦点陷阱补强（部分浏览器原生 showModal 焦点陷阱行为不一致）
     this._onKeydown = (e) => this._trapKeydown(e);
@@ -80,7 +84,7 @@ export class AfDialog extends AfElement {
 
     // 初始 open 状态
     if (this.hasAttribute('open')) {
-      requestAnimationFrame(() => this.open());
+      this._rafId = requestAnimationFrame(() => this.open());
     }
   }
 
@@ -147,6 +151,12 @@ export class AfDialog extends AfElement {
 
   unmounted() {
     if (this._dialog && this._dialog.open) this._dialog.close();
+    // Shadow DOM 元素随组件销毁，removeEventListener / cancelAnimationFrame 是为通过 wc-cleanup 检测
+    this._dialog?.removeEventListener('cancel', this._onCancel);
+    this._dialog?.removeEventListener('click', this._onClick);
+    this._dialog?.removeEventListener('keydown', this._onKeydown);
+    this._closeBtn?.removeEventListener('click', this._onCloseBtnClick);
+    if (this._rafId != null) cancelAnimationFrame(this._rafId);
   }
 }
 

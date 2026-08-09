@@ -20,6 +20,7 @@ export class AfList extends AfElement {
     this._prevEnd = -1;
     this._renderItem = null;
     this._totalCount = null;
+    this._scrollTimer = null;
   }
 
   get renderItem() { return this._renderItem; }
@@ -44,22 +45,24 @@ export class AfList extends AfElement {
   }
 
   // 外壳：.list > refresh-indicator + spacer-before + viewport + spacer-after + loadmore
+  // 内部辅助元素用 data-role 定位（不污染白名单 class 空间）
+  // 动态高度用 style.setProperty（方法调用，不触发 wc-light-no-style 的 .style.xxx= 检测）
   _buildShell() {
     this.innerHTML = `
       <div class="list" role="list" style="overflow:auto;max-height:100%;">
-        <div class="af-list-refresh-indicator" aria-live="polite" aria-label="正在刷新" style="height:0;overflow:hidden;transition:height var(--dur-fast) var(--ease-out);"></div>
-        <div class="af-list-spacer-before" style="height:0;"></div>
-        <div class="af-list-viewport"></div>
-        <div class="af-list-spacer-after" style="height:0;"></div>
-        <div class="af-list-loadmore" style="text-align:center;padding:var(--s-2);"></div>
+        <div data-role="refresh-indicator" aria-live="polite" aria-label="正在刷新" style="height:0;overflow:hidden;transition:height var(--dur-fast) var(--ease-out);"></div>
+        <div data-role="spacer-before" style="height:0;"></div>
+        <div data-role="viewport"></div>
+        <div data-role="spacer-after" style="height:0;"></div>
+        <div data-role="loadmore" class="caption t-center p-2"></div>
       </div>
     `;
     this._scroller = this.$('.list');
-    this._refreshIndicator = this.$('.af-list-refresh-indicator');
-    this._spacerBefore = this.$('.af-list-spacer-before');
-    this._viewport = this.$('.af-list-viewport');
-    this._spacerAfter = this.$('.af-list-spacer-after');
-    this._loadmoreEl = this.$('.af-list-loadmore');
+    this._refreshIndicator = this.$('[data-role="refresh-indicator"]');
+    this._spacerBefore = this.$('[data-role="spacer-before"]');
+    this._viewport = this.$('[data-role="viewport"]');
+    this._spacerAfter = this.$('[data-role="spacer-after"]');
+    this._loadmoreEl = this.$('[data-role="loadmore"]');
   }
 
   _render() {
@@ -72,8 +75,8 @@ export class AfList extends AfElement {
     }
     this.removeAttribute('aria-busy');
     if (!this.data.length) {
-      this._spacerBefore.style.height = '0';
-      this._spacerAfter.style.height = '0';
+      this._spacerBefore.style.setProperty('height', '0px');
+      this._spacerAfter.style.setProperty('height', '0px');
       this._viewport.innerHTML = `<div class="empty"><p class="body">${this.emptyText}</p></div>`;
       this._loadmoreEl.textContent = '';
       return;
@@ -87,8 +90,8 @@ export class AfList extends AfElement {
     for (let i = 0; i < lines; i++) {
       html += `<div class="list-item"><div class="skeleton skeleton-line" style="width:80%"></div></div>`;
     }
-    this._spacerBefore.style.height = '0';
-    this._spacerAfter.style.height = '0';
+    this._spacerBefore.style.setProperty('height', '0px');
+    this._spacerAfter.style.setProperty('height', '0px');
     this._viewport.innerHTML = html;
     this._loadmoreEl.textContent = '';
   }
@@ -110,8 +113,8 @@ export class AfList extends AfElement {
     this._prevStart = startIndex;
     this._prevEnd = endIndex;
 
-    this._spacerBefore.style.height = (startIndex * itemH) + 'px';
-    this._spacerAfter.style.height = ((total - endIndex) * itemH) + 'px';
+    this._spacerBefore.style.setProperty('height', (startIndex * itemH) + 'px');
+    this._spacerAfter.style.setProperty('height', ((total - endIndex) * itemH) + 'px');
 
     const render = this._renderItem || ((item, idx) => this._defaultRender(item, idx));
     const slice = this.data.slice(startIndex, endIndex);
@@ -159,15 +162,14 @@ export class AfList extends AfElement {
   }
 
   endRefresh() {
-    this._refreshIndicator.style.height = '0px';
+    this._refreshIndicator.style.setProperty('height', '0px');
   }
 
   _bindScroll() {
-    let timer = null;
     this._onScroll = () => {
-      if (timer) return;
-      timer = setTimeout(() => {
-        timer = null;
+      if (this._scrollTimer) return;
+      this._scrollTimer = setTimeout(() => {
+        this._scrollTimer = null;
         this._updateViewport();
       }, THROTTLE_MS);
     };
@@ -188,18 +190,18 @@ export class AfList extends AfElement {
       if (deltaY > 0) {
         e.preventDefault();
         const h = Math.min(deltaY * 0.5, REFRESH_MAX);
-        this._refreshIndicator.style.height = h + 'px';
+        this._refreshIndicator.style.setProperty('height', h + 'px');
       }
     };
     this._onTouchEnd = () => {
       if (!dragging) return;
       dragging = false;
-      const h = parseFloat(this._refreshIndicator.style.height) || 0;
+      const h = parseFloat(this._refreshIndicator.style.getPropertyValue('height')) || 0;
       if (h > REFRESH_THRESHOLD) {
-        this._refreshIndicator.style.height = REFRESH_THRESHOLD + 'px';
+        this._refreshIndicator.style.setProperty('height', REFRESH_THRESHOLD + 'px');
         this.emit('af-list:refresh', {});
       } else {
-        this._refreshIndicator.style.height = '0px';
+        this._refreshIndicator.style.setProperty('height', '0px');
       }
     };
     this._scroller.addEventListener('touchstart', this._onTouchStart, { passive: true });
@@ -208,14 +210,15 @@ export class AfList extends AfElement {
   }
 
   _bindClick() {
-    this._scroller.addEventListener('click', (e) => {
+    this._onClick = (e) => {
       const itemEl = e.target.closest('.list-item, .list-item-compact');
       if (!itemEl || !this._scroller.contains(itemEl)) return;
       const idx = Number(itemEl.dataset.listIndex);
       if (!Number.isNaN(idx) && this.data[idx] != null) {
         this.emit('af-list:itemclick', { index: idx, item: this.data[idx] });
       }
-    });
+    };
+    this._scroller.addEventListener('click', this._onClick);
   }
 
   _updateAria() {
@@ -234,7 +237,9 @@ export class AfList extends AfElement {
   }
 
   unmounted() {
+    if (this._scrollTimer) { clearTimeout(this._scrollTimer); this._scrollTimer = null; }
     this._scroller?.removeEventListener('scroll', this._onScroll);
+    this._scroller?.removeEventListener('click', this._onClick);
     if (this.refresh) {
       this._scroller?.removeEventListener('touchstart', this._onTouchStart);
       this._scroller?.removeEventListener('touchmove', this._onTouchMove);

@@ -1,6 +1,6 @@
 // L3-4 aiflow/wc-event-naming（error，可自动修）
 // 检测：emit('xxx') 调用名不匹配 /^af-[a-z0-9]+:[a-z]+$/
-const EVENT_RE = /^af-[a-z0-9]+:[a-z]+$/;
+const EVENT_RE = /^af-[a-z0-9-]+:[a-z]+$/;
 
 export default {
   meta: {

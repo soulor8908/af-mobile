@@ -11,10 +11,12 @@ export class AfActionSheet extends AfElement {
 
   mounted() {
     this._render();
-    this._sheet = this.$('.sheet');
     this._isSelecting = false;
+    this._bindEvents();
+  }
 
-    this._sheet.addEventListener('click', (e) => {
+  _bindEvents() {
+    this._onClick = (e) => {
       const item = e.target.closest('.list-item');
       if (!item || item.disabled) return;
       const idx = Number(item.dataset.idx);
@@ -25,22 +27,25 @@ export class AfActionSheet extends AfElement {
       this.emit('af-action-sheet:select', { index: idx, value: option.value });
       this.emit('af-action-sheet:close', {});
       this._isSelecting = false;
-    });
+    };
+    this._sheet.addEventListener('click', this._onClick);
 
-    const cancelBtn = this.$('.af-action-sheet-cancel');
-    cancelBtn?.addEventListener('click', () => {
+    this._onCancelClick = () => {
       this.hidePopover();
       this.emit('af-action-sheet:close', {});
-    });
+    };
+    this._cancelBtn = this.$('.af-action-sheet-cancel');
+    this._cancelBtn?.addEventListener('click', this._onCancelClick);
 
-    this._sheet.addEventListener('toggle', (e) => {
+    this._onToggle = (e) => {
       if (e.newState === 'closed' && !this._isSelecting) {
         this.emit('af-action-sheet:close', {});
       }
       if (e.newState === 'open') {
         this.emit('af-action-sheet:open', {});
       }
-    });
+    };
+    this._sheet.addEventListener('toggle', this._onToggle);
   }
 
   _render() {
@@ -53,21 +58,26 @@ export class AfActionSheet extends AfElement {
       return `<button class="${cls.join(' ')}" data-idx="${i}"${disabled}><span class="${labelCls}">${opt.label}</span></button>`;
     }).join('');
 
+    // 标题：用 caption + t-center + p-3 + text-muted（L2 配方/原子），分隔线用 .divider
     const titleHtml = this.title
-      ? `<div class="af-action-sheet-title" role="heading" aria-level="2" style="padding:var(--s-3) var(--s-4);text-align:center;color:var(--c-muted);font-size:var(--t-sm);border-bottom:1px solid var(--c-border);">${this.title}</div>`
+      ? `<div class="caption t-center p-3 text-muted" role="heading" aria-level="2">${this.title}</div><div class="divider"></div>`
       : '';
 
+    // 取消按钮：放在 .p-2 容器里以提供顶部 spacing（替代原 margin-top:var(--s-2) 内联）
     const cancelHtml = this.showCancel
-      ? `<button class="btn btn-ghost btn-block af-action-sheet-cancel" style="margin-top:var(--s-2);">${this.cancelText}</button>`
+      ? `<div class="p-2"></div><button class="btn btn-ghost btn-block af-action-sheet-cancel">${this.cancelText}</button>`
       : '';
 
+    // role=dialog + aria-label（标题或默认"操作面板"）满足 WAI-ARIA dialog 模式
+    const ariaLabel = this.title || '操作面板';
     this.innerHTML = `
-      <div class="sheet" popover>
+      <div class="sheet" popover role="dialog" aria-label="${ariaLabel}">
         ${titleHtml}
         <div class="list">${itemsHtml}</div>
         ${cancelHtml}
       </div>
     `;
+    this._sheet = this.$('.sheet');
   }
 
   showPopover() {
@@ -80,7 +90,14 @@ export class AfActionSheet extends AfElement {
   onAttributeChange(name, oldVal, newVal) {
     if (!this._sheet) return;
     this._render();
-    this._sheet = this.$('.sheet');
+    this._bindEvents();
+  }
+
+  unmounted() {
+    // Light DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
+    this._sheet?.removeEventListener('click', this._onClick);
+    this._sheet?.removeEventListener('toggle', this._onToggle);
+    this._cancelBtn?.removeEventListener('click', this._onCancelClick);
   }
 }
 

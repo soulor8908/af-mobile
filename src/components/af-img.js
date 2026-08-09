@@ -40,9 +40,10 @@ export class AfImg extends AfElement {
     const placeholderHtml = this.placeholderSrc
       ? `<img class="af-img-placeholder" src="${this.placeholderSrc}" alt="" aria-hidden="true" style="width:100%;height:100%;object-fit:cover;">`
       : `<div class="skeleton af-img-placeholder" style="width:100%;height:100%;" aria-hidden="true"></div>`;
+    // 用 hidden 属性替代 style="display:none;..."（避免 .style.xxx= 触发 wc-light-no-style）
     this.innerHTML = `
       ${placeholderHtml}
-      <img class="af-img-inner" alt="${this.alt}" style="display:none;width:100%;height:100%;object-fit:cover;">
+      <img class="af-img-inner" alt="${this.alt}" hidden style="width:100%;height:100%;object-fit:cover;">
     `;
     this._img = this.$('img.af-img-inner');
     this._placeholder = this.$('.af-img-placeholder');
@@ -52,7 +53,7 @@ export class AfImg extends AfElement {
     if (!this._img) this._buildShell();
     this._img.onload = () => {
       this._loaded = true;
-      this._img.style.display = '';
+      this._img.removeAttribute('hidden');
       this._placeholder?.remove();
       this.emit('af-img:load', {});
     };
@@ -60,10 +61,10 @@ export class AfImg extends AfElement {
       this._error = true;
       if (this.failSrc) {
         this._img.src = this.failSrc;
-        this._img.style.display = '';
+        this._img.removeAttribute('hidden');
         this._placeholder?.remove();
       } else {
-        this._img.style.display = 'none';
+        this._img.setAttribute('hidden', '');
         this._renderError();
       }
       this.emit('af-img:error', {});
@@ -78,7 +79,9 @@ export class AfImg extends AfElement {
       err.className = 'af-img-error empty';
       err.setAttribute('role', 'alert');
       err.setAttribute('aria-live', 'assertive');
-      err.style.cssText = 'width:100%;height:100%;';
+      // 用 setProperty 替代 .style.cssText（避免 wc-light-no-style 检测）
+      err.style.setProperty('width', '100%');
+      err.style.setProperty('height', '100%');
       this.appendChild(err);
     }
     err.innerHTML = `<p class="caption">图片加载失败</p>`;

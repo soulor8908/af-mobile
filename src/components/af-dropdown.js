@@ -16,15 +16,17 @@ export class AfDropdown extends AfElement {
 
   mounted() {
     this._render();
-    this._trigger = this.$('.af-dropdown-trigger');
-    this._list = this.$('.list');
+    this._bindEvents();
+  }
 
-    this._trigger.addEventListener('click', () => {
+  _bindEvents() {
+    this._onTriggerClick = () => {
       if (this.disabled) return;
       this._list.showPopover();
-    });
+    };
+    this._trigger.addEventListener('click', this._onTriggerClick);
 
-    this._list.addEventListener('click', (e) => {
+    this._onListClick = (e) => {
       const item = e.target.closest('.list-item');
       if (!item || item.disabled) return;
       const idx = Number(item.dataset.idx);
@@ -35,14 +37,16 @@ export class AfDropdown extends AfElement {
       this._updateTrigger();
       this._list.hidePopover();
       this.emit('af-dropdown:select', { index: idx, value: option.value });
-    });
+    };
+    this._list.addEventListener('click', this._onListClick);
 
-    this._list.addEventListener('toggle', (e) => {
+    this._onToggle = (e) => {
       this._trigger.setAttribute('aria-expanded', String(e.newState === 'open'));
       if (e.newState === 'closed') {
         this.emit('af-dropdown:close', {});
       }
-    });
+    };
+    this._list.addEventListener('toggle', this._onToggle);
   }
 
   _render() {
@@ -61,6 +65,8 @@ export class AfDropdown extends AfElement {
       </button>
       <div class="list" popover role="listbox">${itemsHtml}</div>
     `;
+    this._trigger = this.$('.af-dropdown-trigger');
+    this._list = this.$('.list');
   }
 
   _updateTrigger() {
@@ -75,8 +81,14 @@ export class AfDropdown extends AfElement {
   onAttributeChange(name, oldVal, newVal) {
     if (!this._trigger) return;
     this._render();
-    this._trigger = this.$('.af-dropdown-trigger');
-    this._list = this.$('.list');
+    this._bindEvents();
+  }
+
+  unmounted() {
+    // Light DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
+    this._trigger?.removeEventListener('click', this._onTriggerClick);
+    this._list?.removeEventListener('click', this._onListClick);
+    this._list?.removeEventListener('toggle', this._onToggle);
   }
 }
 

@@ -74,7 +74,7 @@ describe('af-list 虚拟滚动', () => {
   it('endLoadMore：hasMore=false 时显示"没有更多了"', () => {
     const el = makeList({ data: makeData(3) });
     el.endLoadMore(false);
-    expect(el.$('.af-list-loadmore').textContent).toContain('没有更多了');
+    expect(el.$('[data-role="loadmore"]').textContent).toContain('没有更多了');
   });
 
   it('unmounted：解绑 scroll 监听不报错', () => {

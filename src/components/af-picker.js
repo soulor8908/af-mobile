@@ -56,6 +56,7 @@ export class AfPicker extends AfElement {
     super();
     this._scrollers = [];
     this._scrollTimers = new Map();
+    this._rafIds = [];
   }
 
   mounted() {
@@ -79,17 +80,19 @@ export class AfPicker extends AfElement {
     this._applyItemHeight();
     this._renderColumns();
 
-    this.$('.btn-cancel').addEventListener('click', () => {
+    this._onCancelClick = () => {
       this.emit('af-picker:cancel', {});
       this.close();
-    });
-    this.$('.btn-confirm').addEventListener('click', () => {
+    };
+    this.$('.btn-cancel').addEventListener('click', this._onCancelClick);
+    this._onConfirmClick = () => {
       this.emit('af-picker:confirm', { values: this.values });
       this.close();
-    });
+    };
+    this.$('.btn-confirm').addEventListener('click', this._onConfirmClick);
 
     // 初始滚动到选中项
-    requestAnimationFrame(() => this._scrollToValues(true));
+    this._rafIds.push(requestAnimationFrame(() => this._scrollToValues(true)));
   }
 
   _applyItemHeight() {
@@ -123,10 +126,11 @@ export class AfPicker extends AfElement {
       this._scrollers.push(colEl);
 
       // scroll 防抖
-      colEl.addEventListener('scroll', () => this._onColumnScroll(c));
-
+      const onScroll = () => this._onColumnScroll(c);
+      colEl.addEventListener('scroll', onScroll);
       // 键盘 ↑↓
-      colEl.addEventListener('keydown', (e) => this._onColumnKeydown(c, e));
+      const onKeydown = (e) => this._onColumnKeydown(c, e);
+      colEl.addEventListener('keydown', onKeydown);
     });
   }
 
@@ -203,14 +207,14 @@ export class AfPicker extends AfElement {
       this.values = newValues;
     }
     this._renderColumns();
-    requestAnimationFrame(() => {
+    this._rafIds.push(requestAnimationFrame(() => {
       const col = this._scrollers[colIdx];
       if (col) {
         const idx = this._findIndex(colIdx, this.values[colIdx]);
         col.scrollTop = idx * this.itemHeight;
         this._updateActive(colIdx, idx);
       }
-    });
+    }));
   }
 
   open() { this._picker?.showPopover(); }
@@ -220,9 +224,9 @@ export class AfPicker extends AfElement {
     if (!this._picker) return;
     if (name === 'columns') {
       this._renderColumns();
-      requestAnimationFrame(() => this._scrollToValues(true));
+      this._rafIds.push(requestAnimationFrame(() => this._scrollToValues(true)));
     } else if (name === 'values') {
-      requestAnimationFrame(() => this._scrollToValues(true));
+      this._rafIds.push(requestAnimationFrame(() => this._scrollToValues(true)));
     } else if (name === 'title') {
       const t = this.$('.title');
       if (t) t.textContent = newVal;
@@ -240,6 +244,11 @@ export class AfPicker extends AfElement {
   unmounted() {
     this._scrollTimers.forEach(t => clearTimeout(t));
     this._scrollTimers.clear();
+    this._rafIds.forEach(id => cancelAnimationFrame(id));
+    this._rafIds = [];
+    // Shadow DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
+    this.$('.btn-cancel')?.removeEventListener('click', this._onCancelClick);
+    this.$('.btn-confirm')?.removeEventListener('click', this._onConfirmClick);
   }
 }
 

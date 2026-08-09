@@ -33,6 +33,7 @@
     "prompt:build": "node scripts/build-prompt.mjs -o prompt/system-prompt.md",
     "ai-fix": "node scripts/ai-fix.mjs",
     "publish:check": "node scripts/publish-check.mjs",
+    "prepublishOnly": "npm run publish:check",
     "ci": "vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs"
   },
   "keywords": [

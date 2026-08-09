@@ -27,11 +27,19 @@ jobs:
       - name: Size budget check
         run: npm run size
 
-      # Step 3: 测试
+      # Step 3: 测试（vitest）
       - name: Test
         run: npm test
 
-      # Step 4: ESLint 自检
+      # Step 4: ESLint 16 规则（L1+L2+L3）—— error 级直接阻断 PR
       - name: ESLint check
         run: npx eslint src/ --max-warnings 0
-        continue-on-error: true
+
+      # Step 5: 发布前检查（Tree Shaking + sideEffects + npm pack 内容）
+      # PR 阶段跑以提前发现发布问题；正式发布由 prepublishOnly 二次保证
+      - name: Publish check (tree-shaking + sideEffects)
+        run: npm run publish:check
+
+# Step 6: CODEOWNERS 审批由 GitHub Branch Protection Rules 自动处理
+# 配置：Settings → Branches → Branch protection rules → Require review from Code Owners
+# 关键文件 → Owner 映射见 .github/CODEOWNERS

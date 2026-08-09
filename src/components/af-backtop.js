@@ -23,19 +23,21 @@ export class AfBacktop extends AfElement {
     if (this.position === 'left-bottom') this.classList.add('af-backtop-fixed', 'af-backtop-left');
     else this.classList.add('af-backtop-fixed');
 
-    let scrollTimer = null;
+    this._scrollTimer = null;
     this._onScroll = () => {
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(() => this._updateVisibility(), 100);
+      clearTimeout(this._scrollTimer);
+      this._scrollTimer = setTimeout(() => this._updateVisibility(), 100);
     };
 
     this._scrollTarget.addEventListener('scroll', this._onScroll);
+    // 用 hidden 属性替代 style.display（避免 .style.xxx= 触发 wc-light-no-style）
     this._updateVisibility();
 
-    this.$('button').addEventListener('click', () => {
+    this._onClick = () => {
       this.scrollToTop();
       this.emit('af-backtop:click', {});
-    });
+    };
+    this.$('button').addEventListener('click', this._onClick);
   }
 
   _updateVisibility() {
@@ -45,11 +47,11 @@ export class AfBacktop extends AfElement {
     const shouldShow = scrollTop > this.threshold;
     if (shouldShow !== this._visible) {
       this._visible = shouldShow;
-      this.style.display = shouldShow ? '' : 'none';
+      this.toggleAttribute('hidden', !shouldShow);
       this.emit(shouldShow ? 'af-backtop:show' : 'af-backtop:hide', {});
-    } else if (!shouldShow && this.style.display === '') {
+    } else if (!shouldShow && !this.hasAttribute('hidden')) {
       // 初始默认隐藏
-      this.style.display = 'none';
+      this.setAttribute('hidden', '');
     }
   }
 
@@ -81,6 +83,8 @@ export class AfBacktop extends AfElement {
 
   unmounted() {
     this._scrollTarget?.removeEventListener('scroll', this._onScroll);
+    if (this._scrollTimer) clearTimeout(this._scrollTimer);
+    this.$('button')?.removeEventListener('click', this._onClick);
   }
 }
 

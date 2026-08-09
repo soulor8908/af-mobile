@@ -28,8 +28,8 @@
     "description": "轮播图需要 role=region 和 aria-label"
   },
   "af-dropdown": {
-    "role": "menu",
-    "description": "下拉菜单需要 role=menu"
+    "role": "listbox",
+    "description": "下拉菜单触发器是 combobox，列表用 role=listbox（WAI-ARIA combobox 模式）"
   },
   "af-backtop": {
     "ariaLabel": true,

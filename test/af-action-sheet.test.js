@@ -46,7 +46,22 @@ describe('af-action-sheet', () => {
 
   it('title 透传到标题区', () => {
     const el = makeSheet({ options: OPTIONS, title: '请选择' });
-    expect(el.$('.af-action-sheet-title').textContent).toBe('请选择');
+    // 标题用 caption + t-center + p-3 + text-muted（L2 配方/原子）+ role=heading
+    const heading = el.$('[role="heading"]');
+    expect(heading).not.toBeNull();
+    expect(heading.textContent).toBe('请选择');
+  });
+
+  it('sheet 元素含 role=dialog + aria-label', () => {
+    const el = makeSheet({ options: OPTIONS, title: '请选择' });
+    const sheet = el.$('.sheet');
+    expect(sheet.getAttribute('role')).toBe('dialog');
+    expect(sheet.getAttribute('aria-label')).toBe('请选择');
+  });
+
+  it('无 title 时 aria-label 默认"操作面板"', () => {
+    const el = makeSheet({ options: OPTIONS });
+    expect(el.$('.sheet').getAttribute('aria-label')).toBe('操作面板');
   });
 
   it('点击选项派发 af-action-sheet:select', () => {

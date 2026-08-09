@@ -30,7 +30,7 @@ describe('af-backtop', () => {
   it('threshold=200：滚动 < 200 时隐藏', () => {
     const el = makeBacktop();
     expect(el.visible).toBe(false);
-    expect(el.style.display).toBe('none');
+    expect(el.hasAttribute('hidden')).toBe(true);
   });
 
   it('scroll > threshold 时显示并派发 af-backtop:show', () => {
@@ -43,7 +43,7 @@ describe('af-backtop', () => {
     return new Promise(resolve => {
       setTimeout(() => {
         expect(el.visible).toBe(true);
-        expect(el.style.display).toBe('');
+        expect(el.hasAttribute('hidden')).toBe(false);
         expect(handler).toHaveBeenCalledTimes(1);
         resolve();
       }, 150);

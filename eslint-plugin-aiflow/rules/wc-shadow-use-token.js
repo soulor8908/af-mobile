@@ -44,8 +44,9 @@ export default {
           if (!CHECKED_PROPS.has(decl.prop)) return;
           // 放行 var(--*) 值
           if (/^var\(/.test(decl.value.trim())) return;
-          // 放行 backdrop 例外
-          if (EXCEPTIONS.test(decl.prop) || EXCEPTIONS.test(decl.value)) return;
+          // 放行 backdrop 例外：选择器含 ::backdrop（遮罩半透明黑，L1 无 mask token，见 L4 §3.4 L3-2）
+          const selector = decl.parent?.selector || '';
+          if (EXCEPTIONS.test(selector) || EXCEPTIONS.test(decl.prop) || EXCEPTIONS.test(decl.value)) return;
           // 检测硬编码
           if (COLOR_RE.test(decl.value) || SIZE_RE.test(decl.value)) {
             context.report({

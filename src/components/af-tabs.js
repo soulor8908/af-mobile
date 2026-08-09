@@ -99,16 +99,17 @@ export class AfTabs extends AfElement {
   }
 
   _bindClick() {
-    this._tabbar.addEventListener('click', (e) => {
+    this._onClick = (e) => {
       const tab = e.target.closest('.tab-item');
       if (!tab || tab.disabled) return;
       const idx = this.$$('.tab-item').indexOf(tab);
       if (idx >= 0) this.setActive(idx);
-    });
+    };
+    this._tabbar.addEventListener('click', this._onClick);
   }
 
   _bindKeydown() {
-    this._tabbar.addEventListener('keydown', (e) => {
+    this._onKeydown = (e) => {
       const tabs = this.$$('.tab-item:not([disabled])');
       if (!tabs.length) return;
       let idx = tabs.indexOf(document.activeElement);
@@ -124,7 +125,8 @@ export class AfTabs extends AfElement {
       const realIdx = this.$$('.tab-item').indexOf(tabs[idx]);
       this.setActive(realIdx);
       tabs[idx].focus();
-    });
+    };
+    this._tabbar.addEventListener('keydown', this._onKeydown);
   }
 
   onAttributeChange(name, oldVal, newVal) {
@@ -138,6 +140,12 @@ export class AfTabs extends AfElement {
     } else if (name === 'fixed') {
       this._tabbar.classList.toggle('tabbar-fixed', this.fixed);
     }
+  }
+
+  unmounted() {
+    // Light DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
+    this._tabbar?.removeEventListener('click', this._onClick);
+    this._tabbar?.removeEventListener('keydown', this._onKeydown);
   }
 }
 

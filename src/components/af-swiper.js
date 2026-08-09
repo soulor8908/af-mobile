@@ -11,7 +11,7 @@ const CSS = `
   ::slotted(*) { flex-shrink: 0; width: 100%; }
   .dots { display: flex; gap: var(--s-1); justify-content: center; padding: var(--s-2); }
   .dot {
-    width: 8px; height: 8px; border-radius: var(--r-f);
+    width: var(--s-2); height: var(--s-2); border-radius: var(--r-f);
     background: var(--c-border); border: none; cursor: pointer; padding: 0;
     transition: background var(--dur-fast) var(--ease-out);
   }
@@ -52,7 +52,7 @@ export class AfSwiper extends AfElement {
     this.setAttribute('role', 'region');
 
     // 等待 slot 子元素就绪
-    requestAnimationFrame(() => {
+    this._rafId = requestAnimationFrame(() => {
       this._renderDots();
       this._updateTransform();
       this._updateAria();
@@ -63,9 +63,10 @@ export class AfSwiper extends AfElement {
     this._bindKeydown();
     this._bindResize();
     this._startAutoplay();
-    this._track.addEventListener('transitionend', () => {
+    this._onTransitionEnd = () => {
       this.emit('af-swiper:change', { index: this.activeIndex });
-    });
+    };
+    this._track.addEventListener('transitionend', this._onTransitionEnd);
   }
 
   _renderDots() {
@@ -234,8 +235,11 @@ export class AfSwiper extends AfElement {
 
   unmounted() {
     this._stopAutoplay();
+    clearInterval(this._autoplayTimer);
     clearTimeout(this._resumeTimer);
+    if (this._rafId != null) cancelAnimationFrame(this._rafId);
     this._resizeObserver?.disconnect();
+    this._track?.removeEventListener('transitionend', this._onTransitionEnd);
     this.removeEventListener('touchstart', this._onTouchStart);
     this.removeEventListener('touchmove', this._onTouchMove);
     this.removeEventListener('touchend', this._onTouchEnd);

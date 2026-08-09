@@ -56,9 +56,20 @@ export default {
       },
       'Program:exit'() {
         const source = sourceCode.getText();
-        // 检测 unmounted 方法是否存在
-        const unmountedMatch = source.match(/unmounted\s*\(\s*\)\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/);
-        const unmountedBody = unmountedMatch ? unmountedMatch[1] : '';
+        // 检测 unmounted 方法是否存在（宽松匹配：unmounted() { ... } 到匹配的闭合大括号）
+        // 用计数法提取 unmounted body，支持任意层级嵌套
+        let unmountedBody = '';
+        const startMatch = source.match(/unmounted\s*\(\s*\)\s*\{/);
+        if (startMatch) {
+          let depth = 1;
+          let i = startMatch.index + startMatch[0].length;
+          while (i < source.length && depth > 0) {
+            if (source[i] === '{') depth++;
+            else if (source[i] === '}') depth--;
+            if (depth > 0) unmountedBody += source[i];
+            i++;
+          }
+        }
         for (const [name, p] of found) {
           if (!unmountedBody.includes(p.cleanup)) {
             context.report({ loc: { line: 1, column: 0 }, messageId: 'leak', data: { name, msg: p.msg } });

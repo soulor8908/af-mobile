@@ -35,13 +35,19 @@ export default {
     return {
       'Program:exit'() {
         const source = sourceCode.getText();
-        if (req.role && !source.includes(`role="${req.role}"`) && !source.includes(`role='${req.role}'`)) {
+        // 识别两种形式：(a) 字面量 role="xxx" (b) setAttribute('role', 'xxx')
+        const hasRole = (r) =>
+          source.includes(`role="${r}"`) ||
+          source.includes(`role='${r}'`) ||
+          source.includes(`setAttribute('role', '${r}')`) ||
+          source.includes(`setAttribute("role", "${r}")`);
+        if (req.role && !hasRole(req.role)) {
           context.report({ loc: { line: 1, column: 0 }, messageId: 'missingRole', data: { comp: compName, role: req.role } });
         }
         if (req.ariaLabel && !source.includes('aria-label') && !source.includes("ariaLabel")) {
           context.report({ loc: { line: 1, column: 0 }, messageId: 'missingAriaLabel', data: { comp: compName } });
         }
-        if (req.ariaLive && !source.includes('aria-live') && !source.includes('ariaLive')) {
+        if (req.ariaLive && !source.includes('aria-live') && !source.includes("ariaLive")) {
           context.report({ loc: { line: 1, column: 0 }, messageId: 'missingAriaLive', data: { comp: compName } });
         }
       },

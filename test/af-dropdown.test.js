@@ -1,0 +1,114 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { AfDropdown } from '../src/components/af-dropdown.js';
+customElements.define('af-dropdown', AfDropdown);
+
+const OPTIONS = [
+  { label: 'Apple', value: 'a' },
+  { label: 'Banana', value: 'b' },
+  { label: 'Cherry', value: 'c', disabled: true },
+];
+
+function makeDropdown(props = {}) {
+  const el = new AfDropdown();
+  el.options = OPTIONS;
+  for (const [k, v] of Object.entries(props)) el[k] = v;
+  document.body.appendChild(el);
+  return el;
+}
+
+describe('af-dropdown', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('渲染 trigger 按钮 + list', () => {
+    const el = makeDropdown();
+    expect(el.$('.af-dropdown-trigger')).not.toBeNull();
+    expect(el.$('.list')).not.toBeNull();
+    expect(el.$$('.list-item').length).toBe(3);
+  });
+
+  it('trigger role=combobox + aria-haspopup=listbox', () => {
+    const el = makeDropdown();
+    const t = el.$('.af-dropdown-trigger');
+    expect(t.getAttribute('role')).toBe('combobox');
+    expect(t.getAttribute('aria-haspopup')).toBe('listbox');
+  });
+
+  it('placeholder 默认值', () => {
+    const el = makeDropdown({ value: '', placeholder: '请选择水果' });
+    expect(el.$('.af-dropdown-trigger > .flex-1').textContent).toBe('请选择水果');
+  });
+
+  it('selectedLabel 反映当前选中项 label', () => {
+    const el = makeDropdown({ value: 'b' });
+    expect(el.selectedLabel).toBe('Banana');
+    expect(el.$('.af-dropdown-trigger > .flex-1').textContent).toBe('Banana');
+  });
+
+  it('选中项显示 ✓', () => {
+    const el = makeDropdown({ value: 'a' });
+    const items = el.$$('.list-item');
+    expect(items[0].getAttribute('aria-selected')).toBe('true');
+    expect(items[0].querySelector('.text-brand')).not.toBeNull();
+  });
+
+  it('点击 trigger 调用 showPopover', () => {
+    const el = makeDropdown();
+    const list = el.$('.list');
+    const spy = vi.spyOn(list, 'showPopover');
+    el.$('.af-dropdown-trigger').click();
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('disabled=true 时 trigger 不响应点击', () => {
+    const el = makeDropdown({ disabled: true });
+    const list = el.$('.list');
+    const spy = vi.spyOn(list, 'showPopover');
+    el.$('.af-dropdown-trigger').click();
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('点击选项派发 af-dropdown:select', () => {
+    const el = makeDropdown();
+    const handler = vi.fn();
+    el.addEventListener('af-dropdown:select', handler);
+    el.$$('.list-item')[1].click();
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail).toEqual({ index: 1, value: 'b' });
+    expect(el.value).toBe('b');
+  });
+
+  it('disabled 选项不可点击', () => {
+    const el = makeDropdown();
+    const handler = vi.fn();
+    el.addEventListener('af-dropdown:select', handler);
+    el.$$('.list-item')[2].click();
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('list toggle 事件更新 aria-expanded', () => {
+    const el = makeDropdown();
+    const t = el.$('.af-dropdown-trigger');
+    el.$('.list').dispatchEvent(new ToggleEvent({ newState: 'open', oldState: 'closed' }));
+    expect(t.getAttribute('aria-expanded')).toBe('true');
+    el.$('.list').dispatchEvent(new ToggleEvent({ newState: 'closed', oldState: 'open' }));
+    expect(t.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('open() / close() 委托 popover', () => {
+    const el = makeDropdown();
+    const list = el.$('.list');
+    const showSpy = vi.spyOn(list, 'showPopover');
+    const hideSpy = vi.spyOn(list, 'hidePopover');
+    el.open(); el.close();
+    expect(showSpy).toHaveBeenCalledTimes(1);
+    expect(hideSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('onAttributeChange：value 变化更新 trigger 显示', () => {
+    const el = makeDropdown();
+    el.setAttribute('value', 'b');
+    expect(el.$('.af-dropdown-trigger > .flex-1').textContent).toBe('Banana');
+  });
+});

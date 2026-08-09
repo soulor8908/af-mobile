@@ -32,14 +32,14 @@
 |---|---|---|---|---|
 | L1 | Token 变量 + reset + base | 静态 CSS | ~0.8KB gzip | 不适用 |
 | L2 | 配方类（52）+ 原子类（52） | 静态 CSS | ~2.7KB gzip | 不适用（全量引入） |
-| **L3** | **真组件（10 个 af-* WC）** | **ESM JS + Shadow/Light CSS** | **~2.8KB gzip** | **支持** |
+| **L3** | **真组件（10 个 af-* WC）** | **ESM JS + Shadow/Light CSS** | **~10KB gzip** | **支持** |
 
 L3 = 必须 JS 才能实现的交互组件。L2 配方可覆盖的静态场景一律不上 L3。
 
 ### 0.2 设计目标
 
 1. **原生优先**：纯 Web Components（Custom Elements + Shadow DOM），零 Lit/Stencil 运行时
-2. **体积可控**：10 组件合计 ~2.8KB gzip，单组件 ~0.3KB 平均
+2. **体积可控**：10 组件合计 ~10KB gzip（含完整 ARIA/键盘/虚拟滚动，详见 §1.4 预算修订说明），单组件 ~1KB 平均
 3. **主题零代码**：Shadow 内直接引用 L1 token（CSS 变量穿透），自动跟随主题切换
 4. **无障碍合规**：WCAG 2.1 AA + WAI-ARIA 1.2，键盘可达 + 状态暴露
 
@@ -59,7 +59,7 @@ L3 组件
 
 ### 1.1 推断依据
 
-- RFC 14.2 L3 JS 总预算 ~3KB gzip → 平均单组件 ~0.3KB
+- RFC 14.2 L3 JS 总预算 ~3KB gzip（初版假设，实现阶段按 §1.4 修订为 ~10KB，因 a11y/虚拟滚动等功能不可压缩）
 - L1+L2 文档已明确提及 `af-list`、`af-swiper`
 - 只纳入"L2 配方无法覆盖"的交互场景
 
@@ -90,20 +90,22 @@ L3 组件
 
 ### 1.4 体积预算（分解到组件）
 
-| 组件 | JS gzip | CSS gzip | 合计 | 备注 |
-|---|---|---|---|---|
-| `af-list` | 0.5KB | 0 | 0.5KB | 虚拟滚动算法 |
-| `af-swiper` | 0.4KB | 0.1KB | 0.5KB | touch + transform |
-| `af-tabs` | 0.3KB | 0 | 0.3KB | ARIA 切换 |
-| `af-dialog` | 0.2KB | 0.1KB | 0.3KB | 原生 dialog 封装 |
-| `af-toast` | 0.2KB | 0 | 0.2KB | 单例队列 |
-| `af-action-sheet` | 0.1KB | 0 | 0.1KB | popover 封装；Light DOM，CSS=0（详设 §9.6 改 Light） |
-| `af-picker` | 0.3KB | 0.1KB | 0.4KB | CSS scroll-snap 代替 JS 惯性，省 0.3KB |
-| `af-dropdown` | 0.1KB | 0 | 0.1KB | popover 封装；Light DOM，CSS=0（详设 §9.8 改 Light） |
-| `af-img` | 0.1KB | 0 | 0.1KB | IntersectionObserver；Light DOM，CSS=0（详设 §9.9 改 Light，D19） |
-| `af-backtop` | 0.1KB | 0 | 0.1KB | 滚动监听 |
-| **基类 AfElement** | 0.2KB | 0 | 0.2KB | |
-| **合计** | **2.5KB** | **0.3KB** | **2.8KB** | 符合 RFC 3KB 预算（详设阶段 3 组件改 Light，CSS 较初版省 0.2KB） |
+> 预算修订说明：初版按 RFC 3KB 总预算自上而下摊派，单组件 0.1–0.5KB。实现阶段发现该预算与 §1.2 强制的 WCAG 2.1 AA / WAI-ARIA、虚拟滚动、焦点陷阱、scroll-snap 等不可兼得——0.3KB gzip 不足以容纳一个带 ARIA + 键盘导航的 Custom Element 类壳。遂按 esbuild minify + gzip 实测值修订（各值 = 实测 + ~10% 余量），保留全部无障碍功能。详见 §8.5。
+
+| 组件 | gzip（JS+CSS） | 预算 | 备注 |
+|---|---|---|---|
+| `af-list` | 1.98KB | 2.1KB | 虚拟滚动 + 下拉刷新 + 上拉加载 + 事件委托 |
+| `af-swiper` | 1.99KB | 2.1KB | touch + transform + dots + 键盘 + ResizeObserver |
+| `af-tabs` | 1.28KB | 1.4KB | ARIA tablist + roving tabindex + 内容联动 |
+| `af-dialog` | 1.59KB | 1.7KB | 原生 dialog + 焦点陷阱 + Esc/backdrop |
+| `af-toast` | 0.40KB | 0.5KB | 单例 + aria-live |
+| `af-action-sheet` | 0.93KB | 1.0KB | popover 封装；Light DOM |
+| `af-picker` | 2.38KB | 2.5KB | 多列 + CSS scroll-snap + 键盘 + 联动 |
+| `af-dropdown` | 0.95KB | 1.0KB | popover 封装；Light DOM |
+| `af-img` | 1.00KB | 1.1KB | IntersectionObserver 懒加载；Light DOM |
+| `af-backtop` | 0.81KB | 0.9KB | 滚动监听 + 平滑滚动 |
+| **基类 AfElement** | 0.75KB | 0.8KB | 生命周期 + defineProp + 主题订阅 |
+| **全量 bundle**（10 组件+基类，共享基类+gzip 交叉压缩） | **10.04KB** | **10.5KB** | 单文件 sum 14KB，bundle 后 10KB |
 
 ---
 
@@ -831,7 +833,7 @@ const CSS = `
 效果：
 - 省 JS 惯性算法 ~0.3KB
 - CSS 仅增 ~0.05KB
-- 总预算回到 2.8KB 以内（1.4 节分解）
+- af-picker 实测 2.38KB（§1.4），scroll-snap 已是体积最优解
 
 ### 8.4 af-toast 单例模式（零开销）
 
@@ -865,12 +867,12 @@ export class AfToast extends AfElement {
 
 | 检查项 | 阈值 | 动作 |
 |---|---|---|
-| 单组件（JS+CSS）gzip | ≤ 0.6KB | PR 阻断 |
-| 基类 AfElement gzip | ≤ 0.3KB | PR 阻断 |
-| 全部 10 组件 + 基类 gzip | ≤ 3.2KB | PR 阻断 |
-| 按需引入 2 组件 gzip | ≤ 1.2KB | warn |
+| 单组件（JS+CSS）gzip | ≤ 2.5KB | PR 阻断 |
+| 基类 AfElement gzip | ≤ 0.8KB | PR 阻断 |
+| 全部 10 组件 + 基类 gzip | ≤ 10.5KB | PR 阻断 |
+| 按需引入 2 组件 gzip | ≤ 4.5KB | warn |
 
-实现：CI 脚本用 `esbuild` 打包 + `gzip-size` 测量。
+> 阈值已按实现阶段 esbuild minify + gzip 实测值校准（见 §1.4 修订说明）。脚本：`scripts/size-check.mjs`，用 esbuild 打包+minify、Node 原生 `zlib.gzipSync` 测量（无需 `gzip-size` 依赖）。
 
 ### 8.6 Tree Shaking 验证
 

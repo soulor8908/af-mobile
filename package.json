@@ -1,0 +1,48 @@
+{
+  "name": "aiflow-ui",
+  "version": "1.0.0",
+  "description": "Mobile-first Web Components library with L1/L2/L3 layered design system",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    },
+    "./css": "./src/index.css",
+    "./tokens.css": "./src/tokens.css",
+    "./recipes.css": "./src/recipes.css",
+    "./atomic.css": "./src/atomic.css",
+    "./components/*": "./src/components/*",
+    "./lib/*": "./src/lib/*"
+  },
+  "sideEffects": false,
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "size": "node scripts/size-check.mjs",
+    "size:check": "node scripts/size-check.mjs",
+    "ci": "vitest run && node scripts/size-check.mjs"
+  },
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "shadow-dom",
+    "mobile",
+    "ui-library",
+    "design-system",
+    "tree-shaking"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@vitest/coverage-v8": "^1.6.0",
+    "esbuild": "^0.28.2",
+    "jsdom": "^24.0.0",
+    "vitest": "^1.6.0"
+  }
+}

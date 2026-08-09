@@ -24,10 +24,11 @@ const SRC = join(ROOT, 'src');
 //   CSS 4.2→4.9KB：prefers-reduced-motion 降级（无障碍）+ --palette-* 抽象（主题正确性）+ af-list/af-backtop 宿主样式（wc-light-no-style 合规）
 //   base 0.85→1.1KB：html 安全模板标签 + escapeHtml 命名实体（P0 XSS 防护）
 //   perComponent 2.5→2.6KB：af-picker 含 ARIA listbox + scroll-snap + 键盘导航（无障碍）
+// v1.3.2 调整：base 1.1→1.2KB，Number 类型空串回退 default（P2-3，避免 Number("")=0 导致除零）
 const BUDGET = {
   css: 4.9,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 prefers-reduced-motion + palette 抽象 + 宿主样式）
   perComponent: 2.6,   // KB，单组件 JS+CSS（af-picker ARIA + scroll-snap + 键盘）
-  base: 1.1,           // KB，AfElement 基类（含 html/escapeHtml XSS 防护）
+  base: 1.2,           // KB，AfElement 基类（含 html/escapeHtml XSS 防护 + Number 空串回退）
   total: 14,           // KB，13 组件 + 基类（含 P0 安全 + P1 loop clone + v1.2.0 新增 3 组件）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
 };

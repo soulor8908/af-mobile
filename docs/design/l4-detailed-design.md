@@ -623,7 +623,7 @@ if (B \ C) 非空 → "whitelist 有但 Prompt 未注入：..."
 ```
 # CODEOWNERS
 # L1 核心 Token
-src/styles/tokens.css                        @aiflow-ui/l1-owners
+src/tokens.css                              @aiflow-ui/l1-owners
 
 # L3 基类（影响全部组件）
 src/lib/af-element.js                        @aiflow-ui/l3-owners

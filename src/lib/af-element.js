@@ -120,7 +120,7 @@ export class AfElement extends HTMLElement {
 
     const parse = (val) => {
       if (val == null) return defVal;
-      if (type === Number) return Number(val);
+      if (type === Number) return val === '' ? defVal : Number(val);
       // Boolean：HTML 布尔属性「存在即真」，但允许 close-on-esc="false" / loop="false" 显式关闭
       // （"false" 字符串视为 false，其它值含空串视为 true）
       if (type === Boolean) return val != null && String(val).toLowerCase() !== 'false';

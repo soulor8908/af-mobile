@@ -83,6 +83,11 @@ export class AfSwiper extends AfElement {
   }
 
   // P1-2: loop 无缝循环——在 slot 前后插入首尾 clone
+  // 不变量：track 结构 = [clone(last), slide0, slide1, ..., slideN-1, clone(first)]
+  // activeIndex 始终指向真实 slide（0..N-1），视觉偏移 = activeIndex + 1（loop 时多 1 个 clone 前缀）
+  // 边界处理：next 到末张 → 视觉跳到 clone(first) → transitionend 无动画修正回 slide0
+  //          prev 到首张 → 视觉跳到 clone(last) → transitionend 无动画修正回 slideN-1
+  // 详见 _goToWithClone / _correctTransform
   _setupLoopClones() {
     if (!this._track) return;
     this._track.querySelectorAll('.af-swiper-clone').forEach(e => e.remove());

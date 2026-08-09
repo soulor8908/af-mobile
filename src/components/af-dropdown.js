@@ -87,6 +87,9 @@ export class AfDropdown extends AfElement {
   }
 
   // 仅重渲染列表项（保留 _list 元素及其事件监听，不关闭已打开的浮层）
+  // 取舍：listbox option 用 <button role="option"> 而非纯 <div role="option">
+  // —— 严格 WAI-ARIA listbox 的 option 应非 focusable（由 listbox 管理 active descendant）
+  //   但移动端无 Tab 键、原生 button 的点击/禁用语义更可靠，且 ↑↓ 键导航已自实现
   _renderList() {
     if (!this._list) return;
     const opts = this.options || [];

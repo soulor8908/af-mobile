@@ -3,10 +3,9 @@
 // 职责：虚拟滚动 + 下拉刷新 + 上拉加载 + itemclick 事件委托
 import { AfElement, escapeHtml as esc, html } from '../lib/af-element.js';
 
-const THROTTLE_MS = 16; // 1 帧
+const LOADINGMORE_DISTANCE = 2; // 距底 N 项触发
 const REFRESH_THRESHOLD = 40;
 const REFRESH_MAX = 60;
-const LOADINGMORE_DISTANCE = 2; // 距底 N 项触发
 
 export class AfList extends AfElement {
   static useShadow = false;
@@ -20,7 +19,7 @@ export class AfList extends AfElement {
     this._prevEnd = -1;
     this._renderItem = null;
     this._totalCount = null;
-    this._scrollTimer = null;
+    this._scrollRaf = null;
   }
 
   get renderItem() { return this._renderItem; }
@@ -182,13 +181,15 @@ export class AfList extends AfElement {
 
   _bindScroll() {
     this._onScroll = () => {
-      if (this._scrollTimer) return;
-      this._scrollTimer = setTimeout(() => {
-        this._scrollTimer = null;
+      if (this._scrollRaf) return;
+      // rAF 节流：每帧最多更新一次视口，比 setTimeout(16) 更贴合渲染时机
+      this._scrollRaf = requestAnimationFrame(() => {
+        this._scrollRaf = null;
         this._updateViewport();
-      }, THROTTLE_MS);
+      });
     };
-    this._scroller.addEventListener('scroll', this._onScroll);
+    // passive: 不调 preventDefault，浏览器可并行滚动合成，提升滚动性能
+    this._scroller.addEventListener('scroll', this._onScroll, { passive: true });
   }
 
   _bindPullRefresh() {
@@ -258,7 +259,7 @@ export class AfList extends AfElement {
   }
 
   unmounted() {
-    if (this._scrollTimer) { clearTimeout(this._scrollTimer); this._scrollTimer = null; }
+    if (this._scrollRaf) { cancelAnimationFrame(this._scrollRaf); this._scrollRaf = null; }
     this._scroller?.removeEventListener('scroll', this._onScroll);
     this._scroller?.removeEventListener('click', this._onClick);
     if (this.refresh) {

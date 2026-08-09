@@ -13,6 +13,8 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 npm install aiflow-ui
 ```
 
+> **消费端需有打包器**：`package.json` 的 `main`/`module` 指向 `src/index.js`（源码分发，裸 ESM + CSS import）。直接在浏览器 `<script type="module">` 引用未经打包的源码会因裸模块解析失败。用 Vite/webpack/Rollup 等打包器处理 `import 'aiflow-ui'` 即可；若需 CDN 直引，用 `dist/aiflow-ui.umd.js`（`unpkg`/`jsdelivr` 字段已指向）。
+
 ## 快速上手
 
 ```html
@@ -180,6 +182,34 @@ register('af-dialog');
 import { registerAll } from 'aiflow-ui';
 registerAll();
 ```
+
+## 主题切换
+
+提供 `initTheme` / `setTheme` / `toggleTheme` / `getTheme` 四个 API，通过 `data-theme` 属性控制 light/dark。
+
+```js
+import { initTheme, toggleTheme } from 'aiflow-ui';
+initTheme();              // 从 localStorage 恢复（入口尽早调用）
+toggleTheme();            // 切换并持久化
+```
+
+### 消除暗色模式 FOUC（首屏闪烁）
+
+`initTheme()` 在入口 JS 执行时才设 `data-theme`，系统暗色 + 用户存 light 时会先闪一下暗色再切回。**在 `<head>` 内联一段同步脚本，先于 paint 读取 localStorage 设 `data-theme`**：
+
+```html
+<head>
+  <script>
+    // 先于首次 paint 设定主题，避免 FOUC（无需等组件库加载）
+    try {
+      var t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+</head>
+```
+
+> 该脚本不依赖 aiflow-ui，可独立内联；组件库的 `initTheme()` 仍可调用（幂等，重复设同值无副作用）。
 
 ## L4 禁令（25 条，ESLint error 级）
 

@@ -64,6 +64,19 @@ describe('AfElement 基类', () => {
     expect(el.config).toEqual({ a: 1 });
   });
 
+  it('Number 属性空串回退 default（P2-3，避免 Number("")=0 导致除零）', () => {
+    const el = new TestEl();
+    document.body.appendChild(el);
+    el.setAttribute('count', '');
+    expect(el.count).toBe(0); // default=0
+    // 验证非零 default 场景
+    AfElement.defineProp(TestEl.prototype, 'height', { type: Number, default: 48 });
+    const el2 = new TestEl();
+    document.body.appendChild(el2);
+    el2.setAttribute('height', '');
+    expect(el2.height).toBe(48); // 空串回退 default，而非 Number("")=0
+  });
+
   it('Boolean 属性 "false" 字符串解析为 false（P0-2）', () => {
     const el = new TestEl();
     document.body.appendChild(el);

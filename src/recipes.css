@@ -350,8 +350,7 @@
     -webkit-tap-highlight-color: transparent;
     transition: color var(--dur-fast) var(--ease-out);
   }
-  .tab-item[aria-selected="true"],
-  .tab-item.active {
+  .tab-item[aria-selected="true"] {
     color: var(--c-brand);
   }
 

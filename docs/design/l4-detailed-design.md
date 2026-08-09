@@ -735,7 +735,7 @@ L4 约束层：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正
     多个圆角类同现、同属性原子重复（如 p-4 p-2）
 09. 禁止 .list-item/.list-item-compact 自带 border-top（分隔线由 .list 容器管理）
 10. 禁止 .sheet 手动 display 切换（显隐必须走原生 popover API showPopover/hidePopover）
-11. 禁止 .tab-item 同时设 active class 与 aria-selected="true"（二选一）
+11. 禁止 .tab-item 用 active class 表达选中态（选中态单一真相源是 aria-selected="true"，视觉由属性选择器 .tab-item[aria-selected="true"] 驱动）
 12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img）
     内含 <style> 或 this.style.xxx（纯 L2 配方，自定义样式请用 Shadow 组件或 recipes.project.css）
 13. 禁止 Shadow 组件 CSS 字符串硬编码颜色/间距/字号/圆角（dialog::backdrop 遮罩 rgba(0,0,0,.5) 例外）

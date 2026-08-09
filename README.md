@@ -107,7 +107,7 @@ registerAll();
 8. 不可互斥变体叠加：`btn-sm+btn-lg`、`tag-ok+tag-warn`、同属性原子重复
 9. `.list-item/.list-item-compact` 自带 border-top 由 `.list` 容器管理，不要单独设
 10. `.sheet` 显隐必须走原生 popover API `showPopover/hidePopover`
-11. `.tab-item` 不可同时设 `active` class 与 `aria-selected="true"`（二选一）
+11. `.tab-item` 选中态单一真相源是 `aria-selected="true"`（视觉由属性选择器驱动，不可用 `active` class）
 12. **Light DOM 组件**（`af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img`）不可含 `<style>` 或 `this.style.xxx=`
 13. **Shadow 组件** CSS 字符串不可硬编码颜色/间距/字号/圆角（`::backdrop` 遮罩 rgba(0,0,0,.5) 例外）
 14. 事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`

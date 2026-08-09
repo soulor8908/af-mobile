@@ -31,8 +31,8 @@ describe('af-tabs', () => {
     const el = makeTabs();
     el.setActive(1);
     const tabs = el.$$('.tab-item');
-    expect(tabs[1].classList.contains('active')).toBe(true);
     expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+    expect(tabs[0].getAttribute('aria-selected')).toBe('false');
     expect(tabs[1].getAttribute('tabindex')).toBe('0');
     expect(tabs[0].getAttribute('tabindex')).toBe('-1');
   });

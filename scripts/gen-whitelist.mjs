@@ -38,13 +38,21 @@ export function extractComponents() {
   return [...set].sort();
 }
 
+// 状态修饰符：不独立定义在 L2 配方 CSS，而是与其他 class 组合使用（如 .tab-item[aria-selected]）
+// 由 Shadow 组件（af-swiper .dot.active / af-picker .item.active）使用，需手动登记
+const STATE_MODIFIERS = ['active'];
+
 // 从源码扫描，构造 whitelist 对象（A 集合）
 export function buildWhitelistFromSources() {
+  const recipe = extractClasses(join(SRC, 'recipes.css'));
+  // 合并状态修饰符（去重）
+  const recipeSet = new Set(recipe);
+  for (const m of STATE_MODIFIERS) recipeSet.add(m);
   return {
     version: 'v1',
     aiflowVersion: '1.0.0',
     classes: {
-      recipe: extractClasses(join(SRC, 'recipes.css')),
+      recipe: [...recipeSet].sort(),
       atomic: extractClasses(join(SRC, 'atomic.css')),
     },
     components: extractComponents(),

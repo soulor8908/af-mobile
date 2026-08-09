@@ -11,7 +11,7 @@
 
 - **L1 Token（43 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
 - **L2 配方（53）+ 原子（52）= 105 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
-- **L3 真组件（10 个 af-\* 自定义元素）** → 需要 JS 行为时使用（见"L3 API"节）
+- **L3 真组件（10 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
@@ -57,77 +57,22 @@
 
 ---
 
-# L3 真组件 API（10 个）
+# L3 组件简表（完整 API 见 docs/design/l3-detailed-design.md）
 
-## `<af-list>` 长列表虚拟滚动
+| 组件 | 用途 | 核心属性 | 核心事件 |
+|---|---|---|---|
+| `af-list` | 长列表虚拟滚动 | `data`, `page-size` | `af-list:loadmore`, `af-list:itemclick` |
+| `af-swiper` | 轮播/滑动 | `autoplay`, `loop`, `active-index` | `af-swiper:change` |
+| `af-tabs` | 标签页 | `tabs` (JSON), `active-index` | `af-tabs:change` |
+| `af-dialog` | 模态框 | `title`, `close-on-esc`, `close-on-backdrop`, `variant` | `af-dialog:open`, `af-dialog:close` |
+| `af-toast` | 轻提示（单例） | `duration` | `af-toast:dismiss` |
+| `af-action-sheet` | 底部操作面板 | `options` (JSON), `title`, `show-cancel` | `af-action-sheet:select`, `af-action-sheet:close` |
+| `af-picker` | 滚轮选择器 | `columns` (JSON), `title` | `af-picker:change`, `af-picker:confirm` |
+| `af-dropdown` | 下拉菜单 | `options` (JSON), `value`, `placeholder` | `af-dropdown:select` |
+| `af-img` | 懒加载图片 | `src`, `alt`, `placeholder-src`, `fail-src`, `variant` | `af-img:load`, `af-img:error` |
+| `af-backtop` | 回到顶部 | `threshold`, `target`, `position` | `af-backtop:click`, `af-backtop:show`, `af-backtop:hide` |
 
-- 属性：`data` (Array) | `page-size` (Number, default 20)
-- 事件：`af-list:loadmore {page}` / `af-list:refresh {}` / `af-list:itemclick {index, item}`
-- 用法：
-
-```html
-<af-list id="l"></af-list>
-<script type="module">
-  import { AfList } from 'aiflow-ui';
-  customElements.define('af-list', AfList);
-  l.data = [{title:'商品1'},{title:'商品2'}];
-  l.addEventListener('af-list:itemclick', e => console.log(e.detail.index));
-</script>
-```
-
-## `<af-swiper>` 轮播/滑动
-
-- 属性：`autoplay` (Number ms, 0=关) | `loop` (Boolean) | `active-index` (Number) | `show-dots` (String, default "true")
-- 事件：`af-swiper:change {index}`
-- 内容：`<af-swiper><div class="slide">...</div>...</af-swiper>`
-
-## `<af-tabs>` 标签页
-
-- 属性：`tabs` (JSON Array `[{label,value}]`) | `active-index` (Number)
-- 事件：`af-tabs:change {index, value}`
-- ARIA：自动注入 tablist/tab/tabpanel + aria-selected + aria-controls
-
-## `<af-dialog>` 模态框（原生 `<dialog>` 封装）
-
-- 属性：`title` (String) | `close-on-esc` (Boolean) | `close-on-backdrop` (Boolean) | `variant` (String, default/top/bottom)
-- 内容：`<af-dialog><div slot="body">...</div><div slot="footer">...</div></af-dialog>`
-- API：`dialogEl.open()` / `dialogEl.close(action)`
-- 事件：`af-dialog:open {}` / `af-dialog:close {action}`
-
-## `<af-toast>` 轻提示（全局单例）
-
-- 单例：全局只需一个 `<af-toast id="t"></af-toast>`
-- 属性：`duration` (Number ms, default 2000)
-- API：`t.show(message, duration=2000)`
-- 事件：`af-toast:dismiss {}`
-- ARIA：`role=status` + `aria-live=polite`
-
-## `<af-action-sheet>` 底部操作面板（popover）
-
-- 属性：`options` (JSON Array `[{label,value, danger?:Boolean}]`) | `title` (String) | `show-cancel` (Boolean, default true) | `cancel-text` (String, default "取消")
-- 事件：`af-action-sheet:select {index,value}` / `af-action-sheet:close {}` / `af-action-sheet:open {}`
-- API：`sheet.showPopover()` / `sheet.hidePopover()`
-
-## `<af-picker>` 滚轮选择器（scroll-snap）
-
-- 属性：`columns` (JSON Array `[[{label,value}], ...]`) | `title` (String)
-- 事件：`af-picker:change {column,value}` / `af-picker:confirm {values}`
-
-## `<af-dropdown>` 下拉菜单（popover）
-
-- 属性：`options` (JSON Array `[{label,value}]`) | `value` (String) | `placeholder` (String)
-- 事件：`af-dropdown:select {index,value}`
-
-## `<af-img>` 懒加载图片（IntersectionObserver）
-
-- 属性：`src` (String) | `alt` (String，必填) | `placeholder-src` (String) | `fail-src` (String) | `variant` (String, default/thumb/avatar) | `lazy` (Boolean, default true) | `root-margin` (String, default "200px")
-- 事件：`af-img:load {}` / `af-img:error {}`
-
-## `<af-backtop>` 回到顶部
-
-- 属性：`threshold` (Number px，显示阈值，默认 200) | `target` (String, CSS selector) | `position` (String, right-bottom/left-bottom) | `text` (String, default "↑")
-- 事件：`af-backtop:click {}` / `af-backtop:show {}` / `af-backtop:hide {}`
-- ARIA：`aria-label="回到顶部"`
+**通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`。
 
 ---
 
@@ -144,7 +89,7 @@
 08. 禁止互斥变体叠加：`btn-sm+btn-lg`、`tag-ok/warn/danger` 任意两个同现、多个圆角类同现、同属性原子重复（如 `p-4 p-2`）
 09. 禁止 `.list-item`/`.list-item-compact` 自带 border-top（分隔线由 `.list` 容器管理）
 10. 禁止 `.sheet` 手动 display 切换（显隐必须走原生 popover API `showPopover`/`hidePopover`）
-11. 禁止 `.tab-item` 同时设 active class 与 `aria-selected="true"`（二选一）
+11. 禁止 `.tab-item` 用 `active` class 表达选中态（选中态单一真相源是 `aria-selected="true"`，视觉由属性选择器 `.tab-item[aria-selected="true"]` 驱动）
 12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img）内含 `<style>` 或 `this.style.xxx`（纯 L2 配方，自定义样式请用 Shadow 组件或 `recipes.project.css`）
 13. 禁止 Shadow 组件 CSS 字符串硬编码颜色/间距/字号/圆角（`dialog::backdrop` 遮罩 `rgba(0,0,0,.5)` 例外）
 14. 禁止事件名不符合 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`（Shadow 事件穿透）
@@ -162,37 +107,18 @@
 
 ---
 
-# 正反示例（5 对）
+# 高频反例（ESLint 最常拦截，务必避免）
 
-**示例 1 — 按钮文字颜色**
-
-- 正确：`<button class="btn btn-block">确定</button>`
-- 错误：`<button class="btn text-brand btn-block">确定</button>`
-- 原因：`.btn` 背景是品牌色，文字保持 `--c-onbrand`（白）以保证对比度；再加 `text-brand` 导致"蓝底蓝字"不可读。
-
-**示例 2 — 内联 padding**
-
-- 正确：`<div class="card p-4">内容</div>`
-- 错误：`<div class="card" style="padding: 16px;">内容</div>`
-- 原因：内联 style 设置 padding，违反禁令第 2 条。请使用 `p-4` 原子类。
-
-**示例 3 — 输入错误态**
-
-- 正确：`<input class="input input-err"> <span class="form-err">姓名不能为空</span>`
-- 错误：`<input class="input" style="border-color: var(--c-danger);">`
-- 原因：内联 style 设颜色。错误态请使用 `.input-err` 配方（border-color 已设为 `--c-danger`）。
-
-**示例 4 — 列表组件**
-
-- 正确：`<af-list id="list"></af-list>` + `list.data = items`
-- 错误：`<div class="af-list-custom">...</div>` + 手动滚动监听
-- 原因：白名单外 class + 重复造轮子。请用 `af-list` 真组件（内置虚拟滚动 + 加载更多）。
-
-**示例 5 — 标签状态**
-
-- 正确：`<span class="tag tag-warn">待处理</span>`
-- 错误：`<span class="tag tag-ok tag-danger">混合状态</span>`
-- 原因：`tag-ok` 与 `tag-danger` 互斥变体叠加（禁令第 8 条），只能选一个状态标签。
+- ❌ `<button class="btn text-brand btn-block">确定</button>` → ✅ `<button class="btn btn-block">确定</button>`
+  （`.btn` 背景是品牌色，文字必须 `--c-onbrand` 白色保对比度）
+- ❌ `<div class="card" style="padding: 16px;">内容</div>` → ✅ `<div class="card p-4">内容</div>`
+  （内联 style 设 padding 违反禁令 2，用 `p-4` 原子类）
+- ❌ `<input class="input" style="border-color: var(--c-danger);">` → ✅ `<input class="input input-err">`
+  （错误态用 `.input-err` 配方，不要内联 style）
+- ❌ `<div class="af-list-custom">...</div>` → ✅ `<af-list id="list"></af-list>` + `list.data = items`
+  （白名单外 class + 重复造轮子，用 `af-list` 真组件）
+- ❌ `<span class="tag tag-ok tag-danger">混合状态</span>` → ✅ `<span class="tag tag-warn">待处理</span>`
+  （`tag-ok` 与 `tag-danger` 互斥变体叠加，只能选一个）
 
 ---
 

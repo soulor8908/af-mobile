@@ -32,6 +32,9 @@
     "prompt": "bash scripts/build-prompt.sh",
     "prompt:build": "node scripts/build-prompt.mjs -o prompt/system-prompt.md",
     "ai-fix": "node scripts/ai-fix.mjs",
+    "generate": "node scripts/generate.mjs",
+    "eval": "node eval/run.mjs",
+    "eval:dry": "node eval/run.mjs --dry-run",
     "publish:check": "node scripts/publish-check.mjs",
     "prepublishOnly": "npm run publish:check",
     "ci": "vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs"

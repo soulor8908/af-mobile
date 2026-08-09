@@ -148,7 +148,13 @@ function main() {
   const atomicGroups = extractGroupsFromCss(readFileSync(ATOMIC_CSS, 'utf8'));
 
   const wlSection = buildWhitelistSection(wl, recipeGroups, atomicGroups);
-  let output = tpl.replace('<!-- {{{ WHITELIST_INJECTION_POINT }}} -->', wlSection);
+  let output = tpl
+    .replace('<!-- {{{ WHITELIST_INJECTION_POINT }}} -->', wlSection)
+    .replace('{{{ TOKEN_COUNT }}}', String(wl.tokens.length))
+    .replace('{{{ RECIPE_COUNT }}}', String(wl.classes.recipe.length))
+    .replace('{{{ ATOMIC_COUNT }}}', String(wl.classes.atomic.length))
+    .replace('{{{ TOTAL_CLASS_COUNT }}}', String(wl.classes.recipe.length + wl.classes.atomic.length))
+    .replace('{{{ COMPONENT_COUNT }}}', String(wl.components.length));
 
   // 项目级扩展（可选）
   let extSection = '';

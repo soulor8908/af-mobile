@@ -85,7 +85,6 @@ export class AfTabs extends AfElement {
       const selected = i === idx;
       tab.setAttribute('aria-selected', String(selected));
       tab.setAttribute('tabindex', selected ? '0' : '-1');
-      tab.classList.toggle('active', selected);
     });
 
     this.$$('.af-tabs-panel, div[slot^="panel-"]').forEach((panel, i) => {

@@ -1,10 +1,10 @@
 // AIFlow UI —— L3 体积预算验证脚本
 // 用法：node scripts/size-check.mjs
-// 依据 docs/design/l3-detailed-design.md §8.5 CI 体积监控
-//   单组件（JS+CSS）gzip ≤ 0.6KB   PR 阻断
-//   基类 AfElement gzip     ≤ 0.3KB   PR 阻断
-//   全部 10 组件 + 基类 gzip ≤ 3.2KB  PR 阻断
-//   按需引入 2 组件 gzip    ≤ 1.2KB   warn
+// 依据 docs/design/l3-detailed-design.md §8.5 CI 体积监控（数字与下方 BUDGET 一致）
+//   单组件（JS+CSS）gzip ≤ 2.5KB   PR 阻断
+//   基类 AfElement gzip     ≤ 0.85KB  PR 阻断
+//   全部 10 组件 + 基类 gzip ≤ 11.5KB PR 阻断
+//   按需引入 2 组件 gzip    ≤ 5.0KB   warn
 // 实现：esbuild 打包+minify，Node zlib 测 gzip（原生，无 gzip-size 依赖）
 import { build } from 'esbuild';
 import { gzipSync } from 'node:zlib';

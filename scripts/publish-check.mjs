@@ -82,10 +82,16 @@ function pkgCheck() {
   check('unpkg 指向 UMD', pkg.unpkg && pkg.unpkg.includes('umd'));
 }
 
-// 5. dist 产物检查（prepublishOnly 会先跑 build，此处验证产物存在）
+// 5. dist 产物检查（若缺失先自动 build，再验证产物存在）
 console.log('\n── 5. dist 产物 ──');
 function distCheck() {
   const distFiles = ['dist/index.js', 'dist/aiflow-ui.umd.js', 'dist/index.css', 'dist/index.d.ts'];
+  // 任一缺失则先构建（CI 不跑 prepublishOnly，需自包含）
+  const anyMissing = distFiles.some(f => !existsSync(join(ROOT, f)));
+  if (anyMissing) {
+    console.log('  dist 缺失，自动执行 npm run build ...');
+    execSync('npm run build', { cwd: ROOT, stdio: 'inherit' });
+  }
   for (const f of distFiles) {
     const p = join(ROOT, f);
     const exists = existsSync(p);

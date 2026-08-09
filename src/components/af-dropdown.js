@@ -44,7 +44,8 @@ export class AfDropdown extends AfElement {
       this._trigger.setAttribute('aria-expanded', String(e.newState === 'open'));
       if (e.newState === 'open') {
         // 打开后移焦入 listbox 首项（与 af-action-sheet 一致）
-        requestAnimationFrame(() => {
+        this._rafId = requestAnimationFrame(() => {
+          this._rafId = null;
           const first = this._list.querySelector('.list-item');
           if (first && !first.disabled) first.focus();
         });
@@ -131,6 +132,7 @@ export class AfDropdown extends AfElement {
     this._list?.removeEventListener('click', this._onListClick);
     this._list?.removeEventListener('toggle', this._onToggle);
     this._list?.removeEventListener('keydown', this._onKeydown);
+    if (this._rafId) cancelAnimationFrame(this._rafId);
   }
 }
 

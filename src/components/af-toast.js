@@ -35,8 +35,8 @@ export class AfToast extends AfElement {
     // 退场动画：opacity 淡出后再清空 innerHTML
     const toastEl = this.$('.toast');
     if (toastEl) {
-      toastEl.style.setProperty('transition', `opacity ${EXIT_ANIM_MS}ms var(--ease-out)`);
-      toastEl.style.setProperty('opacity', '0');
+      toastEl.style.setProperty('--toast-transition', `opacity ${EXIT_ANIM_MS}ms var(--ease-out)`);
+      toastEl.style.setProperty('--toast-opacity', '0');
       setTimeout(() => {
         this.innerHTML = '';
         this._message = '';

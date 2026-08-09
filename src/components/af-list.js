@@ -86,7 +86,7 @@ export class AfList extends AfElement {
     this.removeAttribute('aria-busy');
     if (!this.data.length) {
       this._spacerBefore.style.setProperty('--af-spacer-before-h', '0px');
-      this._spacerAfter.style.setProperty('height', '0px');
+      this._spacerAfter.style.setProperty('--af-spacer-after-h', '0px');
       this._viewport.innerHTML = `<div class="empty"><p class="body">${esc(this.emptyText)}</p></div>`;
       this._loadmoreEl.textContent = '';
       return;
@@ -101,7 +101,7 @@ export class AfList extends AfElement {
       html += `<div class="list-item"><div class="skeleton skeleton-line" style="width:80%"></div></div>`;
     }
     this._spacerBefore.style.setProperty('--af-spacer-before-h', '0px');
-    this._spacerAfter.style.setProperty('height', '0px');
+    this._spacerAfter.style.setProperty('--af-spacer-after-h', '0px');
     this._viewport.innerHTML = html;
     this._loadmoreEl.textContent = '';
   }

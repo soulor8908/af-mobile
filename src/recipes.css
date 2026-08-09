@@ -370,6 +370,8 @@
     font-size: var(--t-sm);
     border-radius: var(--r-m);
     z-index: var(--z-modal);
+    opacity: var(--toast-opacity, 1);
+    transition: var(--toast-transition, none);
     pointer-events: none;
     max-width: 80%;
     text-align: center;

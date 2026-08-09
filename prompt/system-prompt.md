@@ -77,7 +77,7 @@
 
 ## `<af-swiper>` 轮播/滑动
 
-- 属性：`autoplay` (Number ms, 0=关) | `loop` (Boolean)
+- 属性：`autoplay` (Number ms, 0=关) | `loop` (Boolean) | `active-index` (Number) | `show-dots` (String, default "true")
 - 事件：`af-swiper:change {index}`
 - 内容：`<af-swiper><div class="slide">...</div>...</af-swiper>`
 
@@ -89,7 +89,7 @@
 
 ## `<af-dialog>` 模态框（原生 `<dialog>` 封装）
 
-- 属性：`title` (String)
+- 属性：`title` (String) | `close-on-esc` (Boolean) | `close-on-backdrop` (Boolean) | `variant` (String, default/top/bottom)
 - 内容：`<af-dialog><div slot="body">...</div><div slot="footer">...</div></af-dialog>`
 - API：`dialogEl.open()` / `dialogEl.close(action)`
 - 事件：`af-dialog:open {}` / `af-dialog:close {action}`
@@ -97,14 +97,15 @@
 ## `<af-toast>` 轻提示（全局单例）
 
 - 单例：全局只需一个 `<af-toast id="t"></af-toast>`
+- 属性：`duration` (Number ms, default 2000)
 - API：`t.show(message, duration=2000)`
 - 事件：`af-toast:dismiss {}`
 - ARIA：`role=status` + `aria-live=polite`
 
 ## `<af-action-sheet>` 底部操作面板（popover）
 
-- 属性：`options` (JSON Array `[{label,value, danger?:Boolean}]`)
-- 事件：`af-action-sheet:select {index,value}` / `af-action-sheet:close {}`
+- 属性：`options` (JSON Array `[{label,value, danger?:Boolean}]`) | `title` (String) | `show-cancel` (Boolean, default true) | `cancel-text` (String, default "取消")
+- 事件：`af-action-sheet:select {index,value}` / `af-action-sheet:close {}` / `af-action-sheet:open {}`
 - API：`sheet.showPopover()` / `sheet.hidePopover()`
 
 ## `<af-picker>` 滚轮选择器（scroll-snap）
@@ -114,18 +115,18 @@
 
 ## `<af-dropdown>` 下拉菜单（popover）
 
-- 属性：`options` (JSON Array `[{label,value}]`) | `placeholder` (String)
+- 属性：`options` (JSON Array `[{label,value}]`) | `value` (String) | `placeholder` (String)
 - 事件：`af-dropdown:select {index,value}`
 
 ## `<af-img>` 懒加载图片（IntersectionObserver）
 
-- 属性：`src` (String) | `alt` (String，必填) | `placeholder-src` (String)
+- 属性：`src` (String) | `alt` (String，必填) | `placeholder-src` (String) | `fail-src` (String) | `variant` (String, default/thumb/avatar) | `lazy` (Boolean, default true) | `root-margin` (String, default "200px")
 - 事件：`af-img:load {}` / `af-img:error {}`
 
 ## `<af-backtop>` 回到顶部
 
-- 属性：`threshold` (Number px，显示阈值，默认 200)
-- 事件：`af-backtop:click {}`
+- 属性：`threshold` (Number px，显示阈值，默认 200) | `target` (String, CSS selector) | `position` (String, right-bottom/left-bottom) | `text` (String, default "↑")
+- 事件：`af-backtop:click {}` / `af-backtop:show {}` / `af-backtop:hide {}`
 - ARIA：`aria-label="回到顶部"`
 
 ---

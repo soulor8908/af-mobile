@@ -3,9 +3,9 @@
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
 
 - **L1 Token**：43 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
-- **L2 配方 + 原子**：104 个白名单封闭集 class（`btn`/`card`/`p-4`/...）
+- **L2 配方 + 原子**：105 个白名单封闭集 class（`btn`/`card`/`p-4`/...）
 - **L3 真组件**：10 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
-- **L4 AI 约束层**：System Prompt 引导 + ESLint 16 规则兜底 + CI 保护
+- **L4 AI 约束层**：System Prompt 引导 + ESLint 15 规则兜底 + CI 保护
 
 ## 安装
 
@@ -99,7 +99,7 @@ registerAll();
 
 1. `tokens.css` 以外不可重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 2. `style=""` 不可设置 `color/background*/padding*/margin*/font-size/border-radius/box-shadow`
-3. 不可使用 114 白名单外的 class 名或自定义组件标签
+3. 不可使用 115 白名单外的 class 名或自定义组件标签
 4. `.btn`（非 ghost）不可叠加 `text-brand/text-danger/text-success`
 5. `.input` 不可叠加 `t-sm/t-xs`（iOS 聚焦 < 16px 自动放大页面）
 6. `.cell/.list-item` 不可叠加 `f/fc` 原子
@@ -108,7 +108,7 @@ registerAll();
 9. `.list-item/.list-item-compact` 自带 border-top 由 `.list` 容器管理，不要单独设
 10. `.sheet` 显隐必须走原生 popover API `showPopover/hidePopover`
 11. `.tab-item` 不可同时设 `active` class 与 `aria-selected="true"`（二选一）
-12. **Light DOM 组件**（`af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop`）不可含 `<style>` 或 `this.style.xxx=`
+12. **Light DOM 组件**（`af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img`）不可含 `<style>` 或 `this.style.xxx=`
 13. **Shadow 组件** CSS 字符串不可硬编码颜色/间距/字号/圆角（`::backdrop` 遮罩 rgba(0,0,0,.5) 例外）
 14. 事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`
 15. `af-dialog/af-action-sheet` 必须有焦点陷阱（Tab 不逃出，关闭还原焦点）
@@ -162,7 +162,7 @@ PR 触发 CI 6 步检查（任一失败即阻断合并）：
 | 1 | 白名单三源同步（CSS/JS ↔ whitelist.json ↔ Prompt 注入） | `npm run whitelist:check` |
 | 2 | 体积预算（L1+L2 ≤ 4.2KB / L3 ≤ 10.5KB / 单组件 ≤ 2.5KB） | `npm run size` |
 | 3 | 单元测试 | `npm test` |
-| 4 | ESLint 16 规则（13 error + 3 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
+| 4 | ESLint 15 规则（10 error + 5 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
 | 5 | 发布前检查（Tree Shaking + sideEffects + npm pack 内容） | `npm run publish:check` |
 | 6 | CODEOWNERS 审批（GitHub Branch Protection 自动处理） | — |
 

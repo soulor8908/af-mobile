@@ -31,10 +31,7 @@ export class AfSwiper extends AfElement {
   }
 
   get slideCount() {
-    // 优先用 slot.assignedElements（标准 API），降级到 host children（jsdom 兼容）
-    const slot = this.shadowRoot.querySelector('slot');
-    const assigned = slot?.assignedElements?.() ?? [];
-    return assigned.length || this.children.length;
+    return this.shadowRoot.querySelector('slot')?.assignedElements().length ?? 0;
   }
 
   mounted() {

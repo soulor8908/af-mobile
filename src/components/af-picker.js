@@ -22,9 +22,8 @@ const CSS = `
   .columns { display: flex; position: relative; }
   .column {
     flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory;
-    scrollbar-width: none; -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-  .column::-webkit-scrollbar { display: none; }
   .column:focus { outline: 2px solid var(--c-brand); outline-offset: -2px; }
   .item {
     height: var(--af-item-h); line-height: var(--af-item-h);

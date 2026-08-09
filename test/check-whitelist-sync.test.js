@@ -47,7 +47,7 @@ describe('whitelist-sync / findMissingInPrompt', () => {
       components: ['af-dialog'],
       tokens: ['--c-brand'],
     });
-    const C = '`btn` `p-4` `<af-dialog>` `--c-brand`';
+    const C = '`btn` `p-4` `<af-dialog>` `--c-brand` | `<af-dialog>` |';
     expect(findMissingInPrompt(wl, C)).toEqual([]);
   });
 
@@ -73,6 +73,14 @@ describe('whitelist-sync / findMissingInPrompt', () => {
     ]);
   });
 
+  it('component 标签在白名单节但 L3 简表缺失 → 报告（P0-3 场景）', () => {
+    const wl = fakeWl({ components: ['af-dialog'] });
+    // 标签 `<af-dialog>` 在，但简表行 | `<af-dialog>` | 缺失 → AI 拿不到属性/事件用法
+    expect(findMissingInPrompt(wl, '`<af-dialog>`')).toEqual([
+      `component 'af-dialog' 在 whitelist 但 L3 组件简表缺失（检查 build-prompt.mjs 的 COMPONENT_META）`,
+    ]);
+  });
+
   it('token 未注入 → 报告', () => {
     const wl = fakeWl({ tokens: ['--c-brand'] });
     expect(findMissingInPrompt(wl, '')).toEqual([
@@ -93,7 +101,7 @@ describe('whitelist-sync / findMissingInPrompt', () => {
 describe('whitelist-sync / computeSyncProblems', () => {
   it('A=B=C 时无差异', () => {
     const A = fakeWl({ recipe: ['btn'], atomic: ['p-4'], components: ['af-dialog'], tokens: ['--c-brand'] });
-    const C = '`btn` `p-4` `<af-dialog>` `--c-brand`';
+    const C = '`btn` `p-4` `<af-dialog>` `--c-brand` | `<af-dialog>` |';
     expect(computeSyncProblems(A, A, C)).toEqual([]);
   });
 
@@ -145,7 +153,7 @@ describe('whitelist-sync / computeSyncProblems', () => {
       components: ['af-dialog', 'af-extra'],
       tokens: ['--c-brand', '--extra-token'],
     });
-    const problems = computeSyncProblems(A, B_, '`btn` `p-4` `<af-dialog>` `--c-brand`');
+    const problems = computeSyncProblems(A, B_, '`btn` `p-4` `<af-dialog>` `--c-brand` | `<af-dialog>` |');
     // 4 个 B\A + 4 个 B\C = 8
     expect(problems).toHaveLength(8);
     expect(problems.some(p => p.includes('extra-recipe'))).toBe(true);

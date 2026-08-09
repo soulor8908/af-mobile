@@ -10,7 +10,7 @@
 ## 目录
 
 - [0. 概述：三层防线机制](#0-概述三层防线机制)
-- [1. 白名单封闭集：105 类 + 10 组件](#1-白名单封闭集105-类--10-组件)
+- [1. 白名单封闭集：114 类 + 13 组件](#1-白名单封闭集114-类--13-组件)
 - [2. System Prompt 骨架（结构 + 生成参数 + 动态注入）](#2-system-prompt-骨架结构--生成参数--动态注入)
 - [3. ESLint 插件：15 条规则完整定义](#3-eslint-插件15-条规则完整定义)
 - [4. AI 代码生成修正流程（4 步 · 最多 3 轮）](#4-ai-代码生成修正流程4-步--最多-3-轮)
@@ -28,8 +28,8 @@
 | 层 | 内容 | 防护方式 | 阻断位置 |
 |---|---|---|---|
 | L1 | Token（43 变量） | `no-token-modification` + `no-inline-style` | ESLint error |
-| L2 | 配方 53 + 原子 52 = 105 类 | `token-whitelist` + `no-recipe-break` + 覆盖矩阵 | ESLint error/warn |
-| L3 | 10 个真组件（WC） | `wc-light-no-style` + `wc-shadow-use-token` + `wc-event-naming` 等 | ESLint error |
+| L2 | 配方 62 + 原子 52 = 114 类 | `token-whitelist` + `no-recipe-break` + 覆盖矩阵 | ESLint error/warn |
+| L3 | 13 个真组件（WC） | `wc-light-no-style` + `wc-shadow-use-token` + `wc-event-naming` 等 | ESLint error |
 | **L4** | **AI 约束层** | **Prompt 引导 + ESLint 兜底 + CI 保护** | **Prompt 第一道 + ESLint 第二道 + CI 第三道** |
 
 ### 0.2 三层防线流程
@@ -38,7 +38,7 @@
 AI 生成代码请求
     │
     ▼  第 1 道防线（事前 · Prompt 引导）
-System Prompt（115 白名单 + 25 条禁令 + 5 正反示例 + 项目级扩展）
+System Prompt（114 白名单 + 25 条禁令 + 5 正反示例 + 项目级扩展）
 temperature = 0.1（极低，白名单确定性空间无需创意）
     │  通过 → 生成合规代码
     │  泄露 → 生成不合规代码
@@ -65,19 +65,21 @@ CI Pipeline
 
 | 层 | 预算 gzip | 说明 |
 |---|---|---|
-| L1 + L2 CSS | ≤ 4.2KB | 43 变量 + 53 配方 + 52 原子（实测 3.91KB + 7% 余量） |
-| L3 JS（10 组件+基类） | ≤ 10.5KB | ESM 命名导出 + Tree Shaking（含完整 ARIA/键盘，详 L3 §1.4） |
-| L3 JS（按需 2 组件） | ≤ 4.5KB | Tree Shaking 效果验证（worst-case 2 大组件） |
-| L3 单组件（JS+CSS） | ≤ 2.5KB | 单组件体积约束 |
-| 基类 AfElement | ≤ 0.8KB | 所有组件共享的基础 |
+| L1 + L2 CSS | ≤ 4.9KB | 43 变量 + 62 配方 + 52 原子（含 prefers-reduced-motion + palette 抽象 + 宿主样式） |
+| L3 JS（13 组件+基类） | ≤ 14KB | ESM 命名导出 + Tree Shaking（含完整 ARIA/键盘，详 L3 §1.4） |
+| L3 JS（按需 2 组件） | ≤ 5.5KB | Tree Shaking 效果验证（worst-case 2 大组件） |
+| L3 单组件（JS+CSS） | ≤ 2.6KB | 单组件体积约束 |
+| 基类 AfElement | ≤ 1.1KB | 所有组件共享的基础（含 html/escapeHtml XSS 防护） |
 
 ---
 
-## 1. 白名单封闭集：105 类 + 10 组件
+## 1. 白名单封闭集：114 类 + 13 组件
 
-### 1.1 完整清单（合计 115 标识符）
+### 1.1 完整清单（合计 114 class + 13 组件）
 
-**L2 配方（53）**
+> 以下为示意分组，**实际清单以 `npm run whitelist` 生成的 `whitelist-v1.json` 为准**（由 `gen-whitelist.mjs` 扫描 `src/**/*.css` + `src/index.js` 自动提取）。文档手敲清单可能滞后于源码，分歧时以 CI `whitelist:check` 为准。
+
+**L2 配方（62）**
 
 ```
 [按钮 7]     btn btn-sm btn-lg btn-ghost btn-danger btn-success btn-block

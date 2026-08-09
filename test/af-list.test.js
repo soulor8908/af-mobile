@@ -72,6 +72,17 @@ describe('af-list 虚拟滚动', () => {
     expect(el.$$('.list-item').length).toBeGreaterThan(0);
   });
 
+  it('data 替换（非空→非空，滚动位置不变）后可见区内容更新（P0-1 缓存失效）', () => {
+    const el = makeList({ data: makeData(3) });
+    expect(el.$$('.list-item').length).toBe(3);
+    // 滚动位置在顶部（startIndex=0 不变），替换整列数据
+    el.setAttribute('data', JSON.stringify([{ title: 'NEW-ITEM' }]));
+    const items = el.$$('.list-item');
+    expect(items.length).toBe(1);
+    expect(items[0].textContent).toContain('NEW-ITEM');
+    expect(items[0].textContent).not.toContain('Item 0');
+  });
+
   it('endLoadMore：hasMore=false 时显示"没有更多了"', () => {
     const el = makeList({ data: makeData(3) });
     el.endLoadMore(false);

@@ -133,6 +133,36 @@ export function buildWhitelistSection(wl, recipeGroups, atomicGroups) {
 }
 
 // 构造项目级扩展注入段
+// L3 组件简表元数据（与 src/components/af-*.js 一一对应，属性/事件以源码 defineProp/emit 为准）
+// 新增组件时在此追加一行；CI 的 check-whitelist-sync 会校验三方一致，防漂移
+const COMPONENT_META = [
+  { tag: 'af-list', purpose: '长列表虚拟滚动', props: 'data, page-size, refresh', events: 'af-list:loadmore, af-list:itemclick, af-list:refresh' },
+  { tag: 'af-swiper', purpose: '轮播/滑动', props: 'autoplay, loop, active-index', events: 'af-swiper:change' },
+  { tag: 'af-tabs', purpose: '标签页', props: 'tabs, active-index', events: 'af-tabs:change' },
+  { tag: 'af-dialog', purpose: '模态框', props: 'title, close-on-esc, close-on-backdrop, variant', events: 'af-dialog:open, af-dialog:close' },
+  { tag: 'af-toast', purpose: '轻提示（单例）', props: 'duration', events: 'af-toast:dismiss' },
+  { tag: 'af-action-sheet', purpose: '底部操作面板', props: 'options, title, show-cancel', events: 'af-action-sheet:select, af-action-sheet:close' },
+  { tag: 'af-picker', purpose: '滚轮选择器', props: 'columns, values, title', events: 'af-picker:change, af-picker:confirm' },
+  { tag: 'af-dropdown', purpose: '下拉菜单', props: 'options, value, placeholder', events: 'af-dropdown:select' },
+  { tag: 'af-img', purpose: '懒加载图片', props: 'src, alt, placeholder-src, fail-src, variant', events: 'af-img:load, af-img:error' },
+  { tag: 'af-backtop', purpose: '回到顶部', props: 'threshold, target, position', events: 'af-backtop:click, af-backtop:show, af-backtop:hide' },
+  { tag: 'af-switch', purpose: '开关', props: 'checked, disabled, loading, size', events: 'af-switch:change' },
+  { tag: 'af-search-bar', purpose: '搜索栏', props: 'value, placeholder, clearable, debounce', events: 'af-search-bar:input, af-search-bar:search, af-search-bar:clear' },
+  { tag: 'af-skeleton-page', purpose: '整页骨架屏', props: 'variant', events: '—' },
+];
+
+// 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）
+export function buildComponentTableSection(meta = COMPONENT_META) {
+  const lines = [
+    '| 组件 | 用途 | 核心属性 | 核心事件 |',
+    '|---|---|---|---|',
+  ];
+  for (const c of meta) {
+    lines.push(`| \`<${c.tag}>\` | ${c.purpose} | ${c.props} | ${c.events} |`);
+  }
+  return lines.join('\n');
+}
+
 export function buildProjectExtensionSection(items) {
   if (!items.length) return '';
   const lines = ['# 项目级扩展（来自 recipes.project.css）'];
@@ -152,13 +182,15 @@ function main() {
   const atomicGroups = extractGroupsFromCss(readFileSync(ATOMIC_CSS, 'utf8'));
 
   const wlSection = buildWhitelistSection(wl, recipeGroups, atomicGroups);
+  const compTableSection = buildComponentTableSection();
   let output = tpl
-    .replace('<!-- {{{ WHITELIST_INJECTION_POINT }}} -->', wlSection)
-    .replace('{{{ TOKEN_COUNT }}}', String(wl.tokens.length))
-    .replace('{{{ RECIPE_COUNT }}}', String(wl.classes.recipe.length))
-    .replace('{{{ ATOMIC_COUNT }}}', String(wl.classes.atomic.length))
-    .replace('{{{ TOTAL_CLASS_COUNT }}}', String(wl.classes.recipe.length + wl.classes.atomic.length))
-    .replace('{{{ COMPONENT_COUNT }}}', String(wl.components.length));
+    .replaceAll('<!-- {{{ WHITELIST_INJECTION_POINT }}} -->', wlSection)
+    .replaceAll('<!-- {{{ COMPONENT_TABLE_INJECTION_POINT }}} -->', compTableSection)
+    .replaceAll('{{{ TOKEN_COUNT }}}', String(wl.tokens.length))
+    .replaceAll('{{{ RECIPE_COUNT }}}', String(wl.classes.recipe.length))
+    .replaceAll('{{{ ATOMIC_COUNT }}}', String(wl.classes.atomic.length))
+    .replaceAll('{{{ TOTAL_CLASS_COUNT }}}', String(wl.classes.recipe.length + wl.classes.atomic.length))
+    .replaceAll('{{{ COMPONENT_COUNT }}}', String(wl.components.length));
 
   // 项目级扩展（可选）
   let extSection = '';

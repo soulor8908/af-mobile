@@ -25,7 +25,7 @@
   "unpkg": "./dist/aiflow-ui.umd.js",
   "jsdelivr": "./dist/aiflow-ui.umd.js",
   "browser": "./dist/aiflow-ui.umd.js",
-  "sideEffects": false,
+  "sideEffects": ["**/*.css"],
   "files": [
     "src",
     "dist"

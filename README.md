@@ -3,7 +3,7 @@
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
 
 - **L1 Token**：43 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
-- **L2 配方 + 原子**：112 个白名单封闭集 class（`btn`/`card`/`p-4`/...）
+- **L2 配方 + 原子**：114 个白名单封闭集 class（62 配方 + 52 原子，`btn`/`card`/`p-4`/...）
 - **L3 真组件**：13 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 15 规则兜底 + CI 保护
 
@@ -73,8 +73,8 @@ npm install aiflow-ui
 | 懒加载图片 | `<af-img>` | `src` `alt` `placeholder-src` `fail-src` | `af-img:load` `af-img:error` |
 | 回到顶部 | `<af-backtop>` | `threshold` `target` `position` | `af-backtop:click` |
 | 开关 | `<af-switch>` | `checked` `loading` `disabled` `size` | `af-switch:change` |
-| 搜索栏 | `<af-search-bar>` | `value` `placeholder` `show-clear` | `af-search-bar:change` `af-search-bar:submit` |
-| 骨架屏页面 | `<af-skeleton-page>` | `variant` `loading` | — |
+| 搜索栏 | `<af-search-bar>` | `value` `placeholder` `clearable` `debounce` | `af-search-bar:input` `af-search-bar:search` `af-search-bar:clear` |
+| 骨架屏页面 | `<af-skeleton-page>` | `variant` | — |
 
 事件名遵循 `af-{组件}:{动作}` 格式，`event.detail` 携带结构化数据。
 
@@ -175,7 +175,7 @@ registerAll();
 
 1. `tokens.css` 以外不可重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 2. `style=""` 不可设置 `color/background*/padding*/margin*/font-size/border-radius/box-shadow`
-3. 不可使用 112 白名单外的 class 名或自定义组件标签
+3. 不可使用 114 白名单外的 class 名或自定义组件标签
 4. `.btn`（非 ghost）不可叠加 `text-brand/text-danger/text-success`
 5. `.input` 不可叠加 `t-sm/t-xs`（iOS 聚焦 < 16px 自动放大页面）
 6. `.cell/.list-item` 不可叠加 `f/fc` 原子
@@ -184,7 +184,7 @@ registerAll();
 9. `.list-item/.list-item-compact` 自带 border-top 由 `.list` 容器管理，不要单独设
 10. `.sheet` 显隐必须走原生 popover API `showPopover/hidePopover`
 11. `.tab-item` 选中态单一真相源是 `aria-selected="true"`（视觉由属性选择器驱动，不可用 `active` class）
-12. **Light DOM 组件**（`af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img`）不可含 `<style>` 或 `this.style.xxx=`
+12. **Light DOM 组件**（`af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img/af-switch/af-search-bar/af-skeleton-page`）不可含 `<style>` 或 `this.style.xxx=`
 13. **Shadow 组件** CSS 字符串不可硬编码颜色/间距/字号/圆角（`::backdrop` 遮罩 rgba(0,0,0,.5) 例外）
 14. 事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`
 15. `af-dialog/af-action-sheet` 必须有焦点陷阱（Tab 不逃出，关闭还原焦点）

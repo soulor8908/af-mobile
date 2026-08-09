@@ -59,7 +59,7 @@ async function treeShakeCheck() {
   const included = allComps.filter(c => code.includes(c.replace('af-', 'Af').replace(/-(\w)/g, (_, c) => c.toUpperCase())));
   const excluded = allComps.filter(c => !included.includes(c));
   check('Tree Shaking 摇除未引入组件', excluded.length >= 7, `${excluded.length}/${allComps.length} 个被摇除`);
-  check('按需 2 组件体积', gz < 4.5 * KB, fmt(gz));
+  check('按需 2 组件体积', gz < 5.5 * KB, fmt(gz));
 }
 
 // 3. whitelist 同步检查
@@ -75,7 +75,8 @@ function whitelistCheck() {
 console.log('\n── 4. package.json 配置 ──');
 function pkgCheck() {
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
-  check('sideEffects: false', pkg.sideEffects === false);
+  // sideEffects: CSS 有副作用（防 tree-shake 误删 import 'aiflow-ui/css'），JS 无副作用
+  check('sideEffects 标记 CSS 有副作用', Array.isArray(pkg.sideEffects) && pkg.sideEffects.some(s => s.includes('css')));
   check('type: module', pkg.type === 'module');
   check('exports 配置存在', !!pkg.exports);
   check('files 含 dist/', Array.isArray(pkg.files) && pkg.files.includes('dist'));

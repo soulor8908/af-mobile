@@ -244,13 +244,15 @@ export class AfList extends AfElement {
 
   onAttributeChange(name, oldVal, newVal) {
     if (!this._scroller) return;
-    if (name === 'data') {
-      this._render();
-    } else if (name === 'loading') {
-      this._render();
-    } else if (name === 'height') {
+    // data/mode/item-height/empty-text 变化会让可见区内容或 spacer 高度改变，
+    // 必须失效 _updateViewport 的 startIndex/endIndex 缓存，否则滚动位置不变时早返回导致旧内容残留
+    if (name === 'data' || name === 'mode' || name === 'item-height' || name === 'empty-text') {
+      this._prevStart = -1;
+      this._prevEnd = -1;
+    }
+    if (name === 'height') {
       this._applyHeight();
-    } else if (name === 'mode' || name === 'empty-text' || name === 'item-height') {
+    } else {
       this._render();
     }
   }

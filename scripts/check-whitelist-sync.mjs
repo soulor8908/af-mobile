@@ -37,6 +37,9 @@ export function findMissingInPrompt(B, C) {
   for (const c of B.components) {
     if (!C.includes('`<' + c + '>`')) {
       missing.push(`component '${c}' 在 whitelist 但 Prompt 未注入`);
+    } else if (!C.includes('| `<' + c + '>` |')) {
+      // 标签在白名单节存在，但 L3 组件简表缺失 → AI 拿不到该组件的属性/事件用法
+      missing.push(`component '${c}' 在 whitelist 但 L3 组件简表缺失（检查 build-prompt.mjs 的 COMPONENT_META）`);
     }
   }
   for (const t of B.tokens) {

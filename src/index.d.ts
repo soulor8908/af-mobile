@@ -417,11 +417,69 @@ export class AfBacktop extends AfElement {
 }
 
 // ============================================================
+// af-switch（v1.2.0 · 开关切换）
+// ============================================================
+
+export interface SwitchChangeDetail extends AfEventDetail {
+  checked: boolean;
+}
+
+export class AfSwitch extends AfElement {
+  static useShadow: false;
+  /** 开关状态 */
+  checked: boolean;
+  /** 禁用 */
+  disabled: boolean;
+  /** 加载中（显示 spinner，禁用交互） */
+  loading: boolean;
+  /** 尺寸变体 */
+  size: 'sm' | 'md';
+  /** 切换开关（传参则强制设为该值） */
+  toggle(force?: boolean): void;
+  addEventListener(type: 'af-switch:change', listener: (e: CustomEvent<SwitchChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
+// af-search-bar（v1.2.0 · 搜索栏）
+// ============================================================
+
+export interface SearchBarInputDetail extends AfEventDetail {
+  value: string;
+}
+
+export class AfSearchBar extends AfElement {
+  static useShadow: false;
+  /** 输入值 */
+  value: string;
+  /** 占位文案 */
+  placeholder: string;
+  /** 是否显示清除按钮 */
+  clearable: boolean;
+  /** 防抖时间（ms，0 表示不防抖） */
+  debounce: number;
+  /** 聚焦输入框 */
+  focus(): void;
+  addEventListener(type: 'af-search-bar:input', listener: (e: CustomEvent<SearchBarInputDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-search-bar:search', listener: (e: CustomEvent<SearchBarInputDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-search-bar:clear', listener: (e: CustomEvent<SearchBarInputDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
+// af-skeleton-page（v1.2.0 · 整页骨架屏）
+// ============================================================
+
+export class AfSkeletonPage extends AfElement {
+  static useShadow: false;
+  /** 布局变体 */
+  variant: 'list' | 'detail' | 'profile' | 'card';
+}
+
+// ============================================================
 // 注册接口
 // ============================================================
 
 /** 按需注册单个组件（传入标签名） */
 export function register(name: string): void;
 
-/** 全量注册 10 个组件 */
+/** 全量注册 13 个组件 */
 export function registerAll(): void;

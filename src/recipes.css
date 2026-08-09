@@ -156,6 +156,71 @@
   .search-input:focus { outline: none; }
   .search-input::placeholder { color: var(--c-muted); }
 
+  .switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 52px;
+    height: 32px;
+    border-radius: var(--r-f);
+    background: var(--c-muted-bg);
+    border: 1px solid var(--c-border);
+    transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .switch-sm { width: 40px; height: 24px; }
+  .switch-on { background: var(--c-brand); border-color: var(--c-brand); }
+  .switch-loading { pointer-events: none; }
+  .switch[disabled] { opacity: 0.5; cursor: not-allowed; }
+  .switch-thumb {
+    display: block;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--c-bg);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform var(--dur-base) var(--ease-out);
+    margin: 0 2px;
+    flex-shrink: 0;
+  }
+  .switch-sm .switch-thumb { width: 20px; height: 20px; }
+  .switch-on .switch-thumb { transform: translateX(20px); }
+  .switch-sm.switch-on .switch-thumb { transform: translateX(16px); }
+  .switch-loading .switch-thumb { animation: switch-spin 0.8s linear infinite; }
+  @keyframes switch-spin { to { transform: rotate(360deg); } }
+
+  .search-bar-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .search-bar-icon {
+    position: absolute;
+    left: var(--s-2);
+    width: 16px;
+    height: 16px;
+    color: var(--c-muted);
+    pointer-events: none;
+  }
+  .search-bar-clear {
+    position: absolute;
+    right: var(--s-1);
+    border: none;
+    background: var(--c-muted-bg);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--c-muted);
+    padding: 0;
+  }
+  .search-bar-clear[hidden] { display: none; }
+
   .input-err {
     border-color: var(--c-danger);
   }
@@ -254,6 +319,15 @@
   .skeleton-line:last-child {
     margin-bottom: 0;
     width: 60%;
+  }
+
+  .skeleton-block {
+    height: 100px;
+    border-radius: var(--r-m);
+    margin-bottom: var(--s-2);
+  }
+  .skeleton-page {
+    padding: var(--s-3);
   }
 
   .tag {

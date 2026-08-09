@@ -21,8 +21,11 @@ import { AfPicker } from './components/af-picker.js';
 import { AfDropdown } from './components/af-dropdown.js';
 import { AfImg } from './components/af-img.js';
 import { AfBacktop } from './components/af-backtop.js';
+import { AfSwitch } from './components/af-switch.js';
+import { AfSearchBar } from './components/af-search-bar.js';
+import { AfSkeletonPage } from './components/af-skeleton-page.js';
 
-export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop };
+export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfSwitch, AfSearchBar, AfSkeletonPage };
 
 const REGISTRY = {
   'af-list': AfList,
@@ -35,6 +38,9 @@ const REGISTRY = {
   'af-dropdown': AfDropdown,
   'af-img': AfImg,
   'af-backtop': AfBacktop,
+  'af-switch': AfSwitch,
+  'af-search-bar': AfSearchBar,
+  'af-skeleton-page': AfSkeletonPage,
 };
 
 export function registerAll() {

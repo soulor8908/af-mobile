@@ -3,7 +3,7 @@
 // 依据 docs/design/l3-detailed-design.md §8.5 CI 体积监控（数字与下方 BUDGET 一致）
 //   单组件（JS+CSS）gzip ≤ 2.5KB   PR 阻断
 //   基类 AfElement gzip     ≤ 0.85KB  PR 阻断
-//   全部 10 组件 + 基类 gzip ≤ 11.5KB PR 阻断
+//   全部 13 组件 + 基类 gzip ≤ 14KB PR 阻断
 //   按需引入 2 组件 gzip    ≤ 5.0KB   warn
 // 实现：esbuild 打包+minify，Node zlib 测 gzip（原生，无 gzip-size 依赖）
 import { build } from 'esbuild';
@@ -19,11 +19,12 @@ const SRC = join(ROOT, 'src');
 // 预算（L1+L2 来自 L4 §0.3 实测校准；L3 来自 L3 §8.5）
 // v1.0.1 调整：基类含 escapeHtml 防 XSS（P0 安全），total 含 P0 修复（定位/焦点/转义）
 // v1.0.2 调整：af-swiper 含 loop clone 无缝循环（P1-2），total 上调至 11.5KB
+// v1.2.0 调整：新增 af-switch/af-search-bar/af-skeleton-page（IP-4/5/6），total 上调至 14KB
 const BUDGET = {
   css: 4.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，实测 3.91KB + 7% 余量）
   perComponent: 2.5,   // KB，单组件 JS+CSS
   base: 0.85,          // KB，AfElement 基类（含 escapeHtml XSS 防护）
-  total: 11.5,         // KB，10 组件 + 基类（含 P0 安全 + P1 loop clone 修复）
+  total: 14,           // KB，13 组件 + 基类（含 P0 安全 + P1 loop clone + v1.2.0 新增 3 组件）
   onDemand2: 5.0,      // KB，按需 2 组件（warn）
 };
 
@@ -51,7 +52,8 @@ const FILE_TO_NAME = {
   'af-list.js': 'AfList', 'af-swiper.js': 'AfSwiper', 'af-tabs.js': 'AfTabs',
   'af-dialog.js': 'AfDialog', 'af-toast.js': 'AfToast', 'af-action-sheet.js': 'AfActionSheet',
   'af-picker.js': 'AfPicker', 'af-dropdown.js': 'AfDropdown', 'af-img.js': 'AfImg',
-  'af-backtop.js': 'AfBacktop',
+  'af-backtop.js': 'AfBacktop', 'af-switch.js': 'AfSwitch', 'af-search-bar.js': 'AfSearchBar',
+  'af-skeleton-page.js': 'AfSkeletonPage',
 };
 // 类名 → 文件名
 const NAME_TO_FILE = Object.fromEntries(
@@ -145,7 +147,7 @@ async function main() {
   // 全量
   console.log('');
   const totalOver = totalGz > BUDGET.total * KB;
-  console.log(`全量（10 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
+  console.log(`全量（13 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
   if (totalOver) violations.push(`全量 ${fmt(totalGz)} > ${BUDGET.total}KB`);
 
   // 按需 2

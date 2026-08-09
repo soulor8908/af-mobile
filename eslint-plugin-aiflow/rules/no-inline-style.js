@@ -103,6 +103,36 @@ export default {
           context.report({ node, messageId: 'forbidden', data: { value: v.value } });
         }
       },
+      // 检测 el.style.setProperty('color', ...) / el.style.xxx = '...' 绕过
+      // 仅当属性名为 forbidden 视觉属性且非常量 --* CSS 变量时报告
+      CallExpression(node) {
+        const callee = node.callee;
+        if (callee?.type !== 'MemberExpression') return;
+        if (callee.object?.type !== 'MemberExpression') return;
+        if (callee.object.property?.name !== 'style') return;
+        if (callee.property?.name !== 'setProperty') return;
+        const propArg = node.arguments?.[0];
+        if (!propArg || propArg.type !== 'Literal' || typeof propArg.value !== 'string') return;
+        // CSS 自定义属性（--*）豁免：用于主题变量传递，由 no-token-modification 规则单独管
+        if (propArg.value.startsWith('--')) return;
+        const prop = propArg.value.toLowerCase();
+        if (FORBIDDEN.has(prop) && !ALLOWED_LAYOUT.has(prop) && !extraAllow.has(prop)) {
+          context.report({ node, messageId: 'forbidden', data: { value: `${prop}` } });
+        }
+      },
+      AssignmentExpression(node) {
+        // el.style.color = 'red' 形式
+        if (node.left?.type !== 'MemberExpression') return;
+        if (node.left.object?.type !== 'MemberExpression') return;
+        if (node.left.object.property?.name !== 'style') return;
+        const propName = node.left.property?.name;
+        if (!propName) return;
+        // kebab-case 转换：backgroundColor → background-color
+        const kebab = propName.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
+        if (FORBIDDEN.has(kebab) && !ALLOWED_LAYOUT.has(kebab) && !extraAllow.has(kebab)) {
+          context.report({ node, messageId: 'forbidden', data: { value: kebab } });
+        }
+      },
     };
   },
 };

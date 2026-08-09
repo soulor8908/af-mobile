@@ -48,6 +48,45 @@ export default {
           // 非 CSS 内容（如 .js 文件恰好进入此规则）：静默跳过
         }
       },
+      // 检测 JS 内 el.style.setProperty('--c-brand', ...) / removeProperty('--c-brand') 间接覆盖 token
+      // 也覆盖 el.style['--c-brand'] = ... 形式
+      CallExpression(node) {
+        const callee = node.callee;
+        if (callee?.type !== 'MemberExpression') return;
+        if (callee.object?.type !== 'MemberExpression') return;
+        if (callee.object.property?.name !== 'style') return;
+        const method = callee.property?.name;
+        if (method !== 'setProperty' && method !== 'removeProperty') return;
+        const propArg = node.arguments?.[0];
+        if (!propArg || propArg.type !== 'Literal' || typeof propArg.value !== 'string') return;
+        if (TOKEN_PREFIX_RE.test(propArg.value)) {
+          context.report({ node, messageId: 'locked', data: { name: propArg.value } });
+        }
+      },
+      AssignmentExpression(node) {
+        // el.style['--c-brand'] = ... 或 el.style.cssText = '--c-brand: ...'
+        if (node.left?.type !== 'MemberExpression') return;
+        if (node.left.object?.type !== 'MemberExpression') return;
+        if (node.left.object.property?.name !== 'style') return;
+        // 计算属性访问 el.style['--c-brand']
+        const propNode = node.left.property;
+        if (propNode?.type === 'Literal' && typeof propNode.value === 'string'
+            && TOKEN_PREFIX_RE.test(propNode.value)) {
+          context.report({ node, messageId: 'locked', data: { name: propNode.value } });
+        }
+        // el.style.cssText = '--c-brand: red; ...' 间接覆盖
+        if (propNode?.type === 'Identifier' && propNode.name === 'cssText') {
+          const valNode = node.right;
+          if (valNode?.type === 'Literal' && typeof valNode.value === 'string') {
+            const matches = valNode.value.match(/--[a-z][\w-]*/g) || [];
+            for (const m of matches) {
+              if (TOKEN_PREFIX_RE.test(m)) {
+                context.report({ node, messageId: 'locked', data: { name: m } });
+              }
+            }
+          }
+        }
+      },
     };
   },
 };

@@ -57,4 +57,73 @@ describe('aiflow/no-token-modification', () => {
       invalid: [],
     });
   });
+
+  // === JS 内 setProperty / 间接覆盖 token 检测（L4 有效性补强） ===
+  it('JS 内 setProperty("--c-brand", ...) 间接覆盖 token：报错', () => {
+    ruleTester.run('no-token-modification', rule, {
+      valid: [],
+      invalid: [{
+        filename: 'src/components/af-dialog.js',
+        code: 'el.style.setProperty("--c-brand", "#ff0000");',
+        errors: [{ messageId: 'locked', data: { name: '--c-brand' } }],
+      }],
+    });
+  });
+
+  it('JS 内 setProperty("--s-4", ...) 间接覆盖 token：报错', () => {
+    ruleTester.run('no-token-modification', rule, {
+      valid: [],
+      invalid: [{
+        filename: 'src/components/af-list.js',
+        code: 'el.style.setProperty("--s-4", "20px");',
+        errors: [{ messageId: 'locked', data: { name: '--s-4' } }],
+      }],
+    });
+  });
+
+  it('JS 内 setProperty("--af-list-h", ...) 非 token 前缀：放行', () => {
+    ruleTester.run('no-token-modification', rule, {
+      valid: [{
+        filename: 'src/components/af-list.js',
+        code: 'el.style.setProperty("--af-list-h", "100px");',
+      }],
+      invalid: [],
+    });
+  });
+
+  it('JS 内 removeProperty("--c-brand") 删除 token：报错', () => {
+    ruleTester.run('no-token-modification', rule, {
+      valid: [],
+      invalid: [{
+        filename: 'src/components/af-dialog.js',
+        code: 'el.style.removeProperty("--c-brand");',
+        errors: [{ messageId: 'locked', data: { name: '--c-brand' } }],
+      }],
+    });
+  });
+
+  it('JS 内 el.style["--c-brand"] = ... 计算属性访问：报错', () => {
+    ruleTester.run('no-token-modification', rule, {
+      valid: [],
+      invalid: [{
+        filename: 'src/components/af-dialog.js',
+        code: 'el.style["--c-brand"] = "#ff0000";',
+        errors: [{ messageId: 'locked', data: { name: '--c-brand' } }],
+      }],
+    });
+  });
+
+  it('JS 内 el.style.cssText = "--c-brand: red" 间接覆盖：报错', () => {
+    ruleTester.run('no-token-modification', rule, {
+      valid: [],
+      invalid: [{
+        filename: 'src/components/af-dialog.js',
+        code: 'el.style.cssText = "--c-brand: red; --s-4: 20px;";',
+        errors: [
+          { messageId: 'locked', data: { name: '--c-brand' } },
+          { messageId: 'locked', data: { name: '--s-4' } },
+        ],
+      }],
+    });
+  });
 });

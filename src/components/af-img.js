@@ -48,7 +48,7 @@ export class AfImg extends AfElement {
     const placeholderHtml = this.placeholderSrc
       ? `<img class="af-img-placeholder" src="${this.placeholderSrc}" alt="" aria-hidden="true" style="${imgStyle}">`
       : `<div class="skeleton af-img-placeholder" style="${imgStyle}" aria-hidden="true"></div>`;
-    // 用 hidden 属性替代 style="display:none;..."（避免 .style.xxx= 触发 wc-light-no-style）
+    // 用 hidden 属性控制显隐，遵守 Light DOM 不可设内联样式的约束
     this.innerHTML = `
       ${placeholderHtml}
       <img class="af-img-inner" alt="${this.alt}" hidden style="${imgStyle}">

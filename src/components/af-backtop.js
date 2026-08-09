@@ -31,7 +31,7 @@ export class AfBacktop extends AfElement {
     };
 
     this._scrollTarget.addEventListener('scroll', this._onScroll);
-    // 用 hidden 属性替代 style.display（避免 .style.xxx= 触发 wc-light-no-style）
+    // 用 hidden 属性控制显隐，遵守 Light DOM 不可设内联样式的约束
     this._updateVisibility();
 
     this._onClick = () => {

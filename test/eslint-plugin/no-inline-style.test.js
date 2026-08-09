@@ -68,4 +68,66 @@ describe('aiflow/no-inline-style', () => {
       invalid: [],
     });
   });
+
+  // === setProperty / .style.xxx 绕过检测（L4 有效性补强） ===
+  it('el.style.setProperty("color", ...) 绕过：报错', () => {
+    ruleTester.run('no-inline-style', rule, {
+      valid: [],
+      invalid: [{
+        code: 'el.style.setProperty("color", "red");',
+        errors: [{ messageId: 'forbidden' }],
+      }],
+    });
+  });
+
+  it('el.style.setProperty("padding", ...) 绕过：报错', () => {
+    ruleTester.run('no-inline-style', rule, {
+      valid: [],
+      invalid: [{
+        code: 'el.style.setProperty("padding", "16px");',
+        errors: [{ messageId: 'forbidden' }],
+      }],
+    });
+  });
+
+  it('el.style.setProperty("--af-list-h", ...) CSS 变量：放行', () => {
+    ruleTester.run('no-inline-style', rule, {
+      valid: [{ code: 'el.style.setProperty("--af-list-h", "100px");' }],
+      invalid: [],
+    });
+  });
+
+  it('el.style.setProperty("display", ...) 布局属性：放行', () => {
+    ruleTester.run('no-inline-style', rule, {
+      valid: [{ code: 'el.style.setProperty("display", "flex");' }],
+      invalid: [],
+    });
+  });
+
+  it('el.style.color = "red" 赋值绕过：报错', () => {
+    ruleTester.run('no-inline-style', rule, {
+      valid: [],
+      invalid: [{
+        code: 'el.style.color = "red";',
+        errors: [{ messageId: 'forbidden' }],
+      }],
+    });
+  });
+
+  it('el.style.backgroundColor = "red" 驼峰形式绕过：报错', () => {
+    ruleTester.run('no-inline-style', rule, {
+      valid: [],
+      invalid: [{
+        code: 'el.style.backgroundColor = "red";',
+        errors: [{ messageId: 'forbidden' }],
+      }],
+    });
+  });
+
+  it('el.style.display = "flex" 布局属性赋值：放行', () => {
+    ruleTester.run('no-inline-style', rule, {
+      valid: [{ code: 'el.style.display = "flex";' }],
+      invalid: [],
+    });
+  });
 });

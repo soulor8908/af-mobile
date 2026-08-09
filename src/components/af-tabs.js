@@ -1,7 +1,7 @@
 // AIFlow UI —— af-tabs：标签页切换
 // Light DOM（useShadow=false），复用 L2 .tabbar/.tab-item 配方
 // 职责：选中态 + 内容联动 + WAI-ARIA tab 模式（roving tabindex + 键盘）
-import { AfElement } from '../lib/af-element.js';
+import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfTabs extends AfElement {
   static useShadow = false;
@@ -46,7 +46,7 @@ export class AfTabs extends AfElement {
   _renderTabs() {
     this._tabbar.innerHTML = this.tabs.map((tab, i) => {
       const disabled = tab.disabled ? ' disabled' : '';
-      return `<button class="tab-item" role="tab" id="af-tabs-tab-${i}" aria-controls="af-tabs-panel-${i}" aria-selected="false" tabindex="-1"${disabled}>${tab.label}</button>`;
+      return `<button class="tab-item" role="tab" id="af-tabs-tab-${i}" aria-controls="af-tabs-panel-${i}" aria-selected="false" tabindex="-1"${disabled}>${esc(tab.label)}</button>`;
     }).join('');
   }
 
@@ -80,7 +80,6 @@ export class AfTabs extends AfElement {
     if (idx === this.activeIndex && !silent) return;
 
     this.activeIndex = idx;
-    this.setAttribute('active-index', String(idx));
 
     this.$$('.tab-item').forEach((tab, i) => {
       const selected = i === idx;

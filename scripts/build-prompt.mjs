@@ -49,8 +49,10 @@ export function extractGroupsFromCss(css) {
     const rules = [...body.matchAll(/([^{}]*?)\{/g)].map(x => x[1]);
     const classes = [];
     for (const sel of rules) {
+      // selector 内可能夹带行内注释 /* ... */，先剥离再做独占 class 判定
+      const cleaned = sel.replace(/\/\*[\s\S]*?\*\//g, '');
       // selector 列表按 , 分割
-      const parts2 = sel.split(',');
+      const parts2 = cleaned.split(',');
       const allSimple = parts2.every(p => /^\s*\.[a-z][a-z0-9-]*\s*$/.test(p));
       if (!allSimple) continue;
       for (const p of parts2) {

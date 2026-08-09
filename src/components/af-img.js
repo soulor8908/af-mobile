@@ -1,7 +1,7 @@
 // AIFlow UI —— af-img：懒加载图片
 // Light DOM（D19），复用 L2 .thumb/.avatar/.skeleton/.empty 配方
 // 职责：IntersectionObserver 懒加载 + 占位 + 失败回退 + 事件
-import { AfElement } from '../lib/af-element.js';
+import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfImg extends AfElement {
   static useShadow = false;
@@ -51,7 +51,7 @@ export class AfImg extends AfElement {
     // 用 hidden 属性控制显隐，遵守 Light DOM 不可设内联样式的约束
     this.innerHTML = `
       ${placeholderHtml}
-      <img class="af-img-inner" alt="${this.alt}" hidden style="${imgStyle}">
+      <img class="af-img-inner" alt="${esc(this.alt)}" hidden style="${imgStyle}">
     `;
     this._img = this.$('img.af-img-inner');
     this._placeholder = this.$('.af-img-placeholder');

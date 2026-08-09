@@ -38,8 +38,9 @@ await build({
 });
 console.log('✓ dist/index.js (ESM bundle)');
 
-// ---------- 2. dist/aiflow-ui.umd.js（UMD bundle，自动注册全组件） ----------
-// UMD 入口：bundle 全部组件并自动调用 registerAll()
+// ---------- 2. dist/aiflow-ui.umd.js（IIFE bundle，自动注册全组件） ----------
+// 命名 UMD 沿用历史习惯（unpkg/jsdelivr 字段指向此文件）；实为 IIFE（esbuild 无 UMD，IIFE 足够 CDN 直引场景）
+// 入口：bundle 全部组件并自动调用 registerAll()
 const umdEntryCode = `
 import { registerAll } from '${join(SRC, 'index.js').replace(/\\/g, '/')}';
 if (typeof window !== 'undefined') {

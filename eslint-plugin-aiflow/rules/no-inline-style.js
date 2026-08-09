@@ -74,23 +74,12 @@ export default {
     const options = context.options[0] || {};
     const extraAllow = new Set(options.allowProperties || []);
 
-    // 判断字符串是否在 skeleton class 元素内（粗略：同行/附近包含 skeleton）
-    function isInsideSkeleton(text, offset) {
-      // 向前查找最近的 class=，看是否含 skeleton
-      const before = text.slice(Math.max(0, offset - 200), offset);
-      const classMatch = before.match(/class\s*=\s*"([^"]*)"/g);
-      if (!classMatch) return false;
-      const lastClass = classMatch[classMatch.length - 1];
-      return /skeleton/.test(lastClass);
-    }
-
     return {
       // 检测字符串字面量（含 template literal）
       Literal(node) {
         if (typeof node.value !== 'string') return;
         const violations = checkStyleString(node.value);
         for (const v of violations) {
-          // skeleton 例外：放行 width/height（已在 ALLOWED_LAYOUT 中，但 forbidden 列表不含这些，所以无需特殊处理）
           if (extraAllow.has(v.prop)) continue;
           context.report({ node, messageId: 'forbidden', data: { value: v.value } });
         }

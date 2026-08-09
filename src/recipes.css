@@ -326,6 +326,12 @@
     border-radius: var(--r-m);
     margin-bottom: var(--s-2);
   }
+  .skeleton-block-h-sm { height: 120px; }
+  .skeleton-block-h-md { height: 200px; }
+  .skeleton-w-40 { width: 40%; }
+  .skeleton-w-60 { width: 60%; }
+  .skeleton-w-80 { width: 80%; }
+  .skeleton-circle { width: 64px; height: 64px; border-radius: 50%; }
   .skeleton-page {
     padding: var(--s-3);
   }

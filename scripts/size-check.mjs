@@ -1,7 +1,7 @@
 // AIFlow UI —— L3 体积预算验证脚本
 // 用法：node scripts/size-check.mjs
 // 依据 docs/design/l3-detailed-design.md §8.5 CI 体积监控（数字与下方 BUDGET 一致）
-//   单组件（JS+CSS）gzip ≤ 2.5KB   PR 阻断
+//   单组件 JS gzip ≤ 2.5KB   PR 阻断（CSS 计入 L1+L2 总预算，不单测）
 //   基类 AfElement gzip     ≤ 0.85KB  PR 阻断
 //   全部 13 组件 + 基类 gzip ≤ 14KB PR 阻断
 //   按需引入 2 组件 gzip    ≤ 5.0KB   warn
@@ -25,9 +25,10 @@ const SRC = join(ROOT, 'src');
 //   base 0.85→1.1KB：html 安全模板标签 + escapeHtml 命名实体（P0 XSS 防护）
 //   perComponent 2.5→2.6KB：af-picker 含 ARIA listbox + scroll-snap + 键盘导航（无障碍）
 // v1.3.2 调整：base 1.1→1.2KB，Number 类型空串回退 default（P2-3，避免 Number("")=0 导致除零）
+// v1.3.3 调整：css 4.9→5.0KB，新增 skeleton 变体类（skeleton-circle/w-*/h-*，移除骨架屏内联 style）
 const BUDGET = {
-  css: 4.9,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 prefers-reduced-motion + palette 抽象 + 宿主样式）
-  perComponent: 2.6,   // KB，单组件 JS+CSS（af-picker ARIA + scroll-snap + 键盘）
+  css: 5.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 prefers-reduced-motion + palette 抽象 + 宿主样式 + skeleton 变体）
+  perComponent: 2.6,   // KB，单组件 JS（CSS 计入 L1+L2 总预算）
   base: 1.2,           // KB，AfElement 基类（含 html/escapeHtml XSS 防护 + Number 空串回退）
   total: 14,           // KB，13 组件 + 基类（含 P0 安全 + P1 loop clone + v1.2.0 新增 3 组件）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
@@ -110,7 +111,7 @@ async function main() {
     compSizes.push({ file: f, gz });
   }
 
-  // 3. 全量 bundle（index.js，含基类 + 10 组件）
+  // 3. 全量 bundle（index.js，含基类 + 13 组件）
   const totalRes = await build({
     entryPoints: [join(SRC, 'index.js')],
     bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',

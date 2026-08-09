@@ -10,7 +10,7 @@
 # 设计体系速查
 
 - **L1 Token（58 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
-- **L2 配方（62）+ 原子（52）= 114 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
+- **L2 配方（68）+ 原子（52）= 120 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
 - **L3 真组件（13 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
@@ -18,14 +18,14 @@
 
 # L2 白名单（构建时注入）
 
-## L2 配方（62 个，按用途分组）
+## L2 配方（68 个，按用途分组）
 
 **按钮（7）：** `btn` `btn-sm` `btn-lg` `btn-ghost` `btn-danger` `btn-success` `btn-block`
 **容器（5）：** `page` `card` `cell` `center` `sheet`
 **文本（7）：** `title` `subtitle` `body` `caption` `meta` `price` `price-del`
 **表单（16）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-loading` `switch-thumb` `search-bar-wrap` `search-bar-icon` `search-bar-clear` `input-err`
 **列表（6）：** `list` `list-item` `list-item-compact` `divider` `thumb` `avatar`
-**反馈（11）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast`
+**反馈（17）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast`
 **导航（5）：** `navbar` `navbar-fixed` `tabbar` `tabbar-fixed` `tab-item`
 **布局（5）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar`
 
@@ -83,7 +83,7 @@
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-03. 禁止使用 114 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
+03. 禁止使用 120 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success`（破坏 onbrand 对比度）
 05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fc` 原子（自带 `display:flex`，再设会破坏布局）

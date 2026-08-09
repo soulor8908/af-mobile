@@ -33,7 +33,6 @@ export class AfDropdown extends AfElement {
       const option = this.options[idx];
       if (!option) return;
       this.value = option.value;
-      this.setAttribute('value', String(option.value));
       this._updateTrigger();
       this._list.hidePopover();
       this.emit('af-dropdown:select', { index: idx, value: option.value });

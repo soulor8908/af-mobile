@@ -41,5 +41,18 @@
   },
   "af-img": {
     "description": "图片组件无强制 ARIA 要求"
+  },
+  "af-switch": {
+    "role": "switch",
+    "ariaChecked": true,
+    "description": "开关需要 role=switch 和 aria-checked"
+  },
+  "af-search-bar": {
+    "description": "搜索栏无强制容器 ARIA；清除按钮需 aria-label（由组件内置）"
+  },
+  "af-skeleton-page": {
+    "role": "status",
+    "ariaLive": true,
+    "description": "骨架屏需要 role=status 和 aria-live=polite"
   }
 }

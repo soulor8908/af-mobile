@@ -27,6 +27,10 @@ jobs:
       - name: Types sync (d.ts ↔ src)
         run: npm run types:check
 
+      # Step 1c: 提交态 prompt 快照 vs 运行时构建一致性（防 prompt 过期）
+      - name: Prompt sync (committed ↔ runtime)
+        run: npm run prompt:check
+
       # Step 2: 体积检查（L1+L2 CSS + L3 JS）
       - name: Size budget check
         run: npm run size

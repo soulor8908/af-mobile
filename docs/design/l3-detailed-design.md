@@ -19,7 +19,7 @@
 - [6. 事件机制与数据流](#6-事件机制与数据流)
 - [7. 无障碍（ARIA）与键盘交互](#7-无障碍aria与键盘交互)
 - [8. 体积控制与 Tree Shaking 实现](#8-体积控制与-tree-shaking-实现)
-- [9. 附录：组件逐个详设索引（占位）](#9-附录组件逐个详设索引占位)
+- [9. 组件逐个详设](#9-组件逐个详设)
 - [设计决策索引](#设计决策索引)
 
 ---
@@ -32,14 +32,14 @@
 |---|---|---|---|---|
 | L1 | Token 变量 + reset + base | 静态 CSS | ~0.8KB gzip | 不适用 |
 | L2 | 配方类（52）+ 原子类（52） | 静态 CSS | ~2.7KB gzip | 不适用（全量引入） |
-| **L3** | **真组件（10 个 af-* WC）** | **ESM JS + Shadow/Light CSS** | **~3.0KB gzip** | **支持** |
+| **L3** | **真组件（10 个 af-* WC）** | **ESM JS + Shadow/Light CSS** | **~2.8KB gzip** | **支持** |
 
 L3 = 必须 JS 才能实现的交互组件。L2 配方可覆盖的静态场景一律不上 L3。
 
 ### 0.2 设计目标
 
 1. **原生优先**：纯 Web Components（Custom Elements + Shadow DOM），零 Lit/Stencil 运行时
-2. **体积可控**：10 组件合计 ~3.0KB gzip，单组件 ~0.3KB 平均
+2. **体积可控**：10 组件合计 ~2.8KB gzip，单组件 ~0.3KB 平均
 3. **主题零代码**：Shadow 内直接引用 L1 token（CSS 变量穿透），自动跟随主题切换
 4. **无障碍合规**：WCAG 2.1 AA + WAI-ARIA 1.2，键盘可达 + 状态暴露
 
@@ -47,9 +47,9 @@ L3 = 必须 JS 才能实现的交互组件。L2 配方可覆盖的静态场景�
 
 ```
 L3 组件
-├─ Light DOM 组件（6 个）：innerHTML 直接用 L2 配方 class
+├─ Light DOM 组件（7 个）：innerHTML 直接用 L2 配方 class
 │     └─ 配方 class 引用 L1 token（自动继承，零额外代码）
-└─ Shadow DOM 组件（4 个）：Shadow <style> 内 var(--c-*) 引用 L1 token
+└─ Shadow DOM 组件（3 个）：Shadow <style> 内 var(--c-*) 引用 L1 token
       └─ CSS 变量穿透 Shadow 边界，自动跟随主题
 ```
 
@@ -97,13 +97,13 @@ L3 组件
 | `af-tabs` | 0.3KB | 0 | 0.3KB | ARIA 切换 |
 | `af-dialog` | 0.2KB | 0.1KB | 0.3KB | 原生 dialog 封装 |
 | `af-toast` | 0.2KB | 0 | 0.2KB | 单例队列 |
-| `af-action-sheet` | 0.1KB | 0.1KB | 0.2KB | popover 封装 |
+| `af-action-sheet` | 0.1KB | 0 | 0.1KB | popover 封装；Light DOM，CSS=0（详设 §9.6 改 Light） |
 | `af-picker` | 0.3KB | 0.1KB | 0.4KB | CSS scroll-snap 代替 JS 惯性，省 0.3KB |
-| `af-dropdown` | 0.1KB | 0.1KB | 0.2KB | popover 封装 |
-| `af-img` | 0.1KB | 0 | 0.1KB | IntersectionObserver |
+| `af-dropdown` | 0.1KB | 0 | 0.1KB | popover 封装；Light DOM，CSS=0（详设 §9.8 改 Light） |
+| `af-img` | 0.1KB | 0 | 0.1KB | IntersectionObserver；Light DOM，CSS=0（详设 §9.9 改 Light，D19） |
 | `af-backtop` | 0.1KB | 0 | 0.1KB | 滚动监听 |
 | **基类 AfElement** | 0.2KB | 0 | 0.2KB | |
-| **合计** | **2.5KB** | **0.5KB** | **3.0KB** | 符合 RFC 3KB 预算 |
+| **合计** | **2.5KB** | **0.3KB** | **2.8KB** | 符合 RFC 3KB 预算（详设阶段 3 组件改 Light，CSS 较初版省 0.2KB） |
 
 ---
 
@@ -270,7 +270,7 @@ src/
 │   ├── af-swiper.js           # Shadow DOM（CSS 嵌入字符串）
 │   ├── af-dialog.js           # Shadow DOM
 │   ├── af-picker.js           # Shadow DOM
-│   └── af-img.js              # Shadow DOM
+│   └── af-img.js              # Light DOM（D19：详设阶段由 Shadow 改 Light）
 └── index.js                   # 汇总导出
 ```
 
@@ -404,7 +404,7 @@ ESLint 规则 `aiflow/wc-cleanup`（warn）检测 addEventListener 但 unmounted
 | `af-swiper` | Shadow | 轨道/动画样式专属，不污染全局 |
 | `af-dialog` | Shadow | backdrop/焦点陷阱样式专属 |
 | `af-picker` | Shadow | 滚轮/吸附样式专属 |
-| `af-img` | Shadow | 占位/失败态样式专属 |
+| `af-img` | Light | 占位/失败态用 L2 `.thumb`/`.skeleton`/`.empty` 配方（D19：详设阶段由 Shadow 改 Light） |
 
 ### 4.3 Light DOM 组件样式规范
 
@@ -501,10 +501,10 @@ ESLint `aiflow/wc-part-naming`（warn）——part 名必须 kebab-case 且在�
 
 ```
 L3 组件
-├─ Light 组件（6 个）
+├─ Light 组件（7 个）
 │  └─ innerHTML 用 L2 配方 class
 │     └─ 配方 class 引用 L1 token 变量（全局 CSS，自动继承）
-└─ Shadow 组件（4 个）
+└─ Shadow 组件（3 个）
    └─ Shadow <style> 内 var(--token)
       └─ CSS 自定义属性天然穿透 Shadow 边界（:root → ShadowRoot）
 ```
@@ -831,7 +831,7 @@ const CSS = `
 效果：
 - 省 JS 惯性算法 ~0.3KB
 - CSS 仅增 ~0.05KB
-- 总预算回到 3.0KB 以内（1.4 节分解）
+- 总预算回到 2.8KB 以内（1.4 节分解）
 
 ### 8.4 af-toast 单例模式（零开销）
 
@@ -902,14 +902,14 @@ test('按需引入 2 组件，其余 8 个被摇除', async () => {
 
 - [x] 9.1 `af-list` 详设（P0）
 - [x] 9.2 `af-swiper` 详设（P0）
-- [ ] 9.3 `af-tabs` 详设（P0）
-- [ ] 9.4 `af-dialog` 详设（P0）
-- [ ] 9.5 `af-toast` 详设（P1）
-- [ ] 9.6 `af-action-sheet` 详设（P1）
-- [ ] 9.7 `af-picker` 详设（P1）
-- [ ] 9.8 `af-dropdown` 详设（P2）
-- [ ] 9.9 `af-img` 详设（P2）
-- [ ] 9.10 `af-backtop` 详设（P2）
+- [x] 9.3 `af-tabs` 详设（P0）
+- [x] 9.4 `af-dialog` 详设（P0）
+- [x] 9.5 `af-toast` 详设（P1）
+- [x] 9.6 `af-action-sheet` 详设（P1）
+- [x] 9.7 `af-picker` 详设（P1）
+- [x] 9.8 `af-dropdown` 详设（P2）
+- [x] 9.9 `af-img` 详设（P2）
+- [x] 9.10 `af-backtop` 详设（P2）
 
 ---
 
@@ -1495,6 +1495,1862 @@ onThemeChange(theme):
 
 ---
 
+### 9.3 af-tabs 详设（P0 · 标签页切换）
+
+#### 9.3.1 概述
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 标签页切换：(a) 选中态管理（同时只有一个激活）；(b) 内容区联动 show/hide；(c) WAI-ARIA tab 模式（roving tabindex + aria-selected/aria-controls/aria-labelledby）；(d) ←/→/Home/End 键盘导航 |
+| 解决场景 | 商品详情「详情/评价/推荐」三段切换、订单「全部/待付/待发/已收」状态切换、个人中心 tab 导航——任何"一组互斥标签 + 对应内容区"的场景 |
+| L2 边界 | 单条静态 tabbar（不需要切换内容）→ 用 L2 `.tabbar` + `.tab-item` 配方 + 手写 10 行 JS 即可；需要 ARIA 同步 / 键盘 / 内容联动 → 用 af-tabs |
+| 体积预算 | JS ~0.3KB gzip；CSS 0（Light DOM，纯用 L2 配方） |
+
+#### 9.3.2 DOM 模式：Light DOM（useShadow = false）
+
+| 理由 | 说明 |
+|---|---|
+| 直接复用 L2 配方 | tabbar 用 `.tabbar`，tab 项用 `.tab-item`，内容区用 `.card`/`.page`，无专属视觉 |
+| 内部无专属样式 | af-tabs 只负责"哪个 tab 激活、哪个 panel 显示、ARIA 同步"，视觉全靠 L2 |
+| 主题零代码 | L2 配方已 token 化 |
+| 内容透传 | Light DOM 下用户 panel 内容直接在原 DOM 中，可任意包含其他组件/配方 |
+
+#### 9.3.3 属性 API
+
+**attribute 列表**
+
+| 属性名 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `tabs` | JSON String → Array | `"[]"` | tab 项配置 `[{label, value}]`；推荐用 property 赋值避免 JSON 序列化 |
+| `active-index` | Number | `0` | 当前激活 tab 索引（受控，双向：用户设 → 切换；用户点 → 更新） |
+| `variant` | `default`/`pills`/`underline` | `default` | 视觉变体；`default` 用 `.tabbar` 配方，`pills`/`underline` 由项目 `recipes.project.css` 扩展类配合 |
+| `fixed` | Boolean | `false` | 是否吸顶（叠加 `.tabbar-fixed` 配方） |
+| `aria-label` | String | `"标签页"` | tablist 容器的 aria-label，可访问性必需 |
+
+**property 映射**
+
+| 属性名 | 类型 | 说明 |
+|---|---|---|
+| `tabs` | `Array<{label:String, value:any, disabled?:Boolean}>` | tab 数组；property 赋值不走 JSON.stringify |
+| `activeIndex` | `Number` | 当前激活索引（与 attribute `active-index` 双向同步） |
+| `renderPanel` | `(tab, index) => string` | **核心**：自定义每个面板渲染（返回 HTML 字符串）。未设时用 `<slot>` 透传——用户可在 `<af-tabs>` 内放 `<div slot="panel-0">`、`<div slot="panel-1">` 静态面板 |
+
+**决策 D17（af-tabs）**：双模式 panel 渲染——(a) `renderPanel` 函数动态渲染（数据驱动场景，如订单列表分 tab 加载）；(b) `<slot name="panel-N">` 静态透传（结构固定场景，如商品详情三段静态内容）。两者都未设时退化为"只切换 tab 高亮，不切内容"（外部监听 `af-tabs:change` 自行处理）。
+
+#### 9.3.4 DOM 结构（Light DOM）
+
+**模式 A：renderPanel 函数驱动**
+
+```
+<af-tabs>
+  └─ .tabbar[.tabbar-fixed]                   ← L2 配方容器（role="tablist"）
+      ├─ button.tab-item[aria-selected=true][tabindex=0]   tab 0
+      ├─ button.tab-item[aria-selected=false][tabindex=-1] tab 1
+      └─ button.tab-item[aria-selected=false][tabindex=-1] tab 2
+  └─ .af-tabs-panel-container                 ← 内容区容器
+      └─ div[role="tabpanel"][aria-labelledby=...][hidden=false]  panel 0（renderPanel(tab,0)）
+      └─ div[role="tabpanel"][hidden=true]                      panel 1（renderPanel(tab,1)）
+      └─ div[role="tabpanel"][hidden=true]                      panel 2
+```
+
+**模式 B：slot 静态透传**
+
+```html
+<af-tabs tabs='[{label:"详情"},{label:"评价"}]'>
+  <div slot="panel-0" class="card">
+    <p class="body">详情内容…</p>
+  </div>
+  <div slot="panel-1" class="card">
+    <p class="body">评价内容…</p>
+  </div>
+</af-tabs>
+```
+
+panel-N 的 `slot` 属性与 `activeIndex` 联动：激活的 panel 不设 `hidden`，其他设 `hidden`。
+
+#### 9.3.5 算法
+
+**算法 A：setActive(idx) —— 核心切换**
+
+```
+setActive(idx):
+  if (idx === this.activeIndex) return
+  if (idx < 0 || idx >= this.tabs.length) return
+  if (this.tabs[idx].disabled) return        ← 禁用项跳过（可由外部 ArrowRight 时不前进）
+
+  this.activeIndex = idx
+  this.setAttribute('active-index', idx)     ← 同步 attribute
+
+  this.$$('.tab-item').forEach((tab, i) => {
+    const selected = i === idx
+    tab.setAttribute('aria-selected', String(selected))
+    tab.setAttribute('tabindex', selected ? '0' : '-1')   ← roving tabindex
+    tab.classList.toggle('active', selected)               ← 兼容 L2 .tab-item.active 样式
+  })
+
+  this.$$('.af-tabs-panel').forEach((panel, i) => {
+    panel.hidden = i !== idx
+  })
+
+  this.emit('af-tabs:change', { index: idx, value: this.tabs[idx].value })
+```
+
+**算法 B：键盘导航（roving tabindex，详见 7.3 节范例）**
+
+```
+handleKeydown(e):
+  const tabs = this.$$('.tab-item:not([disabled])')
+  let idx = this.activeIndex
+  switch (e.key):
+    case 'ArrowRight': idx = (idx + 1) % tabs.length
+    case 'ArrowLeft':  idx = (idx - 1 + tabs.length) % tabs.length
+    case 'Home':       idx = 0
+    case 'End':        idx = tabs.length - 1
+    default: return
+  e.preventDefault()
+  this.setActive(idx)
+  tabs[idx].focus()                          ← 焦点跟随（roving tabindex 核心）
+```
+
+**算法 C：slot 静态 panel 同步**
+
+```
+mounted:
+  this._slottedPanels = this.$$('div[slot^="panel-"]')
+  // 每次 setActive 时：
+  this._slottedPanels.forEach((panel, i) => {
+    panel.hidden = i !== this.activeIndex
+  })
+```
+
+若同时存在 `renderPanel` 与 slot，**renderPanel 优先**（slot 内容作为兜底显示）。两者都无 → 仅切 tab 不切 panel。
+
+#### 9.3.6 事件
+
+| 事件名 | payload | 触发时机 |
+|---|---|---|
+| `af-tabs:change` | `{ index: number, value: any }` | 用户点击 tab 或键盘 ←/→/Home/End 触发切换后。value 取自 `tabs[idx].value`，未设 value 时 fallback 为 idx |
+
+#### 9.3.7 ARIA 与键盘
+
+| 项 | 内容 |
+|---|---|
+| `role="tablist"` | `.tabbar` 容器 |
+| `role="tab"` | 每个 `.tab-item`（用户已写 button，原生无 role=tab，组件补） |
+| `aria-selected` | 当前激活 tab 设 `true`，其他 `false` |
+| `tabindex` | 激活 tab `tabindex=0`，其他 `tabindex=-1`（roving tabindex） |
+| `aria-controls` | 每个 tab 指向对应 panel 的 `id`（如 `tab-0` ↔ `panel-0`） |
+| `aria-labelledby` | 每个 panel 反向指向对应 tab 的 `id` |
+| `role="tabpanel"` | 每个 panel |
+| `aria-label` | tablist 容器（用户在 af-tabs 上设，组件透传到 tabbar） |
+| 键盘 ←/→ | 切换 tab + 焦点跟随 |
+| 键盘 Home/End | 跳到首/末 tab |
+| 键盘 Tab | 离开 tablist 进入当前 panel（标准 tab 模式行为） |
+| 键盘 Enter/Space | tab 已聚焦时点击切换（与 click 等价，原生 button 自带，无需额外处理） |
+
+#### 9.3.8 使用示例
+
+**示例 1：订单状态切换（renderPanel 数据驱动）**
+
+```html
+<!doctype html>
+<html>
+<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<body>
+  <div class="page">
+    <af-tabs id="orders" fixed aria-label="订单状态"></af-tabs>
+  </div>
+
+  <script type="module">
+    import { AfTabs } from 'aiflow-ui';
+    customElements.define('af-tabs', AfTabs);
+
+    const ordersByStatus = {
+      all:    [{id:1,title:'订单1'},{id:2,title:'订单2'}],
+      unpaid: [{id:1,title:'订单1'}],
+      shipped:[{id:2,title:'订单2'}],
+    };
+
+    orders.tabs = [
+      {label:'全部',   value:'all'},
+      {label:'待付款', value:'unpaid'},
+      {label:'已发货', value:'shipped'},
+    ];
+
+    orders.renderPanel = (tab, idx) => `
+      <div class="list">
+        ${(ordersByStatus[tab.value] || []).map(o => `
+          <div class="list-item">
+            <div class="flex-1">
+              <div class="body">${o.title}</div>
+              <div class="caption">订单号 ${o.id}</div>
+            </div>
+            <span class="tag tag-warn">${tab.label}</span>
+          </div>
+        `).join('') || '<div class="empty"><p class="body">暂无订单</p></div>'}
+      </div>
+    `;
+
+    orders.addEventListener('af-tabs:change', (e) => {
+      console.log('切换到', e.detail.value);
+    });
+  </script>
+</body>
+</html>
+```
+
+**示例 2：商品详情（slot 静态 panel）**
+
+```html
+<af-tabs tabs='[{label:"详情"},{label:"评价"},{label:"推荐"}]'>
+  <div slot="panel-0" class="card">
+    <p class="body">这是商品详情正文…</p>
+  </div>
+  <div slot="panel-1" class="card">
+    <div class="list-item">
+      <img class="avatar" src="u1.jpg">
+      <div class="flex-1">
+        <div class="body">用户A：很满意</div>
+        <div class="caption">2 天前</div>
+      </div>
+    </div>
+  </div>
+  <div slot="panel-2" class="card">
+    <p class="body">相关推荐商品…</p>
+  </div>
+</af-tabs>
+```
+
+#### 9.3.9 与 L2 的协作
+
+| L2 配方 | 用途 |
+|---|---|
+| `.tabbar` | tab 容器（背景/shadow）；用户在 af-tabs 上设 `fixed` 属性时叠加 `.tabbar-fixed` |
+| `.tab-item` | 单个 tab 项；组件自动管理 `.active` class 与 `aria-selected` |
+| `.card` / `.page` | 用户在 `renderPanel` 内或 `<div slot="panel-N">` 内作为 panel 容器 |
+| `.list` / `.list-item` / `.empty` | panel 内列表内容（见示例 1） |
+| `.tag` / `.tag-warn` 等 | tab 内或 panel 内的状态标签 |
+
+**与 L2 禁区**（L3 §5.3）：用户**不应**在 af-tabs 内手动设 `.tab-item` 的 `aria-selected` 或 `tabindex`——组件自动管理，手动设会被覆盖。如需自定义 tab 视觉（如带图标），在 `tabs` property 里给 `label` 字段传 HTML 字符串（如 `label: '<img src="i.svg" width="20"> 详情'`）。
+
+#### 9.3.10 体积拆分
+
+| 部分 | gzip | 占比 | 主要开销 |
+|---|---|---|---|
+| 属性/特性映射 | ~0.02KB | 7% | 基类内置 |
+| tabs 数据 → DOM 渲染（tabbar + tab-item 数组生成） | ~0.06KB | 20% | innerHTML 模板字符串 |
+| setActive 切换（aria/tabindex/class/hidden 同步） | ~0.07KB | 23% | 5 行 forEach + setAttribute |
+| 键盘 keydown（←/→/Home/End + 焦点跟随） | ~0.05KB | 17% | switch + preventDefault |
+| renderPanel / slot 双模式 panel 切换 | ~0.05KB | 17% | querySelectorAll + hidden toggle |
+| click 事件委托（在 tabbar 上单监听） | ~0.02KB | 6% | closest('.tab-item') |
+| ARIA：id 关联（aria-controls/aria-labelledby） | ~0.02KB | 7% | 字符串拼接 id |
+| emit change | ~0.01KB | 3% | 基类内置 |
+| **JS 合计** | **~0.30KB** | **100%** | 符合 1.4 节 0.3KB 预算 |
+| **CSS** | **0** | — | Light DOM，纯 L2 配方 |
+
+**体积风险点与优化**：
+- 双模式 panel（renderPanel + slot）会略增 ~0.03KB——保留是因 slot 模式零 JS 渲染、对静态场景更友好，是 ARIA 合规的"开箱即用"路径
+- 若未来支持"swipe 切 tab"手势 → 走 v1.1 扩展，MVP 不纳入（YAGNI，tab 与 swiper 视觉重叠）
+- variant=pills/underline 不在本组件实现 CSS，由 `recipes.project.css` 配合（避免组件内置 CSS 字符串违反 Light DOM 零 CSS 原则）
+
+---
+
+### 9.4 af-dialog 详设（P0 · 模态框）
+
+#### 9.4.1 概述
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 模态对话框：(a) 基于 `<dialog>` 原生 API（showModal/close）；(b) 焦点陷阱（Tab 不逃出）；(c) Esc 关闭 + backdrop 点击关闭（可配置）；(d) 关闭后焦点还原到触发元素；(e) 内容透传（header/body/footer slot） |
+| 解决场景 | 重要操作确认（删除/支付/退出登录）、表单弹层（编辑地址/反馈）、信息展示（活动规则/版本说明）——任何需要打断用户流程的模态交互 |
+| L2 边界 | 非模态弹层（无遮罩、不抢焦点）→ 用 L2 `.sheet` + 原生 `popover`；需模态 + 焦点陷阱 + Esc → 用 af-dialog |
+| 体积预算 | JS ~0.2KB gzip；CSS ~0.1KB gzip（Shadow DOM 内 dialog/backdrop/footer 专属样式） |
+
+#### 9.4.2 DOM 模式：Shadow DOM（useShadow = true）
+
+| 理由 | 说明 |
+|---|---|
+| 专属样式 | `<dialog>` 的圆角/阴影/max-width、backdrop 半透明遮罩、header/footer 分隔线都是 dialog 专属，不污染全局 |
+| 原生 `<dialog>` 封装 | Shadow 内 `<dialog>` 与外部样式隔离，避免外部 CSS 误改 dialog 视觉 |
+| 内容透传 | header/body/footer 三个 `<slot>` 让用户放任意内容 |
+| 主题零代码 | Shadow 内 CSS 全用 `var(--*)`，token 穿透自动跟随（backdrop 例外，详见 4.4） |
+
+#### 9.4.3 属性 API
+
+**attribute 列表**
+
+| 属性名 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `open` | Boolean | `false` | 是否打开（受控；用户设 → open()，关闭 → close()） |
+| `title` | String | `""` | 标题（透传到 `<header>` 内 `.title` 配方） |
+| `close-on-esc` | Boolean | `true` | 是否允许 Esc 关闭 |
+| `close-on-backdrop` | Boolean | `true` | 是否允许点击 backdrop 关闭 |
+| `variant` | `default`/`center`/`bottom` | `default` | 视觉变体：`default` 居中（`max-width:90vw`），`bottom` 底部 sheet 样式（圆角顶部 + 贴底），`center` 紧凑居中 |
+
+**property 映射**
+
+| 属性名 | 类型 | 说明 |
+|---|---|---|
+| `open` | `Boolean` | 与 attribute 双向同步 |
+| `returnValue` | `any` | close(action) 时存入，供 af-dialog:close 事件 payload 用 |
+| `open()` | `Function` | 打开对话框（内部调 `dialog.showModal()`） |
+| `close(action)` | `Function` | 关闭对话框；action 透传到 `af-dialog:close` 事件 payload |
+
+**决策 D18（af-dialog）**：基于原生 `<dialog>` + `showModal()` API，不手写遮罩/focus trap CSS。原生 API 已内置：(a) backdrop（::backdrop 伪元素）；(b) Esc 关闭（默认行为，可通过 `close-on-esc=false` 禁用）；(c) 顶层堆叠（top-layer，无需 z-index 管理）；(d) 焦点陷阱（浏览器原生实现，Tab 不逃出）。手写焦点陷阱仅在禁用 Esc 或需自定义 focus 顺序时补强。
+
+#### 9.4.4 DOM 结构（Shadow DOM）
+
+```
+<af-dialog>
+  #shadowRoot
+  ├─ <style>                           ← Shadow CSS（全用 token，backdrop 例外）
+  │     :host { display: contents; }
+  │     dialog { border:none; border-radius:var(--r-l); background:var(--c-card);
+  │               color:var(--c-text); padding:0; max-width:90vw;
+  │               box-shadow:var(--shadow-lg); }
+  │     dialog::backdrop { background:rgba(0,0,0,.5); }   ← 唯一硬编码
+  │     header { padding:var(--s-4); border-bottom:1px solid var(--c-border); }
+  │     .title { font-size:var(--t-xl); font-weight:var(--fw-bold); }
+  │     .close-btn { position:absolute; top:var(--s-2); right:var(--s-2);
+  │                  background:none; border:none; color:var(--c-muted);
+  │                  font-size:var(--t-lg); cursor:pointer; }
+  │     .body { padding:var(--s-4); }
+  │     footer { display:flex; gap:var(--s-2); padding:var(--s-3) var(--s-4);
+  │              border-top:1px solid var(--c-border); }
+  │     footer > .btn { flex:1; }
+  │     :host([variant=bottom]) dialog { border-radius:var(--r-l) var(--r-l) 0 0;
+  │                                       max-width:100vw; margin:auto 0 0 0;
+  │                                       width:100%; }
+  └─ <dialog part="dialog">
+      ├─ <header part="header">
+      │   ├─ <h2 class="title"><slot name="title">${title}</slot></h2>
+      │   └─ <button class="close-btn" aria-label="关闭">×</button>
+      ├─ <div class="body" part="content"><slot name="body"></slot></div>
+      └─ <footer part="footer"><slot name="footer"></slot></footer>
+```
+
+#### 9.4.5 算法
+
+**算法 A：open() 打开（含焦点管理）**
+
+```
+open():
+  if (this._dialog.open) return
+  this._previouslyFocused = document.activeElement    ← 记录触发元素
+  this._dialog.showModal()                            ← 原生：进入 top-layer + 焦点陷阱
+  // showModal 后默认焦点在 dialog，手动移到首个可聚焦元素
+  this._focusFirst()
+  this.setAttribute('open', '')
+  this.emit('af-dialog:open', {})
+
+_focusFirst():
+  const focusable = this._getFocusable()
+  if (focusable.length) focusable[0].focus()
+  else this._dialog.focus()                            ← dialog 自身可聚焦（tabindex=-1 由组件设）
+```
+
+**算法 B：close(action) 关闭**
+
+```
+close(action):
+  if (!this._dialog.open) return
+  this.returnValue = action
+  this._dialog.close(action)                          ← 原生 close，触发 close 事件
+  this._previouslyFocused?.focus()                    ← 焦点还原
+  this.removeAttribute('open')
+  this.emit('af-dialog:close', { action })
+```
+
+**算法 C：Esc 与 backdrop 关闭（原生事件 + 自定义控制）**
+
+```
+mounted:
+  this._dialog.addEventListener('cancel', (e) => {    ← dialog 的 Esc 事件
+    if (!this.closeOnEsc) e.preventDefault()          ← close-on-esc=false 阻止
+    else this.close('esc')                            ← 否则统一走 close()
+  })
+
+  this._dialog.addEventListener('click', (e) => {
+    // backdrop 点击：dialog 元素的尺寸 === 视口（showModal 时），点击 dialog 自身即 backdrop
+    if (this.closeOnBackdrop && e.target === this._dialog) {
+      this.close('backdrop')
+    }
+  })
+```
+
+**算法 D：焦点陷阱补强（仅当原生不满足时）**
+
+```
+_getFocusable():
+  return [...this.shadowRoot.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  )].filter(el => !el.disabled && el.offsetParent !== null)
+
+_trapKeydown(e):
+  if (e.key !== 'Tab') return
+  const focusable = this._getFocusable()
+  if (!focusable.length) return
+  const first = focusable[0], last = focusable[focusable.length - 1]
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault(); last.focus()
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault(); first.focus()
+  }
+```
+
+原生 `showModal()` 已实现焦点陷阱，但部分浏览器（旧版 Firefox/Safari）行为不一致——补强 `_trapKeydown` 作为兜底，仅在 `open()` 时绑定 `keydown`，`close()` 时移除。
+
+#### 9.4.6 事件
+
+| 事件名 | payload | 触发时机 |
+|---|---|---|
+| `af-dialog:open` | `{}` | open() 调用后，dialog 已显示 |
+| `af-dialog:close` | `{ action: string }` | 任意关闭途径（Esc / backdrop / close() / 关闭按钮）。action 取值：`'esc'` / `'backdrop'` / 用户传入 close(action) 的字符串（如 `'confirm'`/`'cancel'`） |
+
+#### 9.4.7 ARIA 与键盘
+
+| 项 | 内容 |
+|---|---|
+| `<dialog>` 原生语义 | `<dialog>` 元素自带 `role="dialog"`（showModal 时为 `aria-modal="true"`，浏览器自动） |
+| `aria-labelledby` | dialog 指向 header 内 `.title` 的 id（如 `dialog-labelledby="af-dialog-{id}-title"`） |
+| `aria-label` | 若未设 title attribute，组件用 `aria-label="对话框"` 兜底 |
+| 关闭按钮 | `aria-label="关闭"`（无可读文字，仅 `×` 符号） |
+| 键盘 Esc | 关闭（close-on-esc=true 时） |
+| 键盘 Tab | 焦点陷阱：在 dialog 内首个与末个可聚焦元素之间循环（原生 + 补强） |
+| 焦点还原 | close() 后焦点回到 open() 前的 `document.activeElement` |
+
+#### 9.4.8 使用示例
+
+**示例 1：删除确认对话框**
+
+```html
+<!doctype html>
+<html>
+<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<body>
+  <button class="btn btn-danger" id="trigger">删除商品</button>
+
+  <af-dialog id="confirm" title="确认删除" close-on-backdrop="false">
+    <div slot="body">
+      <p class="body">删除后不可恢复，确认删除该商品？</p>
+    </div>
+    <div slot="footer">
+      <button class="btn btn-ghost" onclick="confirm.close('cancel')">取消</button>
+      <button class="btn btn-danger" onclick="confirm.close('confirm')">删除</button>
+    </div>
+  </af-dialog>
+
+  <script type="module">
+    import { AfDialog } from 'aiflow-ui';
+    customElements.define('af-dialog', AfDialog);
+
+    trigger.addEventListener('click', () => confirm.open());
+
+    confirm.addEventListener('af-dialog:close', (e) => {
+      if (e.detail.action === 'confirm') {
+        fetch('/api/goods/1', { method: 'DELETE' });
+      }
+    });
+  </script>
+</body>
+</html>
+```
+
+**示例 2：底部 sheet 式编辑面板（variant=bottom）**
+
+```html
+<af-dialog id="editor" variant="bottom" title="编辑地址" close-on-esc>
+  <div slot="body">
+    <div class="form-row">
+      <label class="label" for="addr">详细地址</label>
+      <textarea class="textarea" id="addr" placeholder="请输入地址"></textarea>
+    </div>
+  </div>
+  <div slot="footer">
+    <button class="btn btn-ghost" onclick="editor.close('cancel')">取消</button>
+    <button class="btn" onclick="editor.close('save')">保存</button>
+  </div>
+</af-dialog>
+
+<script>
+  editor.addEventListener('af-dialog:close', async (e) => {
+    if (e.detail.action === 'save') {
+      await fetch('/api/address', { method:'POST', body: new FormData() });
+    }
+  });
+</script>
+```
+
+#### 9.4.9 与 L2 的协作
+
+由于 af-dialog 是 Shadow DOM，内部不直接用 L2 配方 class（class 不穿透 Shadow）。但用户在 slot 内放的内容（透传到 Shadow）可用全部 L2 配方：
+
+| 协作方式 | 说明 |
+|---|---|
+| body/footer slot 内容透传 | 用户在 `<div slot="body">` 内放 `.form-row`/`.input`/`.list-item` 等任意 L2 配方 |
+| Shadow 内 CSS 用 token | dialog/header/footer 的 `padding`/`background`/`border-radius`/`box-shadow` 全用 `var(--*)`；backdrop `rgba(0,0,0,.5)` 是 L1 无 mask token 的唯一例外 |
+| footer 内按钮自动 flex-1 | Shadow CSS 设 `footer > .btn { flex:1 }`，用户放 L2 `.btn` 自动均分宽度 |
+| `::part()` 暴露 | `dialog`/`header`/`content`/`footer` 四个 part，外部可样式化（如 `af-dialog::part(dialog) { max-width: 600px; }`） |
+| 不复用 L2 配方 | Shadow 内 title 不用 `.title` 配方（视觉类似），直接用 token 写——保持 Shadow 封装 |
+
+#### 9.4.10 体积拆分
+
+| 部分 | gzip | 占比 | 主要开销 |
+|---|---|---|---|
+| 属性/特性映射 | ~0.02KB | 7% | 基类内置 |
+| Shadow CSS（dialog/header/footer/variant） | ~0.10KB | 33% | ~20 行 CSS 字符串（含 variant=bottom 选择器） |
+| open/close（showModal/close + 焦点记录/还原） | ~0.04KB | 13% | 5 行核心逻辑 |
+| 焦点陷阱补强（_getFocusable + _trapKeydown） | ~0.05KB | 17% | querySelectorAll + Tab 边界判断 |
+| Esc/backdrop 事件绑定（cancel + click 委托） | ~0.04KB | 13% | 2 个 addEventListener |
+| slot 渲染（header/body/footer 三个 slot） | ~0.03KB | 10% | 模板字符串 |
+| ARIA（aria-labelledby/aria-label 兜底） | ~0.02KB | 7% | setAttribute |
+| **JS 合计** | **~0.20KB** | 67% | 符合 1.4 节 0.2KB 预算 |
+| **CSS 合计** | **~0.10KB** | 33% | 符合 0.1KB 预算 |
+| **总计** | **~0.30KB** | **100%** | 符合 1.4 节 0.3KB 预算 |
+
+**体积风险点与优化**：
+- 原生 `<dialog>` API 是体积最优解——若手写遮罩/焦点陷阱/z-index，体积会膨胀至 ~0.6KB
+- variant=bottom 仅 ~0.02KB CSS（3 个属性），与 variant=center/default 共用 dialog 选择器
+- 焦点陷阱补强是兼容性必要开销——Safari < 15.4 不支持 showModal 焦点陷阱，补强保证全平台一致
+
+---
+
+### 9.5 af-toast 详设（P1 · 轻提示）
+
+#### 9.5.1 概述
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 全局轻提示：(a) 模块级单例（新 toast 替换旧 toast，不排队）；(b) 自动消失（默认 2s）；(c) `aria-live="polite"` 无障碍播报；(d) 显示/消失触发事件 |
+| 解决场景 | "已保存"、"操作成功"、"网络错误"、"已加入购物车"——任何非阻塞的瞬时反馈 |
+| L2 边界 | 单次静态提示（不需自动消失/不需单例管理）→ 用 L2 `.toast` 配方 + 手写 setTimeout；需单例/自动消失/aria-live → 用 af-toast |
+| 体积预算 | JS ~0.2KB gzip；CSS 0（Light DOM，纯用 L2 `.toast` 配方） |
+
+#### 9.5.2 DOM 模式：Light DOM（useShadow = false）
+
+| 理由 | 说明 |
+|---|---|
+| 直接复用 L2 配方 | `.toast` 配方已定义视觉（fixed/居中/黑色背景/圆角/z-modal） |
+| 内部无专属样式 | af-toast 只负责"单例管理 + 定时关闭 + aria-live"，视觉靠 L2 |
+| 主题零代码 | L2 配方已 token 化 |
+| 单例全局可见 | Light DOM 下 `position:fixed` 自动相对视口，不需要 Shadow 隔离 |
+
+#### 9.5.3 属性 API
+
+**attribute 列表**
+
+| 属性名 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `duration` | Number（ms） | `2000` | 默认显示时长；调用 `show(message, duration)` 时可覆盖 |
+
+**property / 方法映射**
+
+| 名称 | 类型 | 说明 |
+|---|---|---|
+| `show(message, duration?)` | `Function` | 显示 toast；若已有 toast 显示中，立即替换；duration 不传则用 attribute 值 |
+| `dismiss()` | `Function` | 立即关闭当前 toast |
+| `message` | `String`（只读） | 当前显示的消息（dismiss 后清空） |
+
+#### 9.5.4 DOM 结构（Light DOM）
+
+```
+<af-toast>
+  └─ div.toast[role=status][aria-live=polite]    ← L2 配方 + 无障碍属性
+      ${message}
+```
+
+未 show 时 `<af-toast>` 是空元素（无子节点），不占空间。show 时 innerHTML 注入 `.toast` 元素。
+
+#### 9.5.5 算法
+
+**算法 A：show（单例替换 + 定时关闭）**
+
+```javascript
+// 模块级单例变量
+let instance = null;
+
+show(message, duration = this.duration || 2000) {
+  // 单例替换：若有其他 af-toast 实例正在显示，立即关闭它
+  if (instance && instance !== this) instance.dismiss();
+  instance = this;
+
+  this._message = message;
+  this.innerHTML = `<div class="toast" role="status" aria-live="polite">${message}</div>`;
+
+  clearTimeout(this._timer);
+  this._timer = setTimeout(() => this.dismiss(), duration);
+}
+
+dismiss() {
+  if (!this._message) return;          ← 已是空状态，避免重复触发 dismiss 事件
+  clearTimeout(this._timer);
+  this.innerHTML = '';
+  const msg = this._message;
+  this._message = '';
+  if (instance === this) instance = null;
+  this.emit('af-toast:dismiss', { message: msg });
+}
+```
+
+**算法 B：unmounted 清理**
+
+```javascript
+unmounted() {
+  clearTimeout(this._timer);
+  if (instance === this) instance = null;
+}
+```
+
+元素从 DOM 移除时清定时器，避免 toast 已不在 DOM 还触发 dismiss。
+
+#### 9.5.6 事件
+
+| 事件名 | payload | 触发时机 |
+|---|---|---|
+| `af-toast:dismiss` | `{ message: string }` | toast 消失时（定时到期 / dismiss() 调用 / 被新 toast 替换） |
+
+#### 9.5.7 ARIA 与键盘
+
+| 项 | 内容 |
+|---|---|
+| `role="status"` | `.toast` 容器 |
+| `aria-live="polite"` | 屏幕阅读器空闲时播报，不打断用户当前操作 |
+| 不用 `aria-live="assertive"` | toast 是非紧急信息（紧急用 af-dialog） |
+| 不需要键盘交互 | toast 不抢焦点（`pointer-events:none` 由 L2 `.toast` 配方设） |
+| 不需要 Tab 进入 | 用户当前操作不被打断 |
+
+#### 9.5.8 使用示例
+
+**示例 1：全局单例 toast**
+
+```html
+<!doctype html>
+<html>
+<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<body>
+  <af-toast id="toast" duration="1500"></af-toast>
+
+  <button class="btn" onclick="toast.show('已保存')">保存</button>
+  <button class="btn btn-ghost" onclick="toast.show('已加入购物车', 3000)">加入购物车</button>
+  <button class="btn btn-danger" onclick="toast.show('网络错误')">触发错误</button>
+
+  <script type="module">
+    import { AfToast } from 'aiflow-ui';
+    customElements.define('af-toast', AfToast);
+
+    toast.addEventListener('af-toast:dismiss', (e) => {
+      console.log('提示消失:', e.detail.message);
+    });
+  </script>
+</body>
+</html>
+```
+
+**示例 2：异步操作反馈**
+
+```javascript
+async function saveForm() {
+  toast.show('保存中…', 60000);           // 长时间显示，避免提前消失
+  try {
+    await fetch('/api/save', { method: 'POST', body: new FormData(form) });
+    toast.show('保存成功', 1500);
+  } catch (e) {
+    toast.show('保存失败：' + e.message, 3000);
+  }
+}
+```
+
+#### 9.5.9 与 L2 的协作
+
+| L2 配方 | 用途 |
+|---|---|
+| `.toast` | af-toast 内部 innerHTML 唯一使用的 L2 配方（视觉 + z-modal + pointer-events:none） |
+
+**与 L2 禁区**（L3 §5.3）：用户**不应**手动创建 `<div class="toast">` 元素——必须通过 `<af-toast>` 单例管理。手写 `.toast` + setTimeout 会破坏单例（多个 toast 重叠）且无 aria-live。L4 ESLint 规则 `prefer-component` 检测此场景并 warn。
+
+#### 9.5.10 体积拆分
+
+| 部分 | gzip | 占比 | 主要开销 |
+|---|---|---|---|
+| 属性/特性映射 | ~0.01KB | 5% | 基类内置 |
+| 模块级单例变量 + 替换逻辑 | ~0.03KB | 15% | `let instance = null` + 3 行替换 |
+| show（innerHTML + setTimeout） | ~0.05KB | 25% | 模板字符串 + setTimeout |
+| dismiss（clearTimeout + 清空 + emit） | ~0.04KB | 20% | 5 行清理 |
+| unmounted 资源清理 | ~0.02KB | 10% | clearTimeout + 单例复位 |
+| ARIA（role=status + aria-live=polite） | ~0.02KB | 10% | innerHTML 模板内属性 |
+| emit dismiss | ~0.01KB | 5% | 基类内置 |
+| attribute duration 默认值 + 读取 | ~0.02KB | 10% | defineProp |
+| **JS 合计** | **~0.20KB** | **100%** | 符合 1.4 节 0.2KB 预算 |
+| **CSS** | **0** | — | Light DOM，纯 L2 配方 |
+
+**体积风险点与优化**：
+- 单例变量是模块级（不是实例字段），避免多实例时状态混乱，零额外开销
+- 不排队（不维护消息队列）——队列会让体积膨胀至 ~0.5KB，YAGNI；新 toast 直接替换旧 toast 更符合移动端瞬时反馈语义
+- 若需"成功/失败/警告"图标变体 → 走 v1.1 扩展（type 属性 + Shadow 重写），MVP 仅文字
+
+---
+
+### 9.6 af-action-sheet 详设（P1 · 底部操作面板）
+
+#### 9.6.1 概述
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 底部操作面板：(a) 基于原生 `popover` API（showPopover/hidePopover）；(b) 选项列表（含 danger 变体）；(c) 取消按钮（可选）；(d) backdrop 点击关闭；(e) 选择后自动关闭并 emit |
+| 解决场景 | "分享到微信/微博/QQ"、"操作菜单：编辑/删除/置顶"、"图片操作：保存/复制/取消"——任何从底部弹出的非模态选项菜单 |
+| L2 边界 | 单一静态底部面板（无选项交互）→ 用 L2 `.sheet` + `popover`；需选项列表 + 选择回填 → 用 af-action-sheet |
+| 体积预算 | JS ~0.1KB gzip；CSS 0（Light DOM，§4.2，见 9.6.10） |
+
+#### 9.6.2 DOM 模式：Light DOM（useShadow = false）
+
+| 理由 | 说明 |
+|---|---|
+| 直接复用 L2 配方 | `.sheet` 配方 + `.list-item`/`.list-item-compact` 配方，无专属视觉 |
+| 原生 popover API | Light DOM 下 `popover` 属性可直接生效（Shadow 内 popover 亦可，但 Light 更简单） |
+| 内部无专属样式 | af-action-sheet 只负责"选项渲染 + popover 控制 + 选择事件" |
+| 主题零代码 | L2 配方已 token 化 |
+
+#### 9.6.3 属性 API
+
+**attribute 列表**
+
+| 属性名 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `options` | JSON String → Array | `"[]"` | 选项配置 `[{label, value, danger?:Boolean, disabled?:Boolean}]` |
+| `title` | String | `""` | 面板标题（显示在选项上方，可空） |
+| `show-cancel` | Boolean | `true` | 是否显示"取消"按钮（默认在末尾） |
+| `cancel-text` | String | `"取消"` | 取消按钮文案 |
+
+**property / 方法映射**
+
+| 名称 | 类型 | 说明 |
+|---|---|---|
+| `options` | `Array<{label, value, danger?, disabled?}>` | 选项数组；property 赋值不走 JSON.stringify |
+| `showPopover()` | `Function` | 打开面板（原生 popover API） |
+| `hidePopover()` | `Function` | 关闭面板 |
+
+#### 9.6.4 DOM 结构（Light DOM）
+
+```
+<af-action-sheet>
+  └─ div.sheet[popover]                          ← L2 配方 + 原生 popover 属性
+      ├─ div.af-action-sheet-title               ← 标题（可选）
+      │   ${title}
+      ├─ div.list                                ← L2 配方容器（圆角/背景/分隔线）
+      │   ├─ button.list-item                    ← 选项 0
+      │   │   └─ span.flex-1 ${option.label}
+      │   ├─ button.list-item.danger             ← 选项 1（danger=true）
+      │   │   └─ span.flex-1.text-danger ${option.label}
+      │   └─ button.list-item[disabled]          ← 选项 2（disabled=true）
+      │       └─ span.flex-1.text-muted ${option.label}
+      └─ button.btn.btn-ghost.btn-block          ← 取消按钮（show-cancel=true 时）
+          ${cancelText}
+```
+
+#### 9.6.5 算法
+
+**算法 A：showPopover / hidePopover**
+
+```javascript
+showPopover() {
+  this._sheet.showPopover();                      // 原生 API，自动管理 backdrop + top-layer
+  this.emit('af-action-sheet:open', {});
+}
+
+hidePopover() {
+  this._sheet.hidePopover();
+}
+```
+
+**算法 B：选项点击（事件委托 + 自动关闭）**
+
+```javascript
+mounted() {
+  this.render();
+  this._sheet.addEventListener('click', (e) => {
+    const item = e.target.closest('.list-item');
+    if (!item || item.disabled) return;
+    const idx = Number(item.dataset.idx);
+    const option = this.options[idx];
+    this.hidePopover();
+    this.emit('af-action-sheet:select', { index: idx, value: option.value });
+    this.emit('af-action-sheet:close', {});
+  });
+
+  // 取消按钮
+  this._cancelBtn?.addEventListener('click', () => {
+    this.hidePopover();
+    this.emit('af-action-sheet:close', {});
+  });
+
+  // backdrop 点击（popover API 触发 toggle 事件，light dismiss）
+  this._sheet.addEventListener('toggle', (e) => {
+    if (e.newState === 'closed' && !this._isSelecting) {
+      this.emit('af-action-sheet:close', {});
+    }
+  });
+}
+```
+
+**算法 C：options 变化时重渲染**
+
+```javascript
+onAttributeChange(name, oldVal, newVal) {
+  if (name === 'options' || name === 'title' || name === 'show-cancel' || name === 'cancel-text') {
+    this.render();
+  }
+}
+
+render() {
+  // 重新生成 innerHTML（含 .sheet 容器、.list 选项、取消按钮）
+  // 不影响 popover 状态（已 open 时重渲染保持 open）
+}
+```
+
+#### 9.6.6 事件
+
+| 事件名 | payload | 触发时机 |
+|---|---|---|
+| `af-action-sheet:select` | `{ index: number, value: any }` | 用户点击某选项后（自动关闭前） |
+| `af-action-sheet:close` | `{}` | 任意关闭途径（选项选择 / 取消按钮 / backdrop 点击 / hidePopover()） |
+| `af-action-sheet:open` | `{}` | showPopover() 调用后 |
+
+#### 9.6.7 ARIA 与键盘
+
+| 项 | 内容 |
+|---|---|
+| `popover` 属性 | 原生 API 自动管理 `aria-expanded`/top-layer/焦点 |
+| `.list-item` 用 `<button>` | 原生 button 自带键盘可达（Tab/Enter/Space） |
+| `disabled` 选项 | 设 `disabled` 属性（原生 button 禁用，键盘跳过） |
+| danger 选项 | 仅视觉（`.text-danger` + 字重），无 ARIA 标记（语义靠文案表达） |
+| 标题 | `.af-action-sheet-title` 设 `role="heading"` + `aria-level="2"` |
+| 键盘 Esc | popover API 原生支持（light dismiss） |
+
+#### 9.6.8 使用示例
+
+**示例 1：分享操作面板**
+
+```html
+<!doctype html>
+<html>
+<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<body>
+  <button class="btn" id="shareBtn">分享</button>
+
+  <af-action-sheet id="share" title="分享到">
+  </af-action-sheet>
+
+  <script type="module">
+    import { AfActionSheet } from 'aiflow-ui';
+    customElements.define('af-action-sheet', AfActionSheet);
+
+    share.options = [
+      { label: '微信好友', value: 'wechat' },
+      { label: '朋友圈',   value: 'moments' },
+      { label: 'QQ',       value: 'qq' },
+      { label: '复制链接', value: 'copy' },
+    ];
+
+    shareBtn.addEventListener('click', () => share.showPopover());
+
+    share.addEventListener('af-action-sheet:select', (e) => {
+      console.log('分享到:', e.detail.value);
+    });
+  </script>
+</body>
+</html>
+```
+
+**示例 2：含 danger 选项的操作菜单**
+
+```html
+<af-action-sheet id="actions" title="操作" cancel-text="取消">
+</af-action-sheet>
+<script>
+  actions.options = [
+    { label: '编辑',   value: 'edit' },
+    { label: '置顶',   value: 'pin' },
+    { label: '删除',   value: 'delete', danger: true },
+  ];
+  actions.addEventListener('af-action-sheet:select', (e) => {
+    if (e.detail.value === 'delete') {
+      // 二次确认走 af-dialog
+    }
+  });
+</script>
+```
+
+#### 9.6.9 与 L2 的协作
+
+| L2 配方 | 用途 |
+|---|---|
+| `.sheet` | 面板容器（fixed/底部/圆角顶部/阴影/z-dropdown）；叠加原生 `popover` 属性 |
+| `.list` | 选项容器（圆角/背景/自动分隔线） |
+| `.list-item` | 单个选项（用 `<button>` 而非 `<div>` 以获得原生键盘可达） |
+| `.btn`/`.btn-ghost`/`.btn-block` | 取消按钮 |
+| `.text-danger`/`.text-muted` | danger 选项红色 / disabled 选项灰色（原子类覆盖 list-item 文字色） |
+| `.flex-1` | 选项内 label 撑满宽度 |
+
+**与 L2 禁区**：用户**不应**手动设 `.list-item` 的 `disabled` 属性或 `.danger` 类——组件根据 `options` 数据自动管理。手动设会被下次 render 覆盖。
+
+#### 9.6.10 体积拆分
+
+| 部分 | gzip | 占比 | 主要开销 |
+|---|---|---|---|
+| 属性/特性映射 | ~0.01KB | 7% | 基类内置 |
+| options → DOM 渲染（.sheet + .list + 选项 + 取消按钮） | ~0.04KB | 27% | innerHTML 模板字符串 |
+| showPopover/hidePopover 封装 | ~0.02KB | 13% | 2 行原生 API 调用 |
+| click 事件委托（选项 + 取消按钮） | ~0.03KB | 20% | closest + dataset.idx |
+| toggle 事件监听（backdrop 关闭） | ~0.02KB | 13% | newState === 'closed' |
+| emit（select/close/open 3 个事件） | ~0.02KB | 13% | 基类内置 |
+| ARIA（标题 role=heading） | ~0.01KB | 7% | setAttribute |
+| **JS 合计** | **~0.15KB** | **100%** | 略超 0.1KB 预算 0.05KB，可接受 |
+| **CSS** | **0** | — | Light DOM，纯 L2 配方（§4.2 Light 分配，CSS 预算归零） |
+
+**体积风险点与优化**：
+- Light DOM 省去专属 CSS ~0.1KB（用 L2 `.sheet`/`.list-item` 配方覆盖视觉），JS 略增 0.05KB（事件委托 + render）——净省 0.05KB
+- 不实现"选项图标"（如微信图标）——用户在 label 字段传 HTML 字符串（`label: '<img src="wechat.svg" width="20"> 微信好友'`）
+- 若需"长按列表项触发 action-sheet" → 走 v1.1 扩展（contextmenu 事件），MVP 仅 click 触发
+
+---
+
+### 9.7 af-picker 详设（P1 · 滚轮选择器）
+
+#### 9.7.1 概述
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 滚轮选择器：(a) 多列（省市区/年月日/时分）；(b) CSS `scroll-snap` 原生吸附（无 JS 惯性算法）；(c) 滚动停止后触发 change 事件；(d) 确认按钮触发 confirm 事件 |
+| 解决场景 | 省市区选择、日期选择（年/月/日）、时间选择（时/分）、数量选择（1-100 件）——任何"滚轮式单列或多列选择"场景 |
+| L2 边界 | 下拉单选 → 用 `af-dropdown` 或原生 `<select>`；滚轮式选择 → 用 af-picker |
+| 体积预算 | JS ~0.3KB gzip；CSS ~0.1KB gzip（Shadow DOM 内 column/item/active 样式） |
+
+#### 9.7.2 DOM 模式：Shadow DOM（useShadow = true）
+
+| 理由 | 说明 |
+|---|---|
+| 专属样式 | column 的 `scroll-snap-type`/`height`、item 的固定高度/吸附对齐、active 项的高亮样式，都是 picker 专属 |
+| 视觉封装 | 用户只关心"放几列数据进去"，不关心 column/item 结构 |
+| 主题零代码 | Shadow 内 CSS 全用 `var(--*)`，token 穿透自动跟随 |
+| 内容封闭 | picker 选项由数据驱动，不需 slot 透传用户内容 |
+
+#### 9.7.3 属性 API
+
+**attribute 列表**
+
+| 属性名 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `columns` | JSON String → Array | `"[]"` | 多列数据 `[[{label,value},...], [{label,value},...], ...]` |
+| `values` | JSON String → Array | `"[]"` | 当前各列选中值 `[v1, v2, v3]`（受控，双向） |
+| `title` | String | `"请选择"` | 顶部标题 |
+| `confirm-text` | String | `"确定"` | 确认按钮文案 |
+| `cancel-text` | String | `"取消"` | 取消按钮文案 |
+| `item-height` | Number（px） | `36` | 单项高度（影响 column 高度与吸附） |
+| `visible-count` | Number（奇数） | `5` | 可见项数（column height = item-height * visible-count） |
+
+**property / 方法映射**
+
+| 名称 | 类型 | 说明 |
+|---|---|---|
+| `columns` | `Array<Array<{label, value}>>` | 多列数据；property 赋值不走 JSON.stringify |
+| `values` | `Array<any>` | 当前各列选中值（与 attribute 双向同步） |
+| `open()` | `Function` | 显示 picker（基于 `popover` API，底部 sheet 式） |
+| `close()` | `Function` | 关闭 picker |
+
+#### 9.7.4 DOM 结构（Shadow DOM）
+
+```
+<af-picker>
+  #shadowRoot
+  ├─ <style>                           ← Shadow CSS（scroll-snap 核心样式）
+  │     :host { display: contents; }
+  │     .picker { position: fixed; left:0; right:0; bottom:0;
+  │               background: var(--c-card); border-radius: var(--r-l) var(--r-l) 0 0;
+  │               box-shadow: var(--shadow-lg); z-index: var(--z-dropdown);
+  │               padding-bottom: env(safe-area-inset-bottom); }
+  │     .header { display:flex; justify-content: space-between;
+  │               padding: var(--s-3) var(--s-4);
+  │               border-bottom: 1px solid var(--c-border); }
+  │     .btn-cancel { color: var(--c-muted); background:none; border:none;
+  │                  font-size: var(--t-md); }
+  │     .btn-confirm { color: var(--c-brand); background:none; border:none;
+  │                   font-size: var(--t-md); font-weight: var(--fw-medium); }
+  │     .columns { display: flex; height: calc(var(--t-md) * 5 * 1.25);
+  │                position: relative; }
+  │     .column { flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory;
+  │               scrollbar-width: none; }
+  │     .column::-webkit-scrollbar { display: none; }
+  │     .item { height: var(--t-md, 36px); line-height: 36px;
+  │             scroll-snap-align: center; text-align: center;
+  │             font-size: var(--t-md); color: var(--c-muted); }
+  │     .item.active { color: var(--c-text); font-weight: var(--fw-bold); }
+  │     .mask { position: absolute; left:0; right:0; pointer-events: none;
+  │             background: linear-gradient(to bottom,
+  │               var(--c-card) 0%, transparent 30%, transparent 70%,
+  │               var(--c-card) 100%); }
+  │     .indicator { position:absolute; left: var(--s-3); right: var(--s-3);
+  │                  top: 50%; height: 36px; transform: translateY(-50%);
+  │                  border-top: 1px solid var(--c-border);
+  │                  border-bottom: 1px solid var(--c-border); }
+  │     :host([hidden]) .picker { display: none; }
+  └─ <div class="picker" part="picker" popover>
+      ├─ <div class="header" part="header">
+      │   ├─ <button class="btn-cancel" part="cancel">${cancelText}</button>
+      │   ├─ <div class="title">${title}</div>
+      │   └─ <button class="btn-confirm" part="confirm">${confirmText}</button>
+      ├─ <div class="columns" part="columns">
+      │   ├─ <div class="column" part="column" data-col="0">
+      │   │   └─ <div class="item" data-idx="0">${label}</div> ×N
+      │   ├─ <div class="column" part="column" data-col="1">
+      │   │   └─ ...
+      │   └─ .mask + .indicator                    ← 视觉装饰（选中行高亮边框）
+```
+
+#### 9.7.5 算法
+
+**算法 A：CSS scroll-snap 吸附（零 JS 惯性）**
+
+```css
+/* Shadow CSS 核心样式 */
+.column {
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;        /* 原生吸附：滚动停止后自动对齐到最近 item */
+}
+.item {
+  scroll-snap-align: center;            /* 每个 item 的中心对齐到 column 中心 */
+}
+```
+
+浏览器原生处理惯性滚动 + 吸附 + 减速曲线，零 JS 代码。这是体积优化的核心（D11）。
+
+**算法 B：滚动停止后取选中项（scroll 事件 + 防抖）**
+
+```javascript
+mounted() {
+  this._scrollers = this.$$('.column');
+  this._scrollers.forEach((col, c) => {
+    let scrollTimer;
+    col.addEventListener('scroll', () => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => this._onColumnScrollEnd(c), 100);  // 滚动停止 100ms 后触发
+    });
+  });
+}
+
+_onColumnScrollEnd(colIdx) {
+  const col = this._scrollers[colIdx];
+  const itemHeight = 36;                              // 与 CSS 一致
+  const idx = Math.round(col.scrollTop / itemHeight);
+  const item = this.columns[colIdx][idx];
+  if (!item) return;
+
+  this.values[colIdx] = item.value;
+  this.setAttribute('values', JSON.stringify(this.values));
+  this._updateActive(colIdx, idx);
+  this.emit('af-picker:change', { column: colIdx, value: item.value, index: idx });
+}
+
+_updateActive(colIdx, idx) {
+  // 仅更新该列的 .item.active class（避免全列重渲染打断滚动）
+  const items = this._scrollers[colIdx].querySelectorAll('.item');
+  items.forEach((it, i) => it.classList.toggle('active', i === idx));
+}
+```
+
+**算法 C：初始化时滚动到选中项**
+
+```javascript
+mounted() {
+  this.render();
+  // 等 DOM 渲染完，将每列滚动到 values 对应位置
+  requestAnimationFrame(() => {
+    this._scrollers.forEach((col, c) => {
+      const idx = this._findIndex(c, this.values[c]);
+      col.scrollTop = idx * 36;                       // 直接设 scrollTop，触发 scroll-snap 微调
+      this._updateActive(c, idx);
+    });
+  });
+}
+```
+
+**算法 D：确认 / 取消**
+
+```javascript
+mounted() {
+  this.$('.btn-confirm').addEventListener('click', () => {
+    this.emit('af-picker:confirm', { values: this.values });
+    this.close();
+  });
+  this.$('.btn-cancel').addEventListener('click', () => {
+    this.emit('af-picker:cancel', {});
+    this.close();
+  });
+}
+
+close() {
+  this._picker.hidePopover();
+}
+```
+
+#### 9.7.6 事件
+
+| 事件名 | payload | 触发时机 |
+|---|---|---|
+| `af-picker:change` | `{ column: number, value: any, index: number }` | 某列滚动停止后（100ms 防抖后）。column 是列索引（0-based） |
+| `af-picker:confirm` | `{ values: any[] }` | 用户点击确认按钮；values 是各列当前选中值数组 |
+| `af-picker:cancel` | `{}` | 用户点击取消按钮 |
+
+#### 9.7.7 ARIA 与键盘
+
+| 项 | 内容 |
+|---|---|
+| `role="listbox"` | 每个 `.column` |
+| `role="option"` | 每个 `.item` |
+| `aria-activedescendant` | column 指向当前选中 item 的 id（屏幕阅读器播报选中项） |
+| `aria-valuenow` | column 设当前选中 value |
+| `aria-label` | column 设 `第 ${c+1} 列` |
+| 键盘 ↑↓ | 聚焦某列时，↑/↓ 上下移动选中项（需 `tabindex="0"` 在 column 上） |
+| 键盘 Tab | 在列之间切换 |
+| 键盘 Enter | 等同确认按钮 |
+
+**键盘处理**（MVP 可选，scroll-snap 已覆盖触摸场景）：
+
+```javascript
+col.addEventListener('keydown', (e) => {
+  let idx = this._findIndex(c, this.values[c]);
+  if (e.key === 'ArrowDown') idx = Math.min(idx + 1, this.columns[c].length - 1);
+  else if (e.key === 'ArrowUp') idx = Math.max(idx - 1, 0);
+  else return;
+  e.preventDefault();
+  col.scrollTop = idx * 36;                           // 触发 scroll-snap + scroll 事件
+});
+```
+
+#### 9.7.8 使用示例
+
+**示例 1：省市区三列选择**
+
+```html
+<!doctype html>
+<html>
+<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<body>
+  <button class="btn" id="pick">选择地区</button>
+  <span class="body" id="result">未选择</span>
+
+  <af-picker id="region" title="选择地区"></af-picker>
+
+  <script type="module">
+    import { AfPicker } from 'aiflow-ui';
+    customElements.define('af-picker', AfPicker);
+
+    region.columns = [
+      [{label:'北京市',value:'110000'}, {label:'上海市',value:'310000'}, {label:'广东省',value:'440000'}],
+      [{label:'北京市',value:'110100'}, {label:'上海市',value:'310100'}, {label:'广州市',value:'440100'}],
+      [{label:'东城区',value:'110101'}, {label:'西城区',value:'110102'}, {label:'黄浦区',value:'310101'}],
+    ];
+
+    pick.addEventListener('click', () => region.open());
+
+    region.addEventListener('af-picker:change', (e) => {
+      // 联动：省变化时重新加载市/区列
+      console.log(`第 ${e.detail.column + 1} 列选中:`, e.detail.value);
+    });
+
+    region.addEventListener('af-picker:confirm', (e) => {
+      result.textContent = e.detail.values.join(' / ');
+    });
+  </script>
+</body>
+</html>
+```
+
+**示例 2：日期选择（年月日）**
+
+```html
+<af-picker id="date" title="选择日期"></af-picker>
+<script>
+  const year = Array.from({length: 30}, (_, i) => ({label: 2000+i+'年', value: 2000+i}));
+  const month = Array.from({length: 12}, (_, i) => ({label: (i+1)+'月', value: i+1}));
+  const day = Array.from({length: 31}, (_, i) => ({label: (i+1)+'日', value: i+1}));
+  date.columns = [year, month, day];
+  date.values = [2024, 1, 1];
+</script>
+```
+
+#### 9.7.9 与 L2 的协作
+
+由于 af-picker 是 Shadow DOM，内部不直接用 L2 配方 class。但用户在触发元素（如按钮）上可用 L2 配方：
+
+| 协作方式 | 说明 |
+|---|---|
+| Shadow 内 CSS 用 token | column/item/header 的 `padding`/`background`/`border-radius`/`box-shadow`/`color`/`font-size` 全用 `var(--*)` |
+| `::part()` 暴露 | `picker`/`header`/`column`/`item`/`confirm`/`cancel` 六个 part，外部可样式化 |
+| 触发元素用 L2 | 用户在页面上用 `<button class="btn">` 触发 `picker.open()` |
+| 结果显示用 L2 | 用户用 `.body`/`.subtitle` 显示选中结果（见示例 1 的 `#result`） |
+| 不复用 L2 配方 | Shadow 内 confirm/cancel 按钮不用 `.btn` 配方（视觉类似但需独立样式），直接用 token 写 |
+
+#### 9.7.10 体积拆分
+
+| 部分 | gzip | 占比 | 主要开销 |
+|---|---|---|---|
+| 属性/特性映射 | ~0.02KB | 5% | 基类内置 |
+| Shadow CSS（picker/column/item/mask/indicator/header） | ~0.15KB | 38% | ~30 行 CSS 字符串（scroll-snap + mask 渐变） |
+| columns → DOM 渲染（多列 + 多 item） | ~0.06KB | 15% | 嵌套 map + innerHTML |
+| scroll 事件 + 防抖（100ms）+ _onColumnScrollEnd | ~0.05KB | 13% | setTimeout + idx 计算 |
+| _updateActive（单列 active class 切换） | ~0.02KB | 5% | querySelectorAll + toggle |
+| 初始化滚动到选中项（requestAnimationFrame） | ~0.02KB | 5% | rAF + scrollTop 设置 |
+| confirm/cancel 事件绑定 | ~0.02KB | 5% | 2 个 addEventListener |
+| open/close（popover API 封装） | ~0.02KB | 5% | showPopover/hidePopover |
+| ARIA（role=listbox/option + aria-activedescendant） | ~0.03KB | 8% | setAttribute |
+| **JS 合计** | **~0.24KB** | 62% | 略低于 0.3KB 预算 |
+| **CSS 合计** | **~0.15KB** | 38% | 略超 0.1KB 预算 0.05KB |
+| **总计** | **~0.39KB** | **100%** | 略低于 0.4KB 预算（1.4 节） |
+
+**体积风险点与优化**：
+- CSS scroll-snap 是核心体积优化（D11）——若用 JS 惯性算法会增 ~0.3KB，总预算超标
+- mask 渐变（顶部/底部淡出）与 indicator（选中行边框）是必要视觉，~0.03KB CSS
+- 多列联动（省变化时重新加载市）由用户在外部 `af-picker:change` 事件中处理，不内置——避免组件内置联动逻辑导致体积膨胀
+- 键盘 ↑↓ 处理是 MVP 可选项，若空间紧张可省（移动端触摸为主）
+
+---
+
+### 9.8 af-dropdown 详设（P2 · 下拉菜单）
+
+#### 9.8.1 概述
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 下拉菜单：(a) 基于原生 `popover` API；(b) 触发器自动显示当前选中值；(c) 选项点击后回填到触发器并 emit；(d) backdrop 点击关闭 |
+| 解决场景 | "排序：默认/价格/销量"、"筛选：全部/待付/已付"、表单中"性别：男/女/保密"——任何"触发器 + 选项列表"的单选场景 |
+| L2 边界 | 原生 `<select>` 已能覆盖简单下拉 → 直接用 `<select class="input">`；需自定义选项视觉/触发器样式 → 用 af-dropdown |
+| 体积预算 | JS ~0.1KB gzip；CSS 0（Light DOM，§4.2，见 9.8.10） |
+
+#### 9.8.2 DOM 模式：Light DOM（useShadow = false）
+
+| 理由 | 说明 |
+|---|---|
+| 直接复用 L2 配方 | 触发器用 `.input`（只读）或 `.btn`，选项列表用 `.list` + `.list-item`，无专属视觉 |
+| 原生 popover API | Light DOM 下 `popover` 属性可直接生效 |
+| 内部无专属样式 | af-dropdown 只负责"选项渲染 + popover 控制 + 选中回填" |
+| 主题零代码 | L2 配方已 token 化 |
+
+#### 9.8.3 属性 API
+
+**attribute 列表**
+
+| 属性名 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `options` | JSON String → Array | `"[]"` | 选项 `[{label, value, disabled?:Boolean}]` |
+| `value` | String | `""` | 当前选中值（受控，双向） |
+| `placeholder` | String | `"请选择"` | 未选中时触发器显示的占位文案 |
+| `trigger-class` | String | `"input"` | 触发器使用的 L2 配方类（`"input"`/`"btn"`/`"btn-ghost"`） |
+| `disabled` | Boolean | `false` | 禁用整个下拉 |
+
+**property / 方法映射**
+
+| 名称 | 类型 | 说明 |
+|---|---|---|
+| `options` | `Array<{label, value, disabled?}>` | 选项数组 |
+| `value` | `any` | 当前选中值（与 attribute 双向同步） |
+| `selectedLabel` | `String`（只读） | 当前选中项的 label（用于触发器显示） |
+| `open()` / `close()` | `Function` | 编程控制显隐 |
+
+#### 9.8.4 DOM 结构（Light DOM）
+
+```
+<af-dropdown>
+  ├─ <button class="input" [disabled]>                ← 触发器（用户在 trigger-class 设配方类）
+  │   └─ span.flex-1 ${selectedLabel || placeholder}
+  │   └─ ▼                                            ← 下拉箭头（CSS ::after 或文字）
+  └─ <div class="list" popover>                       ← L2 配方 + 原生 popover 属性
+      ├─ <button.list-item[data-idx=0]>
+      │   └─ span.flex-1 ${option.label}
+      │   └─ ${selected ? '✓' : ''}                   ← 选中标记
+      ├─ <button.list-item[disabled][data-idx=1]>
+      └─ ...
+```
+
+#### 9.8.5 算法
+
+**算法 A：触发器点击 → 显示选项**
+
+```javascript
+mounted() {
+  this.render();
+  this._trigger.addEventListener('click', () => {
+    if (this.disabled) return;
+    this._list.showPopover();
+  });
+}
+```
+
+**算法 B：选项点击 → 回填 + 关闭 + emit**
+
+```javascript
+this._list.addEventListener('click', (e) => {
+  const item = e.target.closest('.list-item');
+  if (!item || item.disabled) return;
+  const idx = Number(item.dataset.idx);
+  const option = this.options[idx];
+
+  this.value = option.value;
+  this.setAttribute('value', String(option.value));
+  this._updateTrigger();
+  this._list.hidePopover();
+  this.emit('af-dropdown:select', { index: idx, value: option.value });
+});
+
+_updateTrigger() {
+  const opt = this.options.find(o => o.value === this.value);
+  this._trigger.querySelector('span.flex-1').textContent = opt?.label || this.placeholder;
+}
+```
+
+**算法 C：popover 关闭事件**
+
+```javascript
+this._list.addEventListener('toggle', (e) => {
+  if (e.newState === 'closed') {
+    this.emit('af-dropdown:close', {});
+  }
+});
+```
+
+#### 9.8.6 事件
+
+| 事件名 | payload | 触发时机 |
+|---|---|---|
+| `af-dropdown:select` | `{ index: number, value: any }` | 用户点击某选项后 |
+| `af-dropdown:close` | `{}` | 任意关闭途径（选项选择 / backdrop / Esc / close()） |
+
+#### 9.8.7 ARIA 与键盘
+
+| 项 | 内容 |
+|---|---|
+| `role="combobox"` | 触发器 button（aria-haspopup="listbox"） |
+| `aria-expanded` | 触发器，popover 显示时 `true`，隐藏时 `false` |
+| `role="listbox"` | 选项列表 `.list` |
+| `role="option"` | 每个 `.list-item` |
+| `aria-selected` | 当前选中项 `true`，其他 `false` |
+| `aria-disabled` | 禁用选项 `true` |
+| 键盘 Enter/Space | 触发器聚焦时按 → 显示选项 |
+| 键盘 ↑↓ | 选项列表内导航 |
+| 键盘 Esc | 关闭（popover 原生支持） |
+
+#### 9.8.8 使用示例
+
+**示例 1：排序下拉**
+
+```html
+<!doctype html>
+<html>
+<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<body>
+  <div class="form-row-h">
+    <label class="label">排序</label>
+    <af-dropdown id="sort" placeholder="默认排序"></af-dropdown>
+  </div>
+
+  <script type="module">
+    import { AfDropdown } from 'aiflow-ui';
+    customElements.define('af-dropdown', AfDropdown);
+
+    sort.options = [
+      { label: '默认',   value: 'default' },
+      { label: '价格升序', value: 'price_asc' },
+      { label: '价格降序', value: 'price_desc' },
+      { label: '销量',   value: 'sales' },
+    ];
+
+    sort.addEventListener('af-dropdown:select', (e) => {
+      console.log('排序:', e.detail.value);
+      // 触发列表重新加载
+    });
+  </script>
+</body>
+</html>
+```
+
+**示例 2：按钮触发器（带图标）**
+
+```html
+<af-dropdown id="filter" trigger-class="btn btn-ghost btn-sm" placeholder="筛选">
+</af-dropdown>
+<script>
+  filter.options = [
+    { label: '全部', value: 'all' },
+    { label: '待付款', value: 'unpaid' },
+    { label: '已付款', value: 'paid' },
+  ];
+</script>
+```
+
+#### 9.8.9 与 L2 的协作
+
+| L2 配方 | 用途 |
+|---|---|
+| `.input` / `.btn` / `.btn-ghost` | 触发器（用户在 `trigger-class` 指定） |
+| `.list` | 选项容器（圆角/背景/分隔线） |
+| `.list-item` | 单个选项（用 `<button>` 获得原生键盘可达） |
+| `.flex-1` | 触发器内文案撑满 + 选项内 label 撑满 |
+| `.text-muted` | placeholder 文案灰色 |
+
+**与 L2 禁区**：用户**不应**在 `<af-dropdown>` 内手动写触发器或选项 DOM——组件根据 `options` 与 `trigger-class` 自动渲染。手动写会被下次 render 覆盖。
+
+#### 9.8.10 体积拆分
+
+| 部分 | gzip | 占比 | 主要开销 |
+|---|---|---|---|
+| 属性/特性映射 | ~0.01KB | 7% | 基类内置 |
+| options + trigger → DOM 渲染 | ~0.04KB | 27% | innerHTML 模板字符串 |
+| 触发器点击 → showPopover | ~0.01KB | 7% | 1 行原生 API |
+| 选项点击 → 回填 + 关闭 + emit | ~0.03KB | 20% | closest + dataset + _updateTrigger |
+| toggle 事件监听（backdrop 关闭） | ~0.02KB | 13% | newState === 'closed' |
+| _updateTrigger（更新触发器文案） | ~0.02KB | 13% | find + textContent |
+| ARIA（role/aria-selected/aria-expanded） | ~0.02KB | 13% | setAttribute |
+| **JS 合计** | **~0.15KB** | **100%** | 略超 0.1KB 预算 0.05KB，可接受 |
+| **CSS** | **0** | — | Light DOM，纯 L2 配方（§4.2 Light 分配，CSS 预算归零） |
+
+**体积风险点与优化**：
+- Light DOM 省去专属 CSS ~0.1KB（用 L2 `.input`/`.list-item` 配方覆盖视觉），JS 略增 0.05KB——净省 0.05KB
+- 不实现"搜索过滤"（如选项超 50 项时输入过滤）——走 v1.1 扩展（需 af-search-input 嵌入），MVP 仅静态选项
+- 不实现"多选"——多选语义复杂（需 chip 显示/全选/清空），走 v1.1 扩展
+
+---
+
+### 9.9 af-img 详设（P2 · 懒加载图片）
+
+#### 9.9.1 概述
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 图片懒加载：(a) `IntersectionObserver` 监听进入视口才加载；(b) 占位符（默认灰色 + skeleton 动画）；(c) 加载失败回退（显示 broken 图标或自定义 fail-src）；(d) 加载状态事件 |
+| 解决场景 | 商品列表图、文章配图、用户头像——任何"图片可能不在首屏、避免一次性加载全部图片"的场景 |
+| L2 边界 | 首屏单张图片 → 直接用 `<img class="thumb">` 或 `<img class="avatar">`；列表内大量图片需懒加载 → 用 af-img |
+| 体积预算 | JS ~0.1KB gzip；CSS 0（Light DOM，D19，见 9.9.10） |
+
+#### 9.9.2 DOM 模式：Light DOM（useShadow = false）
+
+| 理由 | 说明 |
+|---|---|
+| 直接复用 L2 配方 | `.thumb`/`.avatar`/`.skeleton` 配方已定义视觉，af-img 在 `<img>` 上叠加这些 class |
+| 内部无专属样式 | af-img 只负责"懒加载 + 占位 + 失败回填"逻辑 |
+| 原生 `<img>` 语义 | Light DOM 下 `<img>` 的 alt/src 属性原生可用，无障碍零成本 |
+| 主题零代码 | L2 配方已 token 化 |
+
+**决策 D19（af-img）**：Light DOM 模式（原 §2.4/§4.2 预估 Shadow，本设计改 Light）。理由：(a) `<img>` 是原生元素，Shadow 封装反而失去 alt/src 的原生语义；(b) `.thumb`/`.avatar` 配方已覆盖视觉，无需专属 CSS；(c) 节省 0.1KB CSS 预算。
+
+#### 9.9.3 属性 API
+
+**attribute 列表**
+
+| 属性名 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `src` | String | `""` | 真实图片地址（懒加载目标） |
+| `alt` | String | `""` | **必填**，无障碍描述（透传到内部 `<img>`） |
+| `placeholder-src` | String | `""` | 占位图片地址（如低分辨率模糊图）；未设时用 `.skeleton` 动画 |
+| `fail-src` | String | `""` | 加载失败时显示的图片地址；未设时显示 broken 图标 + `.text-muted` 文案 |
+| `variant` | `default`/`thumb`/`avatar` | `default` | 视觉变体：`thumb` 叠加 `.thumb` 配方（72×72），`avatar` 叠加 `.avatar`（36×36 圆形） |
+| `root-margin` | String | `"200px"` | IntersectionObserver rootMargin，提前 200px 触发加载 |
+| `lazy` | Boolean | `true` | 是否启用懒加载（false 时立即加载） |
+
+**property 映射**
+
+| 名称 | 类型 | 说明 |
+|---|---|---|
+| `loaded` | `Boolean`（只读） | 是否已加载完成 |
+| `error` | `Boolean`（只读） | 是否加载失败 |
+
+#### 9.9.4 DOM 结构（Light DOM）
+
+```
+<af-img class="thumb" src="..." alt="商品图">        ← 用户在 af-img 上设 .thumb/.avatar 配方
+  └─ <img class="af-img-inner" alt="${alt}">          ← 内部真实图片元素
+      // src 在懒加载触发前为空，触发后设为 attribute src
+  └─ <div class="skeleton af-img-placeholder">        ← 占位（loaded 前）
+  └─ <div class="af-img-error">                       ← 错误态（error=true 时）
+      └─ <span class="caption">图片加载失败</span>
+```
+
+注：`<af-img>` 自身设 `.thumb`/`.avatar` class（用户指定），内部 `<img>` 继承尺寸（`width:100%; height:100%`）。
+
+#### 9.9.5 算法
+
+**算法 A：IntersectionObserver 懒加载**
+
+```javascript
+mounted() {
+  this._img = this.$('img.af-img-inner');
+  this._placeholder = this.$('.af-img-placeholder');
+
+  if (!this.lazy || this.loaded) {
+    this._load();
+    return;
+  }
+
+  this._observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      this._load();
+      this._observer.disconnect();
+    }
+  }, { rootMargin: this.rootMargin });
+
+  this._observer.observe(this);
+}
+
+_load() {
+  this._img.src = this.src;
+  this._img.onload = () => {
+    this.loaded = true;
+    this._placeholder?.remove();
+    this.emit('af-img:load', {});
+  };
+  this._img.onerror = () => {
+    this.error = true;
+    if (this.failSrc) {
+      this._img.src = this.failSrc;                   // 失败回退图
+    } else {
+      this._img.style.display = 'none';
+      this._renderError();                             // 显示错误文案
+    }
+    this.emit('af-img:error', {});
+  };
+}
+
+_renderError() {
+  const err = document.createElement('div');
+  err.className = 'af-img-error';
+  err.innerHTML = `<div class="empty"><p class="caption">图片加载失败</p></div>`;
+  this.appendChild(err);
+}
+```
+
+**算法 B：unmounted 清理**
+
+```javascript
+unmounted() {
+  this._observer?.disconnect();
+  this._img.onload = null;
+  this._img.onerror = null;
+}
+```
+
+#### 9.9.6 事件
+
+| 事件名 | payload | 触发时机 |
+|---|---|---|
+| `af-img:load` | `{}` | 图片加载完成（onload 触发） |
+| `af-img:error` | `{}` | 图片加载失败（onerror 触发） |
+
+#### 9.9.7 ARIA 与键盘
+
+| 项 | 内容 |
+|---|---|
+| `<img>` 原生语义 | 内部 `<img>` 自带 `role="img"` |
+| `alt` 属性 | **必填**——L4 ESLint 规则 `wc-alt-text` 检测 af-img 缺 alt 时 error 阻断 |
+| 占位符 | 不需要 aria（视觉装饰，屏幕阅读器忽略） |
+| 错误态 | `.af-img-error` 设 `role="alert"` + `aria-live="assertive"`（加载失败是用户需知晓的信息） |
+| 不需要键盘交互 | 图片非交互元素 |
+
+#### 9.9.8 使用示例
+
+**示例 1：商品列表懒加载**
+
+```html
+<!doctype html>
+<html>
+<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<body>
+  <div class="page">
+    <div class="list" id="goods"></div>
+  </div>
+
+  <script type="module">
+    import { AfImg } from 'aiflow-ui';
+    customElements.define('af-img', AfImg);
+
+    const goods = [{id:1,title:'商品A',img:'/a.jpg'},{id:2,title:'商品B',img:'/b.jpg'}];
+
+    goods.innerHTML = goods.map(g => `
+      <div class="list-item">
+        <af-img class="thumb" src="${g.img}" alt="${g.title}商品图" variant="thumb"></af-img>
+        <div class="flex-1">
+          <div class="body">${g.title}</div>
+        </div>
+      </div>
+    `).join('');
+  </script>
+</body>
+</html>
+```
+
+**示例 2：带占位图与失败回退**
+
+```html
+<af-img
+  class="avatar"
+  src="/user.jpg"
+  alt="用户头像"
+  variant="avatar"
+  placeholder-src="/placeholder.svg"
+  fail-src="/default-avatar.png"
+></af-img>
+```
+
+#### 9.9.9 与 L2 的协作
+
+| L2 配方 | 用途 |
+|---|---|
+| `.thumb` | variant=thumb 时 af-img 根元素叠加（72×72 圆角） |
+| `.avatar` | variant=avatar 时叠加（36×36 圆形） |
+| `.skeleton` | 占位符动画（无 placeholder-src 时） |
+| `.empty` | 错误态容器 |
+| `.caption` | 错误文案 |
+
+**与 L2 禁区**：用户**不应**在 `<af-img>` 内手动写 `<img>` 或占位元素——组件自动管理。用户只需在 `<af-img>` 上设 `src`/`alt`/`variant`，视觉靠 `.thumb`/`.avatar` 配方。
+
+#### 9.9.10 体积拆分
+
+| 部分 | gzip | 占比 | 主要开销 |
+|---|---|---|---|
+| 属性/特性映射 | ~0.01KB | 7% | 基类内置 |
+| DOM 渲染（img + placeholder + error） | ~0.03KB | 20% | innerHTML 模板字符串 |
+| IntersectionObserver 创建 + observe | ~0.03KB | 20% | new + observe + disconnect |
+| _load（src 设置 + onload/onerror） | ~0.03KB | 20% | 2 个事件绑定 + state 切换 |
+| _renderError（失败态渲染） | ~0.02KB | 13% | createElement + appendChild |
+| unmounted 清理 | ~0.01KB | 7% | disconnect + null |
+| ARIA（alt 透传 + error role=alert） | ~0.01KB | 7% | setAttribute |
+| emit（load/error 2 个事件） | ~0.01KB | 6% | 基类内置 |
+| **JS 合计** | **~0.15KB** | **100%** | 略超 0.1KB 预算 0.05KB，可接受 |
+| **CSS** | **0** | — | Light DOM，纯 L2 配方（D19：原 §4.2 预估 Shadow，改 Light 后 CSS 确定为 0） |
+
+**体积风险点与优化**：
+- Light DOM 模式确认 CSS=0——若按 §4.2 原 Shadow 预估，占位/失败态需专属 CSS ~0.1KB，改 Light 后用 L2 `.skeleton`/`.empty` 配方覆盖，净省 0.1KB CSS（JS 略增 0.05KB）
+- IntersectionObserver 是零依赖原生 API，比手写 scroll 监听 + getBoundingClientRect 更高效且体积更小
+- 不实现"高斯模糊预览图渐进式加载"（LQIP）——走 v1.1 扩展（需 canvas 处理），MVP 仅简单占位
+- 不实现"srcset 响应式图片"——用户在 src 字段自行决定（移动端单视口场景，YAGNI）
+
+---
+
+### 9.10 af-backtop 详设（P2 · 回到顶部）
+
+#### 9.10.1 概述
+
+| 项 | 内容 |
+|---|---|
+| 职责 | 回到顶部按钮：(a) 滚动超过阈值时显示（淡入）；(b) 点击平滑滚动到顶部；(c) 滚动监听自动显隐；(d) 可配置目标滚动容器 |
+| 解决场景 | 长列表/长文章/长商品详情页——任何"用户向下滚动后需要快速回到顶部"的场景 |
+| L2 边界 | 静态按钮（不需自动显隐）→ 用 L2 `.btn` 配方 + `scrollTo(0,0)`；需自动显隐 + 平滑滚动 → 用 af-backtop |
+| 体积预算 | JS ~0.1KB gzip；CSS 0（Light DOM 模式） |
+
+#### 9.10.2 DOM 模式：Light DOM（useShadow = false）
+
+| 理由 | 说明 |
+|---|---|
+| 直接复用 L2 配方 | `.btn` 配方已定义按钮视觉，af-backtop 在其上叠加 `position:fixed` |
+| 内部无专属样式 | af-backtop 只负责"滚动监听 + 显隐 + 平滑滚动"逻辑 |
+| 原生 `<button>` 语义 | Light DOM 下 button 原生键盘可达 |
+| 主题零代码 | L2 配方已 token 化 |
+
+#### 9.10.3 属性 API
+
+**attribute 列表**
+
+| 属性名 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `threshold` | Number（px） | `200` | 滚动超过此值时显示按钮 |
+| `target` | String | `""` | 滚动容器选择器（如 `"#scroll-area"`）；未设时监听 window |
+| `text` | String | `"↑"` | 按钮文案/图标（默认上箭头） |
+| `aria-label-text` | String | `"回到顶部"` | 无障碍标签（按钮只有符号，需文字描述） |
+| `position` | `right-bottom`/`left-bottom` | `right-bottom` | 固定位置 |
+
+**property 映射**
+
+| 名称 | 类型 | 说明 |
+|---|---|---|
+| `visible` | `Boolean`（只读） | 当前是否显示 |
+| `scrollToTop()` | `Function` | 编程触发回顶 |
+
+#### 9.10.4 DOM 结构（Light DOM）
+
+```
+<af-backtop class="af-backtop-fixed">               ← 根元素，position:fixed（ recipes.project.css 扩展）
+  └─ <button class="btn btn-ghost" aria-label="回到顶部">
+      ${text}
+```
+
+注：`position:fixed` + `right`/`bottom` 偏移由 `recipes.project.css` 扩展类 `.af-backtop-fixed` 提供（避免 L2 配方膨胀，详见 9.10.9）。
+
+#### 9.10.5 算法
+
+**算法 A：滚动监听 + 显隐（节流 100ms）**
+
+```javascript
+mounted() {
+  this._scrollTarget = this.target
+    ? document.querySelector(this.target)
+    : window;
+
+  let scrollTimer;
+  this._onScroll = () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => this._updateVisibility(), 100);
+  };
+
+  this._scrollTarget.addEventListener('scroll', this._onScroll);
+  this._updateVisibility();                          // 初始化
+}
+
+_updateVisibility() {
+  const scrollTop = this._scrollTarget === window
+    ? window.scrollY
+    : this._scrollTarget.scrollTop;
+  const shouldShow = scrollTop > this.threshold;
+  if (shouldShow !== this.visible) {
+    this.visible = shouldShow;
+    this.style.display = shouldShow ? '' : 'none';   // width/height/display 豁免 no-inline-style
+    this.emit(shouldShow ? 'af-backtop:show' : 'af-backtop:hide', {});
+  }
+}
+```
+
+**算法 B：点击 → 平滑滚动到顶部**
+
+```javascript
+mounted() {
+  // ... 算法 A ...
+  this.$('button').addEventListener('click', () => {
+    this.scrollToTop();
+    this.emit('af-backtop:click', {});
+  });
+}
+
+scrollToTop() {
+  if (this._scrollTarget === window) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });  // 原生平滑滚动
+  } else {
+    this._scrollTarget.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+```
+
+**算法 C：unmounted 清理**
+
+```javascript
+unmounted() {
+  this._scrollTarget.removeEventListener('scroll', this._onScroll);
+}
+```
+
+#### 9.10.6 事件
+
+| 事件名 | payload | 触发时机 |
+|---|---|---|
+| `af-backtop:click` | `{}` | 用户点击按钮后（平滑滚动开始前） |
+| `af-backtop:show` | `{}` | 按钮从隐藏变为显示 |
+| `af-backtop:hide` | `{}` | 按钮从显示变为隐藏 |
+
+#### 9.10.7 ARIA 与键盘
+
+| 项 | 内容 |
+|---|---|
+| `<button>` 原生语义 | 内部 button 自带 `role="button"` |
+| `aria-label` | 必须设（按钮仅符号，屏幕阅读器需文字描述）；默认"回到顶部"，用户可覆盖 |
+| 键盘 Tab | 按钮可聚焦 |
+| 键盘 Enter/Space | 触发点击（原生 button 自带） |
+| 显隐状态 | 不需要 `aria-hidden`（display:none 已让屏幕阅读器跳过） |
+
+#### 9.10.8 使用示例
+
+**示例 1：页面级回到顶部**
+
+```html
+<!doctype html>
+<html>
+<head>
+  <link rel="stylesheet" href="/aiflow-ui.css">
+  <link rel="stylesheet" href="/aiflow-ui/recipes.project.css">   <!-- 含 .af-backtop-fixed -->
+</head>
+<body>
+  <div class="page">
+    <h1 class="title">长文章</h1>
+    <p class="body">... 很长的内容 ...</p>
+  </div>
+
+  <af-backtop threshold="300"></af-backtop>
+
+  <script type="module">
+    import { AfBacktop } from 'aiflow-ui';
+    customElements.define('af-backtop', AfBacktop);
+
+    backtop.addEventListener('af-backtop:click', () => {
+      console.log('用户点击回顶');
+    });
+  </script>
+</body>
+</html>
+```
+
+**示例 2：滚动容器内回到顶部**
+
+```html
+<div class="list" id="scroll-list" style="height:400px;overflow-y:auto;">
+  <!-- 长列表 -->
+</div>
+
+<af-backtop target="#scroll-list" threshold="100"></af-backtop>
+```
+
+#### 9.10.9 与 L2 的协作
+
+| L2 配方 | 用途 |
+|---|---|
+| `.btn` / `.btn-ghost` | 按钮视觉（圆角/背景/触控反馈） |
+
+**项目级扩展（recipes.project.css）**：
+
+由于 af-backtop 需要 `position:fixed` + 位置偏移，而 L2 配方不内置 fixed 定位（避免 `.btn` 配方膨胀），用户需在 `recipes.project.css` 扩展：
+
+```css
+/* recipes.project.css */
+@layer components {
+  .af-backtop-fixed {
+    position: fixed;
+    right: var(--s-4);
+    bottom: calc(var(--s-6) + env(safe-area-inset-bottom));
+    z-index: var(--z-sticky);
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+}
+```
+
+并在 `.eslintrc` 的 `extraClass` 登记 `'af-backtop-fixed'`。
+
+**与 L2 禁区**：用户**不应**手写 `<button class="btn" style="position:fixed">`——内联 style 违反 L1-2 `no-inline-style` 规则。必须通过 af-backtop 组件 + 项目级扩展类实现。
+
+#### 9.10.10 体积拆分
+
+| 部分 | gzip | 占比 | 主要开销 |
+|---|---|---|---|
+| 属性/特性映射 | ~0.01KB | 10% | 基类内置 |
+| DOM 渲染（button + text） | ~0.01KB | 10% | innerHTML 模板字符串 |
+| 滚动监听 + 节流（100ms） | ~0.03KB | 30% | addEventListener + setTimeout |
+| _updateVisibility（显隐切换） | ~0.02KB | 20% | scrollTop 判断 + display 切换 + emit |
+| 点击 → scrollToTop（平滑滚动） | ~0.01KB | 10% | scrollTo({behavior:'smooth'}) |
+| unmounted 清理 | ~0.01KB | 10% | removeEventListener |
+| ARIA（aria-label 透传） | ~0.01KB | 10% | setAttribute |
+| **JS 合计** | **~0.10KB** | **100%** | 符合 1.4 节 0.1KB 预算 |
+| **CSS** | **0** | — | Light DOM，纯 L2 配方 + 项目级扩展 |
+
+**体积风险点与优化**：
+- 滚动监听节流是必要开销——不节流会导致 scroll 事件高频触发，性能差
+- 平滑滚动用原生 `behavior:'smooth'`——零 JS 动画代码，体积最优
+- 不实现"圆形悬浮按钮 + 阴影 + 图标"视觉——由用户在 `recipes.project.css` 扩展（如 `.af-backtop-circle { border-radius: var(--r-f); box-shadow: var(--shadow-md); }`）
+- 不实现"滚动进度条"——走 v1.1 扩展（独立组件 af-scroll-progress），MVP 仅回顶功能
+
+---
+
 ## 设计决策索引
 
 | # | 决策 | 所在节 |
@@ -1504,7 +3360,7 @@ onThemeChange(theme):
 | D3 | 注册机制：导出类 + 用户显式 `customElements.define`（不自动注册） | 2.3 |
 | D4 | JS 与 CSS 不分离文件：Light 零 CSS，Shadow CSS 嵌入 JS 字符串 | 2.4 |
 | D5 | mounted 一次性 + unmounted 资源清理清单 + 属性特性双向同步防循环 | 3.1 / 3.2 / 3.4 |
-| D6 | CSS 混合方案：6 Light + 4 Shadow | 4.1 / 4.2 |
+| D6 | CSS 混合方案：7 Light + 3 Shadow（详设阶段 af-img 由 Shadow 改 Light，D19） | 4.1 / 4.2 |
 | D7 | 单向数据流：属性输入、事件输出，组件不直接改自身 attribute | 6.4 |
 | D8 | `package.json` 设 `sideEffects: false` + ESM 命名导出 Tree Shake | 8.1 |
 | D9 | 组件文件无顶层副作用（不自动 `customElements.define`） | 8.1 |
@@ -1515,3 +3371,6 @@ onThemeChange(theme):
 | D14 | 组件清单 10 个三优先级（P0:4/P1:3/P2:3），不纳表单验证/抽屉 | 1.2 / 1.3 |
 | D15 | af-list 以 `renderItem` 函数为主定制方式（非 slot），HTML 字符串拼接零依赖 | 9.1.3 |
 | D16 | af-swiper slide 由 `<slot>` 透传，`::slotted(*)` 统一设 flex-shrink:0 + width:100% | 9.2.4 |
+| D17 | af-tabs 双模式 panel 渲染（`renderPanel` 函数 + `<slot name="panel-N">` 静态透传，两者皆无则只切 tab 高亮，外部监听 change 自行处理） | 9.3.3 |
+| D18 | af-dialog 基于原生 `<dialog>` + `showModal()`，不手写遮罩/focus trap（借用原生 backdrop / top-layer / Esc / 焦点陷阱） | 9.4.3 |
+| D19 | af-img 由 §4.2 预估的 Shadow 改为 Light DOM（`<img>` 原生语义 + L2 `.thumb`/`.avatar`/`.skeleton`/`.empty` 配方覆盖视觉，CSS=0；连带 D6 计数变 7 Light + 3 Shadow） | 9.9.2 |

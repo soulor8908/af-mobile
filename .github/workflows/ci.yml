@@ -19,16 +19,9 @@ jobs:
 
       - run: npm ci
 
-      # Step 1: 白名单同步检查（源码 ↔ whitelist-v1.json）
-      - name: Whitelist sync check
-        run: |
-          node scripts/gen-whitelist.mjs
-          if ! git diff --quiet eslint-plugin-aiflow/utils/whitelist-v1.json; then
-            echo "❌ whitelist-v1.json 与源码不同步！请运行 npm run whitelist 并提交"
-            git diff eslint-plugin-aiflow/utils/whitelist-v1.json
-            exit 1
-          fi
-          echo "✓ whitelist 同步"
+      # Step 1: 白名单三源同步检查（A 源码 ↔ B whitelist-v1.json ↔ C Prompt 注入）
+      - name: Whitelist sync (3-source diff)
+        run: npm run whitelist:check
 
       # Step 2: 体积检查（L1+L2 CSS + L3 JS）
       - name: Size budget check

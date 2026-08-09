@@ -19,6 +19,7 @@ yarn-error.log*
 # Build
 dist/
 build/
+.cache/
 *.tsbuildinfo
 
 # Env

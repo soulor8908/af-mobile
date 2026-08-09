@@ -53,3 +53,10 @@
 {"id":"053","category":"complex","prompt":"会员中心：等级卡片、权益网格、任务列表、积分商城入口、底部 tabbar","expects":[".card",".list",".tabbar"]}
 {"id":"054","category":"complex","prompt":"订单管理：tab 切换（全部/待付款/待发货/待收货/已完成）+ 对应订单列表，含空状态","expects":["af-tabs",".list",".empty"]}
 {"id":"055","category":"complex","prompt":"商品搜索：搜索框+历史+热门、搜索结果列表（含紧凑/正常模式切换）、筛选排序面板","expects":[".search-input",".tag",".list",".list-item"]}
+{"id":"056","category":"form","prompt":"设置页开关组：三个 af-switch 开关项（消息推送/夜间模式/震动反馈），每项含标题与说明，放在 cell 行内右侧","expects":["af-switch",".switch",".cell",".title"]}
+{"id":"057","category":"form","prompt":"商品搜索页：顶部 af-search-bar 组件含清除按钮，下方热门搜索 tag 标签与历史记录列表","expects":["af-search-bar",".search-bar-wrap",".search-input",".tag"]}
+{"id":"058","category":"feedback","prompt":"商品列表加载骨架屏：用 af-skeleton-page 组件渲染 list 变体，含多个 skeleton-line 占位","expects":["af-skeleton-page",".skeleton-line"]}
+{"id":"059","category":"feedback","prompt":"表单提交反馈：点击按钮后用 af-toast.show() 弹出成功提示，2 秒后自动消失","expects":["af-toast",".btn"]}
+{"id":"060","category":"form","prompt":"地址选择表单：省市区三级联动，用 af-picker 组件选择，含标题与确认按钮","expects":["af-picker",".btn"]}
+{"id":"061","category":"form","prompt":"商品排序栏：顶部 af-dropdown 下拉菜单（综合/销量/价格升/价格降），下方商品列表","expects":["af-dropdown",".list"]}
+{"id":"062","category":"detail","prompt":"商品图墙网格：四张 af-img 懒加载图片，带占位图与加载失败兜底，两列布局","expects":["af-img"]}

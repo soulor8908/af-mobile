@@ -5,7 +5,7 @@
 //   dist/aiflow-ui.umd.js UMD bundle（CDN/unpkg 直引，含全部组件 + 自动注册）
 //   dist/index.css        全量 CSS（tokens+recipes+atomic，@import 内联）
 //   dist/index.d.ts       类型声明（复制 src/index.d.ts）
-import { build } from 'esbuild';
+import { build, transform } from 'esbuild';
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,7 +33,7 @@ await build({
   target: ['es2020'],
   legalComments: 'none',
   sourcemap: false,
-  minify: false, // ESM 保留可读性，Tree Shaking 由打包器对源码做
+  minify: true, // 生产产物压缩；ESM minify 不影响打包器 Tree Shaking
   absWorkingDir: ROOT,
 });
 console.log('✓ dist/index.js (ESM bundle)');
@@ -73,8 +73,9 @@ for (const f of cssFiles) {
   const cleaned = content.replace(/@import\s+['"][^'"]+['"]\s*;?\s*/g, '');
   cssConcat += cleaned + '\n';
 }
-writeFileSync(join(DIST, 'index.css'), cssConcat);
-console.log('✓ dist/index.css (CSS inlined)');
+const { code: cssMin } = await transform(cssConcat, { loader: 'css', minify: true, target: ['es2020'] });
+writeFileSync(join(DIST, 'index.css'), cssMin);
+console.log('✓ dist/index.css (CSS inlined + minified)');
 
 // ---------- 4. dist/index.d.ts（类型声明复制） ----------
 copyFileSync(join(SRC, 'index.d.ts'), join(DIST, 'index.d.ts'));

@@ -1,55 +1,55 @@
-{"id":"001","category":"list","prompt":"商品列表页：竖向商品卡片列表，每张卡片含商品图（左）、标题、副标题、价格、删除线原价，底部有加入购物车按钮"}
-{"id":"002","category":"list","prompt":"订单列表页：每个订单项含订单号、下单时间、状态标签（待付款/已发货/已完成）、金额，底部有查看详情按钮"}
-{"id":"003","category":"list","prompt":"消息列表页：每条消息含头像、昵称、消息预览、时间，未读消息用品牌色标记，支持点击进入聊天"}
-{"id":"004","category":"list","prompt":"搜索结果页：顶部搜索框，下方为商品列表，支持紧凑模式（小图+标题+价格），空结果用 empty 组件"}
-{"id":"005","category":"list","prompt":"地址列表页：每个地址项含收件人、手机号、详细地址、默认标签，支持编辑和删除"}
-{"id":"006","category":"list","prompt":"收藏列表页：两列网格商品卡片，每张含图、标题、价格，支持取消收藏"}
-{"id":"007","category":"list","prompt":"分类列表页：左侧分类导航 tab，右侧商品列表，列表项含图、名称、价格"}
-{"id":"008","category":"list","prompt":"评论列表页：每条评论含头像、昵称、评分标签、评论内容、时间，支持图片缩略图"}
-{"id":"009","category":"list","prompt":"优惠券列表页：每张券含金额、门槛、有效期、状态标签（可领/已领/已用），底部有领取按钮"}
-{"id":"010","category":"list","prompt":"购物车列表页：每个商品项含勾选框、图、标题、规格、数量加减、价格，底部有合计和结算按钮"}
-{"id":"011","category":"form","prompt":"登录页：手机号输入框、验证码输入框+发送按钮、登录按钮，顶部有标题和副标题"}
-{"id":"012","category":"form","prompt":"注册页：手机号、密码、确认密码、协议勾选、注册按钮，表单项有错误提示位置"}
-{"id":"013","category":"form","prompt":"地址新增/编辑表单：收件人、手机号、省市区、详细地址、默认开关、保存按钮"}
-{"id":"014","category":"form","prompt":"搜索页：顶部固定搜索框带返回按钮，搜索历史标签，热门搜索标签"}
-{"id":"015","category":"form","prompt":"结算页：收货地址卡片、商品列表、优惠券选择、备注输入、金额明细、提交按钮"}
-{"id":"016","category":"form","prompt":"反馈表单：问题类型下拉、问题描述文本域、联系方式输入、提交按钮"}
-{"id":"017","category":"form","prompt":"修改密码页：旧密码、新密码、确认密码输入，含密码强度提示"}
-{"id":"018","category":"form","prompt":"个人信息编辑：头像、昵称、性别选择、生日、地区"}
-{"id":"019","category":"form","prompt":"实名认证表单：姓名、身份证号、上传身份证正反面、提交"}
-{"id":"020","category":"form","prompt":"配送地址选择：地址列表+新增地址按钮，每项可选中和编辑"}
-{"id":"021","category":"detail","prompt":"商品详情页：顶部轮播图、标题、价格、促销标签、规格选择、详情图、底部购买栏（客服+购物车+立即购买）"}
-{"id":"022","category":"detail","prompt":"订单详情页：订单状态、收货地址、商品列表、金额明细、订单信息、底部操作按钮"}
-{"id":"023","category":"detail","prompt":"个人中心页：头像+昵称、订单状态入口（待付款/待发货/待收货/退款）、功能列表（收藏/地址/优惠券/客服）"}
-{"id":"024","category":"detail","prompt":"店铺详情页：店铺头部信息、tab 切换（全部商品/新品/活动）、商品列表"}
-{"id":"025","category":"detail","prompt":"文章详情页：标题、作者信息、正文、点赞收藏栏、评论列表、底部评论输入"}
-{"id":"026","category":"detail","prompt":"物流详情页：物流状态时间轴、收货信息、商品缩略图、底部联系客服"}
-{"id":"027","category":"detail","prompt":"积分明细页：当前积分卡片、收支列表（每条含类型、时间、积分变动）"}
-{"id":"028","category":"detail","prompt":"会员中心页：会员等级卡片、权益列表、成长值进度条、任务列表"}
-{"id":"029","category":"detail","prompt":"帮助中心页：搜索框、常见问题列表（可展开）、联系客服按钮"}
-{"id":"030","category":"detail","prompt":"关于我们页：Logo、版本号、功能介绍、检查更新、用户协议、隐私政策"}
-{"id":"031","category":"feedback","prompt":"提交成功页：成功图标、标题、描述、返回首页按钮、查看详情按钮"}
-{"id":"032","category":"feedback","prompt":"空状态页：购物车空、收藏空、订单空三种场景，含插图、文案、引导按钮"}
-{"id":"033","category":"feedback","prompt":"加载骨架屏：商品列表骨架（图+标题+价格占位）、卡片骨架"}
-{"id":"034","category":"feedback","prompt":"网络错误页：错误图标、提示文案、重试按钮"}
-{"id":"035","category":"feedback","prompt":"404 页面：大号 404、提示文案、返回首页按钮"}
-{"id":"036","category":"feedback","prompt":"支付结果页：成功状态、金额、订单号、支付方式、查看订单+完成按钮"}
-{"id":"037","category":"feedback","prompt":"下拉刷新提示：列表页顶部加载条+文案"}
-{"id":"038","category":"feedback","prompt":"操作确认弹窗：删除确认对话框，含标题、正文、取消/确认按钮"}
-{"id":"039","category":"feedback","prompt":"分享面板：底部弹出分享选项（微信/朋友圈/复制链接/生成海报）+取消按钮"}
-{"id":"040","category":"feedback","prompt":"筛选排序面板：底部弹出排序选项（综合/销量/价格升/降）+筛选"}
-{"id":"041","category":"nav","prompt":"首页导航：顶部 navbar+搜索框、轮播 banner、icon 网格入口、推荐商品列表、底部 tabbar"}
-{"id":"042","category":"nav","prompt":"分类导航页：顶部搜索、左侧分类列表、右侧子分类+商品网格"}
-{"id":"043","category":"nav","prompt":"底部 tabbar 三栏：首页、分类、我的，含选中态"}
-{"id":"044","category":"nav","prompt":"顶部返回导航：navbar 含返回按钮、标题、右侧更多操作"}
-{"id":"045","category":"nav","prompt":"步骤导航：订单流程步骤条（下单→支付→发货→收货），含当前步骤高亮"}
-{"id":"046","category":"nav","prompt":"面包屑导航：分类层级（首页 > 服饰 > 男装 > T恤）"}
-{"id":"047","category":"nav","prompt":"标签页切换：商品详情页 tab（商品/评价/详情/推荐），内容联动切换"}
-{"id":"048","category":"nav","prompt":"侧边抽屉菜单：从右侧滑入的筛选面板，含分类、品牌、价格区间、确认按钮"}
-{"id":"049","category":"nav","prompt":"回到顶部按钮：长列表滚动超过阈值后显示，点击平滑回顶"}
-{"id":"050","category":"nav","prompt":"图片轮播 banner：自动播放、循环、可点击跳转，含指示点"}
-{"id":"051","category":"complex","prompt":"完整电商首页：navbar+搜索、轮播、icon 入口、限时秒杀倒计时、商品瀑布流、底部 tabbar"}
-{"id":"052","category":"complex","prompt":"完整购物流程：商品详情→加入购物车→购物车列表→结算页→支付结果，单文件多视图"}
-{"id":"053","category":"complex","prompt":"会员中心：等级卡片、权益网格、任务列表、积分商城入口、底部 tabbar"}
-{"id":"054","category":"complex","prompt":"订单管理：tab 切换（全部/待付款/待发货/待收货/已完成）+ 对应订单列表，含空状态"}
-{"id":"055","category":"complex","prompt":"商品搜索：搜索框+历史+热门、搜索结果列表（含紧凑/正常模式切换）、筛选排序面板"}
+{"id":"001","category":"list","prompt":"商品列表页：竖向商品卡片列表，每张卡片含商品图（左）、标题、副标题、价格、删除线原价，底部有加入购物车按钮","expects":[".card",".title",".price",".price-del",".btn"]}
+{"id":"002","category":"list","prompt":"订单列表页：每个订单项含订单号、下单时间、状态标签（待付款/已发货/已完成）、金额，底部有查看详情按钮","expects":[".list-item",".tag",".price",".btn"]}
+{"id":"003","category":"list","prompt":"消息列表页：每条消息含头像、昵称、消息预览、时间，未读消息用品牌色标记，支持点击进入聊天","expects":[".avatar",".title",".meta",".list-item"]}
+{"id":"004","category":"list","prompt":"搜索结果页：顶部搜索框，下方为商品列表，支持紧凑模式（小图+标题+价格），空结果用 empty 组件","expects":[".search-input",".list",".empty"]}
+{"id":"005","category":"list","prompt":"地址列表页：每个地址项含收件人、手机号、详细地址、默认标签，支持编辑和删除","expects":[".list-item",".tag",".btn"]}
+{"id":"006","category":"list","prompt":"收藏列表页：两列网格商品卡片，每张含图、标题、价格，支持取消收藏","expects":[".card",".title",".price"]}
+{"id":"007","category":"list","prompt":"分类列表页：左侧分类导航 tab，右侧商品列表，列表项含图、名称、价格","expects":[".tabbar",".tab-item",".list-item",".price"]}
+{"id":"008","category":"list","prompt":"评论列表页：每条评论含头像、昵称、评分标签、评论内容、时间，支持图片缩略图","expects":[".avatar",".title",".tag",".body",".thumb"]}
+{"id":"009","category":"list","prompt":"优惠券列表页：每张券含金额、门槛、有效期、状态标签（可领/已领/已用），底部有领取按钮","expects":[".card",".price",".tag",".btn"]}
+{"id":"010","category":"list","prompt":"购物车列表页：每个商品项含勾选框、图、标题、规格、数量加减、价格，底部有合计和结算按钮","expects":[".list-item",".thumb",".title",".price",".checkout-bar"]}
+{"id":"011","category":"form","prompt":"登录页：手机号输入框、验证码输入框+发送按钮、登录按钮，顶部有标题和副标题","expects":[".input",".btn",".title",".subtitle"]}
+{"id":"012","category":"form","prompt":"注册页：手机号、密码、确认密码、协议勾选、注册按钮，表单项有错误提示位置","expects":[".input",".btn",".form-row",".form-err"]}
+{"id":"013","category":"form","prompt":"地址新增/编辑表单：收件人、手机号、省市区、详细地址、默认开关、保存按钮","expects":[".input",".textarea",".btn",".label"]}
+{"id":"014","category":"form","prompt":"搜索页：顶部固定搜索框带返回按钮，搜索历史标签，热门搜索标签","expects":[".search-input",".navbar",".tag"]}
+{"id":"015","category":"form","prompt":"结算页：收货地址卡片、商品列表、优惠券选择、备注输入、金额明细、提交按钮","expects":[".card",".list",".checkout-bar",".btn"]}
+{"id":"016","category":"form","prompt":"反馈表单：问题类型下拉、问题描述文本域、联系方式输入、提交按钮","expects":[".form-row",".textarea",".input",".btn"]}
+{"id":"017","category":"form","prompt":"修改密码页：旧密码、新密码、确认密码输入，含密码强度提示","expects":[".input",".form-row",".btn",".caption"]}
+{"id":"018","category":"form","prompt":"个人信息编辑：头像、昵称、性别选择、生日、地区","expects":[".avatar",".input",".form-row",".btn"]}
+{"id":"019","category":"form","prompt":"实名认证表单：姓名、身份证号、上传身份证正反面、提交","expects":[".input",".form-row",".btn"]}
+{"id":"020","category":"form","prompt":"配送地址选择：地址列表+新增地址按钮，每项可选中和编辑","expects":[".list-item",".btn"]}
+{"id":"021","category":"detail","prompt":"商品详情页：顶部轮播图、标题、价格、促销标签、规格选择、详情图、底部购买栏（客服+购物车+立即购买）","expects":["af-swiper",".title",".price",".tag",".input-bar"]}
+{"id":"022","category":"detail","prompt":"订单详情页：订单状态、收货地址、商品列表、金额明细、订单信息、底部操作按钮","expects":[".tag",".card",".list",".btn"]}
+{"id":"023","category":"detail","prompt":"个人中心页：头像+昵称、订单状态入口（待付款/待发货/待收货/退款）、功能列表（收藏/地址/优惠券/客服）","expects":[".avatar",".title",".list",".list-item"]}
+{"id":"024","category":"detail","prompt":"店铺详情页：店铺头部信息、tab 切换（全部商品/新品/活动）、商品列表","expects":["af-tabs",".list",".list-item"]}
+{"id":"025","category":"detail","prompt":"文章详情页：标题、作者信息、正文、点赞收藏栏、评论列表、底部评论输入","expects":[".title",".body",".list",".input-bar"]}
+{"id":"026","category":"detail","prompt":"物流详情页：物流状态时间轴、收货信息、商品缩略图、底部联系客服","expects":[".card",".thumb",".btn"]}
+{"id":"027","category":"detail","prompt":"积分明细页：当前积分卡片、收支列表（每条含类型、时间、积分变动）","expects":[".card",".list",".list-item",".price"]}
+{"id":"028","category":"detail","prompt":"会员中心页：会员等级卡片、权益列表、成长值进度条、任务列表","expects":[".card",".list",".btn"]}
+{"id":"029","category":"detail","prompt":"帮助中心页：搜索框、常见问题列表（可展开）、联系客服按钮","expects":[".search-input",".list-item",".btn"]}
+{"id":"030","category":"detail","prompt":"关于我们页：Logo、版本号、功能介绍、检查更新、用户协议、隐私政策","expects":[".title",".list-item",".btn"]}
+{"id":"031","category":"feedback","prompt":"提交成功页：成功图标、标题、描述、返回首页按钮、查看详情按钮","expects":[".title",".btn"]}
+{"id":"032","category":"feedback","prompt":"空状态页：购物车空、收藏空、订单空三种场景，含插图、文案、引导按钮","expects":[".empty",".btn"]}
+{"id":"033","category":"feedback","prompt":"加载骨架屏：商品列表骨架（图+标题+价格占位）、卡片骨架","expects":[".skeleton",".skeleton-line"]}
+{"id":"034","category":"feedback","prompt":"网络错误页：错误图标、提示文案、重试按钮","expects":[".title",".btn"]}
+{"id":"035","category":"feedback","prompt":"404 页面：大号 404、提示文案、返回首页按钮","expects":[".title",".btn"]}
+{"id":"036","category":"feedback","prompt":"支付结果页：成功状态、金额、订单号、支付方式、查看订单+完成按钮","expects":[".title",".price",".btn"]}
+{"id":"037","category":"feedback","prompt":"下拉刷新提示：列表页顶部加载条+文案","expects":[".list"]}
+{"id":"038","category":"feedback","prompt":"操作确认弹窗：删除确认对话框，含标题、正文、取消/确认按钮","expects":["af-dialog",".btn"]}
+{"id":"039","category":"feedback","prompt":"分享面板：底部弹出分享选项（微信/朋友圈/复制链接/生成海报）+取消按钮","expects":["af-action-sheet",".btn"]}
+{"id":"040","category":"feedback","prompt":"筛选排序面板：底部弹出排序选项（综合/销量/价格升/降）+筛选","expects":["af-action-sheet"]}
+{"id":"041","category":"nav","prompt":"首页导航：顶部 navbar+搜索框、轮播 banner、icon 网格入口、推荐商品列表、底部 tabbar","expects":[".navbar",".search-input","af-swiper",".list",".tabbar"]}
+{"id":"042","category":"nav","prompt":"分类导航页：顶部搜索、左侧分类列表、右侧子分类+商品网格","expects":[".search-input",".list",".list-item"]}
+{"id":"043","category":"nav","prompt":"底部 tabbar 三栏：首页、分类、我的，含选中态","expects":[".tabbar",".tab-item"]}
+{"id":"044","category":"nav","prompt":"顶部返回导航：navbar 含返回按钮、标题、右侧更多操作","expects":[".navbar",".btn",".title"]}
+{"id":"045","category":"nav","prompt":"步骤导航：订单流程步骤条（下单→支付→发货→收货），含当前步骤高亮","expects":[".list-item",".tag"]}
+{"id":"046","category":"nav","prompt":"面包屑导航：分类层级（首页 > 服饰 > 男装 > T恤）","expects":[".caption"]}
+{"id":"047","category":"nav","prompt":"标签页切换：商品详情页 tab（商品/评价/详情/推荐），内容联动切换","expects":["af-tabs"]}
+{"id":"048","category":"nav","prompt":"侧边抽屉菜单：从右侧滑入的筛选面板，含分类、品牌、价格区间、确认按钮","expects":[".sheet",".btn"]}
+{"id":"049","category":"nav","prompt":"回到顶部按钮：长列表滚动超过阈值后显示，点击平滑回顶","expects":["af-backtop"]}
+{"id":"050","category":"nav","prompt":"图片轮播 banner：自动播放、循环、可点击跳转，含指示点","expects":["af-swiper"]}
+{"id":"051","category":"complex","prompt":"完整电商首页：navbar+搜索、轮播、icon 入口、限时秒杀倒计时、商品瀑布流、底部 tabbar","expects":[".navbar",".search-input","af-swiper",".tabbar",".list",".card"]}
+{"id":"052","category":"complex","prompt":"完整购物流程：商品详情→加入购物车→购物车列表→结算页→支付结果，单文件多视图","expects":[".card",".price",".checkout-bar",".btn"]}
+{"id":"053","category":"complex","prompt":"会员中心：等级卡片、权益网格、任务列表、积分商城入口、底部 tabbar","expects":[".card",".list",".tabbar"]}
+{"id":"054","category":"complex","prompt":"订单管理：tab 切换（全部/待付款/待发货/待收货/已完成）+ 对应订单列表，含空状态","expects":["af-tabs",".list",".empty"]}
+{"id":"055","category":"complex","prompt":"商品搜索：搜索框+历史+热门、搜索结果列表（含紧凑/正常模式切换）、筛选排序面板","expects":[".search-input",".tag",".list",".list-item"]}

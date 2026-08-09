@@ -40,6 +40,11 @@ jobs:
       - name: Publish check (tree-shaking + sideEffects)
         run: npm run publish:check
 
+      # Step 6: eval 集格式闸门（零 token 成本，仅校验 prompts.jsonl 结构）
+      # 防止评测集静默损坏（缺字段/JSON 语法错误）
+      - name: Eval prompts format check
+        run: npm run eval:dry
+
 # Step 6: CODEOWNERS 审批由 GitHub Branch Protection Rules 自动处理
 # 配置：Settings → Branches → Branch protection rules → Require review from Code Owners
 # 关键文件 → Owner 映射见 .github/CODEOWNERS

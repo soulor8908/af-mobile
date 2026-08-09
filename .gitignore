@@ -29,3 +29,6 @@ build/
 
 # Logs
 *.log
+
+# Eval 产物（每次跑 eval/run.mjs 生成，不应入库）
+eval/results/

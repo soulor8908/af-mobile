@@ -28,7 +28,7 @@
 **反馈（9）：** `empty` `skeleton` `skeleton-line` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast`
 **导航（5）：** `navbar` `navbar-fixed` `tabbar` `tabbar-fixed` `tab-item`
 **布局（5）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar`
-**状态修饰符（与其他 class 组合使用）：** `active`
+**状态修饰符（1，与其他 class 组合使用）：** `active`
 
 ## L2 原子（52 个，按用途分组）
 
@@ -41,7 +41,7 @@
 **字重（2）：** `t-b` `t-m`
 **颜色（6）：** `text-brand` `text-muted` `text-danger` `text-success` `bg-brand` `bg-muted`
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
-**文本对齐（4，补齐至 52）：** `t-left` `t-center` `t-right` `ws-nowrap`
+**文本对齐（4，补齐至 52）（4）：** `t-left` `t-center` `t-right` `ws-nowrap`
 
 ## L3 真组件标签（10 个）
 

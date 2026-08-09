@@ -35,6 +35,7 @@
     "generate": "node scripts/generate.mjs",
     "eval": "node eval/run.mjs",
     "eval:dry": "node eval/run.mjs --dry-run",
+    "eval:flywheel": "node eval/flywheel.mjs",
     "publish:check": "node scripts/publish-check.mjs",
     "prepublishOnly": "npm run publish:check",
     "ci": "vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs"

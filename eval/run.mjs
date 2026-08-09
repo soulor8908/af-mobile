@@ -24,6 +24,9 @@ function loadPrompts() {
     if (!obj.id || !obj.prompt || !obj.category) {
       throw new Error(`prompts.jsonl 第 ${i + 1} 行缺少 id/prompt/category 字段`);
     }
+    if (!Array.isArray(obj.expects) || obj.expects.length === 0) {
+      throw new Error(`prompts.jsonl 第 ${i + 1} 行缺少 expects 字段（期望元素的 selector 数组）`);
+    }
     return obj;
   });
 }
@@ -32,22 +35,22 @@ function loadPrompts() {
 async function runOne(item, passK = 1) {
   const attempts = [];
   for (let k = 0; k < passK; k++) {
-    const result = await generate(item.prompt, {
-      outputPath: join(RESULTS_DIR, `${item.id}-k${k}.html`),
-    });
+    const outputPath = join(RESULTS_DIR, `${item.id}-k${k}.html`);
+    const result = await generate(item.prompt, { outputPath });
     attempts.push({
       ok: result.ok,
       rounds: result.rounds,
       exitCode: result.exitCode,
       lastErrors: result.lastErrors,
       error: result.error || null,
+      codePath: result.ok ? outputPath : null,
     });
     if (result.ok) break; // pass@k：成功就不再试
   }
   // pass@k：任一次成功即 pass
   const passed = attempts.some(a => a.ok);
   const best = attempts.find(a => a.ok) || attempts[attempts.length - 1];
-  return { id: item.id, category: item.category, passed, attempts, best };
+  return { id: item.id, category: item.category, expects: item.expects, passed, attempts, best };
 }
 
 // 主函数
@@ -106,15 +109,18 @@ async function main() {
 
   // 控制台摘要
   console.error('\n════════════════════════════════════════════');
-  console.error(`pass@${passK}: ${report.passRate} (${report.passed}/${report.total})`);
+  console.error(`lint pass@${passK}: ${report.lintPassRate} (${report.lintPassed}/${report.total})`);
+  console.error(`视觉 pass@${passK}: ${report.visualPassRate} (${report.visualPassed}/${report.total})`);
   console.error(`平均轮数: ${report.avgRounds}`);
   console.error('\n按规则聚合失败率:');
   for (const [rule, n] of Object.entries(report.errorsByRule).sort((a, b) => b[1] - a[1])) {
     console.error(`  ${rule}: ${n} 次`);
   }
-  console.error('\n按类别 pass 率:');
+  console.error('\n按类别 pass 率（lint / 视觉）:');
   for (const [cat, s] of Object.entries(report.byCategory).sort()) {
-    console.error(`  ${cat}: ${s.passed}/${s.total} (${(s.passed / s.total * 100).toFixed(1)}%)`);
+    const lp = s.total > 0 ? (s.lintPassed / s.total * 100).toFixed(1) : '0';
+    const vp = s.total > 0 ? (s.visualPassed / s.total * 100).toFixed(1) : '0';
+    console.error(`  ${cat}: lint ${s.lintPassed}/${s.total} (${lp}%) / 视觉 ${s.visualPassed}/${s.total} (${vp}%)`);
   }
   console.error('════════════════════════════════════════════');
 }

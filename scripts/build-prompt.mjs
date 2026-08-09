@@ -87,6 +87,7 @@ export function extractProjectExtensions(css) {
 // 构造 whitelist 注入段
 // 优先用 CSS 分组（人类可读），再把 whitelist 里有但 CSS 分组没归类的 class
 // （如状态修饰符 .tab-item.active 中的 active）追加到"状态修饰符"分组
+// 组内小计数从实际提取的 class 数派生，覆盖 CSS 注释里的手敲数字（防漂移）
 export function buildWhitelistSection(wl, recipeGroups, atomicGroups) {
   // CSS 分组里出现过的 class 集合
   const groupedRecipe = new Set(recipeGroups.flatMap(g => g.classes));
@@ -95,23 +96,26 @@ export function buildWhitelistSection(wl, recipeGroups, atomicGroups) {
   const looseRecipe = wl.classes.recipe.filter(c => !groupedRecipe.has(c));
   const looseAtomic = wl.classes.atomic.filter(c => !groupedAtomic.has(c));
 
+  // 分组名去掉手敲的计数（如"按钮（7）"→"按钮"），改用派生计数
+  const cleanName = (name) => name.replace(/\s*[（(]\d+[）)]\s*$/, '');
+
   const lines = [];
   lines.push('## L2 配方（' + wl.classes.recipe.length + ' 个，按用途分组）');
   lines.push('');
   for (const g of recipeGroups) {
-    lines.push('**' + g.name + '：** ' + g.classes.map(c => '`' + c + '`').join(' '));
+    lines.push('**' + cleanName(g.name) + '（' + g.classes.length + '）：** ' + g.classes.map(c => '`' + c + '`').join(' '));
   }
   if (looseRecipe.length) {
-    lines.push('**状态修饰符（与其他 class 组合使用）：** ' + looseRecipe.map(c => '`' + c + '`').join(' '));
+    lines.push('**状态修饰符（' + looseRecipe.length + '，与其他 class 组合使用）：** ' + looseRecipe.map(c => '`' + c + '`').join(' '));
   }
   lines.push('');
   lines.push('## L2 原子（' + wl.classes.atomic.length + ' 个，按用途分组）');
   lines.push('');
   for (const g of atomicGroups) {
-    lines.push('**' + g.name + '：** ' + g.classes.map(c => '`' + c + '`').join(' '));
+    lines.push('**' + cleanName(g.name) + '（' + g.classes.length + '）：** ' + g.classes.map(c => '`' + c + '`').join(' '));
   }
   if (looseAtomic.length) {
-    lines.push('**其他：** ' + looseAtomic.map(c => '`' + c + '`').join(' '));
+    lines.push('**其他（' + looseAtomic.length + '）：** ' + looseAtomic.map(c => '`' + c + '`').join(' '));
   }
   lines.push('');
   lines.push('## L3 真组件标签（' + wl.components.length + ' 个）');

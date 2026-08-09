@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>aiflow-ui e2e</title>
+</head>
+<body>
+  <!-- af-dialog -->
+  <section data-testid="dialog-section">
+    <button id="open-dialog" class="btn">打开 dialog</button>
+    <af-dialog id="dlg" title="确认操作">
+      <div slot="body">确认删除该条目？</div>
+      <div slot="footer">
+        <button id="dlg-cancel" class="btn btn-ghost">取消</button>
+        <button id="dlg-ok" class="btn btn-danger">确定</button>
+      </div>
+    </af-dialog>
+  </section>
+
+  <!-- af-action-sheet -->
+  <section data-testid="sheet-section">
+    <button id="open-sheet" class="btn">打开 action-sheet</button>
+    <af-action-sheet id="sheet" title="分享到"></af-action-sheet>
+  </section>
+
+  <!-- af-dropdown -->
+  <section data-testid="dropdown-section">
+    <af-dropdown id="dd" placeholder="请选择城市"></af-dropdown>
+  </section>
+
+  <!-- af-picker -->
+  <section data-testid="picker-section">
+    <button id="open-picker" class="btn">打开 picker</button>
+    <af-picker id="picker" title="选择日期"></af-picker>
+  </section>
+
+  <!-- af-swiper -->
+  <section data-testid="swiper-section">
+    <af-swiper id="swp" loop style="width:320px;height:120px;">
+      <div style="width:100%;height:100%;background:var(--c-brand);display:flex;align-items:center;justify-content:center;color:#fff">1</div>
+      <div style="width:100%;height:100%;background:var(--c-success);display:flex;align-items:center;justify-content:center;color:#fff">2</div>
+      <div style="width:100%;height:100%;background:var(--c-danger);display:flex;align-items:center;justify-content:center;color:#fff">3</div>
+    </af-swiper>
+    <p id="swiper-index">当前索引：0</p>
+  </section>
+
+  <script type="module">
+    import '../src/index.css';
+    import { registerAll } from '../src/index.js';
+    registerAll();
+
+    // dialog
+    const dlg = document.getElementById('dlg');
+    document.getElementById('open-dialog').addEventListener('click', () => dlg.open());
+    document.getElementById('dlg-cancel').addEventListener('click', () => dlg.close('cancel'));
+    document.getElementById('dlg-ok').addEventListener('click', () => dlg.close('ok'));
+
+    // action-sheet
+    const sheet = document.getElementById('sheet');
+    sheet.options = [
+      { label: '微信', value: 'wechat' },
+      { label: '微博', value: 'weibo' },
+      { label: '复制链接', value: 'copy' },
+    ];
+    document.getElementById('open-sheet').addEventListener('click', () => sheet.showPopover());
+
+    // dropdown
+    const dd = document.getElementById('dd');
+    dd.options = [
+      { label: '北京', value: 'bj' },
+      { label: '上海', value: 'sh' },
+      { label: '广州', value: 'gz' },
+    ];
+
+    // picker
+    const picker = document.getElementById('picker');
+    picker.columns = [
+      [
+        { label: '2020', value: 2020 },
+        { label: '2021', value: 2021 },
+        { label: '2022', value: 2022 },
+        { label: '2023', value: 2023 },
+        { label: '2024', value: 2024 },
+        { label: '2025', value: 2025 },
+        { label: '2026', value: 2026 },
+      ],
+      [
+        { label: '1月', value: 1 },
+        { label: '2月', value: 2 },
+        { label: '3月', value: 3 },
+      ],
+    ];
+    picker.values = [2025, 2];
+    document.getElementById('open-picker').addEventListener('click', () => picker.open());
+
+    // swiper 索引回显
+    const swp = document.getElementById('swp');
+    const idxLabel = document.getElementById('swiper-index');
+    swp.addEventListener('af-swiper:change', (e) => {
+      idxLabel.textContent = '当前索引：' + e.detail.index;
+    });
+
+    // 标记组件已就绪（playwright 等待此属性）
+    window.__ready = true;
+  </script>
+</body>
+</html>

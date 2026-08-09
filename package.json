@@ -25,7 +25,9 @@
   "unpkg": "./dist/aiflow-ui.umd.js",
   "jsdelivr": "./dist/aiflow-ui.umd.js",
   "browser": "./dist/aiflow-ui.umd.js",
-  "sideEffects": ["**/*.css"],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
     "src",
     "dist"
@@ -34,6 +36,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "size": "node scripts/size-check.mjs",
     "size:check": "node scripts/size-check.mjs",
     "whitelist": "node scripts/gen-whitelist.mjs",
@@ -64,6 +68,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@vitest/coverage-v8": "^1.6.0",
     "esbuild": "^0.28.2",
     "eslint": "^10.8.1",

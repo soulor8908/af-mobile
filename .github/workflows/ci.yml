@@ -35,6 +35,13 @@ jobs:
       - name: Test
         run: npm test
 
+      # Step 3b: e2e smoke（Playwright）
+      # 验证 jsdom 覆盖不到的浏览器原生 API 真实行为：showModal/popover/scroll-snap/touch
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: e2e smoke (Playwright)
+        run: npm run test:e2e
+
       # Step 4: ESLint 15 规则（L1+L2+L3）—— error 级直接阻断 PR
       - name: ESLint check
         run: npx eslint src/ --max-warnings 0

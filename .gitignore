@@ -33,3 +33,12 @@ demo-dist/
 
 # Eval 产物（每次跑 eval/run.mjs 生成，不应入库）
 eval/results/
+
+# Playwright e2e 产物
+test-results/
+playwright-report/
+playwright/.cache/
+e2e/.dist/
+
+# Trae 临时共享包
+.trae-html-share-packages/

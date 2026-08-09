@@ -70,10 +70,13 @@ export class AfElement extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
-    if (oldVal === newVal || this.skipAttrSync) return;
-    // 自动同步：attribute → property（直接写 private 字段，避免触发 setter 循环）
-    const meta = this.constructor._propMeta?.[name];
-    if (meta) this[meta.symbol] = meta.parse(newVal);
+    if (oldVal === newVal) return;
+    // skipAttrSync：property setter 主动调 setAttribute 触发，跳过 attribute→property 反向同步（避免循环）
+    // 但 onAttributeChange（重渲染等副作用）仍需执行——否则 property 变化不触发重渲染
+    if (!this.skipAttrSync) {
+      const meta = this.constructor._propMeta?.[name];
+      if (meta) this[meta.symbol] = meta.parse(newVal);
+    }
     this.onAttributeChange?.(name, oldVal, newVal);
   }
 

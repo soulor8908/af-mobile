@@ -27,6 +27,7 @@
     "test:coverage": "vitest run --coverage",
     "size": "node scripts/size-check.mjs",
     "size:check": "node scripts/size-check.mjs",
+    "whitelist": "node scripts/gen-whitelist.mjs",
     "ci": "vitest run && node scripts/size-check.mjs"
   },
   "keywords": [
@@ -42,7 +43,9 @@
   "devDependencies": {
     "@vitest/coverage-v8": "^1.6.0",
     "esbuild": "^0.28.2",
+    "eslint": "^10.8.1",
     "jsdom": "^24.0.0",
+    "postcss": "^8.5.26",
     "vitest": "^1.6.0"
   }
 }

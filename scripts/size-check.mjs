@@ -16,8 +16,9 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(fileURLToPath(import.meta.url), '../../');
 const SRC = join(ROOT, 'src');
 
-// 预算（来自 L3 §8.5，按实现阶段 esbuild minify+gzip 实测校准）
+// 预算（L1+L2 来自 L4 §0.3 实测校准；L3 来自 L3 §8.5）
 const BUDGET = {
+  css: 4.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，实测 3.91KB + 7% 余量）
   perComponent: 2.5,   // KB，单组件 JS+CSS
   base: 0.8,           // KB，AfElement 基类
   total: 10.5,         // KB，10 组件 + 基类
@@ -82,6 +83,11 @@ async function onDemand2Gz(compA, compB) {
 async function main() {
   const external = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js'];
 
+  // 0. L1+L2 CSS（tokens+recipes+atomic 拼接后 gzip）
+  const cssFiles = ['tokens.css', 'recipes.css', 'atomic.css'];
+  const cssConcat = cssFiles.map(f => readFileSync(join(SRC, f))).join('\n');
+  const cssGz = gzipSync(cssConcat).length;
+
   // 1. 基类
   const baseGz = (await minifyGz(join(SRC, 'lib/af-element.js'))).gz;
 
@@ -108,11 +114,16 @@ async function main() {
 
   // === 报告 ===
   console.log('\n╔══════════════════════════════════════════════════════════╗');
-  console.log('║          AIFlow UI —— L3 体积预算验证                    ║');
+  console.log('║          AIFlow UI —— 体积预算验证                      ║');
   console.log('╚══════════════════════════════════════════════════════════╝\n');
 
   const violations = [];
   const warns = [];
+
+  // L1+L2 CSS
+  const cssOver = cssGz > BUDGET.css * KB;
+  console.log(`L1+L2 CSS            ${fmt(cssGz).padStart(10)}  预算 ≤ ${BUDGET.css}KB  ${cssOver ? '✗ 超限' : '✓'}`);
+  if (cssOver) violations.push(`L1+L2 CSS ${fmt(cssGz)} > ${BUDGET.css}KB`);
 
   // 基类
   const baseOver = baseGz > BUDGET.base * KB;

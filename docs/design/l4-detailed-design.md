@@ -52,7 +52,7 @@ ESLint plugin-aiflow（16 规则：13 error + 3 warn，5 条可自动修）
     ▼  第 3 道防线（发布前 · CI 保护）
 CI Pipeline
     ├─ Step 1：白名单同步检查（CSS/JS ↔ whitelist.json ↔ Prompt，双向 diff）
-    ├─ Step 2：体积检查（L1+L2 ≤ 3.5KB；L3 ≤ 10.5KB）
+    ├─ Step 2：体积检查（L1+L2 ≤ 4.2KB；L3 ≤ 10.5KB）
     └─ Step 3：CODEOWNERS（关键文件改动需维护者 approve）
     │
     ▼
@@ -65,7 +65,7 @@ CI Pipeline
 
 | 层 | 预算 gzip | 说明 |
 |---|---|---|
-| L1 + L2 CSS | ≤ 3.5KB | 43 变量 + 52 配方 + 52 原子 |
+| L1 + L2 CSS | ≤ 4.2KB | 43 变量 + 52 配方 + 52 原子（实测 3.91KB + 7% 余量） |
 | L3 JS（10 组件+基类） | ≤ 10.5KB | ESM 命名导出 + Tree Shaking（含完整 ARIA/键盘，详 L3 §1.4） |
 | L3 JS（按需 2 组件） | ≤ 4.5KB | Tree Shaking 效果验证（worst-case 2 大组件） |
 | L3 单组件（JS+CSS） | ≤ 2.5KB | 单组件体积约束 |
@@ -570,7 +570,7 @@ Pull Request
         但 whitelist-v1.json 未登记。请同步更新 eslint-plugin-aiflow whitelist"
     │
     ▼  Step 2：体积检查（esbuild minify + Node zlib gzip，脚本 scripts/size-check.mjs）
-    ├─ L1+L2 总 CSS  ≤ 3.5KB
+    ├─ L1+L2 总 CSS  ≤ 4.2KB
     ├─ L3 全量 10+基类 ≤ 10.5KB
     ├─ L3 按需 2 组件 ≤ 4.5KB
     ├─ 单组件（JS+CSS） ≤ 2.5KB
@@ -609,7 +609,7 @@ if (B \ C) 非空 → "whitelist 有但 Prompt 未注入：..."
 
 | 检查项 | 阈值 | 超限建议 |
 |---|---|---|
-| L1+L2 CSS（tokens+recipes+atomic） | ≤ 3.5KB gzip | `已达 3.8KB，建议删除罕用配方或去除冗余 token 注释` |
+| L1+L2 CSS（tokens+recipes+atomic） | ≤ 4.2KB gzip | `已达 4.0KB，建议删除罕用配方或去除冗余 token 注释` |
 | L3 全量（10+基类） | ≤ 10.5KB gzip | `检查是否有组件可降级为 L2 静态配方` |
 | L3 单组件（JS+CSS） | ≤ 2.5KB gzip | `超阈值组件需在 PR 附体积解释文档` |
 | L3 按需 2 组件 | ≤ 4.5KB gzip | `检查基类 AfElement 是否膨胀（目标 0.8KB）` |

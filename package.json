@@ -38,6 +38,7 @@
     "size:check": "node scripts/size-check.mjs",
     "whitelist": "node scripts/gen-whitelist.mjs",
     "whitelist:check": "node scripts/check-whitelist-sync.mjs",
+    "types:check": "node scripts/check-types-sync.mjs",
     "prompt": "bash scripts/build-prompt.sh",
     "prompt:build": "node scripts/build-prompt.mjs -o prompt/system-prompt.md",
     "ai-fix": "node scripts/ai-fix.mjs",
@@ -48,7 +49,7 @@
     "publish:check": "node scripts/publish-check.mjs",
     "build": "node scripts/build.mjs",
     "prepublishOnly": "npm run build && npm run publish:check",
-    "ci": "vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs",
+    "ci": "vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs && node scripts/check-types-sync.mjs",
     "demo": "vite",
     "demo:build": "vite build"
   },

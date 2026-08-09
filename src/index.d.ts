@@ -1,5 +1,6 @@
 // AIFlow UI —— TypeScript 类型声明
-// 公开 API：10 组件类 + AfElement 基类 + 主题 API + escapeHtml + register/registerAll
+// 公开 API：13 组件类 + AfElement 基类 + 主题 API + escapeHtml + register/registerAll
+// ⚠️ 手工维护：新增组件时须同步追加 class 声明，CI 的 types-sync 检查会校验一致
 
 /// <reference lib="dom" />
 

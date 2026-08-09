@@ -38,10 +38,11 @@ describe('af-action-sheet', () => {
     expect(el.$('.af-action-sheet-cancel')).toBeNull();
   });
 
-  it('danger 选项加 text-danger class', () => {
+  it('danger 选项加 text-danger class（着色），不再注入无定义的 .danger class', () => {
     const el = makeSheet({ options: OPTIONS });
     const items = el.$$('.list-item');
-    expect(items[2].classList.contains('danger')).toBe(true);
+    expect(items[2].querySelector('.flex-1').classList.contains('text-danger')).toBe(true);
+    expect(items[2].classList.contains('danger')).toBe(false); // .danger 无 CSS 定义，已移除
   });
 
   it('title 透传到标题区', () => {
@@ -113,6 +114,15 @@ describe('af-action-sheet', () => {
     expect(el.$$('.list-item').length).toBe(0);
     el.setAttribute('options', JSON.stringify(OPTIONS));
     expect(el.$$('.list-item').length).toBe(3);
+  });
+
+  it('onAttributeChange：属性变化不重建 .sheet 元素（P1-2 局部更新，保留 popover 状态）', () => {
+    const el = makeSheet({ options: OPTIONS });
+    const sheetBefore = el.$('.sheet');
+    el.setAttribute('options', JSON.stringify([...OPTIONS, { label: '新', value: 'n' }]));
+    const sheetAfter = el.$('.sheet');
+    expect(sheetAfter).toBe(sheetBefore); // 同一元素引用，未整树重建
+    expect(el.$$('.list-item').length).toBe(4); // 内容已更新
   });
 });
 

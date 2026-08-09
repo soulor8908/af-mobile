@@ -107,6 +107,13 @@ whitelistCheck();
 pkgCheck();
 distCheck();
 
+// 6. d.ts 与源码组件数一致（防手工类型声明漂移）
+console.log('\n── 6. d.ts 与源码同步 ──');
+try {
+  execSync('node scripts/check-types-sync.mjs', { cwd: ROOT, stdio: 'inherit' });
+  passed++;
+} catch { failed++; }
+
 // 汇总
 console.log('\n──────────────────────────────────────────────');
 console.log(`结果：${passed} 通过，${failed} 失败`);

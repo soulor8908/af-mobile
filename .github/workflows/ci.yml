@@ -23,6 +23,10 @@ jobs:
       - name: Whitelist sync (3-source diff)
         run: npm run whitelist:check
 
+      # Step 1b: d.ts 与源码组件数同步检查（防手工类型声明漂移）
+      - name: Types sync (d.ts ↔ src)
+        run: npm run types:check
+
       # Step 2: 体积检查（L1+L2 CSS + L3 JS）
       - name: Size budget check
         run: npm run size

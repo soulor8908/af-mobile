@@ -95,35 +95,40 @@ export class AfActionSheet extends AfElement {
   }
 
   _render() {
+    const ariaLabel = this.title || '操作面板';
+    this.innerHTML = `
+      <div class="sheet" popover role="dialog" aria-label="${esc(ariaLabel)}">
+        <div class="list"></div>
+      </div>
+    `;
+    this._sheet = this.$('.sheet');
+    this._list = this.$('.list');
+    this._renderContent();
+  }
+
+  // 仅更新标题/列表/取消按钮（保留 .sheet 元素及其 popover 状态 + 事件监听，不关闭已打开的浮层）
+  // 与 af-dropdown._renderList 对称：避免属性变化时整树重建导致 popover 关闭、焦点丢失
+  _renderContent() {
+    if (!this._sheet) return;
     const opts = this.options || [];
+    // 危险项用 text-danger 原子类着色（.danger 无 CSS 定义，已移除）
     const itemsHtml = opts.map((opt, i) => {
-      const cls = ['list-item'];
-      let labelCls = 'flex-1';
-      if (opt.danger) { cls.push('danger'); labelCls += ' text-danger'; }
+      const labelCls = opt.danger ? 'flex-1 text-danger' : 'flex-1';
       const disabled = opt.disabled ? ' disabled' : '';
-      return `<button class="${cls.join(' ')}" data-idx="${i}"${disabled}><span class="${labelCls}">${esc(opt.label)}</span></button>`;
+      return `<button class="list-item" data-idx="${i}"${disabled}><span class="${labelCls}">${esc(opt.label)}</span></button>`;
     }).join('');
 
-    // 标题：用 caption + t-center + p-3 + text-muted（L2 配方/原子），分隔线用 .divider
     const titleHtml = this.title
       ? `<div class="caption t-center p-3 text-muted" role="heading" aria-level="2">${esc(this.title)}</div><div class="divider"></div>`
       : '';
 
-    // 取消按钮：放在 .p-2 容器里以提供顶部 spacing（替代原 margin-top:var(--s-2) 内联）
     const cancelHtml = this.showCancel
       ? `<div class="p-2"></div><button class="btn btn-ghost btn-block af-action-sheet-cancel">${esc(this.cancelText)}</button>`
       : '';
 
-    // role=dialog + aria-label（标题或默认"操作面板"）满足 WAI-ARIA dialog 模式
-    const ariaLabel = this.title || '操作面板';
-    this.innerHTML = `
-      <div class="sheet" popover role="dialog" aria-label="${esc(ariaLabel)}">
-        ${titleHtml}
-        <div class="list">${itemsHtml}</div>
-        ${cancelHtml}
-      </div>
-    `;
-    this._sheet = this.$('.sheet');
+    this._sheet.innerHTML = `${titleHtml}<div class="list">${itemsHtml}</div>${cancelHtml}`;
+    this._list = this.$('.list');
+    this._cancelBtn = this.$('.af-action-sheet-cancel');
   }
 
   showPopover() {
@@ -133,10 +138,17 @@ export class AfActionSheet extends AfElement {
     this._sheet?.hidePopover();
   }
 
+  // 按属性做最小更新，避免整树重建关闭已打开的浮层 + 丢失焦点
   onAttributeChange(name, oldVal, newVal) {
     if (!this._sheet) return;
-    this._render();
-    this._bindEvents();
+    if (name === 'title') {
+      // 标题变化需更新 aria-label（在 .sheet 元素上）
+      this._sheet.setAttribute('aria-label', this.title || '操作面板');
+    }
+    this._renderContent();
+    // cancelBtn 引用变了需重绑；列表/标题项变化不涉及事件绑定（click 委托在 _sheet 上）
+    this._cancelBtn?.removeEventListener('click', this._onCancelClick);
+    this._cancelBtn?.addEventListener('click', this._onCancelClick);
   }
 
   unmounted() {

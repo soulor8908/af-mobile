@@ -53,6 +53,16 @@ npm install aiflow-ui
     list.addEventListener('af-list:itemclick', (e) => {
       console.log('click', e.detail.index);
     });
+
+    // 分页加载示例：必须设 total-count，否则永不显示「没有更多了」
+    list.totalCount = 256;          // 数据总条数（分页终止判断）
+    list.addEventListener('af-list:loadmore', async (e) => {
+      const page = e.detail.page;  // 从 1 开始，每次自动 +1
+      const more = await fetch(`/api/goods?page=${page}`).then(r => r.json());
+      list.data = [...list.data, ...more.items];
+      // 请求完成后必须调用，传入 hasMore 控制是否继续触发下一次
+      list.endLoadMore(list.data.length < list.totalCount);
+    });
   </script>
 </body>
 </html>
@@ -62,7 +72,7 @@ npm install aiflow-ui
 
 | 组件 | 标签 | 关键属性 | 关键事件 |
 |---|---|---|---|
-| 长列表（虚拟滚动） | `<af-list>` | `data` `page-size` `refresh` | `af-list:loadmore` `af-list:itemclick` `af-list:refresh` |
+| 长列表（虚拟滚动） | `<af-list>` | `data` `item-height` `total-count` `page-size` `refresh` | `af-list:loadmore` `af-list:itemclick` `af-list:refresh` |
 | 轮播/滑动 | `<af-swiper>` | `autoplay` `loop` `active-index` | `af-swiper:change` |
 | 标签页 | `<af-tabs>` | `tabs` `active-index` | `af-tabs:change` |
 | 模态对话框 | `<af-dialog>` | `title` `close-on-esc` `close-on-backdrop` | `af-dialog:open` `af-dialog:close` |
@@ -102,16 +112,18 @@ if (typeof window !== 'undefined') {
 }
 ```
 
-### 2. SSR 预渲染 Light DOM
+### 2. SSR 预渲染 Light DOM（首屏占位）
 
-Light DOM 组件的结构（含 L2 class）可由服务端直接渲染到 HTML，客户端 upgrade 后接管交互。Shadow DOM 组件的内部结构不可预渲染，仅客户端挂载。
+Light DOM 组件的结构（含 L2 class）可由服务端直接渲染到 HTML 作为**首屏占位**。客户端 `registerAll()` 后组件 `connectedCallback` 触发，**会用组件内部模板重建 DOM 并接管交互**——这不是增量 hydration，SSR 子节点会被覆盖。因此 SSR 预渲染的价值是「避免白屏」，而非「复用服务端 DOM」。Shadow DOM 组件内部结构不可预渲染，仅客户端挂载。
+
+> ⚠️ **非增量 hydrate**：组件 `mounted()` 会用 `innerHTML` 重建内部结构（虚拟列表的 `.list` 外壳、tabbar 等）。SSR 输出的子节点仅作首屏占位，客户端 upgrade 后即被替换。若对首屏闪烁敏感，可在组件外加 `style="visibility:hidden"` 占位，upgrade 后再显隐。
 
 ```jsx
-// Next.js 示例：服务端预渲染 af-list 的 Light DOM 结构
+// Next.js 示例：服务端预渲染首屏占位结构
 function ProductList({ items }) {
   return (
     <>
-      {/* 服务端预渲染 Light DOM 结构 */}
+      {/* 服务端预渲染首屏占位（upgrade 后会被组件内部模板替换） */}
       <af-list data={JSON.stringify(items)} item-height={48}>
         <div class="list">
           {items.map((item, i) => (
@@ -121,7 +133,7 @@ function ProductList({ items }) {
           ))}
         </div>
       </af-list>
-      {/* 客户端 hydrate：lazy 加载组件库并注册 */}
+      {/* 客户端 lazy 加载组件库并注册 */}
       <Script src="/aiflow-ui.js" strategy="lazyOnload"
         onLoad={() => window.AiflowUI?.registerAll()} />
     </>
@@ -129,27 +141,27 @@ function ProductList({ items }) {
 }
 ```
 
-Nuxt / Remix 同理：服务端输出 Light DOM + L2 class，客户端 hydration 阶段动态 `import('aiflow-ui')` 并注册，组件 `connectedCallback` 自动接管已有 DOM。
+Nuxt / Remix 同理：服务端输出 Light DOM + L2 class 作首屏占位，客户端 hydration 阶段动态 `import('aiflow-ui')` 并注册，组件 `connectedCallback` 重建内部结构并接管交互。
 
 ### 3. 组件 SSR 兼容性矩阵
 
-| 组件 | DOM | SSR 预渲染 | 客户端 upgrade | 注意 |
+| 组件 | DOM | SSR 预渲染占位 | 客户端 upgrade | 注意 |
 |---|---|---|---|---|
-| af-list | Light | ✓ 渲染 .list 结构 | ✓ 接管虚拟滚动 | 需 data 属性 |
+| af-list | Light | ✓ 渲染 .list 结构 | ✓ 重建外壳+接管虚拟滚动 | 需 data 属性；非增量 hydrate |
 | af-swiper | Shadow | ✗ Shadow 内不预渲染 | ✓ 接管 touch | 仅客户端 |
-| af-tabs | Light | ✓ 渲染 tabbar + panels | ✓ 接管切换 | — |
+| af-tabs | Light | ✓ 渲染 tabbar + panels | ✓ 重建外壳+接管切换 | 非增量 hydrate |
 | af-dialog | Shadow | ✗ 不预渲染 | ✓ showModal | 仅客户端 |
 | af-toast | Light | ✗ 不预渲染（单例按需） | ✓ 单例 | 仅客户端 |
 | af-action-sheet | Light | ✗ 不预渲染（popover 按需） | ✓ popover | 仅客户端 |
 | af-picker | Shadow | ✗ Shadow 不预渲染 | ✓ 接管 | 仅客户端 |
 | af-dropdown | Light | ✗ 不预渲染（popover 按需） | ✓ popover | 仅客户端 |
-| af-img | Light | ✓ 渲染 img + 占位 | ✓ 懒加载 | 需 src 属性 |
+| af-img | Light | ✓ 渲染 img + 占位 | ✓ 重建外壳+懒加载 | 需 src 属性；非增量 hydrate |
 | af-backtop | Light | ✗ 不预渲染 | ✓ | 仅客户端 |
-| af-switch | Light | ✓ 渲染 switch 结构 | ✓ 接管 | — |
-| af-search-bar | Light | ✓ 渲染搜索输入框 | ✓ 接管 | — |
-| af-skeleton-page | Light | ✓ 渲染骨架屏 | ✓ 接管 | 适合 SSR loading 态 |
+| af-switch | Light | ✓ 渲染 switch 结构 | ✓ 重建+接管 | 非增量 hydrate |
+| af-search-bar | Light | ✓ 渲染搜索输入框 | ✓ 重建+接管 | 非增量 hydrate |
+| af-skeleton-page | Light | ✓ 渲染骨架屏 | ✓ 重建+接管 | 适合 SSR loading 态 |
 
-> 规则：**Light DOM + 有初始可见结构** 的组件支持 SSR 预渲染；Shadow DOM 与按需弹层类组件仅客户端渲染。
+> 规则：**Light DOM + 有初始可见结构** 的组件支持 SSR 预渲染作首屏占位；Shadow DOM 与按需弹层类组件仅客户端渲染。所有 Light DOM 组件 upgrade 时均为「重建接管」而非「增量 hydrate」。
 
 ## 注册方式
 
@@ -231,16 +243,19 @@ export default [
 
 ## CI 保护链路
 
-PR 触发 CI 6 步检查（任一失败即阻断合并）：
+PR 触发 CI 7 步检查（任一失败即阻断合并）：
 
 | Step | 检查项 | 命令 |
 |---|---|---|
 | 1 | 白名单三源同步（CSS/JS ↔ whitelist.json ↔ Prompt 注入） | `npm run whitelist:check` |
-| 2 | 体积预算（L1+L2 ≤ 4.2KB / L3 ≤ 10.5KB / 单组件 ≤ 2.5KB） | `npm run size` |
-| 3 | 单元测试 | `npm test` |
+| 1b | d.ts 与源码组件数同步（防类型声明漂移） | `npm run types:check` |
+| 2 | 体积预算（L1+L2 ≤ 4.9KB / L3 ≤ 14KB / 按需2组件 ≤ 5.5KB / 单组件 ≤ 2.6KB） | `npm run size` |
+| 3 | 单元测试（jsdom） | `npm test` |
 | 4 | ESLint 15 规则（10 error + 5 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
-| 5 | 发布前检查（Tree Shaking + sideEffects + npm pack 内容） | `npm run publish:check` |
-| 6 | CODEOWNERS 审批（GitHub Branch Protection 自动处理） | — |
+| 5 | 发布前检查（build + Tree Shaking + sideEffects + types-sync + npm pack） | `npm run publish:check` |
+| 6 | eval 集格式闸门（校验 prompts.jsonl 结构） | `npm run eval:dry` |
+
+> **测试栈已知限制**：单元测试基于 jsdom，**不覆盖** `popover`/`showModal` 真实行为、`ResizeObserver`/`IntersectionObserver`、`scroll-snap`、真实 touch 事件、`prefers-reduced-motion`。弹层/滚轮/下拉/懒加载的核心交互依赖浏览器原生 API，CI 中仅做逻辑层断言（mock 后验证派发事件/属性同步），真实浏览器 e2e 待后续引入。关键交互上线前建议手动验证。
 
 `.github/CODEOWNERS` 把关键文件分为 3 组 Owner：
 

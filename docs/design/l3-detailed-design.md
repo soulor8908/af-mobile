@@ -363,7 +363,7 @@ export class AfList extends AfElement {
 | HTML 先于 JS：`<af-list>` 存在后注册 | 浏览器自动"升级"，触发 constructor + connectedCallback |
 | JS 动态创建：先 define 再 createElement | 规范流程，推荐 |
 
-**未升级闪烁**：不内置处理。配合 SSR 或 `<af-list style="display:none">` 手动规避。
+**未升级闪烁 / SSR 接管**：组件 `mounted()` 用 `innerHTML` 重建内部结构（非增量 hydrate）。SSR 预渲染的 Light DOM 子节点仅作首屏占位，upgrade 后被替换。对闪烁敏感可加 `style="visibility:hidden"` 占位，upgrade 后显隐。
 
 ### 3.4 unmounted 资源清理清单（子类必须实现）
 

@@ -116,10 +116,10 @@ describe('build-prompt / buildWhitelistSection', () => {
     }
   });
 
-  it('状态修饰符被单独列出（whitelist 有但 CSS 分组未归类）', () => {
-    // .tab-item.active 中的 active 是状态修饰符
-    expect(section).toContain('状态修饰符');
-    expect(section).toContain('`active`');
+  it('状态修饰符未登记到 AI 白名单（.active 仅 Shadow DOM 内部使用）', () => {
+    // .active 是 Shadow 组件内部态，不登记到 L2 白名单，避免 AI 在 Light DOM 误用
+    expect(WL.classes.recipe).not.toContain('active');
+    expect(section).not.toContain('状态修饰符');
   });
 
   it('forbiddenInlineStyle 列出', () => {

@@ -82,6 +82,13 @@ describe('af-action-sheet', () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
+  it('XSS：option.label 含 HTML 被转义，不执行脚本', () => {
+    const el = makeSheet({ options: [{ label: '<img src=x onerror=alert(1)>', value: 'x' }] });
+    const item = el.$$('.list-item')[0];
+    expect(item.querySelector('img[onerror]')).toBeNull();
+    expect(item.textContent).toBe('<img src=x onerror=alert(1)>');
+  });
+
   it('取消按钮派发 af-action-sheet:close', () => {
     const el = makeSheet({ options: OPTIONS });
     const handler = vi.fn();

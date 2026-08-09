@@ -1,7 +1,7 @@
 // AIFlow UI —— af-list：长列表虚拟滚动
 // Light DOM（useShadow=false），复用 L2 .list/.list-item 配方
 // 职责：虚拟滚动 + 下拉刷新 + 上拉加载 + itemclick 事件委托
-import { AfElement } from '../lib/af-element.js';
+import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 const THROTTLE_MS = 16; // 1 帧
 const REFRESH_THRESHOLD = 40;
@@ -30,13 +30,14 @@ export class AfList extends AfElement {
     this._render();
   }
 
-  get totalCount() { return this._totalCount ?? this.data.length; }
+  get totalCount() { return this._totalCount ?? Infinity; }
   set totalCount(n) { this._totalCount = n; this._updateAria(); }
 
   get scrollTop() { return this._scroller ? this._scroller.scrollTop : 0; }
 
   mounted() {
     this._buildShell();
+    this._applyHeight();
     this._render();
     this._bindScroll();
     if (this.refresh) this._bindPullRefresh();
@@ -44,12 +45,19 @@ export class AfList extends AfElement {
     this._updateAria();
   }
 
+  // 应用 height 属性到宿主（显式高度，使内部 .list height:100% 生效）
+  _applyHeight() {
+    if (this.height) this.style.setProperty('height', this.height);
+  }
+
   // 外壳：.list > refresh-indicator + spacer-before + viewport + spacer-after + loadmore
   // 内部辅助元素用 data-role 定位（不污染白名单 class 空间）
   // 动态高度用 style.setProperty（方法调用，不触发 wc-light-no-style 的 .style.xxx= 检测）
+  // 宿主 display:block + .list height:100% 撑满宿主，使滚动发生在 .list 内而非 window
   _buildShell() {
+    this.style.setProperty('display', 'block');
     this.innerHTML = `
-      <div class="list" role="list" style="overflow:auto;max-height:100%;">
+      <div class="list" role="list" style="overflow:auto;height:100%;">
         <div data-role="refresh-indicator" aria-live="polite" aria-label="正在刷新" style="height:0;overflow:hidden;transition:height var(--dur-fast) var(--ease-out);"></div>
         <div data-role="spacer-before" style="height:0;"></div>
         <div data-role="viewport"></div>
@@ -77,7 +85,7 @@ export class AfList extends AfElement {
     if (!this.data.length) {
       this._spacerBefore.style.setProperty('height', '0px');
       this._spacerAfter.style.setProperty('height', '0px');
-      this._viewport.innerHTML = `<div class="empty"><p class="body">${this.emptyText}</p></div>`;
+      this._viewport.innerHTML = `<div class="empty"><p class="body">${esc(this.emptyText)}</p></div>`;
       this._loadmoreEl.textContent = '';
       return;
     }
@@ -132,8 +140,8 @@ export class AfList extends AfElement {
     return `
       <div class="${cls}" data-list-index="${idx}">
         <div class="flex-1">
-          <div class="body">${item.title || ''}</div>
-          ${item.subtitle ? `<div class="subtitle">${item.subtitle}</div>` : ''}
+          <div class="body">${esc(item.title)}</div>
+          ${item.subtitle ? `<div class="subtitle">${esc(item.subtitle)}</div>` : ''}
         </div>
       </div>
     `;
@@ -222,7 +230,9 @@ export class AfList extends AfElement {
   }
 
   _updateAria() {
-    this.setAttribute('aria-label', `列表，共 ${this.totalCount} 项`);
+    // totalCount 未显式设置（Infinity）时用 data.length 展示，避免 aria 出现 "Infinity"
+    const total = this._totalCount == null ? this.data.length : this.totalCount;
+    this.setAttribute('aria-label', `列表，共 ${total} 项`);
   }
 
   onAttributeChange(name, oldVal, newVal) {
@@ -231,6 +241,8 @@ export class AfList extends AfElement {
       this._render();
     } else if (name === 'loading') {
       this._render();
+    } else if (name === 'height') {
+      this._applyHeight();
     } else if (name === 'mode' || name === 'empty-text' || name === 'item-height') {
       this._render();
     }
@@ -257,3 +269,4 @@ AfElement.defineProp(AfList.prototype, 'mode', { type: String, default: 'normal'
 AfElement.defineProp(AfList.prototype, 'refresh', { type: Boolean, default: true });
 AfElement.defineProp(AfList.prototype, 'loading', { type: Boolean, default: false });
 AfElement.defineProp(AfList.prototype, 'emptyText', { attr: 'empty-text', type: String, default: '暂无数据' });
+AfElement.defineProp(AfList.prototype, 'height', { type: String, default: '' });

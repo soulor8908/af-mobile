@@ -1,6 +1,6 @@
 // AIFlow UI —— af-toast：轻提示
 // Light DOM，模块级单例（新替旧，不排队），自动消失 + aria-live
-import { AfElement } from '../lib/af-element.js';
+import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 let instance = null;
 
@@ -19,7 +19,7 @@ export class AfToast extends AfElement {
     if (instance && instance !== this) instance.dismiss();
     instance = this;
     this._message = message;
-    this.innerHTML = `<div class="toast" role="status" aria-live="polite">${message}</div>`;
+    this.innerHTML = `<div class="toast" role="status" aria-live="polite">${esc(message)}</div>`;
     clearTimeout(this._timer);
     this._timer = setTimeout(() => this.dismiss(), duration);
   }

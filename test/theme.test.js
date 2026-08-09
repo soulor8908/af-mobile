@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { getTheme, setTheme, toggleTheme } from '../src/lib/theme.js';
+import { getTheme, setTheme, toggleTheme, initTheme } from '../src/lib/theme.js';
 
 describe('theme.js', () => {
   beforeEach(() => {
@@ -32,5 +32,24 @@ describe('theme.js', () => {
     expect(getTheme()).toBe('light');
     toggleTheme();
     expect(getTheme()).toBe('dark');
+  });
+
+  it('initTheme：从 localStorage 恢复主题', () => {
+    localStorage.setItem('theme', 'dark');
+    expect(document.documentElement.dataset.theme).toBe('');
+    initTheme();
+    expect(document.documentElement.dataset.theme).toBe('dark');
+  });
+
+  it('initTheme：无 localStorage 时不改变当前主题', () => {
+    document.documentElement.dataset.theme = 'light';
+    initTheme();
+    expect(document.documentElement.dataset.theme).toBe('light');
+  });
+
+  it('initTheme：localStorage 非法值不应用', () => {
+    localStorage.setItem('theme', 'hacker');
+    initTheme();
+    expect(document.documentElement.dataset.theme).toBe('');
   });
 });

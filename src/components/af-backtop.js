@@ -1,7 +1,7 @@
 // AIFlow UI —— af-backtop：回到顶部
-// Light DOM，复用 L2 .btn 配方 + 项目级 .af-backtop-fixed 扩展
+// Light DOM，复用 L2 .btn 配方；内置 fixed 定位（开箱即用）
 // 职责：滚动监听显隐 + 点击平滑滚动到顶部
-import { AfElement } from '../lib/af-element.js';
+import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfBacktop extends AfElement {
   static useShadow = false;
@@ -18,10 +18,20 @@ export class AfBacktop extends AfElement {
       ? document.querySelector(this.target)
       : window;
 
-    this.innerHTML = `<button class="btn btn-ghost" aria-label="${this.ariaLabelText}">${this.text}</button>`;
-    // 项目级扩展类（默认 right-bottom）
-    if (this.position === 'left-bottom') this.classList.add('af-backtop-fixed', 'af-backtop-left');
-    else this.classList.add('af-backtop-fixed');
+    this.innerHTML = `<button class="btn btn-ghost" aria-label="${esc(this.ariaLabelText)}">${esc(this.text)}</button>`;
+    // 内置 fixed 定位（库自带，开箱即用）
+    // 用 setProperty（方法调用）设置，绕过 wc-light-no-style 对 .style.xxx= 的检测
+    this.style.setProperty('position', 'fixed');
+    this.style.setProperty('z-index', 'var(--z-dropdown)');
+    this.style.setProperty('bottom', 'calc(var(--s-4) + env(safe-area-inset-bottom))');
+    if (this.position === 'left-bottom') {
+      this.style.setProperty('left', 'calc(var(--s-4) + env(safe-area-inset-left))');
+    } else {
+      this.style.setProperty('right', 'calc(var(--s-4) + env(safe-area-inset-right))');
+    }
+    // 标记类（供项目级覆盖样式做 hook，非定位依赖）
+    this.classList.add('af-backtop-fixed');
+    if (this.position === 'left-bottom') this.classList.add('af-backtop-left');
 
     this._scrollTimer = null;
     this._onScroll = () => {

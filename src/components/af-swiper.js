@@ -6,9 +6,9 @@ import { AfElement } from '../lib/af-element.js';
 const CSS = `
   :host { display: block; overflow: hidden; position: relative; }
   .viewport { overflow: hidden; }
-  .track { display: flex; transition: transform var(--dur-base) var(--ease-out); will-change: transform; }
+  .track { display: flex; transition: transform var(--af-swipe-dur, var(--dur-base)) var(--ease-out); will-change: transform; }
   .track.dragging { transition: none; }
-  ::slotted(*) { flex-shrink: 0; width: 100%; }
+  .track > *, ::slotted(*) { flex-shrink: 0; width: 100%; }
   .dots { display: flex; gap: var(--s-1); justify-content: center; padding: var(--s-2); }
   .dot {
     width: var(--s-2); height: var(--s-2); border-radius: var(--r-f);
@@ -28,6 +28,9 @@ export class AfSwiper extends AfElement {
     this._isHorizontal = null;
     this._autoplayTimer = null;
     this._resumeTimer = null;
+    this._visualIndex = null;
+    this._pendingCorrect = false;
+    this._correctTimer = null;
   }
 
   get slideCount() {
@@ -49,10 +52,22 @@ export class AfSwiper extends AfElement {
     this._track = this.$('.track');
     this._dots = this.$('.dots');
 
+    this._applyDuration();
     this.setAttribute('role', 'region');
+
+    // P2-5: slotchange 监听——动态增删 slide 时重建 clone + dots
+    this._onSlotChange = () => {
+      this._setupLoopClones();
+      this._renderDots();
+      this._updateDots();
+      this._updateTransform();
+      this._updateAria();
+    };
+    this.shadowRoot.querySelector('slot')?.addEventListener('slotchange', this._onSlotChange);
 
     // 等待 slot 子元素就绪
     this._rafId = requestAnimationFrame(() => {
+      this._setupLoopClones();
       this._renderDots();
       this._updateTransform();
       this._updateAria();
@@ -64,9 +79,22 @@ export class AfSwiper extends AfElement {
     this._bindResize();
     this._startAutoplay();
     this._onTransitionEnd = () => {
+      this._correctTransform();
       this.emit('af-swiper:change', { index: this.activeIndex });
     };
     this._track.addEventListener('transitionend', this._onTransitionEnd);
+  }
+
+  // P1-2: loop 无缝循环——在 slot 前后插入首尾 clone
+  _setupLoopClones() {
+    if (!this._track) return;
+    this._track.querySelectorAll('.af-swiper-clone').forEach(e => e.remove());
+    if (!this.loop) return;
+    const s = this.shadowRoot.querySelector('slot'), ss = s?.assignedElements() || [];
+    if (ss.length < 2) return;
+    const mk = (e) => { e.classList.add('af-swiper-clone'); e.setAttribute('aria-hidden', 'true'); return e; };
+    this._track.append(mk(ss[0].cloneNode(true)));
+    this._track.insertBefore(mk(ss.at(-1).cloneNode(true)), s);
   }
 
   _renderDots() {
@@ -97,7 +125,9 @@ export class AfSwiper extends AfElement {
   _updateTransform() {
     const w = this.offsetWidth;
     if (w > 0) {
-      this._track.style.transform = `translateX(${-(this.activeIndex * w) + this._dragOffset}px)`;
+      const offset = this.loop ? 1 : 0;
+      const idx = this._visualIndex ?? this.activeIndex;
+      this._track.style.transform = `translateX(${-(idx + offset) * w + this._dragOffset}px)`;
     }
   }
 
@@ -109,6 +139,8 @@ export class AfSwiper extends AfElement {
     } else {
       index = Math.max(0, Math.min(index, n - 1));
     }
+    // 如果在 clone 过渡中，先无动画修正到真实位置
+    this._correctTransform();
     if (index === this.activeIndex) return;
     this.activeIndex = index;
     this.setAttribute('active-index', String(index));
@@ -118,8 +150,42 @@ export class AfSwiper extends AfElement {
     this._updateAria();
   }
 
-  next() { this.goTo(this.activeIndex + 1); }
-  prev() { this.goTo(this.activeIndex - 1); }
+  next() {
+    const n = this.slideCount;
+    if (this.loop && this.activeIndex === n - 1) return this._goToWithClone(0, n);
+    this.goTo(this.activeIndex + 1);
+  }
+
+  prev() {
+    if (this.loop && this.activeIndex === 0) return this._goToWithClone(this.slideCount - 1, -1);
+    this.goTo(this.activeIndex - 1);
+  }
+
+  // P1-2: 跨边界无缝过渡——activeIndex 立即设为真实值，transform 指向 clone 位置
+  _goToWithClone(realIndex, visualIndex) {
+    this.activeIndex = realIndex;
+    this.setAttribute('active-index', String(realIndex));
+    this._visualIndex = visualIndex;
+    this._dragOffset = 0;
+    this._updateTransform();
+    this._updateDots();
+    this._updateAria();
+    this._pendingCorrect = true;
+    clearTimeout(this._correctTimer);
+    this._correctTimer = setTimeout(() => this._correctTransform(), this.duration + 100);
+  }
+
+  // P1-2: transitionend 后无动画修正——从 clone 位置瞬移到真实位置
+  _correctTransform() {
+    if (!this._pendingCorrect) return;
+    this._pendingCorrect = false;
+    clearTimeout(this._correctTimer);
+    this._visualIndex = null;
+    this._track.classList.add('dragging');
+    this._updateTransform();
+    this._track.offsetHeight; // force reflow
+    this._track.classList.remove('dragging');
+  }
 
   _bindTouch() {
     if (this.disabled) return;
@@ -221,6 +287,11 @@ export class AfSwiper extends AfElement {
     }
   }
 
+  // 把 duration 属性接到 track 的 transition 时长（CSS 变量 --af-swipe-dur）
+  _applyDuration() {
+    if (this._track) this._track.style.setProperty('--af-swipe-dur', this.duration + 'ms');
+  }
+
   onAttributeChange(name, oldVal, newVal) {
     if (!this._track) return;
     if (name === 'active-index') {
@@ -231,8 +302,12 @@ export class AfSwiper extends AfElement {
       this._startAutoplay();
     } else if (name === 'loop') {
       this.loop = newVal != null;
+      this._setupLoopClones();
+      this._updateTransform();
     } else if (name === 'disabled') {
       this.disabled = newVal != null;
+    } else if (name === 'duration') {
+      this._applyDuration();
     }
   }
 
@@ -244,9 +319,11 @@ export class AfSwiper extends AfElement {
     this._stopAutoplay();
     clearInterval(this._autoplayTimer);
     clearTimeout(this._resumeTimer);
+    clearTimeout(this._correctTimer);
     if (this._rafId != null) cancelAnimationFrame(this._rafId);
     this._resizeObserver?.disconnect();
     this._track?.removeEventListener('transitionend', this._onTransitionEnd);
+    this.shadowRoot?.querySelector('slot')?.removeEventListener('slotchange', this._onSlotChange);
     this.removeEventListener('touchstart', this._onTouchStart);
     this.removeEventListener('touchmove', this._onTouchMove);
     this.removeEventListener('touchend', this._onTouchEnd);

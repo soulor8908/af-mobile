@@ -38,9 +38,10 @@ export function extractComponents() {
   return [...set].sort();
 }
 
-// 状态修饰符：不独立定义在 L2 配方 CSS，而是与其他 class 组合使用（如 .tab-item[aria-selected]）
-// 由 Shadow 组件（af-swiper .dot.active / af-picker .item.active）使用，需手动登记
-const STATE_MODIFIERS = ['active'];
+// 状态修饰符：Shadow 组件内部态（如 af-swiper .dot.active / af-picker .item.active）
+// 仅在 Shadow DOM CSS 内使用，L2 Light DOM 选中态统一由 aria-selected 属性选择器驱动
+// 故不登记到 AI 白名单，避免 AI 在 Light DOM 误用无 CSS 定义的 .active
+const STATE_MODIFIERS = [];
 
 // 从源码扫描，构造 whitelist 对象（A 集合）
 export function buildWhitelistFromSources() {

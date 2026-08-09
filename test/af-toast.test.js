@@ -52,6 +52,13 @@ describe('af-toast', () => {
     expect(el.duration).toBe(2000);
   });
 
+  it('XSS：message 含 HTML 被转义，不执行脚本', () => {
+    const el = makeToast();
+    el.show('<img src=x onerror=alert(1)>', 999999);
+    expect(el.$('.toast').querySelector('img[onerror]')).toBeNull();
+    expect(el.$('.toast').textContent).toBe('<img src=x onerror=alert(1)>');
+  });
+
   it('show(message, duration) 第二参覆盖默认', () => {
     vi.useFakeTimers();
     const el = makeToast();

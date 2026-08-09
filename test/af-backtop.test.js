@@ -65,6 +65,20 @@ describe('af-backtop', () => {
     expect(el.classList.contains('af-backtop-left')).toBe(true);
   });
 
+  it('内置 fixed 定位（开箱即用，不依赖外部 .af-backtop-fixed CSS）', () => {
+    const el = makeBacktop();
+    expect(el.style.position).toBe('fixed');
+    expect(el.style.zIndex).toBe('var(--z-dropdown)');
+    expect(el.style.bottom).toContain('safe-area-inset-bottom');
+    expect(el.style.right).toContain('safe-area-inset-right');
+  });
+
+  it('position=left-bottom 时定位到左侧', () => {
+    const el = makeBacktop({ position: 'left-bottom' });
+    expect(el.style.left).toContain('safe-area-inset-left');
+    expect(el.style.right).toBe('');
+  });
+
   it('target 可指定具体元素作为滚动容器', () => {
     const scroller = document.createElement('div');
     scroller.id = 'scroll-area';

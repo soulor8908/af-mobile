@@ -35,7 +35,8 @@ describe('af-list 虚拟滚动', () => {
     // 默认 bufferSize 让 viewport 容器有内容
     const items = el.$$('.list-item');
     expect(items.length).toBeGreaterThan(0);
-    expect(el.totalCount).toBe(10);
+    // totalCount 未显式设置时为 Infinity（分页默认可用，不立刻"没有更多了"）
+    expect(el.totalCount).toBe(Infinity);
   });
 
   it('aria-label 反映总数', () => {
@@ -87,5 +88,24 @@ describe('af-list 虚拟滚动', () => {
     el.totalCount = 100;
     expect(el.totalCount).toBe(100);
     expect(el.getAttribute('aria-label')).toContain('100');
+  });
+
+  it('XSS：title/subtitle 含 HTML 被转义，不执行脚本', () => {
+    const evil = '<img src=x onerror=alert(1)>';
+    const el = makeList({ data: [{ title: evil, subtitle: evil }] });
+    const item = el.$('.list-item');
+    expect(item.querySelector('img[onerror]')).toBeNull();
+    // 文本节点应包含原始字符串（被转义后渲染为文本）
+    expect(item.querySelector('.body').textContent).toBe(evil);
+  });
+
+  it('height 属性应用到宿主', () => {
+    const el = makeList({ data: makeData(3), height: '400px' });
+    expect(el.style.height).toBe('400px');
+  });
+
+  it('totalCount 未设置时不立刻显示"没有更多了"', () => {
+    const el = makeList({ data: makeData(3) });
+    expect(el.$('[data-role="loadmore"]').textContent).not.toContain('没有更多了');
   });
 });

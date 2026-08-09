@@ -1,6 +1,6 @@
 // AIFlow UI —— af-action-sheet：底部操作面板
 // Light DOM，复用 L2 .sheet/.list/.list-item 配方 + 原生 popover API
-import { AfElement } from '../lib/af-element.js';
+import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfActionSheet extends AfElement {
   static useShadow = false;
@@ -97,23 +97,23 @@ export class AfActionSheet extends AfElement {
       let labelCls = 'flex-1';
       if (opt.danger) { cls.push('danger'); labelCls += ' text-danger'; }
       const disabled = opt.disabled ? ' disabled' : '';
-      return `<button class="${cls.join(' ')}" data-idx="${i}"${disabled}><span class="${labelCls}">${opt.label}</span></button>`;
+      return `<button class="${cls.join(' ')}" data-idx="${i}"${disabled}><span class="${labelCls}">${esc(opt.label)}</span></button>`;
     }).join('');
 
     // 标题：用 caption + t-center + p-3 + text-muted（L2 配方/原子），分隔线用 .divider
     const titleHtml = this.title
-      ? `<div class="caption t-center p-3 text-muted" role="heading" aria-level="2">${this.title}</div><div class="divider"></div>`
+      ? `<div class="caption t-center p-3 text-muted" role="heading" aria-level="2">${esc(this.title)}</div><div class="divider"></div>`
       : '';
 
     // 取消按钮：放在 .p-2 容器里以提供顶部 spacing（替代原 margin-top:var(--s-2) 内联）
     const cancelHtml = this.showCancel
-      ? `<div class="p-2"></div><button class="btn btn-ghost btn-block af-action-sheet-cancel">${this.cancelText}</button>`
+      ? `<div class="p-2"></div><button class="btn btn-ghost btn-block af-action-sheet-cancel">${esc(this.cancelText)}</button>`
       : '';
 
     // role=dialog + aria-label（标题或默认"操作面板"）满足 WAI-ARIA dialog 模式
     const ariaLabel = this.title || '操作面板';
     this.innerHTML = `
-      <div class="sheet" popover role="dialog" aria-label="${ariaLabel}">
+      <div class="sheet" popover role="dialog" aria-label="${esc(ariaLabel)}">
         ${titleHtml}
         <div class="list">${itemsHtml}</div>
         ${cancelHtml}

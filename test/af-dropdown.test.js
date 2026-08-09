@@ -111,4 +111,11 @@ describe('af-dropdown', () => {
     el.setAttribute('value', 'b');
     expect(el.$('.af-dropdown-trigger > .flex-1').textContent).toBe('Banana');
   });
+
+  it('XSS：option.label 含 HTML 被转义，不执行脚本', () => {
+    const el = makeDropdown({ options: [{ label: '<img src=x onerror=alert(1)>', value: 'x' }] });
+    const item = el.$$('.list-item')[0];
+    expect(item.querySelector('img[onerror]')).toBeNull();
+    expect(item.textContent).toContain('<img src=x onerror=alert(1)>');
+  });
 });

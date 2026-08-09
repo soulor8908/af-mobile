@@ -16,6 +16,8 @@ export class AfImg extends AfElement {
   get error() { return this._error; }
 
   mounted() {
+    // 宿主默认 inline，width/height 失效；置 block 使 .thumb/.avatar 尺寸生效
+    this.style.setProperty('display', 'block');
     // 应用 variant class（thumb/avatar）
     if (this.variant === 'thumb') this.classList.add('thumb');
     else if (this.variant === 'avatar') this.classList.add('avatar');

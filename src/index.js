@@ -9,7 +9,7 @@
 //   registerAll();
 
 export { AfElement } from './lib/af-element.js';
-export { getTheme, setTheme, toggleTheme } from './lib/theme.js';
+export { getTheme, setTheme, toggleTheme, initTheme } from './lib/theme.js';
 
 import { AfList } from './components/af-list.js';
 import { AfSwiper } from './components/af-swiper.js';

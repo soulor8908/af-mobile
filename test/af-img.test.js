@@ -19,6 +19,11 @@ describe('af-img', () => {
     expect(el.classList.contains('thumb')).toBe(true);
   });
 
+  it('宿主 display:block（使 thumb/avatar 宽高生效，P1-4）', () => {
+    const el = makeImg({ variant: 'thumb', src: 'a.jpg' });
+    expect(el.style.display).toBe('block');
+  });
+
   it('variant=avatar 添加 avatar class', () => {
     const el = makeImg({ variant: 'avatar', src: 'a.jpg' });
     expect(el.classList.contains('avatar')).toBe(true);

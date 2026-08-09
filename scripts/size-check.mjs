@@ -17,12 +17,14 @@ const ROOT = resolve(fileURLToPath(import.meta.url), '../../');
 const SRC = join(ROOT, 'src');
 
 // 预算（L1+L2 来自 L4 §0.3 实测校准；L3 来自 L3 §8.5）
+// v1.0.1 调整：基类含 escapeHtml 防 XSS（P0 安全），total 含 P0 修复（定位/焦点/转义）
+// v1.0.2 调整：af-swiper 含 loop clone 无缝循环（P1-2），total 上调至 11.5KB
 const BUDGET = {
   css: 4.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，实测 3.91KB + 7% 余量）
   perComponent: 2.5,   // KB，单组件 JS+CSS
-  base: 0.8,           // KB，AfElement 基类
-  total: 10.5,         // KB，10 组件 + 基类
-  onDemand2: 4.5,      // KB，按需 2 组件（warn）
+  base: 0.85,          // KB，AfElement 基类（含 escapeHtml XSS 防护）
+  total: 11.5,         // KB，10 组件 + 基类（含 P0 安全 + P1 loop clone 修复）
+  onDemand2: 5.0,      // KB，按需 2 组件（warn）
 };
 
 const KB = 1024;
@@ -60,10 +62,12 @@ const NAME_TO_FILE = Object.fromEntries(
 async function onDemand2Gz(compA, compB) {
   const dir = mkdtempSync(join(tmpdir(), 'aiflow-size-'));
   const entry = join(dir, 'entry.js');
+  // Windows 下 join 返回反斜杠，嵌入 JS 字符串会被当转义字符吞掉，统一转成正斜杠
+  const toPosix = (p) => p.replace(/\\/g, '/');
   writeFileSync(entry,
-    `import { AfElement } from '${join(SRC, 'lib/af-element.js')}';\n` +
-    `import { ${compA} } from '${join(SRC, 'components/' + NAME_TO_FILE[compA])}';\n` +
-    `import { ${compB} } from '${join(SRC, 'components/' + NAME_TO_FILE[compB])}';\n` +
+    `import { AfElement } from '${toPosix(join(SRC, 'lib/af-element.js'))}';\n` +
+    `import { ${compA} } from '${toPosix(join(SRC, 'components/' + NAME_TO_FILE[compA]))}';\n` +
+    `import { ${compB} } from '${toPosix(join(SRC, 'components/' + NAME_TO_FILE[compB]))}';\n` +
     `// 引用以防 tree-shake 摇除\n` +
     `customElements.define('size-${compA.toLowerCase()}', ${compA});\n` +
     `customElements.define('size-${compB.toLowerCase()}', ${compB});\n`

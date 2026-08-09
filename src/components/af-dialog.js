@@ -117,9 +117,12 @@ export class AfDialog extends AfElement {
   }
 
   _getFocusable() {
-    return [...this.shadowRoot.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )].filter(el => !el.disabled && el.offsetParent !== null);
+    const sel = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    // 同时覆盖 Shadow DOM 与 slotted（Light DOM）内容，避免页脚按钮焦点盲区
+    const shadowEls = [...this.shadowRoot.querySelectorAll(sel)];
+    const slottedEls = [...this.querySelectorAll(sel)];
+    const visible = (el) => el.offsetParent !== null || el.getClientRects().length > 0;
+    return [...shadowEls, ...slottedEls].filter(el => !el.disabled && visible(el));
   }
 
   _trapKeydown(e) {

@@ -1,7 +1,7 @@
 // AIFlow UI —— af-picker：滚轮选择器
 // Shadow DOM（useShadow=true），CSS scroll-snap 原生吸附
 // 职责：多列滚轮 + scroll-snap 吸附 + 滚动停止触发 change + 确认/取消
-import { AfElement } from '../lib/af-element.js';
+import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 const CSS = `
   :host { display: contents; }
@@ -64,9 +64,9 @@ export class AfPicker extends AfElement {
       <style>${CSS}</style>
       <div class="picker" part="picker" popover="auto">
         <div class="header" part="header">
-          <button class="btn-cancel" part="cancel" type="button">${this.cancelText}</button>
-          <div class="title">${this.title}</div>
-          <button class="btn-confirm" part="confirm" type="button">${this.confirmText}</button>
+          <button class="btn-cancel" part="cancel" type="button">${esc(this.cancelText)}</button>
+          <div class="title">${esc(this.title)}</div>
+          <button class="btn-confirm" part="confirm" type="button">${esc(this.confirmText)}</button>
         </div>
         <div class="columns" part="columns">
           <div class="mask"></div>
@@ -119,7 +119,7 @@ export class AfPicker extends AfElement {
 
       const items = (col || []).map((item, i) => {
         const selected = this.values[c] != null && item.value === this.values[c];
-        return `<div class="item${selected ? ' active' : ''}" role="option" data-idx="${i}" aria-selected="${selected}">${item.label}</div>`;
+        return `<div class="item${selected ? ' active' : ''}" role="option" data-idx="${i}" aria-selected="${selected}">${esc(item.label)}</div>`;
       }).join('');
       colEl.innerHTML = items;
       this._columnsEl.appendChild(colEl);

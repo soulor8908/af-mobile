@@ -4,7 +4,6 @@
   "classes": {
     "recipe": [
       "actions",
-      "active",
       "avatar",
       "badge",
       "body",

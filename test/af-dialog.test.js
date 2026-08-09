@@ -144,3 +144,35 @@ describe('af-dialog Shadow DOM', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
+
+describe('af-dialog 焦点集合覆盖 composed 树（P0-4）', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  // jsdom offsetParent 恒为 null，mock 为非 null 使 _getFocusable 放行
+  function mockVisible(el) {
+    const btns = [...el.querySelectorAll('button'), ...el.shadowRoot.querySelectorAll('button')];
+    for (const btn of btns) {
+      Object.defineProperty(btn, 'offsetParent', { value: document.body, configurable: true });
+    }
+  }
+
+  it('_getFocusable 包含 slotted 页脚按钮（不只扫 Shadow DOM）', () => {
+    const el = makeDialog({ title: '确认' });
+    mockVisible(el);
+    const focusable = el._getFocusable();
+    const footerBtn = el.querySelector('[slot="footer"] button');
+    expect(focusable).toContain(footerBtn);
+  });
+
+  it('_getFocusable 同时含 Shadow 内关闭按钮与 slotted 按钮', () => {
+    const el = makeDialog({ title: '确认' });
+    mockVisible(el);
+    const focusable = el._getFocusable();
+    const closeBtn = el.shadowRoot.querySelector('.close-btn');
+    const footerBtn = el.querySelector('[slot="footer"] button');
+    expect(focusable).toContain(closeBtn);
+    expect(focusable).toContain(footerBtn);
+  });
+});

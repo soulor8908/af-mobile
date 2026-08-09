@@ -1,6 +1,6 @@
 // AIFlow UI —— af-dropdown：下拉菜单
 // Light DOM，复用 L2 .input/.list/.list-item 配方 + 原生 popover API
-import { AfElement } from '../lib/af-element.js';
+import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfDropdown extends AfElement {
   static useShadow = false;
@@ -42,7 +42,13 @@ export class AfDropdown extends AfElement {
 
     this._onToggle = (e) => {
       this._trigger.setAttribute('aria-expanded', String(e.newState === 'open'));
-      if (e.newState === 'closed') {
+      if (e.newState === 'open') {
+        // 打开后移焦入 listbox 首项（与 af-action-sheet 一致）
+        requestAnimationFrame(() => {
+          const first = this._list.querySelector('.list-item');
+          if (first && !first.disabled) first.focus();
+        });
+      } else if (e.newState === 'closed') {
         this.emit('af-dropdown:close', {});
       }
     };
@@ -54,13 +60,13 @@ export class AfDropdown extends AfElement {
     const itemsHtml = opts.map((opt, i) => {
       const selected = String(opt.value) === String(this.value);
       const disabled = opt.disabled ? ' disabled' : '';
-      return `<button class="list-item" data-idx="${i}" role="option" aria-selected="${selected}"${disabled}><span class="flex-1">${opt.label}</span>${selected ? '<span class="text-brand">✓</span>' : ''}</button>`;
+      return `<button class="list-item" data-idx="${i}" role="option" aria-selected="${selected}"${disabled}><span class="flex-1">${esc(opt.label)}</span>${selected ? '<span class="text-brand">✓</span>' : ''}</button>`;
     }).join('');
 
     const disabledAttr = this.disabled ? ' disabled' : '';
     this.innerHTML = `
-      <button class="${this.triggerClass} af-dropdown-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false"${disabledAttr}>
-        <span class="flex-1">${this.selectedLabel || this.placeholder}</span>
+      <button class="${esc(this.triggerClass)} af-dropdown-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false"${disabledAttr}>
+        <span class="flex-1">${esc(this.selectedLabel || this.placeholder)}</span>
         <span aria-hidden="true">▾</span>
       </button>
       <div class="list" popover role="listbox">${itemsHtml}</div>

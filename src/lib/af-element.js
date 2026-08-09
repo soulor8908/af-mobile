@@ -2,6 +2,9 @@
 // 5 生命周期钩子 + 主题订阅 + defineProp 双向同步 + emit
 // 子类声明 static useShadow = true/false 决定是否 attachShadow
 
+// HTML 转义：注入数据到 innerHTML 前必经，防 XSS
+export const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt()};`);
+
 export class AfElement extends HTMLElement {
   constructor() {
     super();

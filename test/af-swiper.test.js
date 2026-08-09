@@ -105,6 +105,16 @@ describe('af-swiper Shadow DOM', () => {
     await Promise.resolve();
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
+
+  it('duration 属性接到 track 的 --af-swipe-dur 变量（P1-1）', async () => {
+    const el = makeSwiper(3, { duration: 500 });
+    await Promise.resolve();
+    expect(el.$('.track').style.getPropertyValue('--af-swipe-dur')).toBe('500ms');
+    // 改 duration 后变量同步
+    el.duration = 800;
+    el._applyDuration();
+    expect(el.$('.track').style.getPropertyValue('--af-swipe-dur')).toBe('800ms');
+  });
 });
 
 describe('af-swiper roving tabindex / 焦点跟随（禁令 #22）', () => {
@@ -173,5 +183,129 @@ describe('af-swiper roving tabindex / 焦点跟随（禁令 #22）', () => {
     const el = makeSwiper(3);
     await Promise.resolve();
     expect(el.$('.dots').getAttribute('role')).toBe('tablist');
+  });
+});
+
+describe('af-swiper loop 无缝循环（P1-2）', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('loop=true 时 track 含首尾 clone（.af-swiper-clone）', async () => {
+    const el = makeSwiper(3, { loop: true });
+    await Promise.resolve();
+    const clones = el.$$('.af-swiper-clone');
+    expect(clones.length).toBe(2); // firstClone + lastClone
+  });
+
+  it('loop=false 时无 clone', async () => {
+    const el = makeSwiper(3, { loop: false });
+    await Promise.resolve();
+    const clones = el.$$('.af-swiper-clone');
+    expect(clones.length).toBe(0);
+  });
+
+  it('next 跨边界：activeIndex 立即设为 0，visualIndex 指向 firstClone', async () => {
+    const el = makeSwiper(3, { loop: true });
+    await Promise.resolve();
+    el.goTo(2); // 到最后一张
+    el.next();   // 跨边界到第一张
+    expect(el.activeIndex).toBe(0);
+    expect(el._visualIndex).toBe(3); // firstClone 位置
+    expect(el._pendingCorrect).toBe(true);
+  });
+
+  it('prev 跨边界：activeIndex 立即设为 n-1，visualIndex 指向 lastClone', async () => {
+    const el = makeSwiper(3, { loop: true });
+    await Promise.resolve();
+    el.prev(); // 从第一张跨边界到最后一张
+    expect(el.activeIndex).toBe(2);
+    expect(el._visualIndex).toBe(-1); // lastClone 位置
+    expect(el._pendingCorrect).toBe(true);
+  });
+
+  it('transitionend 后 _correctTransform 清除 visualIndex', async () => {
+    const el = makeSwiper(3, { loop: true });
+    await Promise.resolve();
+    el.goTo(2);
+    el.next();
+    expect(el._pendingCorrect).toBe(true);
+    // 模拟 transitionend
+    el.$('.track').dispatchEvent(new Event('transitionend'));
+    expect(el._pendingCorrect).toBe(false);
+    expect(el._visualIndex).toBeNull();
+  });
+
+  it('goTo 在 clone 过渡中调用时先修正再跳转', async () => {
+    const el = makeSwiper(3, { loop: true });
+    await Promise.resolve();
+    el.goTo(2);
+    el.next(); // 进入 clone 过渡
+    expect(el._pendingCorrect).toBe(true);
+    el.goTo(1); // 跳转到第二张
+    expect(el._pendingCorrect).toBe(false);
+    expect(el.activeIndex).toBe(1);
+  });
+
+  it('clone 元素有 aria-hidden=true', async () => {
+    const el = makeSwiper(3, { loop: true });
+    await Promise.resolve();
+    const clones = el.$$('.af-swiper-clone');
+    for (const c of clones) {
+      expect(c.getAttribute('aria-hidden')).toBe('true');
+    }
+  });
+
+  it('loop 切换：关闭 loop 时移除 clone', async () => {
+    const el = makeSwiper(3, { loop: true });
+    await Promise.resolve();
+    expect(el.$$('.af-swiper-clone').length).toBe(2);
+    el.loop = false;
+    el.setAttribute('loop', '');
+    el.removeAttribute('loop');
+    el._setupLoopClones();
+    expect(el.$$('.af-swiper-clone').length).toBe(0);
+  });
+});
+
+describe('af-swiper slotchange 动态增删 slide（P2-5）', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('动态添加 slide 后 dots 数量更新', async () => {
+    const el = makeSwiper(3);
+    await Promise.resolve();
+    expect(el.$$('.dot').length).toBe(3);
+    // 添加第 4 张 slide
+    const div = document.createElement('div');
+    div.textContent = 'Slide 3';
+    el.appendChild(div);
+    // slotchange 是异步的，等微任务刷新
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(el.$$('.dot').length).toBe(4);
+  });
+
+  it('动态添加 slide 后 loop clone 重建', async () => {
+    const el = makeSwiper(3, { loop: true });
+    await Promise.resolve();
+    expect(el.$$('.af-swiper-clone').length).toBe(2);
+    // 添加第 4 张 slide
+    const div = document.createElement('div');
+    div.textContent = 'Slide 3';
+    el.appendChild(div);
+    await Promise.resolve();
+    await Promise.resolve();
+    // clone 仍然 2 个（首尾各一），但内容应更新
+    expect(el.$$('.af-swiper-clone').length).toBe(2);
   });
 });

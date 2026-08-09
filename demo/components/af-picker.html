@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-picker demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-picker 滚轮选择器</h1>
+    </header>
+
+    <div class="actions">
+      <button class="btn" id="open">打开选择器</button>
+    </div>
+
+    <af-picker id="picker" title="选择日期"></af-picker>
+
+    <p class="caption" id="log">确认后显示选中值</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfPicker } from '../../src/components/af-picker.js';
+    customElements.define('af-picker', AfPicker);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const picker = document.getElementById('picker');
+    picker.columns = [
+      ['2024', '2025', '2026'],
+      ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+      ['1日', '15日', '28日'],
+    ];
+    picker.values = [1, 0, 0];
+
+    document.getElementById('open').addEventListener('click', () => picker.open());
+    picker.addEventListener('af-picker:confirm', (e) => {
+      document.getElementById('log').textContent = `确认: ${e.detail.values?.join(' / ')}`;
+    });
+    picker.addEventListener('af-picker:change', (e) => {
+      document.getElementById('log').textContent = `变化: ${e.detail.values?.join(' / ')}`;
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'title', label: '标题', type: 'string' },
+    ], picker);
+  </script>
+</body>
+</html>

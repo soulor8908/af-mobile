@@ -201,3 +201,104 @@ describe('af-tabs slot 静态面板模式（IP-3: 原地加 ARIA 不搬运）', 
     expect(document.body.contains(ref)).toBe(true);
   });
 });
+
+describe('af-tabs slotchange 监听（IP-10: MutationObserver）', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('动态新增 panel 后被加 ARIA 属性', async () => {
+    const el = new AfTabs();
+    el.tabs = [{ label: 'Tab 1', value: 'a' }, { label: 'Tab 2', value: 'b' }];
+    const p0 = document.createElement('div');
+    p0.setAttribute('slot', 'panel-0');
+    p0.textContent = 'Panel A';
+    el.appendChild(p0);
+    document.body.appendChild(el);
+
+    // 动态新增 panel-1
+    const p1 = document.createElement('div');
+    p1.setAttribute('slot', 'panel-1');
+    p1.textContent = 'Panel B';
+    el.appendChild(p1);
+
+    // MutationObserver 是异步的，等微任务
+    await new Promise(r => setTimeout(r, 0));
+
+    expect(p1.getAttribute('role')).toBe('tabpanel');
+    expect(p1.getAttribute('aria-labelledby')).toBe('af-tabs-tab-1');
+    expect(p1.id).toBe('af-tabs-panel-1');
+    expect(p1.classList.contains('af-tabs-panel')).toBe(true);
+  });
+
+  it('动态新增 panel 后显隐状态正确', async () => {
+    const el = new AfTabs();
+    el.tabs = [{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }];
+    const p0 = document.createElement('div');
+    p0.setAttribute('slot', 'panel-0');
+    el.appendChild(p0);
+    document.body.appendChild(el);
+
+    // 初始激活 0，新增 panel-1 应为 hidden
+    const p1 = document.createElement('div');
+    p1.setAttribute('slot', 'panel-1');
+    el.appendChild(p1);
+    await new Promise(r => setTimeout(r, 0));
+
+    expect(p0.hidden).toBe(false);
+    expect(p1.hidden).toBe(true);
+  });
+
+  it('动态删除 panel 后剩余面板仍正常', async () => {
+    const el = new AfTabs();
+    el.tabs = [{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }];
+    const p0 = document.createElement('div');
+    p0.setAttribute('slot', 'panel-0');
+    const p1 = document.createElement('div');
+    p1.setAttribute('slot', 'panel-1');
+    el.appendChild(p0);
+    el.appendChild(p1);
+    document.body.appendChild(el);
+
+    // 删除 panel-1
+    el.removeChild(p1);
+    await new Promise(r => setTimeout(r, 0));
+
+    // panel-0 仍正常显示
+    expect(p0.hidden).toBe(false);
+    expect(el.$$('.af-tabs-panel').length).toBe(1);
+  });
+
+  it('renderPanel 函数模式不响应 MutationObserver', async () => {
+    const el = new AfTabs();
+    el.tabs = [{ label: 'A', value: 'a' }];
+    el.renderPanel = (tab) => `<p>content for ${tab.label}</p>`;
+    document.body.appendChild(el);
+
+    // 动态新增子节点（不应触发 slot 模式的重渲染）
+    const div = document.createElement('div');
+    div.setAttribute('slot', 'panel-0');
+    div.textContent = 'should not override';
+    el.appendChild(div);
+    await new Promise(r => setTimeout(r, 0));
+
+    // renderPanel 的内容应仍在
+    expect(el.$('.af-tabs-panel').innerHTML).toContain('content for A');
+    expect(div.classList.contains('af-tabs-panel')).toBe(false);
+  });
+
+  it('unmounted 时 MutationObserver 正确断开', () => {
+    const el = new AfTabs();
+    el.tabs = TABS;
+    const p0 = document.createElement('div');
+    p0.setAttribute('slot', 'panel-0');
+    el.appendChild(p0);
+    document.body.appendChild(el);
+
+    const observer = el._observer;
+    expect(observer).toBeDefined();
+
+    // 移除组件后 observer 应已 disconnect（不报错即可）
+    expect(() => document.body.removeChild(el)).not.toThrow();
+  });
+});

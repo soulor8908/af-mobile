@@ -4,7 +4,7 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 
 - **L1 Token**：43 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
 - **L2 配方 + 原子**：105 个白名单封闭集 class（`btn`/`card`/`p-4`/...）
-- **L3 真组件**：10 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
+- **L3 真组件**：13 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 15 规则兜底 + CI 保护
 
 ## 安装
@@ -72,8 +72,84 @@ npm install aiflow-ui
 | 下拉菜单 | `<af-dropdown>` | `options` `value` `placeholder` | `af-dropdown:select` |
 | 懒加载图片 | `<af-img>` | `src` `alt` `placeholder-src` `fail-src` | `af-img:load` `af-img:error` |
 | 回到顶部 | `<af-backtop>` | `threshold` `target` `position` | `af-backtop:click` |
+| 开关 | `<af-switch>` | `checked` `loading` `disabled` `size` | `af-switch:change` |
+| 搜索栏 | `<af-search-bar>` | `value` `placeholder` `show-clear` | `af-search-bar:change` `af-search-bar:submit` |
+| 骨架屏页面 | `<af-skeleton-page>` | `variant` `loading` | — |
 
 事件名遵循 `af-{组件}:{动作}` 格式，`event.detail` 携带结构化数据。
+
+## SSR / Hydration 使用指南
+
+aiflow-ui 是浏览器端 Custom Elements 库，`customElements` 在 Node 服务端不存在，直接 `import` 会抛错。本节给出 SSR 框架接入方式。
+
+### 核心问题
+
+| 问题 | 说明 |
+|---|---|
+| `customElements` 在服务端不存在 | Node 环境无 `customElements`，直接 `import` 会抛错 |
+| `connectedCallback` 不触发 | 服务端无 DOM，组件不 upgrade |
+| 属性 JSON 序列化 | `data`/`tabs` 等复杂属性需在 HTML 中预渲染 |
+
+### 1. 客户端条件注册
+
+仅在浏览器环境注册组件，避免服务端执行 `customElements.define`：
+
+```js
+// 仅在浏览器环境注册组件
+if (typeof window !== 'undefined') {
+  const { registerAll } = await import('aiflow-ui');
+  registerAll();
+}
+```
+
+### 2. SSR 预渲染 Light DOM
+
+Light DOM 组件的结构（含 L2 class）可由服务端直接渲染到 HTML，客户端 upgrade 后接管交互。Shadow DOM 组件的内部结构不可预渲染，仅客户端挂载。
+
+```jsx
+// Next.js 示例：服务端预渲染 af-list 的 Light DOM 结构
+function ProductList({ items }) {
+  return (
+    <>
+      {/* 服务端预渲染 Light DOM 结构 */}
+      <af-list data={JSON.stringify(items)} item-height={48}>
+        <div class="list">
+          {items.map((item, i) => (
+            <div class="list-item" key={i}>
+              <div class="body">{item.title}</div>
+            </div>
+          ))}
+        </div>
+      </af-list>
+      {/* 客户端 hydrate：lazy 加载组件库并注册 */}
+      <Script src="/aiflow-ui.js" strategy="lazyOnload"
+        onLoad={() => window.AiflowUI?.registerAll()} />
+    </>
+  );
+}
+```
+
+Nuxt / Remix 同理：服务端输出 Light DOM + L2 class，客户端 hydration 阶段动态 `import('aiflow-ui')` 并注册，组件 `connectedCallback` 自动接管已有 DOM。
+
+### 3. 组件 SSR 兼容性矩阵
+
+| 组件 | DOM | SSR 预渲染 | 客户端 upgrade | 注意 |
+|---|---|---|---|---|
+| af-list | Light | ✓ 渲染 .list 结构 | ✓ 接管虚拟滚动 | 需 data 属性 |
+| af-swiper | Shadow | ✗ Shadow 内不预渲染 | ✓ 接管 touch | 仅客户端 |
+| af-tabs | Light | ✓ 渲染 tabbar + panels | ✓ 接管切换 | — |
+| af-dialog | Shadow | ✗ 不预渲染 | ✓ showModal | 仅客户端 |
+| af-toast | Light | ✗ 不预渲染（单例按需） | ✓ 单例 | 仅客户端 |
+| af-action-sheet | Light | ✗ 不预渲染（popover 按需） | ✓ popover | 仅客户端 |
+| af-picker | Shadow | ✗ Shadow 不预渲染 | ✓ 接管 | 仅客户端 |
+| af-dropdown | Light | ✗ 不预渲染（popover 按需） | ✓ popover | 仅客户端 |
+| af-img | Light | ✓ 渲染 img + 占位 | ✓ 懒加载 | 需 src 属性 |
+| af-backtop | Light | ✗ 不预渲染 | ✓ | 仅客户端 |
+| af-switch | Light | ✓ 渲染 switch 结构 | ✓ 接管 | — |
+| af-search-bar | Light | ✓ 渲染搜索输入框 | ✓ 接管 | — |
+| af-skeleton-page | Light | ✓ 渲染骨架屏 | ✓ 接管 | 适合 SSR loading 态 |
+
+> 规则：**Light DOM + 有初始可见结构** 的组件支持 SSR 预渲染；Shadow DOM 与按需弹层类组件仅客户端渲染。
 
 ## 注册方式
 

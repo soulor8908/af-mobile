@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-toast demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-toast 轻提示</h1>
+    </header>
+
+    <div class="actions">
+      <button class="btn" id="t1">成功</button>
+      <button class="btn btn-ghost" id="t2">警告</button>
+      <button class="btn btn-danger" id="t3">错误</button>
+      <button class="btn btn-ghost" id="t4">加载中</button>
+    </div>
+
+    <p class="caption" id="log">点击按钮触发 toast</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfToast } from '../../src/components/af-toast.js';
+    customElements.define('af-toast', AfToast);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const toast = new AfToast();
+    document.body.appendChild(toast);
+
+    document.getElementById('t1').addEventListener('click', () => toast.show('操作成功', { type: 'success' }));
+    document.getElementById('t2').addEventListener('click', () => toast.show('请注意风险', { type: 'warning' }));
+    document.getElementById('t3').addEventListener('click', () => toast.show('操作失败', { type: 'error' }));
+    document.getElementById('t4').addEventListener('click', () => toast.show('加载中...', { type: 'loading', duration: 0 }));
+    toast.addEventListener('af-toast:dismiss', () => {
+      document.getElementById('log').textContent = 'toast 已消失';
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'duration', label: '时长(ms)', type: 'number', min: 0, max: 5000, step: 500 },
+    ], toast);
+  </script>
+</body>
+</html>

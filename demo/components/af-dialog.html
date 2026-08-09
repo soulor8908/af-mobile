@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-dialog demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-dialog 对话框</h1>
+    </header>
+
+    <div class="actions">
+      <button class="btn" id="open">打开对话框</button>
+    </div>
+
+    <af-dialog id="dialog" title="确认操作">
+      <div slot="body">
+        <p class="body">确定要删除这条记录吗？此操作不可撤销。</p>
+      </div>
+      <div slot="footer">
+        <button class="btn btn-ghost btn-block" id="cancel">取消</button>
+        <button class="btn btn-danger btn-block" id="ok">删除</button>
+      </div>
+    </af-dialog>
+
+    <p class="caption" id="log">点击按钮打开对话框</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfDialog } from '../../src/components/af-dialog.js';
+    customElements.define('af-dialog', AfDialog);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const dialog = document.getElementById('dialog');
+    document.getElementById('open').addEventListener('click', () => dialog.show());
+    document.getElementById('cancel').addEventListener('click', () => dialog.close());
+    document.getElementById('ok').addEventListener('click', () => {
+      dialog.close();
+      document.getElementById('log').textContent = '已确认删除';
+    });
+    dialog.addEventListener('af-dialog:close', () => {
+      document.getElementById('log').textContent = '对话框关闭';
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'close-on-esc', label: 'ESC 关闭', type: 'boolean' },
+      { prop: 'close-on-backdrop', label: '遮罩关闭', type: 'boolean' },
+    ], dialog);
+  </script>
+</body>
+</html>

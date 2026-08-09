@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-tabs demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-tabs 标签页</h1>
+    </header>
+
+    <af-tabs id="tabs"></af-tabs>
+
+    <p class="caption" id="log">选中 index=0</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfTabs } from '../../src/components/af-tabs.js';
+    customElements.define('af-tabs', AfTabs);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const tabs = document.getElementById('tabs');
+    tabs.tabs = [
+      { label: '推荐', value: 'rec' },
+      { label: '热门', value: 'hot' },
+      { label: '新品', value: 'new' },
+    ];
+    tabs.renderPanel = (tab, i) => `<div class="card"><p class="body">${tab.label} 内容区 ${i + 1}</p></div>`;
+
+    tabs.addEventListener('af-tabs:change', (e) => {
+      document.getElementById('log').textContent = `选中 index=${e.detail.index} value=${e.detail.value}`;
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'fixed', label: '固定底部', type: 'boolean' },
+    ], tabs);
+  </script>
+</body>
+</html>

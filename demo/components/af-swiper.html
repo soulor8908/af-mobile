@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-swiper demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-swiper 轮播</h1>
+    </header>
+
+    <af-swiper id="swiper" loop autoplay="3000">
+      <div style="background:var(--c-brand);height:160px;display:flex;align-items:center;justify-content:center;color:var(--c-onbrand)">Slide 1</div>
+      <div style="background:var(--c-success);height:160px;display:flex;align-items:center;justify-content:center;color:var(--c-onbrand)">Slide 2</div>
+      <div style="background:var(--c-danger);height:160px;display:flex;align-items:center;justify-content:center;color:var(--c-onbrand)">Slide 3</div>
+    </af-swiper>
+
+    <p class="caption" id="log">当前 index=0</p>
+
+    <div class="actions">
+      <button class="btn" id="prev">上一张</button>
+      <button class="btn" id="next">下一张</button>
+    </div>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfSwiper } from '../../src/components/af-swiper.js';
+    customElements.define('af-swiper', AfSwiper);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const swiper = document.getElementById('swiper');
+    swiper.addEventListener('af-swiper:change', (e) => {
+      document.getElementById('log').textContent = `当前 index=${e.detail.index}`;
+    });
+    document.getElementById('prev').addEventListener('click', () => swiper.prev());
+    document.getElementById('next').addEventListener('click', () => swiper.next());
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'loop', label: '循环', type: 'boolean' },
+      { prop: 'autoplay', label: '自动播放(ms)', type: 'number', min: 0, max: 6000, step: 500 },
+      { prop: 'show-dots', label: '指示点', type: 'boolean' },
+    ], swiper);
+  </script>
+</body>
+</html>

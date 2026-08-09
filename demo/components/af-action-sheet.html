@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-action-sheet demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-action-sheet 底部面板</h1>
+    </header>
+
+    <div class="actions">
+      <button class="btn" id="open">打开 Action Sheet</button>
+    </div>
+
+    <af-action-sheet id="sheet" title="分享到"></af-action-sheet>
+
+    <p class="caption" id="log">选择操作项</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfActionSheet } from '../../src/components/af-action-sheet.js';
+    customElements.define('af-action-sheet', AfActionSheet);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const sheet = document.getElementById('sheet');
+    sheet.options = ['微信', '朋友圈', 'QQ', '微博'];
+    document.getElementById('open').addEventListener('click', () => sheet.showPopover());
+    sheet.addEventListener('af-action-sheet:select', (e) => {
+      document.getElementById('log').textContent = `选中 index=${e.detail.index} value=${e.detail.value}`;
+    });
+    sheet.addEventListener('af-action-sheet:close', () => {
+      document.getElementById('log').textContent = '已关闭';
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'show-cancel', label: '显示取消', type: 'boolean' },
+    ], sheet);
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-backtop demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-backtop 回到顶部</h1>
+    </header>
+
+    <p class="body">向下滚动页面，右下角出现回到顶部按钮。</p>
+    <div id="filler" style="height:2000px"></div>
+    <p class="caption">↑ 占位内容 ↑</p>
+
+    <af-backtop id="backtop" threshold="200"></af-backtop>
+
+    <p class="caption" id="log">点击按钮触发</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfBacktop } from '../../src/components/af-backtop.js';
+    customElements.define('af-backtop', AfBacktop);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const backtop = document.getElementById('backtop');
+    backtop.addEventListener('af-backtop:click', () => {
+      document.getElementById('log').textContent = '已点击回到顶部';
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'threshold', label: '出现阈值(px)', type: 'number', min: 50, max: 600, step: 50 },
+      { prop: 'text', label: '按钮文字', type: 'string' },
+    ], backtop);
+  </script>
+</body>
+</html>

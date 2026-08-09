@@ -40,7 +40,9 @@
     "eval:flywheel": "node eval/flywheel.mjs",
     "publish:check": "node scripts/publish-check.mjs",
     "prepublishOnly": "npm run publish:check",
-    "ci": "vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs"
+    "ci": "vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs",
+    "demo": "vite",
+    "demo:build": "vite build"
   },
   "keywords": [
     "web-components",
@@ -58,6 +60,7 @@
     "eslint": "^10.8.1",
     "jsdom": "^24.0.0",
     "postcss": "^8.5.26",
+    "vite": "^5.4.0",
     "vitest": "^1.6.0"
   }
 }

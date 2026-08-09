@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-search-bar demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-search-bar 搜索栏</h1>
+    </header>
+
+    <af-search-bar id="search" placeholder="搜索商品"></af-search-bar>
+
+    <p class="caption" id="log">输入触发 change，回车触发 submit</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfSearchBar } from '../../src/components/af-search-bar.js';
+    customElements.define('af-search-bar', AfSearchBar);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const search = document.getElementById('search');
+    search.addEventListener('af-search-bar:change', (e) => {
+      document.getElementById('log').textContent = `change: ${e.detail.value}`;
+    });
+    search.addEventListener('af-search-bar:submit', (e) => {
+      document.getElementById('log').textContent = `submit: ${e.detail.value}`;
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'placeholder', label: '占位文本', type: 'string' },
+      { prop: 'clearable', label: '可清除', type: 'boolean' },
+      { prop: 'debounce', label: '防抖(ms)', type: 'number', min: 0, max: 1000, step: 100 },
+    ], search);
+  </script>
+</body>
+</html>

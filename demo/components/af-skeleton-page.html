@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-skeleton-page demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-skeleton-page 骨架屏</h1>
+    </header>
+
+    <af-skeleton-page id="sk" variant="list"></af-skeleton-page>
+
+    <p class="caption" id="log">模拟数据加载完成</p>
+
+    <div class="actions">
+      <button class="btn" id="reload">重新加载骨架屏</button>
+    </div>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfSkeletonPage } from '../../src/components/af-skeleton-page.js';
+    customElements.define('af-skeleton-page', AfSkeletonPage);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const sk = document.getElementById('sk');
+    document.getElementById('reload').addEventListener('click', () => {
+      sk.loading = true;
+      document.getElementById('log').textContent = '加载中...';
+      setTimeout(() => {
+        sk.loading = false;
+        document.getElementById('log').textContent = '加载完成';
+      }, 2000);
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'variant', label: '变体', type: 'select', options: ['list', 'card', 'profile', 'article'] },
+      { prop: 'loading', label: '加载中', type: 'boolean' },
+    ], sk);
+  </script>
+</body>
+</html>

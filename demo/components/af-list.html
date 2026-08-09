@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-list demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-list 长列表</h1>
+    </header>
+
+    <af-list id="list"></af-list>
+
+    <p class="caption" id="log">点击列表项查看 index</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfList } from '../../src/components/af-list.js';
+    customElements.define('af-list', AfList);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const list = document.getElementById('list');
+    list.data = Array.from({ length: 100 }, (_, i) => ({
+      title: `商品 ${i + 1}`,
+      subtitle: `¥${((i + 1) * 9.9).toFixed(2)}`,
+    }));
+
+    list.addEventListener('af-list:itemclick', (e) => {
+      document.getElementById('log').textContent = `点击 index=${e.detail.index}`;
+    });
+    list.addEventListener('af-list:loadmore', () => {
+      document.getElementById('log').textContent = '触发 loadmore...';
+      setTimeout(() => {
+        const start = list.data.length;
+        list.data = [...list.data, ...Array.from({ length: 20 }, (_, i) => ({
+          title: `商品 ${start + i + 1}`,
+          subtitle: `¥${((start + i + 1) * 9.9).toFixed(2)}`,
+        }))];
+        list.endLoadMore(true);
+      }, 500);
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'refresh', label: '下拉刷新', type: 'boolean' },
+      { prop: 'page-size', label: '每页条数', type: 'number', min: 5, max: 50, step: 5 },
+    ], list);
+  </script>
+</body>
+</html>

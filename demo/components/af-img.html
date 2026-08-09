@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-img demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-img 懒加载图片</h1>
+    </header>
+
+    <af-img id="img" alt="示例图片"
+      src="https://picsum.photos/360/200"
+      placeholder-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='200'%3E%3Crect fill='%23eee' width='360' height='200'/%3E%3C/svg%3E">
+    </af-img>
+
+    <p class="caption" id="log">滚动到可视区后懒加载</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfImg } from '../../src/components/af-img.js';
+    customElements.define('af-img', AfImg);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const img = document.getElementById('img');
+    img.addEventListener('af-img:load', () => {
+      document.getElementById('log').textContent = '图片加载完成';
+    });
+    img.addEventListener('af-img:error', () => {
+      document.getElementById('log').textContent = '图片加载失败';
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'lazy', label: '懒加载', type: 'boolean' },
+      { prop: 'src', label: '图片地址', type: 'string' },
+    ], img);
+  </script>
+</body>
+</html>

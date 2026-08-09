@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-switch demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-switch 开关</h1>
+    </header>
+
+    <div class="card">
+      <div class="cell"><span class="body">通知推送</span><af-switch id="s1"></af-switch></div>
+      <div class="cell"><span class="body">自动播放</span><af-switch id="s2" checked></af-switch></div>
+      <div class="cell"><span class="body">加载态</span><af-switch id="s3" loading></af-switch></div>
+      <div class="cell"><span class="body">禁用</span><af-switch id="s4" disabled></af-switch></div>
+    </div>
+
+    <p class="caption" id="log">切换开关查看事件</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfSwitch } from '../../src/components/af-switch.js';
+    customElements.define('af-switch', AfSwitch);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const s1 = document.getElementById('s1');
+    s1.addEventListener('af-switch:change', (e) => {
+      document.getElementById('log').textContent = `s1 checked=${e.detail.checked}`;
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'checked', label: '选中', type: 'boolean' },
+      { prop: 'loading', label: '加载中', type: 'boolean' },
+      { prop: 'disabled', label: '禁用', type: 'boolean' },
+      { prop: 'size', label: '尺寸', type: 'select', options: ['md', 'sm'] },
+    ], s1);
+  </script>
+</body>
+</html>

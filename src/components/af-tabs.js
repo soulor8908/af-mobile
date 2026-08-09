@@ -20,6 +20,7 @@ export class AfTabs extends AfElement {
     this._renderPanels();
     this._bindClick();
     this._bindKeydown();
+    this._bindChildChange();
     this.setActive(this.activeIndex, true);
   }
 
@@ -50,6 +51,7 @@ export class AfTabs extends AfElement {
   }
 
   _renderPanels() {
+    if (!this._panelContainer) return; // 挂载前 setter 调用安全跳过（mounted 会再调一次）
     const slotted = this.$$('div[slot^="panel-"]');
     if (this._renderPanel) {
       // renderPanel 函数驱动：内容在 panel container 内（无外部引用，安全搬运）
@@ -144,10 +146,23 @@ export class AfTabs extends AfElement {
     }
   }
 
+  _bindChildChange() {
+    // 监听 slotted 面板的增删（Light DOM 无 <slot> 元素，故用 MutationObserver）
+    // 仅在 slot 静态面板模式下有意义；renderPanel 函数模式由 tabs 属性变化驱动
+    this._onChildChange = () => {
+      if (this._renderPanel) return; // 函数模式不处理
+      this._renderPanels();
+      this.setActive(this.activeIndex, true);
+    };
+    this._observer = new MutationObserver(this._onChildChange);
+    this._observer.observe(this, { childList: true, subtree: false });
+  }
+
   unmounted() {
     // Light DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
     this._tabbar?.removeEventListener('click', this._onClick);
     this._tabbar?.removeEventListener('keydown', this._onKeydown);
+    this._observer?.disconnect();
   }
 }
 

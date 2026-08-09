@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-dropdown demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-dropdown 下拉菜单</h1>
+    </header>
+
+    <af-dropdown id="dd" placeholder="请选择城市"></af-dropdown>
+
+    <p class="caption" id="log">选中后显示 value</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfDropdown } from '../../src/components/af-dropdown.js';
+    customElements.define('af-dropdown', AfDropdown);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const dd = document.getElementById('dd');
+    dd.options = ['北京', '上海', '广州', '深圳', '杭州'];
+    dd.addEventListener('af-dropdown:select', (e) => {
+      document.getElementById('log').textContent = `选中 index=${e.detail.index} value=${e.detail.value}`;
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'placeholder', label: '占位文本', type: 'string' },
+    ], dd);
+  </script>
+</body>
+</html>

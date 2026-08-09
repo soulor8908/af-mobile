@@ -83,6 +83,20 @@ describe('af-list 虚拟滚动', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 
+  it('断开再连：itemclick 监听保持有效（P0-1）', () => {
+    const el = makeList({ data: makeData(3) });
+    const handler = vi.fn();
+    el.addEventListener('af-list:itemclick', handler);
+    // 模拟 SPA 条件渲染：移除后再插回
+    document.body.removeChild(el);
+    document.body.appendChild(el);
+    // 重连后点击仍应派发事件，证明 mounted 重新执行、监听已重建
+    const item = el.$('.list-item');
+    expect(item).not.toBeNull();
+    item.click();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
   it('totalCount 显式设置后覆盖 data.length', () => {
     const el = makeList({ data: makeData(5) });
     el.totalCount = 100;
@@ -99,9 +113,9 @@ describe('af-list 虚拟滚动', () => {
     expect(item.querySelector('.body').textContent).toBe(evil);
   });
 
-  it('height 属性应用到宿主', () => {
+  it('height 属性应用到宿主（通过 CSS 自定义属性传递）', () => {
     const el = makeList({ data: makeData(3), height: '400px' });
-    expect(el.style.height).toBe('400px');
+    expect(el.style.getPropertyValue('--af-list-h')).toBe('400px');
   });
 
   it('totalCount 未设置时不立刻显示"没有更多了"', () => {

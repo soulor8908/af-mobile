@@ -1,7 +1,7 @@
 // AIFlow UI —— af-list：长列表虚拟滚动
 // Light DOM（useShadow=false），复用 L2 .list/.list-item 配方
 // 职责：虚拟滚动 + 下拉刷新 + 上拉加载 + itemclick 事件委托
-import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
+import { AfElement, escapeHtml as esc, html } from '../lib/af-element.js';
 
 const THROTTLE_MS = 16; // 1 帧
 const REFRESH_THRESHOLD = 40;
@@ -45,23 +45,22 @@ export class AfList extends AfElement {
     this._updateAria();
   }
 
-  // 应用 height 属性到宿主（显式高度，使内部 .list height:100% 生效）
+  // 应用 height 属性到宿主（通过 CSS 自定义属性传递，recipes.css af-list 读取）
   _applyHeight() {
-    if (this.height) this.style.setProperty('height', this.height);
+    if (this.height) this.style.setProperty('--af-list-h', this.height);
   }
 
   // 外壳：.list > refresh-indicator + spacer-before + viewport + spacer-after + loadmore
   // 内部辅助元素用 data-role 定位（不污染白名单 class 空间）
-  // 动态高度用 style.setProperty（方法调用，不触发 wc-light-no-style 的 .style.xxx= 检测）
-  // 宿主 display:block + .list height:100% 撑满宿主，使滚动发生在 .list 内而非 window
+  // 宿主 display:block / .list overflow:auto / spacer/refresh 高度均由 recipes.css 提供
+  // 动态高度通过 CSS 自定义属性（--af-*）设置，遵守 wc-light-no-style（--* 允许）
   _buildShell() {
-    this.style.setProperty('display', 'block');
     this.innerHTML = `
-      <div class="list" role="list" style="overflow:auto;height:100%;">
-        <div data-role="refresh-indicator" aria-live="polite" aria-label="正在刷新" style="height:0;overflow:hidden;transition:height var(--dur-fast) var(--ease-out);"></div>
-        <div data-role="spacer-before" style="height:0;"></div>
+      <div class="list" role="list">
+        <div data-role="refresh-indicator" aria-live="polite" aria-label="正在刷新"></div>
+        <div data-role="spacer-before"></div>
         <div data-role="viewport"></div>
-        <div data-role="spacer-after" style="height:0;"></div>
+        <div data-role="spacer-after"></div>
         <div data-role="loadmore" class="caption t-center p-2"></div>
       </div>
     `;
@@ -71,6 +70,9 @@ export class AfList extends AfElement {
     this._viewport = this.$('[data-role="viewport"]');
     this._spacerAfter = this.$('[data-role="spacer-after"]');
     this._loadmoreEl = this.$('[data-role="loadmore"]');
+    // 重建 DOM 后渲染缓存失效，必须重置否则 _updateViewport 跳过渲染
+    this._prevStart = -1;
+    this._prevEnd = -1;
   }
 
   _render() {
@@ -83,7 +85,7 @@ export class AfList extends AfElement {
     }
     this.removeAttribute('aria-busy');
     if (!this.data.length) {
-      this._spacerBefore.style.setProperty('height', '0px');
+      this._spacerBefore.style.setProperty('--af-spacer-before-h', '0px');
       this._spacerAfter.style.setProperty('height', '0px');
       this._viewport.innerHTML = `<div class="empty"><p class="body">${esc(this.emptyText)}</p></div>`;
       this._loadmoreEl.textContent = '';
@@ -98,7 +100,7 @@ export class AfList extends AfElement {
     for (let i = 0; i < lines; i++) {
       html += `<div class="list-item"><div class="skeleton skeleton-line" style="width:80%"></div></div>`;
     }
-    this._spacerBefore.style.setProperty('height', '0px');
+    this._spacerBefore.style.setProperty('--af-spacer-before-h', '0px');
     this._spacerAfter.style.setProperty('height', '0px');
     this._viewport.innerHTML = html;
     this._loadmoreEl.textContent = '';
@@ -121,8 +123,13 @@ export class AfList extends AfElement {
     this._prevStart = startIndex;
     this._prevEnd = endIndex;
 
-    this._spacerBefore.style.setProperty('height', (startIndex * itemH) + 'px');
-    this._spacerAfter.style.setProperty('height', ((total - endIndex) * itemH) + 'px');
+    this._spacerBefore.style.setProperty('--af-spacer-before-h', (startIndex * itemH) + 'px');
+    // totalCount 未显式设置（Infinity）时不设 spacerAfter，避免写出非法 "Infinitypx"
+    if (Number.isFinite(total)) {
+      this._spacerAfter.style.setProperty('--af-spacer-after-h', ((total - endIndex) * itemH) + 'px');
+    } else {
+      this._spacerAfter.style.setProperty('--af-spacer-after-h', '0px');
+    }
 
     const render = this._renderItem || ((item, idx) => this._defaultRender(item, idx));
     const slice = this.data.slice(startIndex, endIndex);
@@ -135,16 +142,16 @@ export class AfList extends AfElement {
     this._checkLoadmore(scroller, total);
   }
 
+  // 默认渲染：用 html 标签自动转义插值，防 XSS
+  // 自定义 renderItem 时强烈建议用 html 标签，或手动 esc() 转义不可信数据
   _defaultRender(item, idx) {
     const cls = this.mode === 'compact' ? 'list-item-compact' : 'list-item';
-    return `
-      <div class="${cls}" data-list-index="${idx}">
-        <div class="flex-1">
-          <div class="body">${esc(item.title)}</div>
-          ${item.subtitle ? `<div class="subtitle">${esc(item.subtitle)}</div>` : ''}
-        </div>
+    return html`<div class="${cls}" data-list-index="${idx}">
+      <div class="flex-1">
+        <div class="body">${item.title}</div>
+        ${item.subtitle ? html`<div class="subtitle">${item.subtitle}</div>` : ''}
       </div>
-    `;
+    </div>`;
   }
 
   _checkLoadmore(scroller, total) {
@@ -170,7 +177,7 @@ export class AfList extends AfElement {
   }
 
   endRefresh() {
-    this._refreshIndicator.style.setProperty('height', '0px');
+    this._refreshIndicator.style.setProperty('--af-refresh-h', '0px');
   }
 
   _bindScroll() {
@@ -198,18 +205,18 @@ export class AfList extends AfElement {
       if (deltaY > 0) {
         e.preventDefault();
         const h = Math.min(deltaY * 0.5, REFRESH_MAX);
-        this._refreshIndicator.style.setProperty('height', h + 'px');
+        this._refreshIndicator.style.setProperty('--af-refresh-h', h + 'px');
       }
     };
     this._onTouchEnd = () => {
       if (!dragging) return;
       dragging = false;
-      const h = parseFloat(this._refreshIndicator.style.getPropertyValue('height')) || 0;
+      const h = parseFloat(this._refreshIndicator.style.getPropertyValue('--af-refresh-h')) || 0;
       if (h > REFRESH_THRESHOLD) {
-        this._refreshIndicator.style.setProperty('height', REFRESH_THRESHOLD + 'px');
+        this._refreshIndicator.style.setProperty('--af-refresh-h', REFRESH_THRESHOLD + 'px');
         this.emit('af-list:refresh', {});
       } else {
-        this._refreshIndicator.style.setProperty('height', '0px');
+        this._refreshIndicator.style.setProperty('--af-refresh-h', '0px');
       }
     };
     this._scroller.addEventListener('touchstart', this._onTouchStart, { passive: true });

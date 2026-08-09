@@ -47,8 +47,6 @@ const CSS = `
   }
 `;
 
-const SCROLL_DEBOUNCE = 100;
-
 export class AfPicker extends AfElement {
   static useShadow = true;
 
@@ -57,6 +55,7 @@ export class AfPicker extends AfElement {
     this._scrollers = [];
     this._scrollTimers = new Map();
     this._rafIds = [];
+    this._scrollLocked = false;
   }
 
   mounted() {
@@ -76,6 +75,15 @@ export class AfPicker extends AfElement {
     `;
     this._picker = this.$('.picker');
     this._columnsEl = this.$('.columns');
+
+    // popover=auto 的 light dismiss（点遮罩/Esc）会绕过 close()，用 toggle 事件兜底解锁
+    this._onPickerToggle = (e) => {
+      if (e.newState === 'closed' && this._scrollLocked) {
+        AfElement.unlockScroll();
+        this._scrollLocked = false;
+      }
+    };
+    this._picker.addEventListener('toggle', this._onPickerToggle);
 
     this._applyItemHeight();
     this._renderColumns();
@@ -138,7 +146,7 @@ export class AfPicker extends AfElement {
     const col = this._scrollers[c];
     if (!col) return;
     clearTimeout(this._scrollTimers.get(c));
-    this._scrollTimers.set(c, setTimeout(() => this._onColumnScrollEnd(c), SCROLL_DEBOUNCE));
+    this._scrollTimers.set(c, setTimeout(() => this._onColumnScrollEnd(c), 100));
   }
 
   _onColumnScrollEnd(c) {
@@ -176,10 +184,10 @@ export class AfPicker extends AfElement {
       it.classList.toggle('active', selected);
       it.setAttribute('aria-selected', String(selected));
     });
-    col.setAttribute('aria-activedescendant', `af-picker-col-${c}-item-${idx}`);
+    col.setAttribute('aria-activedescendant', `pk-${c}-${idx}`);
     // 给 item 设 id 以便 aria-activedescendant 引用
     const target = col.querySelector(`[data-idx="${idx}"]`);
-    if (target) target.id = `af-picker-col-${c}-item-${idx}`;
+    if (target) target.id = `pk-${c}-${idx}`;
   }
 
   _findIndex(c, value) {
@@ -217,8 +225,14 @@ export class AfPicker extends AfElement {
     }));
   }
 
-  open() { this._picker?.showPopover(); }
-  close() { this._picker?.hidePopover(); }
+  open() {
+    this._picker?.showPopover();
+    if (!this._scrollLocked) { AfElement.lockScroll(); this._scrollLocked = true; }
+  }
+  close() {
+    this._picker?.hidePopover();
+    if (this._scrollLocked) { AfElement.unlockScroll(); this._scrollLocked = false; }
+  }
 
   onAttributeChange(name, oldVal, newVal) {
     if (!this._picker) return;
@@ -242,11 +256,13 @@ export class AfPicker extends AfElement {
   }
 
   unmounted() {
+    if (this._scrollLocked) AfElement.unlockScroll();
     this._scrollTimers.forEach(t => clearTimeout(t));
     this._scrollTimers.clear();
     this._rafIds.forEach(id => cancelAnimationFrame(id));
     this._rafIds = [];
     // Shadow DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
+    this._picker?.removeEventListener('toggle', this._onPickerToggle);
     this.$('.btn-cancel')?.removeEventListener('click', this._onCancelClick);
     this.$('.btn-confirm')?.removeEventListener('click', this._onConfirmClick);
   }

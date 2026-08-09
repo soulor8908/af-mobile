@@ -19,9 +19,10 @@ describe('af-img', () => {
     expect(el.classList.contains('thumb')).toBe(true);
   });
 
-  it('宿主 display:block（使 thumb/avatar 宽高生效，P1-4）', () => {
+  it('宿主 display:block 由 recipes.css af-img 规则提供（P1-4）', () => {
     const el = makeImg({ variant: 'thumb', src: 'a.jpg' });
-    expect(el.style.display).toBe('block');
+    // display:block 由 CSS 提供，不再通过 JS style 设置（遵守 wc-light-no-style）
+    expect(el.style.display).toBe('');
   });
 
   it('variant=avatar 添加 avatar class', () => {

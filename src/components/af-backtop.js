@@ -19,16 +19,7 @@ export class AfBacktop extends AfElement {
       : window;
 
     this.innerHTML = `<button class="btn btn-ghost" aria-label="${esc(this.ariaLabelText)}">${esc(this.text)}</button>`;
-    // 内置 fixed 定位（库自带，开箱即用）
-    // 用 setProperty（方法调用）设置，绕过 wc-light-no-style 对 .style.xxx= 的检测
-    this.style.setProperty('position', 'fixed');
-    this.style.setProperty('z-index', 'var(--z-dropdown)');
-    this.style.setProperty('bottom', 'calc(var(--s-4) + env(safe-area-inset-bottom))');
-    if (this.position === 'left-bottom') {
-      this.style.setProperty('left', 'calc(var(--s-4) + env(safe-area-inset-left))');
-    } else {
-      this.style.setProperty('right', 'calc(var(--s-4) + env(safe-area-inset-right))');
-    }
+    // fixed 定位由 recipes.css af-backtop 规则提供（position/z-index/bottom/left|right）
     // 标记类（供项目级覆盖样式做 hook，非定位依赖）
     this.classList.add('af-backtop-fixed');
     if (this.position === 'left-bottom') this.classList.add('af-backtop-left');

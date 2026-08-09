@@ -4,7 +4,7 @@
 // 检查项：1. npm pack 内容 2. Tree Shaking 效果 3. whitelist 同步 4. 体积预算
 import { build } from 'esbuild';
 import { gzipSync } from 'node:zlib';
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
@@ -36,9 +36,11 @@ console.log('\n── 2. Tree Shaking 验证 ──');
 async function treeShakeCheck() {
   const dir = join(ROOT, 'node_modules/.cache/publish-check');
   const entry = join(dir, 'entry.js');
+  // Windows 下 join 返回反斜杠，嵌入 JS 字符串会被当转义字符吞掉，统一转成正斜杠
+  const toPosix = (p) => p.replace(/\\/g, '/');
   // 只引入 2 个组件，验证未引入的组件被摇除
   const entryCode = `
-    import { AfDialog, AfToast } from '${join(SRC, 'index.js')}';
+    import { AfDialog, AfToast } from '${toPosix(join(SRC, 'index.js'))}';
     customElements.define('test-dialog', AfDialog);
     customElements.define('test-toast', AfToast);
   `;
@@ -76,12 +78,27 @@ function pkgCheck() {
   check('sideEffects: false', pkg.sideEffects === false);
   check('type: module', pkg.type === 'module');
   check('exports 配置存在', !!pkg.exports);
+  check('files 含 dist/', Array.isArray(pkg.files) && pkg.files.includes('dist'));
+  check('unpkg 指向 UMD', pkg.unpkg && pkg.unpkg.includes('umd'));
+}
+
+// 5. dist 产物检查（prepublishOnly 会先跑 build，此处验证产物存在）
+console.log('\n── 5. dist 产物 ──');
+function distCheck() {
+  const distFiles = ['dist/index.js', 'dist/aiflow-ui.umd.js', 'dist/index.css', 'dist/index.d.ts'];
+  for (const f of distFiles) {
+    const p = join(ROOT, f);
+    const exists = existsSync(p);
+    const size = exists ? statSync(p).size : 0;
+    check(`dist/${f.split('/').pop()}`, exists, exists ? fmt(size) : '缺失');
+  }
 }
 
 // 执行
 await treeShakeCheck();
 whitelistCheck();
 pkgCheck();
+distCheck();
 
 // 汇总
 console.log('\n──────────────────────────────────────────────');

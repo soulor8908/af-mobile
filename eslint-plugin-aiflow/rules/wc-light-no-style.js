@@ -29,6 +29,19 @@ export default {
           context.report({ node, messageId: 'styleProp' });
         }
       },
+      CallExpression(node) {
+        // 检测 x.style.setProperty('prop', ...) 绕过：非 CSS 自定义属性（--*）的视觉属性
+        const callee = node.callee;
+        if (callee?.type !== 'MemberExpression') return;
+        if (callee.object?.type !== 'MemberExpression') return;
+        if (callee.object.property?.name !== 'style') return;
+        if (callee.property?.name !== 'setProperty') return;
+        const propArg = node.arguments?.[0];
+        if (!propArg || propArg.type !== 'Literal' || typeof propArg.value !== 'string') return;
+        // CSS 自定义属性（--*）允许：用于主题变量传递，非视觉属性
+        if (propArg.value.startsWith('--')) return;
+        context.report({ node, messageId: 'styleProp' });
+      },
       Literal(node) {
         if (typeof node.value === 'string' && /<style[\s>]/i.test(node.value)) {
           context.report({ node, messageId: 'styleTag' });

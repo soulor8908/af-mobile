@@ -65,18 +65,19 @@ describe('af-backtop', () => {
     expect(el.classList.contains('af-backtop-left')).toBe(true);
   });
 
-  it('内置 fixed 定位（开箱即用，不依赖外部 .af-backtop-fixed CSS）', () => {
+  it('内置 fixed 定位由 recipes.css af-backtop 规则提供（不依赖 JS setProperty）', () => {
     const el = makeBacktop();
-    expect(el.style.position).toBe('fixed');
-    expect(el.style.zIndex).toBe('var(--z-dropdown)');
-    expect(el.style.bottom).toContain('safe-area-inset-bottom');
-    expect(el.style.right).toContain('safe-area-inset-right');
+    // fixed/z-index/bottom/right 由 CSS 提供，不再通过 JS style 设置（遵守 wc-light-no-style）
+    expect(el.style.position).toBe('');
+    expect(el.style.zIndex).toBe('');
+    expect(el.style.bottom).toBe('');
   });
 
-  it('position=left-bottom 时定位到左侧', () => {
+  it('position=left-bottom 时定位到左侧（由 CSS 属性选择器驱动）', () => {
     const el = makeBacktop({ position: 'left-bottom' });
-    expect(el.style.left).toContain('safe-area-inset-left');
+    expect(el.style.left).toBe('');
     expect(el.style.right).toBe('');
+    expect(el.getAttribute('position')).toBe('left-bottom');
   });
 
   it('target 可指定具体元素作为滚动容器', () => {

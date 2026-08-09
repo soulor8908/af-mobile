@@ -37,6 +37,7 @@ export class AfDialog extends AfElement {
     super();
     this.returnValue = null;
     this._previouslyFocused = null;
+    this._scrollLocked = false;
   }
 
   get isOpen() { return this._dialog ? this._dialog.open : false; }
@@ -93,6 +94,8 @@ export class AfDialog extends AfElement {
     this._previouslyFocused = document.activeElement;
     this._dialog.showModal();
     this.setAttribute('open', '');
+    AfElement.lockScroll();
+    this._scrollLocked = true;
     this._focusFirst();
     this.emit('af-dialog:open', {});
   }
@@ -102,6 +105,7 @@ export class AfDialog extends AfElement {
     this.returnValue = action;
     this._dialog.close(action);
     this.removeAttribute('open');
+    if (this._scrollLocked) { AfElement.unlockScroll(); this._scrollLocked = false; }
     // 焦点还原
     if (this._previouslyFocused && typeof this._previouslyFocused.focus === 'function') {
       this._previouslyFocused.focus();
@@ -153,6 +157,7 @@ export class AfDialog extends AfElement {
   }
 
   unmounted() {
+    if (this._scrollLocked) AfElement.unlockScroll();
     if (this._dialog && this._dialog.open) this._dialog.close();
     // Shadow DOM 元素随组件销毁，removeEventListener / cancelAnimationFrame 是为通过 wc-cleanup 检测
     this._dialog?.removeEventListener('cancel', this._onCancel);

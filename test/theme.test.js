@@ -52,4 +52,25 @@ describe('theme.js', () => {
     initTheme();
     expect(document.documentElement.dataset.theme).toBe('');
   });
+
+  it('SSR 守卫：无 document/localStorage 时不抛错', () => {
+    // 临时移除全局对象模拟 SSR/Node 环境
+    const origDoc = globalThis.document;
+    const origLS = globalThis.localStorage;
+    const origMM = globalThis.matchMedia;
+    delete globalThis.document;
+    delete globalThis.localStorage;
+    delete globalThis.matchMedia;
+    try {
+      expect(() => getTheme()).not.toThrow();
+      expect(() => setTheme('dark')).not.toThrow();
+      expect(() => toggleTheme()).not.toThrow();
+      expect(() => initTheme()).not.toThrow();
+      expect(getTheme()).toBe('light');
+    } finally {
+      globalThis.document = origDoc;
+      globalThis.localStorage = origLS;
+      globalThis.matchMedia = origMM;
+    }
+  });
 });

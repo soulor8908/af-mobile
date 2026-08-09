@@ -10,14 +10,14 @@ export class AfImg extends AfElement {
     super();
     this._loaded = false;
     this._error = false;
+    this._triedFail = false;
   }
 
   get loaded() { return this._loaded; }
   get error() { return this._error; }
 
   mounted() {
-    // 宿主默认 inline，width/height 失效；置 block 使 .thumb/.avatar 尺寸生效
-    this.style.setProperty('display', 'block');
+    // 宿主 display:block 由 recipes.css af-img 规则提供
     // 应用 variant class（thumb/avatar）
     if (this.variant === 'thumb') this.classList.add('thumb');
     else if (this.variant === 'avatar') this.classList.add('avatar');
@@ -39,13 +39,19 @@ export class AfImg extends AfElement {
   }
 
   _buildShell() {
+    // thumb/avatar 变体宿主有固定尺寸，height:100% 可用；
+    // default 变体宿主无固定尺寸，用 aspect-ratio 打破循环依赖，避免 0 高塌陷
+    const hasFixedSize = this.variant === 'thumb' || this.variant === 'avatar';
+    const imgStyle = hasFixedSize
+      ? 'width:100%;height:100%;object-fit:cover;'
+      : 'width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;';
     const placeholderHtml = this.placeholderSrc
-      ? `<img class="af-img-placeholder" src="${this.placeholderSrc}" alt="" aria-hidden="true" style="width:100%;height:100%;object-fit:cover;">`
-      : `<div class="skeleton af-img-placeholder" style="width:100%;height:100%;" aria-hidden="true"></div>`;
+      ? `<img class="af-img-placeholder" src="${this.placeholderSrc}" alt="" aria-hidden="true" style="${imgStyle}">`
+      : `<div class="skeleton af-img-placeholder" style="${imgStyle}" aria-hidden="true"></div>`;
     // 用 hidden 属性替代 style="display:none;..."（避免 .style.xxx= 触发 wc-light-no-style）
     this.innerHTML = `
       ${placeholderHtml}
-      <img class="af-img-inner" alt="${this.alt}" hidden style="width:100%;height:100%;object-fit:cover;">
+      <img class="af-img-inner" alt="${this.alt}" hidden style="${imgStyle}">
     `;
     this._img = this.$('img.af-img-inner');
     this._placeholder = this.$('.af-img-placeholder');
@@ -53,6 +59,7 @@ export class AfImg extends AfElement {
 
   _load() {
     if (!this._img) this._buildShell();
+    this._triedFail = false; // 新 src 重置 fallback 守卫
     this._img.onload = () => {
       this._loaded = true;
       this._img.removeAttribute('hidden');
@@ -60,8 +67,11 @@ export class AfImg extends AfElement {
       this.emit('af-img:load', {});
     };
     this._img.onerror = () => {
+      // failSrc 也失败时停止重试，避免 onerror → setSrc → onerror 无限循环
+      if (this._triedFail) return;
       this._error = true;
       if (this.failSrc) {
+        this._triedFail = true;
         this._img.src = this.failSrc;
         this._img.removeAttribute('hidden');
         this._placeholder?.remove();
@@ -77,14 +87,9 @@ export class AfImg extends AfElement {
   _renderError() {
     let err = this.$('.af-img-error');
     if (!err) {
-      err = document.createElement('div');
-      err.className = 'af-img-error empty';
-      err.setAttribute('role', 'alert');
-      err.setAttribute('aria-live', 'assertive');
-      // 用 setProperty 替代 .style.cssText（避免 wc-light-no-style 检测）
-      err.style.setProperty('width', '100%');
-      err.style.setProperty('height', '100%');
-      this.appendChild(err);
+      // 用 innerHTML 模板的 style="..." 设置尺寸（与 _buildShell 一致，非 .style.xxx= 赋值）
+      this.insertAdjacentHTML('beforeend', `<div class="af-img-error empty" role="alert" aria-live="assertive" style="width:100%;height:100%;"></div>`);
+      err = this.$('.af-img-error');
     }
     err.innerHTML = `<p class="caption">图片加载失败</p>`;
   }

@@ -16,7 +16,7 @@ const CSS = `
     transition: background var(--dur-fast) var(--ease-out);
   }
   .dot.active { background: var(--c-brand); }
-  :host([show-dots="false"]) .dots { display: none; }
+  :host(:not([show-dots])) .dots { display: none; }
 `;
 
 export class AfSwiper extends AfElement {
@@ -38,11 +38,8 @@ export class AfSwiper extends AfElement {
   }
 
   mounted() {
-    const style = document.createElement('style');
-    style.textContent = CSS;
-    this.shadowRoot.appendChild(style);
-
-    this.shadowRoot.innerHTML += `
+    this.shadowRoot.innerHTML = `
+      <style>${CSS}</style>
       <div class="viewport" part="viewport">
         <div class="track" part="track"><slot></slot></div>
       </div>
@@ -188,10 +185,10 @@ export class AfSwiper extends AfElement {
   }
 
   _bindTouch() {
-    if (this.disabled) return;
     let startX = 0, startY = 0;
 
     this._onTouchStart = (e) => {
+      if (this.disabled) return;
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       this._isHorizontal = null;
@@ -336,5 +333,5 @@ AfElement.defineProp(AfSwiper.prototype, 'activeIndex', { attr: 'active-index', 
 AfElement.defineProp(AfSwiper.prototype, 'autoplay', { type: Number, default: 0 });
 AfElement.defineProp(AfSwiper.prototype, 'loop', { type: Boolean, default: false });
 AfElement.defineProp(AfSwiper.prototype, 'duration', { type: Number, default: 250 });
-AfElement.defineProp(AfSwiper.prototype, 'showDots', { attr: 'show-dots', type: String, default: 'true' });
+AfElement.defineProp(AfSwiper.prototype, 'showDots', { attr: 'show-dots', type: Boolean, default: true });
 AfElement.defineProp(AfSwiper.prototype, 'disabled', { type: Boolean, default: false });

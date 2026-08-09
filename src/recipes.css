@@ -469,4 +469,21 @@
     box-shadow: var(--shadow-md);
     padding-bottom: calc(var(--s-3) + env(safe-area-inset-bottom));
   }
+
+  /* === Light DOM 组件宿主样式（替代 JS setProperty，遵守 wc-light-no-style） === */
+  af-list, af-img { display: block; }
+  af-list { height: var(--af-list-h, auto); }
+  af-list > .list { overflow: auto; height: 100%; }
+  af-list [data-role="spacer-before"] { height: var(--af-spacer-before-h, 0px); }
+  af-list [data-role="spacer-after"] { height: var(--af-spacer-after-h, 0px); }
+  af-list [data-role="refresh-indicator"] {
+    height: var(--af-refresh-h, 0px); overflow: hidden;
+    transition: height var(--dur-fast) var(--ease-out);
+  }
+  af-backtop {
+    display: block; position: fixed; z-index: var(--z-dropdown);
+    bottom: calc(var(--s-4) + env(safe-area-inset-bottom));
+  }
+  af-backtop[position="left-bottom"] { left: calc(var(--s-4) + env(safe-area-inset-left)); }
+  af-backtop:not([position="left-bottom"]) { right: calc(var(--s-4) + env(safe-area-inset-right)); }
 }

@@ -20,12 +20,16 @@ const SRC = join(ROOT, 'src');
 // v1.0.1 调整：基类含 escapeHtml 防 XSS（P0 安全），total 含 P0 修复（定位/焦点/转义）
 // v1.0.2 调整：af-swiper 含 loop clone 无缝循环（P1-2），total 上调至 11.5KB
 // v1.2.0 调整：新增 af-switch/af-search-bar/af-skeleton-page（IP-4/5/6），total 上调至 14KB
+// v1.3.1 调整：
+//   CSS 4.2→4.9KB：prefers-reduced-motion 降级（无障碍）+ --palette-* 抽象（主题正确性）+ af-list/af-backtop 宿主样式（wc-light-no-style 合规）
+//   base 0.85→1.1KB：html 安全模板标签 + escapeHtml 命名实体（P0 XSS 防护）
+//   perComponent 2.5→2.6KB：af-picker 含 ARIA listbox + scroll-snap + 键盘导航（无障碍）
 const BUDGET = {
-  css: 4.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，实测 3.91KB + 7% 余量）
-  perComponent: 2.5,   // KB，单组件 JS+CSS
-  base: 0.85,          // KB，AfElement 基类（含 escapeHtml XSS 防护）
+  css: 4.9,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 prefers-reduced-motion + palette 抽象 + 宿主样式）
+  perComponent: 2.6,   // KB，单组件 JS+CSS（af-picker ARIA + scroll-snap + 键盘）
+  base: 1.1,           // KB，AfElement 基类（含 html/escapeHtml XSS 防护）
   total: 14,           // KB，13 组件 + 基类（含 P0 安全 + P1 loop clone + v1.2.0 新增 3 组件）
-  onDemand2: 5.0,      // KB，按需 2 组件（warn）
+  onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
 };
 
 const KB = 1024;

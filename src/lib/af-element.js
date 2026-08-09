@@ -3,7 +3,30 @@
 // 子类声明 static useShadow = true/false 决定是否 attachShadow
 
 // HTML 转义：注入数据到 innerHTML 前必经，防 XSS
-export const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt()};`);
+// 使用命名实体（&lt; &gt; &amp; &quot;）+ 数值实体（&#39;）匹配浏览器 DOM 行为
+const _ENT = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+export const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => _ENT[c]);
+
+// 安全 HTML 模板标签：${value} 插值自动转义，${{ raw: '<b>html</b>' }} 标记可信 HTML
+// 用法：html`<div class="body">${item.title}</div>` ← title 自动转义
+//       html`<div>${{ raw: '<b>加粗</b>' }}</div>` ← 显式声明可信 HTML 不转义
+// 强制 af-list.renderItem / af-dropdown._renderList 等动态 HTML 拼接使用，杜绝 XSS
+export function html(strings, ...values) {
+  let result = '';
+  for (let i = 0; i < strings.length; i++) {
+    result += strings[i];
+    if (i < values.length) {
+      const v = values[i];
+      if (v != null && typeof v === 'object' && Object.prototype.hasOwnProperty.call(v, 'raw')) {
+        // 显式可信 HTML
+        result += v.raw;
+      } else {
+        result += escapeHtml(v);
+      }
+    }
+  }
+  return result;
+}
 
 export class AfElement extends HTMLElement {
   constructor() {
@@ -25,6 +48,8 @@ export class AfElement extends HTMLElement {
   }
 
   connectedCallback() {
+    // 断开再连（SPA 条件渲染 / appendChild 重父化）需重新挂载：unmounted 已清理监听，
+    // 若不重跑 mounted，组件会变「死」的（DOM 在但无交互）。复位 _mounted 让 mount 重新执行。
     if (this._mounted) return;
     this._mounted = true;
     if (this.onThemeChange) {
@@ -40,6 +65,8 @@ export class AfElement extends HTMLElement {
       this._themeHandler = null;
     }
     this.unmounted?.();
+    // 复位挂载标志：下次 connectedCallback 重新执行 mounted，重建监听与 DOM
+    this._mounted = false;
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
@@ -52,6 +79,27 @@ export class AfElement extends HTMLElement {
 
   emit(name, detail = {}) {
     this.dispatchEvent(new CustomEvent(name, { detail, bubbles: true, composed: true }));
+  }
+
+  // === 背景滚动锁（模态组件 open/close 配对调用，引用计数支持多实例嵌套） ===
+  static _scrollLockCount = 0;
+  static _savedBodyOverflow = '';
+
+  static lockScroll() {
+    if (typeof document === 'undefined' || !document.body) return;
+    if (AfElement._scrollLockCount === 0) {
+      AfElement._savedBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+    }
+    AfElement._scrollLockCount++;
+  }
+
+  static unlockScroll() {
+    if (AfElement._scrollLockCount <= 0) return;
+    AfElement._scrollLockCount--;
+    if (AfElement._scrollLockCount === 0 && typeof document !== 'undefined' && document.body) {
+      document.body.style.overflow = AfElement._savedBodyOverflow;
+    }
   }
 
   // 属性（attribute）与特性（property）双向同步
@@ -73,7 +121,9 @@ export class AfElement extends HTMLElement {
     const parse = (val) => {
       if (val == null) return defVal;
       if (type === Number) return Number(val);
-      if (type === Boolean) return val != null;
+      // Boolean：HTML 布尔属性「存在即真」，但允许 close-on-esc="false" / loop="false" 显式关闭
+      // （"false" 字符串视为 false，其它值含空串视为 true）
+      if (type === Boolean) return val != null && String(val).toLowerCase() !== 'false';
       if (type === Array) return JSON.parse(val || '[]');
       if (type === Object) return JSON.parse(val || '{}');
       return val;

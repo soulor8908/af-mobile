@@ -8,6 +8,7 @@ export class AfActionSheet extends AfElement {
   constructor() {
     super();
     this._previouslyFocused = null;
+    this._scrollLocked = false;
   }
 
   mounted() {
@@ -41,10 +42,13 @@ export class AfActionSheet extends AfElement {
     this._onToggle = (e) => {
       if (e.newState === 'open') {
         this._previouslyFocused = document.activeElement;
+        AfElement.lockScroll();
+        this._scrollLocked = true;
         this._focusFirst();
         this.emit('af-action-sheet:open', {});
       }
       if (e.newState === 'closed') {
+        if (this._scrollLocked) { AfElement.unlockScroll(); this._scrollLocked = false; }
         if (!this._isSelecting) {
           this.emit('af-action-sheet:close', {});
         }
@@ -136,6 +140,7 @@ export class AfActionSheet extends AfElement {
   }
 
   unmounted() {
+    if (this._scrollLocked) AfElement.unlockScroll();
     // Light DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
     this._sheet?.removeEventListener('click', this._onClick);
     this._sheet?.removeEventListener('toggle', this._onToggle);

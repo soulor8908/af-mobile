@@ -50,6 +50,39 @@ describe('L2-1 aiflow/token-whitelist', () => {
       invalid: [],
     });
   });
+  it('classList.add 白名单外 class 报错（补洞：原规则漏检动态拼接）', () => {
+    ruleTester.run('token-whitelist', tokenWhitelist, {
+      valid: [],
+      invalid: [{
+        code: 'el.classList.add("custom-btn");',
+        errors: [{ messageId: 'unknownClass', data: { name: 'custom-btn' } }],
+      }],
+    });
+  });
+  it('classList.add 白名单内 class 放行', () => {
+    ruleTester.run('token-whitelist', tokenWhitelist, {
+      valid: [{ code: 'el.classList.add("btn");' }],
+      invalid: [],
+    });
+  });
+  it('classList.toggle 白名单外 class 报错', () => {
+    ruleTester.run('token-whitelist', tokenWhitelist, {
+      valid: [],
+      invalid: [{
+        code: 'el.classList.toggle("my-class");',
+        errors: [{ messageId: 'unknownClass', data: { name: 'my-class' } }],
+      }],
+    });
+  });
+  it('classList.remove 数组参数白名单外 class 报错', () => {
+    ruleTester.run('token-whitelist', tokenWhitelist, {
+      valid: [],
+      invalid: [{
+        code: 'el.classList.remove(["btn", "custom-cls"]);',
+        errors: [{ messageId: 'unknownClass', data: { name: 'custom-cls' } }],
+      }],
+    });
+  });
 });
 
 describe('L2-2 aiflow/no-recipe-break', () => {

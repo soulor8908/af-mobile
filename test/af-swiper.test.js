@@ -86,12 +86,12 @@ describe('af-swiper Shadow DOM', () => {
     expect(el.getAttribute('aria-label')).toContain('第 1 张');
   });
 
-  it('show-dots=false 设置 attribute 为 "false" 触发 CSS 隐藏', async () => {
-    const el = makeSwiper(3, { showDots: 'false' });
+  it('show-dots=false 移除 attribute 触发 CSS 隐藏（Boolean 类型，P2-16）', async () => {
+    const el = makeSwiper(3, { showDots: false });
     await Promise.resolve();
-    expect(el.getAttribute('show-dots')).toBe('false');
-    el.showDots = 'true';
-    expect(el.getAttribute('show-dots')).toBe('true');
+    expect(el.hasAttribute('show-dots')).toBe(false);
+    el.showDots = true;
+    expect(el.hasAttribute('show-dots')).toBe(true);
   });
 
   it('disabled 时仍可渲染但不绑定 touch（无报错）', async () => {

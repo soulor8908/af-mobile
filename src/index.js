@@ -8,7 +8,7 @@
 //   import { registerAll } from 'aiflow-ui';
 //   registerAll();
 
-export { AfElement } from './lib/af-element.js';
+export { AfElement, escapeHtml, html } from './lib/af-element.js';
 export { getTheme, setTheme, toggleTheme, initTheme } from './lib/theme.js';
 
 import { AfList } from './components/af-list.js';

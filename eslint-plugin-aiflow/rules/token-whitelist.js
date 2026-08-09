@@ -44,6 +44,35 @@ export default {
     return {
       Literal(node) { if (typeof node.value === 'string') checkString(node.value, node); },
       TemplateElement(node) { if (node.value?.raw) checkString(node.value.raw, node); },
+      // 检测 classList.add/remove/toggle 的字符串参数（绕过 class="..." 字面量检测）
+      CallExpression(node) {
+        const callee = node.callee;
+        if (callee?.type !== 'MemberExpression') return;
+        if (callee.object?.type !== 'MemberExpression') return;
+        if (callee.object.property?.name !== 'classList') return;
+        const method = callee.property?.name;
+        if (!['add', 'remove', 'toggle'].includes(method)) return;
+        for (const arg of node.arguments) {
+          if (arg.type === 'Literal' && typeof arg.value === 'string') {
+            for (const cls of arg.value.split(/\s+/).filter(Boolean)) {
+              if (!allowClass.has(cls)) {
+                context.report({ node: arg, messageId: 'unknownClass', data: { name: cls } });
+              }
+            }
+          }
+          if (arg.type === 'ArrayExpression') {
+            for (const el of arg.elements) {
+              if (el?.type === 'Literal' && typeof el.value === 'string') {
+                for (const cls of el.value.split(/\s+/).filter(Boolean)) {
+                  if (!allowClass.has(cls)) {
+                    context.report({ node: el, messageId: 'unknownClass', data: { name: cls } });
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
     };
   },
 };

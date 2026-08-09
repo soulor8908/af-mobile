@@ -38,6 +38,18 @@ export function getTheme(): ThemeName;
 /** HTML 转义：注入数据到 innerHTML 前使用，防 XSS */
 export function escapeHtml(s: unknown): string;
 
+/** 可信 HTML 包装（用于 html 标签内显式声明不转义） */
+export interface TrustedHtml {
+  raw: string;
+}
+
+/**
+ * 安全 HTML 模板标签：${value} 插值自动转义，${{ raw: '<b>html</b>' }} 标记可信 HTML
+ * @example html`<div class="body">${item.title}</div>` // title 自动转义
+ * @example html`<div>${{ raw: '<b>加粗</b>' }}</div>` // 显式可信 HTML 不转义
+ */
+export function html(strings: TemplateStringsArray, ...values: Array<unknown | TrustedHtml>): string;
+
 // ============================================================
 // AfElement 基类（供用户继承自定义组件）
 // ============================================================

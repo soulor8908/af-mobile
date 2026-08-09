@@ -45,6 +45,25 @@ describe('L3-1 aiflow/wc-light-no-style', () => {
       invalid: [],
     });
   });
+  it('Light 组件 setProperty 视觉属性报错（补洞：原规则漏检 setProperty）', () => {
+    ruleTester.run('wc-light-no-style', wcLightNoStyle, {
+      valid: [],
+      invalid: [{
+        filename: 'src/components/af-foo.js',
+        code: `${LIGHT_COMP} mounted() { this.style.setProperty('color', 'red'); }`,
+        errors: [{ messageId: 'styleProp' }],
+      }],
+    });
+  });
+  it('Light 组件 setProperty CSS 自定义属性（--*）放行（主题变量传递）', () => {
+    ruleTester.run('wc-light-no-style', wcLightNoStyle, {
+      valid: [{
+        filename: 'src/components/af-foo.js',
+        code: `${LIGHT_COMP} mounted() { this.style.setProperty('--af-h', '400px'); }`,
+      }],
+      invalid: [],
+    });
+  });
 });
 
 describe('L3-2 aiflow/wc-shadow-use-token', () => {

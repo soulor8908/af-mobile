@@ -38,6 +38,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "perf": "node scripts/perf.mjs",
+    "perf:check": "node scripts/perf.mjs --budget",
     "size": "node scripts/size-check.mjs",
     "size:check": "node scripts/size-check.mjs",
     "whitelist": "node scripts/gen-whitelist.mjs",
@@ -73,8 +75,10 @@
     "esbuild": "^0.28.2",
     "eslint": "^10.8.1",
     "jsdom": "^24.0.0",
+    "lighthouse": "^12.2.1",
     "postcss": "^8.5.26",
     "vite": "^5.4.0",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.0",
+    "web-vitals": "^4.2.4"
   }
 }

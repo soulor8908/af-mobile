@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>性能监测 - aiflow-ui</title>
+  <link rel="stylesheet" href="../src/index.css">
+  <style>
+    .perf-page { padding: var(--s-4); max-width: 720px; margin: 0 auto; }
+    .perf-title { font-size: var(--t-xl); font-weight: var(--fw-bold); margin-bottom: var(--s-2); }
+    .perf-sub { color: var(--c-muted); font-size: var(--t-sm); margin-bottom: var(--s-4); }
+    .perf-grid { display: grid; gap: var(--s-3); }
+    .perf-card {
+      background: var(--c-card); border-radius: var(--r-l); padding: var(--s-4);
+      box-shadow: var(--shadow-sm);
+    }
+    .perf-card h3 { font-size: var(--t-md); margin-bottom: var(--s-2); }
+    .perf-row { display: flex; justify-content: space-between; padding: var(--s-1) 0; font-size: var(--t-sm); }
+    .perf-row .label { color: var(--c-muted); }
+    .perf-row .value { font-variant-numeric: tabular-nums; font-weight: var(--fw-medium); }
+    .perf-good { color: var(--c-success); }
+    .perf-warn { color: var(--c-warn); }
+    .perf-bad { color: var(--c-danger); }
+    .perf-actions { display: flex; gap: var(--s-2); margin-bottom: var(--s-4); flex-wrap: wrap; }
+    .perf-btn {
+      padding: var(--s-2) var(--s-4); border-radius: var(--r-f);
+      background: var(--c-brand); color: var(--c-onbrand); border: none;
+      font-size: var(--t-sm); cursor: pointer;
+    }
+    .perf-btn.ghost { background: var(--c-muted-bg); color: var(--c-text); }
+    .perf-log {
+      background: var(--c-muted-bg); border-radius: var(--r-m); padding: var(--s-3);
+      font-family: ui-monospace, monospace; font-size: var(--t-xs);
+      max-height: 240px; overflow-y: auto; white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <main class="perf-page">
+    <h1 class="perf-title">性能监测</h1>
+    <p class="perf-sub">Core Web Vitals 实时采集 · 阈值参考 Google 官方 Good/Needs Improvement/Poor</p>
+
+    <div class="perf-actions">
+      <button class="perf-btn" id="btn-report">上报当前页 vitals</button>
+      <button class="perf-btn ghost" id="btn-clear">清空日志</button>
+    </div>
+
+    <div class="perf-grid">
+      <div class="perf-card">
+        <h3>Core Web Vitals</h3>
+        <div class="perf-row"><span class="label">LCP（最大内容渲染）</span><span class="value" id="lcp">-</span></div>
+        <div class="perf-row"><span class="label">INP（交互延迟）</span><span class="value" id="inp">-</span></div>
+        <div class="perf-row"><span class="label">CLS（布局偏移）</span><span class="value" id="cls">-</span></div>
+      </div>
+      <div class="perf-card">
+        <h3>其他指标</h3>
+        <div class="perf-row"><span class="label">FCP（首次内容渲染）</span><span class="value" id="fcp">-</span></div>
+        <div class="perf-row"><span class="label">TTFB（首字节时间）</span><span class="value" id="ttfb">-</span></div>
+      </div>
+      <div class="perf-card">
+        <h3>事件日志</h3>
+        <div class="perf-log" id="log"></div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    // 用 web-vitals 官方库（npm）走 vite 解析；若无则降级到原生 PerformanceObserver
+    import { onLCP, onINP, onCLS, onFCP, onTTFB } from 'web-vitals';
+
+    const $ = (id) => document.getElementById(id);
+    const log = (msg) => {
+      const el = $('log');
+      const t = new Date().toLocaleTimeString();
+      el.textContent = `[${t}] ${msg}\n` + el.textContent;
+    };
+
+    // 评级着色：Google 官方阈值
+    const rate = (metric, good, poor) => {
+      const v = metric.value;
+      const cls = v <= good ? 'perf-good' : v < poor ? 'perf-warn' : 'perf-bad';
+      const unit = metric.name === 'CLS' ? v.toFixed(3) : `${v.toFixed(0)}ms`;
+      return { text: `${unit} (${metric.rating})`, cls };
+    };
+
+    const metrics = {};
+    const render = (metric) => {
+      metrics[metric.name] = metric;
+      const id = metric.name.toLowerCase();
+      const el = $(id);
+      if (!el) return;
+      const r = rate(metric, metric.good, metric.poor);
+      el.textContent = r.text;
+      el.className = `value ${r.cls}`;
+      log(`${metric.name} = ${r.text} (id=${metric.id})`);
+    };
+
+    onLCP(render);
+    onINP(render);
+    onCLS(render);
+    onFCP(render);
+    onTTFB(render);
+
+    $('btn-report').addEventListener('click', () => {
+      const payload = Object.fromEntries(
+        Object.entries(metrics).map(([k, v]) => [k, { value: v.value, rating: v.rating, id: v.id }])
+      );
+      // 上报通道：生产应换 fetch('/api/vitals', { method:'POST', body: JSON.stringify(payload) })
+      console.log('[web-vitals] 上报 payload:', payload);
+      log(`上报 ${Object.keys(payload).length} 项指标 → console（生产应走 fetch 上报）`);
+    });
+
+    $('btn-clear').addEventListener('click', () => { $('log').textContent = ''; });
+
+    log('web-vitals 监测已启动，请操作页面触发交互');
+  </script>
+</body>
+</html>

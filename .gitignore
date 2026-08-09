@@ -40,5 +40,8 @@ playwright-report/
 playwright/.cache/
 e2e/.dist/
 
+# Lighthouse 性能基线产物（每次跑生成，不入库）
+perf-report.json
+
 # Trae 临时共享包
 .trae-html-share-packages/

@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # Step 1: 白名单同步检查（源码 ↔ whitelist-v1.json）
+      - name: Whitelist sync check
+        run: |
+          node scripts/gen-whitelist.mjs
+          if ! git diff --quiet eslint-plugin-aiflow/utils/whitelist-v1.json; then
+            echo "❌ whitelist-v1.json 与源码不同步！请运行 npm run whitelist 并提交"
+            git diff eslint-plugin-aiflow/utils/whitelist-v1.json
+            exit 1
+          fi
+          echo "✓ whitelist 同步"
+
+      # Step 2: 体积检查（L1+L2 CSS + L3 JS）
+      - name: Size budget check
+        run: npm run size
+
+      # Step 3: 测试
+      - name: Test
+        run: npm test
+
+      # Step 4: ESLint 自检
+      - name: ESLint check
+        run: npx eslint src/ --max-warnings 0
+        continue-on-error: true

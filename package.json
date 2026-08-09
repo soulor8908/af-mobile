@@ -28,6 +28,8 @@
     "size": "node scripts/size-check.mjs",
     "size:check": "node scripts/size-check.mjs",
     "whitelist": "node scripts/gen-whitelist.mjs",
+    "prompt": "bash scripts/build-prompt.sh",
+    "publish:check": "node scripts/publish-check.mjs",
     "ci": "vitest run && node scripts/size-check.mjs"
   },
   "keywords": [

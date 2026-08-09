@@ -1,0 +1,49 @@
+// L2-1 aiflow/token-whitelist（error）
+// 检测：class="" 中的 class / 自定义元素 tagName → 与 whitelist + extraClass/extraComponents 对比
+import { ALL_CLASSES, ALL_COMPONENTS, extractAllClassLists, extractCustomElements } from '../utils/helpers.js';
+
+export default {
+  meta: {
+    type: 'problem',
+    docs: { description: 'class 名和自定义元素必须在白名单内' },
+    schema: [{
+      type: 'object',
+      properties: {
+        extraClass: { type: 'array', items: { type: 'string' } },
+        extraComponents: { type: 'array', items: { type: 'string' } },
+      },
+      additionalProperties: false,
+    }],
+    messages: {
+      unknownClass: "Class '{{name}}' not in whitelist. Use recipe/atomic or register in 'aiflow/token-whitelist' rule's extraClass",
+      unknownComponent: "Component '{{name}}' not in whitelist. Register in 'aiflow/token-whitelist' rule's extraComponents",
+    },
+  },
+  create(context) {
+    const options = context.options[0] || {};
+    const allowClass = new Set([...ALL_CLASSES, ...(options.extraClass || [])]);
+    const allowComp = new Set([...ALL_COMPONENTS, ...(options.extraComponents || [])]);
+
+    function checkString(str, node) {
+      // class 检查
+      for (const { classes } of extractAllClassLists(str)) {
+        for (const cls of classes) {
+          if (!allowClass.has(cls)) {
+            context.report({ node, messageId: 'unknownClass', data: { name: cls } });
+          }
+        }
+      }
+      // 自定义元素检查
+      for (const tag of extractCustomElements(str)) {
+        if (!allowComp.has(tag)) {
+          context.report({ node, messageId: 'unknownComponent', data: { name: tag } });
+        }
+      }
+    }
+
+    return {
+      Literal(node) { if (typeof node.value === 'string') checkString(node.value, node); },
+      TemplateElement(node) { if (node.value?.raw) checkString(node.value.raw, node); },
+    };
+  },
+};

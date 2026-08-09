@@ -1,113 +1,89 @@
 #!/usr/bin/env node
-// AIFlow UI —— 构建产物脚本
-// 用法：node scripts/build.mjs
+// AIFlow UI —— 构建脚本：生成 dist/ 产物
 // 产物：
-//   dist/index.js           ESM minified（CDN <script type="module">、Node ESM）
-//   dist/aiflow-ui.umd.js   UMD minified（<script> 经典 + 全局 window.AiflowUI）
-//   dist/index.css          L1+L2 CSS minified（tokens+recipes+atomic）
-//   dist/index.d.ts         类型声明（从 src 复制）
-// 设计要点：
-//   - src/ 仍作为 bundler 主入口（Tree Shaking 友好，package.json exports.import 指向 src）
-//   - dist/ 仅服务两类用户：CDN 直引 / 无 bundler 环境
-//   - 不拆分单组件 dist：Tree Shaking 走 src 命名导出，无需 dist 多入口
+//   dist/index.js         ESM bundle（全量组件，Tree Shaking 友好的源码已支持，此处给个全量 bundle 入口）
+//   dist/aiflow-ui.umd.js UMD bundle（CDN/unpkg 直引，含全部组件 + 自动注册）
+//   dist/index.css        全量 CSS（tokens+recipes+atomic，@import 内联）
+//   dist/index.d.ts       类型声明（复制 src/index.d.ts）
 import { build } from 'esbuild';
-import { writeFileSync, mkdirSync, copyFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'node:fs';
+import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { gzipSync } from 'node:zlib';
 
-const ROOT = resolve(fileURLToPath(import.meta.url), '../../');
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../');
 const SRC = join(ROOT, 'src');
 const DIST = join(ROOT, 'dist');
-const KB = 1024;
-const fmt = (b) => (b / KB).toFixed(3) + 'KB';
 
-console.log('\n╔══════════════════════════════════════════════╗');
-console.log('║     AIFlow UI —— 构建 dist 产物              ║');
-console.log('╚══════════════════════════════════════════════╝\n');
-
+// 确保 dist 目录存在
 mkdirSync(DIST, { recursive: true });
 
-// ── 1. ESM minified bundle ──
-// 不拆分 chunk：13 组件 + 基类合计 ~14KB gzip，全量打包体积可控
-// 保留命名导出（format: esm），UMD 单独构建给经典脚本用
-console.log('── 1. ESM bundle (dist/index.js) ──');
-const esmRes = await build({
+console.log('╔══════════════════════════════════════════════╗');
+console.log('║     AIFlow UI —— 构建 dist 产物             ║');
+console.log('╚══════════════════════════════════════════════╝\n');
+
+// ---------- 1. dist/index.js（ESM bundle） ----------
+// 源码 src/index.js 已是 ESM 命名导出，直接 bundle 一次生成单文件产物
+// 保留 import.meta（不兼容 ES5），format=esm
+await build({
   entryPoints: [join(SRC, 'index.js')],
   bundle: true,
-  write: false,
+  outfile: join(DIST, 'index.js'),
   format: 'esm',
-  minify: true,
+  platform: 'browser',
+  target: ['es2020'],
   legalComments: 'none',
   sourcemap: false,
-  target: ['es2020'],
+  minify: false, // ESM 保留可读性，Tree Shaking 由打包器对源码做
   absWorkingDir: ROOT,
 });
-const esmCode = esmRes.outputFiles[0].text;
-writeFileSync(join(DIST, 'index.js'), esmCode);
-const esmGz = gzipSync(Buffer.from(esmCode)).length;
-console.log(`  ✓ dist/index.js  ${fmt(esmCode.length)}  (gzip ${fmt(esmGz)})`);
+console.log('✓ dist/index.js (ESM bundle)');
 
-// ── 2. UMD minified bundle ──
-// 全局变量名 AiflowUI，供 <script src="..."> 直接使用
-// UMD 需要 name（全局变量），format: iife 外层包一层 commonjs 兼容
-console.log('\n── 2. UMD bundle (dist/aiflow-ui.umd.js) ──');
-const umdRes = await build({
-  entryPoints: [join(SRC, 'index.js')],
+// ---------- 2. dist/aiflow-ui.umd.js（UMD bundle，自动注册全组件） ----------
+// UMD 入口：bundle 全部组件并自动调用 registerAll()
+const umdEntryCode = `
+import { registerAll } from '${join(SRC, 'index.js').replace(/\\/g, '/')}';
+if (typeof window !== 'undefined') {
+  registerAll();
+}
+`;
+const umdEntryPath = join(DIST, '_umd-entry.js');
+writeFileSync(umdEntryPath, umdEntryCode);
+await build({
+  entryPoints: [umdEntryPath],
   bundle: true,
-  write: false,
+  outfile: join(DIST, 'aiflow-ui.umd.js'),
   format: 'iife',
   globalName: 'AiflowUI',
-  minify: true,
+  platform: 'browser',
+  target: ['es2020'],
   legalComments: 'none',
   sourcemap: false,
-  target: ['es2020'],
-  absWorkingDir: ROOT,
-});
-// 手工包成 UMD：兼容 CommonJS 与浏览器全局
-const umdBody = umdRes.outputFiles[0].text;
-const umdCode =
-  `/* AIFlow UI UMD bundle — global: AiflowUI */\n` +
-  `(function (root, factory) {\n` +
-  `  if (typeof define === 'function' && define.amd) { define([], factory); }\n` +
-  `  else if (typeof module === 'object' && module.exports) { module.exports = factory(); }\n` +
-  `  else { root.AiflowUI = factory(); }\n` +
-  `}(typeof self !== 'undefined' ? self : this, function () {\n` +
-  `"use strict";\n` +
-  umdBody + `\n` +
-  `  return (typeof AiflowUI !== 'undefined') ? AiflowUI : {};\n` +
-  `}));\n`;
-writeFileSync(join(DIST, 'aiflow-ui.umd.js'), umdCode);
-const umdGz = gzipSync(Buffer.from(umdCode)).length;
-console.log(`  ✓ dist/aiflow-ui.umd.js  ${fmt(umdCode.length)}  (gzip ${fmt(umdGz)})`);
-
-// ── 3. CSS minified bundle ──
-// 用 esbuild 原生 CSS 处理：自动解析 @import、minify、保留 url() 字符串安全
-console.log('\n── 3. CSS bundle (dist/index.css) ──');
-const cssRes = await build({
-  entryPoints: [join(SRC, 'index.css')],
-  bundle: true,
-  write: false,
   minify: true,
-  legalComments: 'none',
   absWorkingDir: ROOT,
-  loader: { '.css': 'css' },
 });
-const cssCode = cssRes.outputFiles[0].text;
-writeFileSync(join(DIST, 'index.css'), cssCode);
-const cssGz = gzipSync(Buffer.from(cssCode)).length;
-console.log(`  ✓ dist/index.css  ${fmt(cssCode.length)}  (gzip ${fmt(cssGz)})`);
+console.log('✓ dist/aiflow-ui.umd.js (UMD, auto-register)');
 
-// ── 4. 类型声明复制 ──
-console.log('\n── 4. 类型声明 (dist/index.d.ts) ──');
+// ---------- 3. dist/index.css（内联 @import 的全量 CSS） ----------
+// 把 tokens.css + recipes.css + atomic.css 拼接内联为单文件
+const cssFiles = ['tokens.css', 'recipes.css', 'atomic.css'];
+let cssConcat = '/* AIFlow UI —— dist/index.css（构建产物，勿手改。源码见 src/*.css） */\n';
+for (const f of cssFiles) {
+  const content = readFileSync(join(SRC, f), 'utf8');
+  // 去掉 @import（已内联）与文件头注释（保留 @layer）
+  const cleaned = content.replace(/@import\s+['"][^'"]+['"]\s*;?\s*/g, '');
+  cssConcat += cleaned + '\n';
+}
+writeFileSync(join(DIST, 'index.css'), cssConcat);
+console.log('✓ dist/index.css (CSS inlined)');
+
+// ---------- 4. dist/index.d.ts（类型声明复制） ----------
 copyFileSync(join(SRC, 'index.d.ts'), join(DIST, 'index.d.ts'));
-console.log(`  ✓ dist/index.d.ts  (从 src/index.d.ts 复制)`);
+console.log('✓ dist/index.d.ts (types)');
 
-// ── 汇总 ──
+// 清理临时 UMD 入口
+import('node:fs').then(({ rmSync }) => {
+  if (existsSync(umdEntryPath)) rmSync(umdEntryPath);
+});
+
 console.log('\n──────────────────────────────────────────────');
-console.log('构建完成：');
-console.log(`  dist/index.js            ESM  ${fmt(esmCode.length)}  (gzip ${fmt(esmGz)})`);
-console.log(`  dist/aiflow-ui.umd.js    UMD  ${fmt(umdCode.length)}  (gzip ${fmt(umdGz)})`);
-console.log(`  dist/index.css           CSS  ${fmt(cssCode.length)}  (gzip ${fmt(cssGz)})`);
-console.log(`  dist/index.d.ts          DTS  (类型声明)`);
-console.log('');
+console.log('✓ 构建完成：dist/index.js, dist/aiflow-ui.umd.js, dist/index.css, dist/index.d.ts');

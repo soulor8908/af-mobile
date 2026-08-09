@@ -24,10 +24,14 @@ export class AfTabs extends AfElement {
   }
 
   _buildShell() {
+    // 保留 slotted 面板（div[slot^="panel-"]），避免 innerHTML 重置时丢失外部引用与事件
+    const slottedPanels = this.$$('div[slot^="panel-"]');
     this.innerHTML = `
       <div class="tabbar" role="tablist"></div>
       <div class="af-tabs-panel-container"></div>
     `;
+    // 把 slotted 面板重新挂回（原位，不搬入 container）
+    for (const p of slottedPanels) this.appendChild(p);
     this._tabbar = this.$('.tabbar');
     this._panelContainer = this.$('.af-tabs-panel-container');
     if (this.fixed) this._tabbar.classList.add('tabbar-fixed');
@@ -46,29 +50,24 @@ export class AfTabs extends AfElement {
   }
 
   _renderPanels() {
-    // slot 静态面板
     const slotted = this.$$('div[slot^="panel-"]');
     if (this._renderPanel) {
-      // renderPanel 函数驱动：覆盖 slot 内容
+      // renderPanel 函数驱动：内容在 panel container 内（无外部引用，安全搬运）
       this._panelContainer.innerHTML = this.tabs.map((tab, i) => {
         const html = this._renderPanel(tab, i) || '';
         return `<div class="af-tabs-panel" role="tabpanel" id="af-tabs-panel-${i}" aria-labelledby="af-tabs-tab-${i}" hidden>${html}</div>`;
       }).join('');
     } else if (slotted.length) {
-      // slot 静态透传：移动到 panel container 并加 ARIA
+      // slot 静态透传：原地加 ARIA，不搬运节点（保留外部引用与事件监听）
       this._panelContainer.innerHTML = '';
       this.tabs.forEach((tab, i) => {
-        let panel = this.$(`div[slot="panel-${i}"]`);
-        if (!panel) {
-          panel = document.createElement('div');
-          panel.setAttribute('slot', `panel-${i}`);
-          this.appendChild(panel);
-        }
-        panel.className = (panel.className || '') + ' af-tabs-panel';
+        const panel = this.$(`div[slot="panel-${i}"]`);
+        if (!panel) return;
+        panel.classList.add('af-tabs-panel');
         panel.setAttribute('role', 'tabpanel');
         panel.setAttribute('id', `af-tabs-panel-${i}`);
         panel.setAttribute('aria-labelledby', `af-tabs-tab-${i}`);
-        this._panelContainer.appendChild(panel);
+        panel.hidden = i !== this.activeIndex;
       });
     }
   }
@@ -87,8 +86,12 @@ export class AfTabs extends AfElement {
       tab.setAttribute('tabindex', selected ? '0' : '-1');
     });
 
-    this.$$('.af-tabs-panel, div[slot^="panel-"]').forEach((panel, i) => {
-      panel.hidden = i !== idx;
+    // 切换面板显隐：renderPanel 模式与 slot 模式都给面板加了 .af-tabs-panel + id
+    // 用 id 精确匹配（避免两种模式并存时 index 串扰）
+    const activePanel = this.$(`#af-tabs-panel-${idx}`);
+    if (activePanel) activePanel.hidden = false;
+    this.$$('.af-tabs-panel').forEach((panel) => {
+      if (panel !== activePanel) panel.hidden = true;
     });
 
     if (!silent) {

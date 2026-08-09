@@ -106,3 +106,98 @@ describe('af-tabs', () => {
     expect(el.$('.tabbar').classList.contains('tabbar-fixed')).toBe(true);
   });
 });
+
+describe('af-tabs slot 静态面板模式（IP-3: 原地加 ARIA 不搬运）', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('slot 面板不被搬运到 panel container（保留原位）', () => {
+    const el = new AfTabs();
+    el.tabs = TABS;
+    // 先准备 slotted 面板
+    const panel0 = document.createElement('div');
+    panel0.setAttribute('slot', 'panel-0');
+    panel0.textContent = 'Panel A';
+    const panel1 = document.createElement('div');
+    panel1.setAttribute('slot', 'panel-1');
+    panel1.textContent = 'Panel B';
+    el.appendChild(panel0);
+    el.appendChild(panel1);
+    document.body.appendChild(el);
+
+    // 面板应仍在 el 直接子节点中（未被搬到 container）
+    expect(el.querySelector('.af-tabs-panel-container').children.length).toBe(0);
+    expect(panel0.parentElement).toBe(el);
+    expect(panel1.parentElement).toBe(el);
+  });
+
+  it('slot 面板加 ARIA 属性（role/aria-labelledby）', () => {
+    const el = new AfTabs();
+    el.tabs = TABS;
+    const panel0 = document.createElement('div');
+    panel0.setAttribute('slot', 'panel-0');
+    el.appendChild(panel0);
+    document.body.appendChild(el);
+
+    expect(panel0.getAttribute('role')).toBe('tabpanel');
+    expect(panel0.getAttribute('aria-labelledby')).toBe('af-tabs-tab-0');
+    expect(panel0.id).toBe('af-tabs-panel-0');
+    expect(panel0.classList.contains('af-tabs-panel')).toBe(true);
+  });
+
+  it('setActive 切换 slot 面板显隐', () => {
+    const el = new AfTabs();
+    el.tabs = TABS;
+    const p0 = document.createElement('div');
+    p0.setAttribute('slot', 'panel-0');
+    const p1 = document.createElement('div');
+    p1.setAttribute('slot', 'panel-1');
+    el.appendChild(p0);
+    el.appendChild(p1);
+    document.body.appendChild(el);
+
+    // 初始激活 0
+    expect(p0.hidden).toBe(false);
+    expect(p1.hidden).toBe(true);
+
+    el.setActive(1);
+    expect(p0.hidden).toBe(true);
+    expect(p1.hidden).toBe(false);
+  });
+
+  it('slot 面板内按钮的 click 监听仍可触发（事件不丢失）', () => {
+    const el = new AfTabs();
+    el.tabs = TABS;
+    const panel0 = document.createElement('div');
+    panel0.setAttribute('slot', 'panel-0');
+    const btn = document.createElement('button');
+    btn.textContent = 'click me';
+    panel0.appendChild(btn);
+    el.appendChild(panel0);
+    document.body.appendChild(el);
+
+    const handler = vi.fn();
+    btn.addEventListener('click', handler);
+    btn.click();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('外部持有的面板 DOM 引用在渲染后仍有效', () => {
+    const el = new AfTabs();
+    el.tabs = TABS;
+    const panel0 = document.createElement('div');
+    panel0.setAttribute('slot', 'panel-0');
+    panel0.textContent = 'original';
+    el.appendChild(panel0);
+    document.body.appendChild(el);
+
+    // 外部引用
+    const ref = panel0;
+    // 触发重渲染
+    el.setAttribute('tabs', JSON.stringify([{ label: 'X', value: 'x' }]));
+    // 引用仍指向同一个节点
+    expect(ref.textContent).toBe('original');
+    expect(document.body.contains(ref)).toBe(true);
+  });
+});

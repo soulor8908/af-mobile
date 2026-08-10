@@ -127,8 +127,8 @@ export class AfElement extends HTMLElement {
       // Boolean：HTML 布尔属性「存在即真」，但允许 close-on-esc="false" / loop="false" 显式关闭
       // （"false" 字符串视为 false，其它值含空串视为 true）
       if (type === Boolean) return val != null && String(val).toLowerCase() !== 'false';
-      if (type === Array) return JSON.parse(val || '[]');
-      if (type === Object) return JSON.parse(val || '{}');
+      if (type === Array) { try { return JSON.parse(val || '[]'); } catch { return defVal; } }
+      if (type === Object) { try { return JSON.parse(val || '{}'); } catch { return defVal; } }
       return val;
     };
     ctor._propMeta[attrName].parse = parse;

@@ -56,6 +56,7 @@ export class AfPicker extends AfElement {
     this._scrollTimers = new Map();
     this._rafIds = [];
     this._scrollLocked = false;
+    this._previouslyFocused = null;
   }
 
   mounted() {
@@ -76,11 +77,17 @@ export class AfPicker extends AfElement {
     this._picker = this.$('.picker');
     this._columnsEl = this.$('.columns');
 
-    // popover=auto 的 light dismiss（点遮罩/Esc）会绕过 close()，用 toggle 事件兜底解锁
+    // popover=auto 的 light dismiss（点遮罩/Esc）会绕过 close()，用 toggle 事件兜底解锁 + 焦点还原
     this._onPickerToggle = (e) => {
-      if (e.newState === 'closed' && this._scrollLocked) {
-        AfElement.unlockScroll();
-        this._scrollLocked = false;
+      if (e.newState === 'closed') {
+        if (this._scrollLocked) {
+          AfElement.unlockScroll();
+          this._scrollLocked = false;
+        }
+        if (this._previouslyFocused && typeof this._previouslyFocused.focus === 'function') {
+          this._previouslyFocused.focus();
+          this._previouslyFocused = null;
+        }
       }
     };
     this._picker.addEventListener('toggle', this._onPickerToggle);
@@ -228,10 +235,21 @@ export class AfPicker extends AfElement {
   open() {
     this._picker?.showPopover();
     if (!this._scrollLocked) { AfElement.lockScroll(); this._scrollLocked = true; }
+    // 焦点管理：保存触发元素 + 聚焦首列以便键盘操作
+    this._previouslyFocused = document.activeElement;
+    this._rafIds.push(requestAnimationFrame(() => {
+      const first = this._scrollers[0];
+      if (first && typeof first.focus === 'function') first.focus();
+    }));
   }
   close() {
     this._picker?.hidePopover();
     if (this._scrollLocked) { AfElement.unlockScroll(); this._scrollLocked = false; }
+    // 焦点还原到触发元素
+    if (this._previouslyFocused && typeof this._previouslyFocused.focus === 'function') {
+      this._previouslyFocused.focus();
+      this._previouslyFocused = null;
+    }
   }
 
   onAttributeChange(name, oldVal, newVal) {

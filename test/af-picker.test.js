@@ -154,3 +154,40 @@ describe('af-picker Shadow DOM', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
+
+describe('af-picker 焦点管理（P1-4）', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('open() 保存触发元素焦点并聚焦首列', () => {
+    const trigger = document.createElement('button');
+    trigger.textContent = '打开';
+    document.body.appendChild(trigger);
+    trigger.focus();
+    const el = makePicker({ columns: COLUMNS });
+    const focusSpy = vi.spyOn(el._scrollers[0], 'focus');
+    el.open();
+    expect(el._previouslyFocused).toBe(trigger);
+    // rAF 内聚焦首列
+    return new Promise(resolve => {
+      setTimeout(() => {
+        expect(focusSpy).toHaveBeenCalledTimes(1);
+        resolve();
+      }, 10);
+    });
+  });
+
+  it('close() 还原焦点到触发元素', () => {
+    const trigger = document.createElement('button');
+    trigger.textContent = '打开';
+    document.body.appendChild(trigger);
+    trigger.focus();
+    const el = makePicker({ columns: COLUMNS });
+    el.open();
+    const focusSpy = vi.spyOn(trigger, 'focus');
+    el.close();
+    expect(focusSpy).toHaveBeenCalledTimes(1);
+    expect(el._previouslyFocused).toBeNull();
+  });
+});

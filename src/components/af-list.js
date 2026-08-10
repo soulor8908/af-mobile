@@ -20,6 +20,7 @@ export class AfList extends AfElement {
     this._renderItem = null;
     this._totalCount = null;
     this._scrollRaf = null;
+    this._activeIndex = null;
   }
 
   get renderItem() { return this._renderItem; }
@@ -41,6 +42,7 @@ export class AfList extends AfElement {
     this._bindScroll();
     if (this.refresh) this._bindPullRefresh();
     this._bindClick();
+    this._bindKeydown();
     this._updateAria();
   }
 
@@ -55,7 +57,7 @@ export class AfList extends AfElement {
   // 动态高度通过 CSS 自定义属性（--af-*）设置，遵守 wc-light-no-style（--* 允许）
   _buildShell() {
     this.innerHTML = `
-      <div class="list" role="list">
+      <div class="list" role="list" tabindex="0">
         <div data-role="refresh-indicator" aria-live="polite" aria-label="正在刷新"></div>
         <div data-role="spacer-before"></div>
         <div data-role="viewport"></div>
@@ -237,6 +239,54 @@ export class AfList extends AfElement {
     this._scroller.addEventListener('click', this._onClick);
   }
 
+  // 键盘导航：↑↓ 移动活跃项（滚动入视）+ Enter 触发 itemclick
+  _bindKeydown() {
+    this._onKeydown = (e) => {
+      if (!this.data.length) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const cur = this._activeIndex ?? -1;
+        let next;
+        if (e.key === 'ArrowDown') next = Math.min(cur + 1, this.data.length - 1);
+        else next = Math.max(cur - 1, 0);
+        if (next === cur) return;
+        this._activeIndex = next;
+        this._scrollToIndex(next);
+        this._updateAriaActive(next);
+      } else if (e.key === 'Enter') {
+        const idx = this._activeIndex;
+        if (idx != null && this.data[idx] != null) {
+          e.preventDefault();
+          this.emit('af-list:itemclick', { index: idx, item: this.data[idx] });
+        }
+      }
+    };
+    this._scroller.addEventListener('keydown', this._onKeydown);
+  }
+
+  // 滚动使指定索引项进入视口（虚拟滚动下会触发 scroll→_updateViewport 重渲染）
+  _scrollToIndex(idx) {
+    const itemH = this.itemHeight;
+    const scrollTop = this._scroller.scrollTop;
+    const viewportH = this._scroller.clientHeight;
+    const itemTop = idx * itemH;
+    const itemBottom = itemTop + itemH;
+    if (itemTop < scrollTop) {
+      this._scroller.scrollTop = itemTop;
+    } else if (itemBottom > scrollTop + viewportH) {
+      this._scroller.scrollTop = itemBottom - viewportH;
+    }
+  }
+
+  // 更新 aria-activedescendant 指向当前活跃项（仅当该项已渲染时）
+  _updateAriaActive(idx) {
+    const item = this._viewport.querySelector(`[data-list-index="${idx}"]`);
+    if (item) {
+      if (!item.id) item.id = `af-list-item-${idx}`;
+      this._scroller.setAttribute('aria-activedescendant', item.id);
+    }
+  }
+
   _updateAria() {
     // totalCount 未显式设置（Infinity）时用 data.length 展示，避免 aria 出现 "Infinity"
     const total = this._totalCount == null ? this.data.length : this.totalCount;
@@ -262,6 +312,7 @@ export class AfList extends AfElement {
     if (this._scrollRaf) { cancelAnimationFrame(this._scrollRaf); this._scrollRaf = null; }
     this._scroller?.removeEventListener('scroll', this._onScroll);
     this._scroller?.removeEventListener('click', this._onClick);
+    this._scroller?.removeEventListener('keydown', this._onKeydown);
     if (this.refresh) {
       this._scroller?.removeEventListener('touchstart', this._onTouchStart);
       this._scroller?.removeEventListener('touchmove', this._onTouchMove);

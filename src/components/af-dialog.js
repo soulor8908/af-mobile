@@ -1,7 +1,7 @@
 // AIFlow UI —— af-dialog：模态对话框
 // Shadow DOM（useShadow=true），基于原生 <dialog> + showModal()
 // 职责：模态遮罩 + 焦点陷阱（原生 + 兜底）+ Esc/backdrop 关闭 + 焦点还原
-import { AfElement } from '../lib/af-element.js';
+import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 const CSS = `
   :host { display: contents; }
@@ -47,7 +47,7 @@ export class AfDialog extends AfElement {
       <style>${CSS}</style>
       <dialog part="dialog" role="dialog">
         <header part="header">
-          <h2 class="title"><slot name="title">${this.title}</slot></h2>
+          <h2 class="title"><slot name="title">${esc(this.title)}</slot></h2>
           <button class="close-btn" part="close" aria-label="关闭" type="button">×</button>
         </header>
         <div class="body" part="content"><slot name="body"></slot></div>

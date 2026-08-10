@@ -16,10 +16,10 @@ describe('af-backtop', () => {
     window.scrollY = 0;
   });
 
-  it('渲染按钮 + 添加 af-backtop-fixed class', () => {
+  it('渲染按钮（不再添加未登记白名单的标记类）', () => {
     const el = makeBacktop();
     expect(el.$('button')).not.toBeNull();
-    expect(el.classList.contains('af-backtop-fixed')).toBe(true);
+    expect(el.classList.contains('af-backtop-fixed')).toBe(false);
   });
 
   it('aria-label 默认"回到顶部"', () => {
@@ -60,9 +60,10 @@ describe('af-backtop', () => {
     expect(spy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
   });
 
-  it('position=left-bottom 添加 af-backtop-left class', () => {
+  it('position=left-bottom 由 position 属性驱动（非标记类）', () => {
     const el = makeBacktop({ position: 'left-bottom' });
-    expect(el.classList.contains('af-backtop-left')).toBe(true);
+    expect(el.classList.contains('af-backtop-left')).toBe(false);
+    expect(el.getAttribute('position')).toBe('left-bottom');
   });
 
   it('内置 fixed 定位由 recipes.css af-backtop 规则提供（不依赖 JS setProperty）', () => {

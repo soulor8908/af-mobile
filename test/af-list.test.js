@@ -46,6 +46,7 @@ describe('af-list 虚拟滚动', () => {
 
   it('自定义 renderItem 函数被使用', () => {
     const el = makeList({ data: makeData(5) });
+    // eslint-disable-next-line aiflow/token-whitelist -- 测试自定义 renderItem，用任意 class
     el.renderItem = (item, idx) => `<div class="custom-item" data-idx="${idx}">${item.title}</div>`;
     expect(el.$$('.custom-item').length).toBeGreaterThan(0);
   });
@@ -132,5 +133,40 @@ describe('af-list 虚拟滚动', () => {
   it('totalCount 未设置时不立刻显示"没有更多了"', () => {
     const el = makeList({ data: makeData(3) });
     expect(el.$('[data-role="loadmore"]').textContent).not.toContain('没有更多了');
+  });
+
+  it('键盘 ArrowDown 移动活跃项（P2-9）', () => {
+    const el = makeList({ data: makeData(5), itemHeight: 48 });
+    const scroller = el.$('.list');
+    scroller.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(el._activeIndex).toBe(0);
+    scroller.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(el._activeIndex).toBe(1);
+  });
+
+  it('键盘 ArrowUp 边界不越界（P2-9）', () => {
+    const el = makeList({ data: makeData(5), itemHeight: 48 });
+    const scroller = el.$('.list');
+    scroller.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+    expect(el._activeIndex).toBe(0);
+  });
+
+  it('键盘 Enter 触发 af-list:itemclick（P2-9）', () => {
+    const el = makeList({ data: makeData(5), itemHeight: 48 });
+    const handler = vi.fn();
+    el.addEventListener('af-list:itemclick', handler);
+    const scroller = el.$('.list');
+    // 先 ArrowDown 两次到 index 1
+    scroller.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    scroller.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    // Enter 触发
+    scroller.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail.index).toBe(1);
+  });
+
+  it('list 容器有 tabindex=0 可聚焦（P2-9）', () => {
+    const el = makeList({ data: makeData(3) });
+    expect(el.$('.list').getAttribute('tabindex')).toBe('0');
   });
 });

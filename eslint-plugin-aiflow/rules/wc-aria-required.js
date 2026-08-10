@@ -17,6 +17,7 @@ export default {
       missingRole: "af-{{comp}} missing role=\"{{role}}\"; required by WAI-ARIA, see aria-requirements.json",
       missingAriaLabel: "af-{{comp}} missing aria-label; required for screen reader accessibility",
       missingAriaLive: "af-{{comp}} missing aria-live; required for dynamic content announcements",
+      missingAriaChecked: "af-{{comp}} missing aria-checked; required for switch/checkbox state",
     },
   },
   create(context) {
@@ -49,6 +50,9 @@ export default {
         }
         if (req.ariaLive && !source.includes('aria-live') && !source.includes("ariaLive")) {
           context.report({ loc: { line: 1, column: 0 }, messageId: 'missingAriaLive', data: { comp: compName } });
+        }
+        if (req.ariaChecked && !source.includes('aria-checked') && !source.includes("ariaChecked")) {
+          context.report({ loc: { line: 1, column: 0 }, messageId: 'missingAriaChecked', data: { comp: compName } });
         }
       },
     };

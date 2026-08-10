@@ -39,22 +39,19 @@ export class AfImg extends AfElement {
   }
 
   _buildShell() {
-    // thumb/avatar 变体宿主有固定尺寸，height:100% 可用；
-    // default 变体宿主无固定尺寸，用 aspect-ratio 打破循环依赖，避免 0 高塌陷
-    const hasFixedSize = this.variant === 'thumb' || this.variant === 'avatar';
-    const imgStyle = hasFixedSize
-      ? 'width:100%;height:100%;object-fit:cover;'
-      : 'width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;';
+    // 尺寸（width/height/object-fit/aspect-ratio）由 recipes.css af-img 宿主规则提供，
+    // 按宿主 variant class（thumb/avatar/default）区分，遵守 Light DOM 不可设内联样式的约束
+    // 内部元素用 data-role 定位（同 af-list），避免内部类污染白名单
     const placeholderHtml = this.placeholderSrc
-      ? `<img class="af-img-placeholder" src="${this.placeholderSrc}" alt="" aria-hidden="true" style="${imgStyle}">`
-      : `<div class="skeleton af-img-placeholder" style="${imgStyle}" aria-hidden="true"></div>`;
+      ? `<img data-role="placeholder" src="${esc(this.placeholderSrc)}" alt="" aria-hidden="true">`
+      : `<div class="skeleton" data-role="placeholder" aria-hidden="true"></div>`;
     // 用 hidden 属性控制显隐，遵守 Light DOM 不可设内联样式的约束
     this.innerHTML = `
       ${placeholderHtml}
-      <img class="af-img-inner" alt="${esc(this.alt)}" hidden style="${imgStyle}">
+      <img class="af-img-inner" alt="${esc(this.alt)}" hidden>
     `;
     this._img = this.$('img.af-img-inner');
-    this._placeholder = this.$('.af-img-placeholder');
+    this._placeholder = this.$('[data-role="placeholder"]');
   }
 
   _load() {
@@ -85,11 +82,11 @@ export class AfImg extends AfElement {
   }
 
   _renderError() {
-    let err = this.$('.af-img-error');
+    let err = this.$('[data-role="error"]');
     if (!err) {
-      // 用 innerHTML 模板的 style="..." 设置尺寸（与 _buildShell 一致，非 .style.xxx= 赋值）
-      this.insertAdjacentHTML('beforeend', `<div class="af-img-error empty" role="alert" aria-live="assertive" style="width:100%;height:100%;"></div>`);
-      err = this.$('.af-img-error');
+      // 尺寸由 recipes.css af-img [data-role="error"] 规则提供（width/height:100%）
+      this.insertAdjacentHTML('beforeend', `<div class="empty" data-role="error" role="alert" aria-live="assertive"></div>`);
+      err = this.$('[data-role="error"]');
     }
     err.innerHTML = `<p class="caption">图片加载失败</p>`;
   }

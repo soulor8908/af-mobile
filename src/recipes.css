@@ -503,6 +503,17 @@
     height: var(--af-refresh-h, 0px); overflow: hidden;
     transition: height var(--dur-fast) var(--ease-out);
   }
+  /* af-img 尺寸：thumb/avatar 宿主有固定尺寸，inner/placeholder 撑满；default 用 aspect-ratio 防塌陷 */
+  /* 用 data-role 属性选择器（同 af-list），避免内部类污染白名单 */
+  af-img img,
+  af-img [data-role="placeholder"] { width: 100%; object-fit: cover; }
+  af-img.thumb img,
+  af-img.thumb [data-role="placeholder"],
+  af-img.avatar img,
+  af-img.avatar [data-role="placeholder"] { height: 100%; }
+  af-img:not(.thumb):not(.avatar) img,
+  af-img:not(.thumb):not(.avatar) [data-role="placeholder"] { height: auto; aspect-ratio: 1 / 1; }
+  af-img [data-role="error"] { width: 100%; height: 100%; }
   af-backtop {
     display: block; position: fixed; z-index: var(--z-dropdown);
     bottom: calc(var(--s-4) + env(safe-area-inset-bottom));

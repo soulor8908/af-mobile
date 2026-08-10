@@ -118,4 +118,20 @@ describe('af-dropdown', () => {
     expect(item.querySelector('img[onerror]')).toBeNull();
     expect(item.textContent).toContain('<img src=x onerror=alert(1)>');
   });
+
+  it('close() 还原焦点到触发器（P2-8）', () => {
+    const el = makeDropdown();
+    const trigger = el.$('.af-dropdown-trigger');
+    const focusSpy = vi.spyOn(trigger, 'focus');
+    el.close();
+    expect(focusSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('toggle closed 还原焦点到触发器（light dismiss，P2-8）', () => {
+    const el = makeDropdown();
+    const trigger = el.$('.af-dropdown-trigger');
+    const focusSpy = vi.spyOn(trigger, 'focus');
+    el.$('.list').dispatchEvent(new ToggleEvent({ newState: 'closed', oldState: 'open' }));
+    expect(focusSpy).toHaveBeenCalledTimes(1);
+  });
 });

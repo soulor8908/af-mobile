@@ -64,6 +64,15 @@ describe('AfElement 基类', () => {
     expect(el.config).toEqual({ a: 1 });
   });
 
+  it('JSON.parse 失败时回退 default（P2-6，避免非法 JSON 导致组件崩溃）', () => {
+    const el = new TestEl();
+    document.body.appendChild(el);
+    el.setAttribute('items', 'not-json');
+    expect(el.items).toEqual([]); // 回退 default=[]
+    el.setAttribute('config', '{broken');
+    expect(el.config).toEqual({}); // 回退 default={}
+  });
+
   it('Number 属性空串回退 default（P2-3，避免 Number("")=0 导致除零）', () => {
     const el = new TestEl();
     document.body.appendChild(el);
@@ -116,6 +125,7 @@ describe('AfElement 基类', () => {
     document.body.appendChild(el);
     let captured = null;
     el.addEventListener('test:event', (e) => { captured = e.detail; });
+    // eslint-disable-next-line aiflow/wc-event-naming -- 测试基类 emit()，用任意事件名
     el.emit('test:event', { foo: 'bar' });
     expect(captured).toEqual({ foo: 'bar' });
   });
@@ -142,6 +152,7 @@ describe('AfElement 基类', () => {
 
   it('$ / $$ 在 Light DOM 中查询', () => {
     const el = new TestEl();
+    // eslint-disable-next-line aiflow/token-whitelist -- 测试 $/$$ 查询，用任意 class
     el.innerHTML = '<div class="a"></div><div class="a"></div><span class="b"></span>';
     document.body.appendChild(el);
     expect(el.$('.b').tagName).toBe('SPAN');
@@ -152,6 +163,7 @@ describe('AfElement 基类', () => {
     class ShadowEl extends AfElement {
       static useShadow = true;
       mounted() {
+        // eslint-disable-next-line aiflow/token-whitelist -- 测试 Shadow DOM 查询，用任意 class
         this.shadowRoot.innerHTML = '<style></style><div class="inner"></div>';
       }
     }

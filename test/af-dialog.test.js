@@ -37,6 +37,13 @@ describe('af-dialog Shadow DOM', () => {
     expect(el.$('.title').textContent).toContain('删除确认');
   });
 
+  it('XSS：title 含 HTML 被转义，不执行脚本（P0-1）', () => {
+    const el = makeDialog({ title: '<img src=x onerror=alert(1)>' });
+    const titleSlot = el.$('.title slot');
+    expect(titleSlot.querySelector('img[onerror]')).toBeNull();
+    expect(titleSlot.textContent).toContain('<img src=x onerror=alert(1)>');
+  });
+
   it('aria-label 兜底为"对话框"（无 title 时）', () => {
     const el = makeDialog();
     expect(el.$('dialog').getAttribute('aria-label')).toBe('对话框');

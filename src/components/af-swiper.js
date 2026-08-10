@@ -17,6 +17,9 @@ const CSS = `
   }
   .dot.active { background: var(--c-brand); }
   :host(:not([show-dots])) .dots { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .track, .dot { transition: none; }
+  }
 `;
 
 export class AfSwiper extends AfElement {

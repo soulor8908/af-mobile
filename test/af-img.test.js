@@ -38,7 +38,7 @@ describe('af-img', () => {
 
   it('有 placeholderSrc 用图片占位', () => {
     const el = makeImg({ src: 'a.jpg', placeholderSrc: 'ph.jpg' });
-    const ph = el.$('img.af-img-placeholder');
+    const ph = el.$('img[data-role="placeholder"]');
     expect(ph).not.toBeNull();
     expect(ph.src).toContain('ph.jpg');
   });
@@ -82,7 +82,7 @@ describe('af-img', () => {
   it('无 failSrc 时 onerror 渲染 .empty 错误态', () => {
     const el = makeImg({ src: 'bad.jpg', lazy: false });
     el._img.onerror();
-    expect(el.$('.af-img-error.empty')).not.toBeNull();
+    expect(el.$('[data-role="error"].empty')).not.toBeNull();
   });
 
   it('observer 触发后开始加载', () => {

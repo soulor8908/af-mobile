@@ -48,4 +48,19 @@ export default [
     plugins: { aiflow },
     rules: { ...AI_RULES },
   },
+  // ESLint 规则测试夹具 + ai-fix 循环测试：含故意违规用例以验证规则/修复本身，关闭 AI 约束
+  {
+    files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js'],
+    plugins: { aiflow },
+    rules: {
+      'aiflow/token-whitelist': 'off',
+      'aiflow/no-inline-style': 'off',
+      'aiflow/no-recipe-break': 'off',
+      'aiflow/no-variant-conflict': 'off',
+      'aiflow/no-arbitrary-value': 'off',
+      'aiflow/no-tailwind-syntax': 'off',
+      'aiflow/prefer-component': 'off',
+      'aiflow/atomic-duplicate': 'off',
+    },
+  },
 ];

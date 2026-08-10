@@ -187,6 +187,25 @@ describe('L3-5 aiflow/wc-aria-required', () => {
       invalid: [],
     });
   });
+  it('af-switch 缺 aria-checked 报错', () => {
+    ruleTester.run('wc-aria-required', wcAriaRequired, {
+      valid: [],
+      invalid: [{
+        filename: 'src/components/af-switch.js',
+        code: `export class AfSwitch { mounted() { this.innerHTML = '<button role="switch">x</button>'; } }`,
+        errors: [{ messageId: 'missingAriaChecked' }],
+      }],
+    });
+  });
+  it('af-switch 有 aria-checked 放行', () => {
+    ruleTester.run('wc-aria-required', wcAriaRequired, {
+      valid: [{
+        filename: 'src/components/af-switch.js',
+        code: `export class AfSwitch { mounted() { this.innerHTML = '<button role="switch" aria-checked="false">x</button>'; } }`,
+      }],
+      invalid: [],
+    });
+  });
 });
 
 describe('L3-6 aiflow/wc-cleanup', () => {

@@ -49,6 +49,8 @@ export class AfDropdown extends AfElement {
           if (first && !first.disabled) first.focus();
         });
       } else if (e.newState === 'closed') {
+        // 焦点还原到触发器（覆盖 light dismiss：点遮罩/Esc 绕过 close() 的场景）
+        this._trigger?.focus();
         this.emit('af-dropdown:close', {});
       }
     };
@@ -109,7 +111,10 @@ export class AfDropdown extends AfElement {
   }
 
   open() { this._list?.showPopover(); }
-  close() { this._list?.hidePopover(); }
+  close() {
+    // 焦点还原由 toggle 'closed' 处理器统一负责（覆盖 close() + light dismiss 两条路径）
+    this._list?.hidePopover();
+  }
 
   // 按属性做最小更新，避免整树重建关闭已打开的浮层 + 丢失滚动位置
   onAttributeChange(name, oldVal, newVal) {

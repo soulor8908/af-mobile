@@ -20,9 +20,8 @@ export class AfBacktop extends AfElement {
 
     this.innerHTML = `<button class="btn btn-ghost" aria-label="${esc(this.ariaLabelText)}">${esc(this.text)}</button>`;
     // fixed 定位由 recipes.css af-backtop 规则提供（position/z-index/bottom/left|right）
-    // 标记类（供项目级覆盖样式做 hook，非定位依赖）
-    this.classList.add('af-backtop-fixed');
-    if (this.position === 'left-bottom') this.classList.add('af-backtop-left');
+    // 项目级样式覆盖用 af-backtop 元素选择器或 af-backtop[position="left-bottom"] 属性选择器做 hook
+    // （不再添加未登记白名单的标记类，遵守 Light DOM 仅用 L2 白名单 class 的约束）
 
     this._scrollTimer = null;
     this._onScroll = () => {

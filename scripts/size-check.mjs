@@ -38,6 +38,7 @@ const BUDGET = {
   base: 1.2,           // KB，AfElement 基类（含 html/escapeHtml XSS 防护 + Number 空串回退）
   total: 14.5,         // KB，14 组件 + 基类（含 P0 安全 + P1 loop clone + v1.2.0 新增 3 组件 + v1.4.0 新增 af-upload）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
+  coreRuntime: 3.7,     // KB，router(2.0)+state(0.7)+fetch(0.8)+容差(0.2)，独立预算不计入 total
 };
 
 const KB = 1024;
@@ -98,6 +99,29 @@ async function onDemand2Gz(compA, compB) {
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
 
+// 核心运行时：router + state + fetch 合计 gzip（独立预算，不计入 total）
+// 注意：package.json 的 sideEffects 只列了 "**/*.css"，src/lib/*.js 被视为无副作用，
+// bare import 会被 esbuild tree-shake 摇除。因此用具名导入 + globalThis 引用强制保留代码
+// （与 onDemand2Gz 用 customElements.define 防摇除同理）。
+async function measureCoreRuntime() {
+  const dir = mkdtempSync(join(tmpdir(), 'aiflow-core-'));
+  const entry = join(dir, 'entry.js');
+  const toPosix = (p) => p.replace(/\\/g, '/');
+  writeFileSync(entry,
+    `import { signal, computed, effect, batch, bus } from '${toPosix(join(SRC, 'lib/state.js'))}';\n` +
+    `import { fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache } from '${toPosix(join(SRC, 'lib/fetch.js'))}';\n` +
+    `import { route, go, back, forward, beforeEach, afterEach, notFound, current, start } from '${toPosix(join(SRC, 'lib/router.js'))}';\n` +
+    `// 引用以防 tree-shake 摇除\n` +
+    `globalThis.__aiflow_core = [signal, computed, effect, batch, bus, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, route, go, back, forward, beforeEach, afterEach, notFound, current, start];\n`
+  );
+  const res = await build({
+    entryPoints: [entry],
+    bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+    absWorkingDir: ROOT,
+  });
+  return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
+}
+
 async function main() {
   const external = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js'];
 
@@ -129,6 +153,9 @@ async function main() {
   const top2 = [...compSizes].sort((a, b) => b.gz - a.gz).slice(0, 2);
   const top2Names = top2.map(c => FILE_TO_NAME[c.file]);
   const onDemandGz = await onDemand2Gz(top2Names[0], top2Names[1]);
+
+  // 5. 核心运行时（router + state + fetch）
+  const coreGz = await measureCoreRuntime();
 
   // === 报告 ===
   console.log('\n╔══════════════════════════════════════════════════════════╗');
@@ -166,6 +193,12 @@ async function main() {
   const onDemandOver = onDemandGz > BUDGET.onDemand2 * KB;
   console.log(`按需 2 组件（${top2Names.join('+')}） ${fmt(onDemandGz).padStart(8)}  预算 ≤ ${BUDGET.onDemand2}KB  ${onDemandOver ? '⚠ warn' : '✓'}`);
   if (onDemandOver) warns.push(`按需 2 组件 ${fmt(onDemandGz)} > ${BUDGET.onDemand2}KB`);
+
+  // 核心运行时
+  console.log('');
+  const coreOver = coreGz > BUDGET.coreRuntime * KB;
+  console.log(`核心运行时（state+fetch+router） ${fmt(coreGz).padStart(8)}  预算 ≤ ${BUDGET.coreRuntime}KB  ${coreOver ? '✗ 超限' : '✓'}`);
+  if (coreOver) violations.push(`核心运行时 ${fmt(coreGz)} > ${BUDGET.coreRuntime}KB`);
 
   // 汇总
   console.log('\n──────────────────────────────────────────────────────────');

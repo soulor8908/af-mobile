@@ -219,3 +219,42 @@ describe('router View Transitions', () => {
     expect(document.documentElement.dataset.transition).toBe('forward');
   });
 });
+
+describe('router keep-alive', () => {
+  it('keepAlive 路由再次进入不重新执行 handler', async () => {
+    const handler = vi.fn((p, ctx) => {
+      ctx.outlet.innerHTML = '<div>cached page</div>';
+    });
+    route('/ka1', handler, { keepAlive: true });
+    route('/ka2', () => {});
+    start({ outlet: '#app' });
+    await go('/ka1');
+    await go('/ka2');
+    await go('/ka1');
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it('非 keepAlive 路由每次进入都执行 handler', async () => {
+    const handler = vi.fn();
+    route('/noka1', handler);
+    route('/noka2', () => {});
+    start({ outlet: '#app' });
+    await go('/noka1');
+    await go('/noka2');
+    await go('/noka1');
+    expect(handler).toHaveBeenCalledTimes(2);
+  });
+
+  it('keep-alive 超过上限 LRU 淘汰', async () => {
+    const handlers = [];
+    for (let i = 0; i < 7; i++) {
+      const h = vi.fn((p, ctx) => { ctx.outlet.innerHTML = `<div>page${i}</div>`; });
+      handlers.push(h);
+      route(`/lru${i}`, h, { keepAlive: true });
+    }
+    start({ outlet: '#app', keepAliveMax: 5 });
+    for (let i = 0; i < 7; i++) await go(`/lru${i}`);
+    await go('/lru0');
+    expect(handlers[0]).toHaveBeenCalledTimes(2);
+  });
+});

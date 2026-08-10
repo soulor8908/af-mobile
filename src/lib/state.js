@@ -11,9 +11,10 @@ export function signal(v) {
   const subs = new Map();   // effect-like { run } → cleanup fn
   const s = () => {
     if (_cur && !subs.has(_cur)) {
-      const cleanup = () => subs.delete(_cur);
-      subs.set(_cur, cleanup);
-      _cur.cleanups.push(cleanup);
+      const dep = _cur;
+      const cleanup = () => subs.delete(dep);
+      subs.set(dep, cleanup);
+      dep.cleanups.push(cleanup);
     }
     return val;
   };
@@ -34,4 +35,18 @@ export function signal(v) {
 
 function _notify(subs) {
   for (const e of [...subs.keys()]) e.run();
+}
+
+export function effect(fn) {
+  const e = { run: null, cleanups: [] };
+  e.run = () => {
+    e.cleanups.forEach(c => c());
+    e.cleanups = [];
+    const prev = _cur;
+    _cur = e;
+    try { fn(); }
+    finally { _cur = prev; }
+  };
+  e.run();
+  return () => { e.cleanups.forEach(c => c()); e.cleanups = []; };
 }

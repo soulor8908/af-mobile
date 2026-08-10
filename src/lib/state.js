@@ -93,3 +93,5 @@ export function batch(fn) {
     for (const e of effects) e.run();
   }
 }
+
+export const bus = new EventTarget();

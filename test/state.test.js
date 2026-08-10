@@ -202,3 +202,27 @@ describe('batch 批量更新', () => {
     expect(fn).toHaveBeenCalledTimes(2);
   });
 });
+
+import { bus } from '../src/lib/state.js';
+
+describe('bus 事件总线', () => {
+  it('bus 是 EventTarget 实例', () => {
+    expect(bus).toBeInstanceOf(EventTarget);
+  });
+
+  it('dispatchEvent 触发 addEventListener 回调', () => {
+    const fn = vi.fn();
+    bus.addEventListener('test:event', fn);
+    bus.dispatchEvent(new CustomEvent('test:event', { detail: { x: 1 } }));
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn.mock.calls[0][0].detail).toEqual({ x: 1 });
+  });
+
+  it('removeEventListener 后不再触发', () => {
+    const fn = vi.fn();
+    bus.addEventListener('test:remove', fn);
+    bus.removeEventListener('test:remove', fn);
+    bus.dispatchEvent(new Event('test:remove'));
+    expect(fn).not.toHaveBeenCalled();
+  });
+});

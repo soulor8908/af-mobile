@@ -151,3 +151,54 @@ describe('computed 派生信号', () => {
     expect(fn).toHaveBeenCalled();
   });
 });
+
+import { batch } from '../src/lib/state.js';
+
+describe('batch 批量更新', () => {
+  it('batch 内多次 set 只触发一次 effect', () => {
+    const a = signal(1);
+    const b = signal(2);
+    const fn = vi.fn(() => { a(); b(); });
+    effect(fn);
+    expect(fn).toHaveBeenCalledTimes(1);
+    batch(() => {
+      a.set(10);
+      b.set(20);
+    });
+    expect(fn).toHaveBeenCalledTimes(2);  // 只多 1 次
+  });
+
+  it('batch 内 set 同一 signal 多次只通知一次', () => {
+    const s = signal(0);
+    const fn = vi.fn(() => { s(); });
+    effect(fn);
+    batch(() => {
+      s.set(1);
+      s.set(2);
+      s.set(3);
+    });
+    expect(fn).toHaveBeenCalledTimes(2);  // 首次 + batch 结束 1 次
+  });
+
+  it('嵌套 batch 不重复通知', () => {
+    const s = signal(0);
+    const fn = vi.fn(() => { s(); });
+    effect(fn);
+    batch(() => {
+      s.set(1);
+      batch(() => {
+        s.set(2);
+      });
+      // 内层 batch 应不触发通知（外层未结束）
+    });
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+
+  it('batch 外的 set 立即通知', () => {
+    const s = signal(0);
+    const fn = vi.fn(() => { s(); });
+    effect(fn);
+    s.set(1);
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+});

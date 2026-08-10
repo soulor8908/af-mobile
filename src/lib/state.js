@@ -22,7 +22,7 @@ export function signal(v) {
     if (typeof nv === 'function') nv = nv(val);
     if (Object.is(nv, val)) return;
     val = nv;
-    if (_batching) _pending.add(s);
+    if (_batching) { s._subs = subs; _pending.add(s); }
     else _notify(subs);
   };
   s.on = (f) => {
@@ -75,4 +75,21 @@ export function computed(fn) {
   };
   c.on = (f) => effect(() => f(c()));
   return c;
+}
+
+export function batch(fn) {
+  if (_batching) return fn();
+  _batching = true;
+  try { fn(); }
+  finally {
+    _batching = false;
+    const snapshot = [..._pending];
+    _pending.clear();
+    // 收集所有受影响的 effect，去重后执行一次
+    const effects = new Set();
+    for (const s of snapshot) {
+      for (const e of s._subs?.keys?.() ?? []) effects.add(e);
+    }
+    for (const e of effects) e.run();
+  }
 }

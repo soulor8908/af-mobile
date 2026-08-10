@@ -110,3 +110,25 @@ async function _parseResponse(res, responseType) {
       catch (e) { throw new FetchError(`Invalid JSON: ${e.message}`); }
   }
 }
+
+export function addInterceptor(fn) {
+  _interceptors.push(fn);
+}
+
+export function removeInterceptor(fn) {
+  const i = _interceptors.indexOf(fn);
+  if (i >= 0) _interceptors.splice(i, 1);
+}
+
+export function invalidateCache(url) {
+  _cache.delete(url);
+}
+
+export function clearCache() {
+  _cache.clear();
+}
+
+// 测试用：重置拦截器（不导出到 index.js）
+export function _resetInterceptors() {
+  _interceptors.length = 0;
+}

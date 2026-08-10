@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { fetchPage, FetchError, TimeoutError, HttpError, AbortError } from '../src/lib/fetch.js';
+import {
+  fetchPage, FetchError, TimeoutError, HttpError, AbortError,
+  invalidateCache, clearCache,
+  addInterceptor, removeInterceptor, _resetInterceptors,
+} from '../src/lib/fetch.js';
 
 // 全局 fetch mock
 const _fetch = vi.fn();
@@ -119,5 +123,137 @@ describe('fetchPage 错误分类', () => {
     })));
     await expect(fetchPage('/api/badjson')).rejects.toBeInstanceOf(FetchError);
     await expect(fetchPage('/api/badjson')).rejects.not.toBeInstanceOf(HttpError);
+  });
+});
+
+describe('fetchPage 重试', () => {
+  it('网络错误重试 retries 次后抛错', async () => {
+    _fetch.mockRejectedValue(new TypeError('network error'));
+    await expect(fetchPage('/api/retry', { retries: 2, retryDelay: 1 })).rejects.toBeInstanceOf(TypeError);
+    expect(_fetch).toHaveBeenCalledTimes(3);  // 初始 + 2 次重试
+  });
+
+  it('HTTP 错误不重试', async () => {
+    _fetch.mockResolvedValue(new Response('', { status: 500 }));
+    await expect(fetchPage('/api/noretry', { retries: 3 })).rejects.toBeInstanceOf(HttpError);
+    expect(_fetch).toHaveBeenCalledOnce();
+  });
+
+  it('重试期间成功则返回数据', async () => {
+    _fetch.mockResolvedValueOnce(new TypeError('fail'))
+          .mockResolvedValueOnce(mockResponse({ ok: true }));
+    const data = await fetchPage('/api/retryok', { retries: 2, retryDelay: 1 });
+    expect(data).toEqual({ ok: true });
+    expect(_fetch).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('fetchPage 去重', () => {
+  it('相同 URL 并发 GET 只发 1 次 fetch', async () => {
+    _fetch.mockImplementation(async () => {
+      await new Promise(r => setTimeout(r, 50));
+      return mockResponse({ ok: true });
+    });
+    const [a, b, c] = await Promise.all([
+      fetchPage('/api/dedupe'),
+      fetchPage('/api/dedupe'),
+      fetchPage('/api/dedupe'),
+    ]);
+    expect(_fetch).toHaveBeenCalledOnce();
+    expect(a).toEqual({ ok: true });
+    expect(b).toEqual({ ok: true });
+    expect(c).toEqual({ ok: true });
+  });
+
+  it('POST 请求不去重', async () => {
+    _fetch.mockImplementation(() => Promise.resolve(mockResponse({})));
+    await Promise.all([
+      fetchPage('/api/post', { method: 'POST', body: '1' }),
+      fetchPage('/api/post', { method: 'POST', body: '2' }),
+    ]);
+    expect(_fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('去重完成后再次请求会重新 fetch', async () => {
+    _fetch.mockImplementation(() => Promise.resolve(mockResponse({})));
+    await fetchPage('/api/again');
+    await fetchPage('/api/again');
+    expect(_fetch).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('fetchPage 缓存', () => {
+  it('cache=true 命中缓存跳过 fetch', async () => {
+    _fetch.mockResolvedValue(mockResponse({ v: 1 }));
+    await fetchPage('/api/c1', { cache: true, cacheTTL: 1000 });
+    const data = await fetchPage('/api/c1', { cache: true, cacheTTL: 1000 });
+    expect(data).toEqual({ v: 1 });
+    expect(_fetch).toHaveBeenCalledOnce();
+  });
+
+  it('TTL 过期后重新请求', async () => {
+    _fetch.mockResolvedValue(mockResponse({ v: 1 }));
+    await fetchPage('/api/c2', { cache: true, cacheTTL: 10 });
+    await new Promise(r => setTimeout(r, 30));
+    _fetch.mockResolvedValue(mockResponse({ v: 2 }));
+    const data = await fetchPage('/api/c2', { cache: true, cacheTTL: 10 });
+    expect(data).toEqual({ v: 2 });
+    expect(_fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('invalidateCache 主动失效', async () => {
+    _fetch.mockResolvedValue(mockResponse({ v: 1 }));
+    await fetchPage('/api/c3', { cache: true, cacheTTL: 10000 });
+    invalidateCache('/api/c3');
+    _fetch.mockResolvedValue(mockResponse({ v: 2 }));
+    const data = await fetchPage('/api/c3', { cache: true, cacheTTL: 10000 });
+    expect(data).toEqual({ v: 2 });
+    expect(_fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('clearCache 清空所有缓存', async () => {
+    _fetch.mockImplementation(() => Promise.resolve(mockResponse({ a: 1 })));
+    await fetchPage('/api/c4', { cache: true, cacheTTL: 10000 });
+    await fetchPage('/api/c5', { cache: true, cacheTTL: 10000 });
+    clearCache();
+    _fetch.mockImplementation(() => Promise.resolve(mockResponse({ a: 2 })));
+    const data = await fetchPage('/api/c4', { cache: true, cacheTTL: 10000 });
+    expect(data).toEqual({ a: 2 });
+    expect(_fetch).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe('fetchPage 拦截器', () => {
+  afterEach(() => _resetInterceptors());
+
+  it('拦截器返回 opts 继续请求', async () => {
+    _fetch.mockResolvedValue(mockResponse({}));
+    const interceptor = (url, opts) => {
+      opts.headers['X-Auth'] = 'token';
+      return opts;
+    };
+    addInterceptor(interceptor);
+    await fetchPage('/api/i1');
+    expect(_fetch.mock.calls[0][1].headers['X-Auth']).toBe('token');
+    removeInterceptor(interceptor);
+  });
+
+  it('拦截器返回 Response 短路', async () => {
+    _fetch.mockResolvedValue(mockResponse({ real: true }));
+    addInterceptor(() => new Response(JSON.stringify({ mock: true }), {
+      headers: { 'Content-Type': 'application/json' },
+    }));
+    const data = await fetchPage('/api/i2');
+    expect(data).toEqual({ mock: true });
+    expect(_fetch).not.toHaveBeenCalled();
+  });
+
+  it('多个拦截器按顺序执行', async () => {
+    _fetch.mockResolvedValue(mockResponse({}));
+    const order = [];
+    addInterceptor((url, opts) => { order.push('a'); return opts; });
+    addInterceptor((url, opts) => { order.push('b'); return opts; });
+    await fetchPage('/api/i3');
+    expect(order).toEqual(['a', 'b']);
   });
 });

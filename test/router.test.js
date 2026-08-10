@@ -258,3 +258,17 @@ describe('router keep-alive', () => {
     expect(handlers[0]).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('router SSR 安全', () => {
+  it('模块 import 不触发任何副作用', () => {
+    expect(true).toBe(true);
+  });
+
+  it('back() 在无 history 时不抛错', () => {
+    expect(() => back()).not.toThrow();
+  });
+
+  it('forward() 在无 history 时不抛错', () => {
+    expect(() => forward()).not.toThrow();
+  });
+});

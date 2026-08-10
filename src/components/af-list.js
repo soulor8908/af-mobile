@@ -99,7 +99,7 @@ export class AfList extends AfElement {
     const lines = Math.max(3, Math.floor(this._scroller.clientHeight / this.itemHeight));
     let html = '';
     for (let i = 0; i < lines; i++) {
-      html += `<div class="list-item"><div class="skeleton skeleton-line" style="width:80%"></div></div>`;
+      html += `<div class="list-item"><div class="skeleton skeleton-line skeleton-w-80"></div></div>`;
     }
     this._spacerBefore.style.setProperty('--af-spacer-before-h', '0px');
     this._spacerAfter.style.setProperty('--af-spacer-after-h', '0px');

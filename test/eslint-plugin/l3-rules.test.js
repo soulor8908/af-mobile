@@ -64,6 +64,44 @@ describe('L3-1 aiflow/wc-light-no-style', () => {
       invalid: [],
     });
   });
+  it('Light 组件 innerHTML 含 style="..." 视觉属性报错（补洞：原规则漏检 style 属性）', () => {
+    ruleTester.run('wc-light-no-style', wcLightNoStyle, {
+      valid: [],
+      invalid: [{
+        filename: 'src/components/af-foo.js',
+        code: `${LIGHT_COMP} mounted() { this.innerHTML = '<div style="width:80%"></div>'; }`,
+        errors: [{ messageId: 'styleAttr' }],
+      }],
+    });
+  });
+  it('Light 组件模板字符串含 style="..." 报错', () => {
+    ruleTester.run('wc-light-no-style', wcLightNoStyle, {
+      valid: [],
+      invalid: [{
+        filename: 'src/components/af-foo.js',
+        code: `${LIGHT_COMP} mounted() { const html = \`<div class="skeleton" style="width:80%"></div>\`; this.innerHTML = html; }`,
+        errors: [{ messageId: 'styleAttr' }],
+      }],
+    });
+  });
+  it('Light 组件 innerHTML 含 style="--css-var:val" 放行（CSS 自定义属性传递）', () => {
+    ruleTester.run('wc-light-no-style', wcLightNoStyle, {
+      valid: [{
+        filename: 'src/components/af-foo.js',
+        code: `${LIGHT_COMP} mounted() { this.innerHTML = '<div style="--af-h:400px"></div>'; }`,
+      }],
+      invalid: [],
+    });
+  });
+  it('Light 组件 innerHTML 无 style 属性放行', () => {
+    ruleTester.run('wc-light-no-style', wcLightNoStyle, {
+      valid: [{
+        filename: 'src/components/af-foo.js',
+        code: `${LIGHT_COMP} mounted() { this.innerHTML = '<div class="card skeleton-w-80">x</div>'; }`,
+      }],
+      invalid: [],
+    });
+  });
 });
 
 describe('L3-2 aiflow/wc-shadow-use-token', () => {

@@ -75,7 +75,7 @@ const RULE_HINTS = {
   'aiflow/no-tailwind-syntax': '不要用 Tailwind 前缀语法（md:/hover:/dark: 等）。响应式请用 @container in recipes.project.css',
   'aiflow/prefer-component': '改用对应 L3 真组件：.toast → <af-toast>；.sheet → <af-action-sheet>',
   'aiflow/atomic-duplicate': '同属性原子重复，保留最后一个：p-4 p-2 → 只留 p-2',
-  'aiflow/wc-light-no-style': 'Light DOM 组件不能用内联 style 或 <style> 标签。改用 L2 配方或迁移到 Shadow 组件',
+  'aiflow/wc-light-no-style': 'Light DOM 组件不能用内联 style、<style> 标签或 innerHTML 中的 style="..." 属性。改用 L2 配方/原子 class 或迁移到 Shadow 组件',
   'aiflow/wc-shadow-use-token': 'Shadow CSS 必须用 var(--*) 引用 token。例：color: #fff → color: var(--c-onbrand)',
   'aiflow/wc-part-naming': 'part 名必须 kebab-case：DialogContent → dialog-content',
   'aiflow/wc-event-naming': '事件名必须 af-{组件}:{动作}：afList_LoadMore → af-list:loadmore',

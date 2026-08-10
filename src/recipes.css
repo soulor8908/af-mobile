@@ -1,4 +1,4 @@
-/* AIFlow UI —— L2 配方层：52 个复合视觉单元 */
+/* AIFlow UI —— L2 配方层：70 个复合视觉单元 */
 @layer components {
   /* === 按钮（7） === */
   .btn {
@@ -387,7 +387,7 @@
     transform: translate(-50%, -50%);
     padding: var(--s-2) var(--s-4);
     background: rgba(0,0,0,.8);
-    color: #fff;
+    color: var(--c-onbrand);
     font-size: var(--t-sm);
     border-radius: var(--r-m);
     z-index: var(--z-modal);

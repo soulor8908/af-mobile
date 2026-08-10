@@ -11,7 +11,6 @@ const CSS = `
     box-shadow: var(--shadow-lg); z-index: var(--z-dropdown);
     padding-bottom: env(safe-area-inset-bottom);
   }
-  .picker::backdrop { background: rgba(0,0,0,.5); }
   .header {
     display: flex; align-items: center; justify-content: space-between;
     padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--c-border);

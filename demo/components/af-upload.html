@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-upload demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-upload 文件上传</h1>
+    </header>
+
+    <section class="card">
+      <p class="body">图片多选 · 限制 3 张 · 单张 ≤ 2MB</p>
+      <af-upload id="upload" accept="image/*" multiple max-count="3" max-size="2097152"></af-upload>
+      <div class="actions">
+        <button class="btn btn-ghost" id="clear" type="button">清空</button>
+      </div>
+    </section>
+
+    <p class="caption" id="log">选择文件后显示结果</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfUpload } from '../../src/components/af-upload.js';
+    customElements.define('af-upload', AfUpload);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const upload = document.getElementById('upload');
+    upload.addEventListener('af-upload:change', (e) => {
+      const { files, errors } = e.detail;
+      document.getElementById('log').textContent = `已选 ${files.length} 个，错误 ${errors.length} 个`;
+    });
+    upload.addEventListener('af-upload:error', (e) => {
+      const reasons = e.detail.errors.map(err => `${err.name}:${err.reason}`).join(', ');
+      document.getElementById('log').textContent = `错误：${reasons}`;
+    });
+
+    document.getElementById('clear').addEventListener('click', () => upload.clear());
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'accept', label: 'accept', type: 'string' },
+      { prop: 'multiple', label: '多选', type: 'boolean' },
+      { prop: 'maxCount', label: '最大数量', type: 'number' },
+      { prop: 'maxSize', label: '单文件最大字节', type: 'number' },
+    ], upload);
+  </script>
+</body>
+</html>

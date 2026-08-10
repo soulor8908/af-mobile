@@ -81,19 +81,26 @@ export class AfTabs extends AfElement {
 
     this.activeIndex = idx;
 
-    this.$$('.tab-item').forEach((tab, i) => {
-      const selected = i === idx;
-      tab.setAttribute('aria-selected', String(selected));
-      tab.setAttribute('tabindex', selected ? '0' : '-1');
-    });
+    // 抽出 DOM 切换：供 View Transitions 回调与降级路径共用，保证两条路径行为一致
+    const swap = () => {
+      this.$$('.tab-item').forEach((tab, i) => {
+        const selected = i === idx;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.setAttribute('tabindex', selected ? '0' : '-1');
+      });
+      // 切换面板显隐：renderPanel 模式与 slot 模式都给面板加了 .af-tabs-panel + id
+      // 用 id 精确匹配（避免两种模式并存时 index 串扰）
+      const activePanel = this.$(`#af-tabs-panel-${idx}`);
+      if (activePanel) activePanel.hidden = false;
+      this.$$('.af-tabs-panel').forEach((panel) => {
+        if (panel !== activePanel) panel.hidden = true;
+      });
+    };
 
-    // 切换面板显隐：renderPanel 模式与 slot 模式都给面板加了 .af-tabs-panel + id
-    // 用 id 精确匹配（避免两种模式并存时 index 串扰）
-    const activePanel = this.$(`#af-tabs-panel-${idx}`);
-    if (activePanel) activePanel.hidden = false;
-    this.$$('.af-tabs-panel').forEach((panel) => {
-      if (panel !== activePanel) panel.hidden = true;
-    });
+    // 渐进增强：浏览器支持时走 View Transitions API（2022+ 原生），面板切换自带过渡
+    // prefers-reduced-motion 由浏览器自动降级为瞬时切换，无需额外处理
+    if (document.startViewTransition) document.startViewTransition(swap);
+    else swap();
 
     if (!silent) {
       const tab = this.tabs[idx];

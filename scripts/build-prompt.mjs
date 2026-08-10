@@ -151,6 +151,7 @@ const COMPONENT_META = [
   { tag: 'af-switch', purpose: '开关', props: 'checked, disabled, loading, size', events: 'af-switch:change' },
   { tag: 'af-search-bar', purpose: '搜索栏', props: 'value, placeholder, clearable, debounce', events: 'af-search-bar:input, af-search-bar:search, af-search-bar:clear' },
   { tag: 'af-skeleton-page', purpose: '整页骨架屏', props: 'variant', events: '—' },
+  { tag: 'af-upload', purpose: '文件上传', props: 'accept, multiple, max-size, max-count, button-text', events: 'af-upload:change, af-upload:error' },
 ];
 
 // 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）

@@ -24,8 +24,9 @@ import { AfBacktop } from './components/af-backtop.js';
 import { AfSwitch } from './components/af-switch.js';
 import { AfSearchBar } from './components/af-search-bar.js';
 import { AfSkeletonPage } from './components/af-skeleton-page.js';
+import { AfUpload } from './components/af-upload.js';
 
-export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfSwitch, AfSearchBar, AfSkeletonPage };
+export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload };
 
 const REGISTRY = {
   'af-list': AfList,
@@ -41,6 +42,7 @@ const REGISTRY = {
   'af-switch': AfSwitch,
   'af-search-bar': AfSearchBar,
   'af-skeleton-page': AfSkeletonPage,
+  'af-upload': AfUpload,
 };
 
 export function registerAll() {

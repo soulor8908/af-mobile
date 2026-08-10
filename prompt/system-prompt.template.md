@@ -78,4 +78,335 @@
 
 ---
 
+# 页面模式（7 通用模式，按决策树选择，禁止自创结构）
+
+## 模式选择决策树
+
+用户需求关键词 → 模式：
+  登录|注册|验证码|找回密码 → page-login
+  列表|浏览|商品列表|订单列表|消息列表 → page-list
+  详情|展示|文章详情|商品详情 → page-detail
+  表单|报名|反馈|地址|录入 → page-form
+  搜索|筛选 → page-search
+  个人中心|设置|我的 → page-profile
+  空态|无权限|网络错误|404 → page-empty
+
+规则：
+- 一个页面只能选一个主模式
+- 子区域用通用组件（af-list/af-swiper/af-tabs），不切模式
+- 多模式组合（如列表+搜索）用主模式 + 子区域组件，不是两模式叠加
+
+---
+
+# 数据契约（API 响应 → 模板字段映射规则）
+
+## 列表数据
+1. af-list 通过 list.data = items 注入（不用 render 属性时）
+2. renderItem 模板用 {{field}} 引用字段，嵌套用 {{obj.field}}
+3. 条件渲染用三元：{{item.status === 'paid' ? '已付款' : '待付款'}}
+4. API 返回 {list: [...], total: N}，分页由 af-list 自动处理
+5. 列表加载：list.data = await fetchPage(url)
+
+## 详情数据
+6. 单条数据通过 DOM 注入：getElementById + textContent/value
+7. 富文本用 innerHTML（需 escapeHtml 转义，或用 html 模板标签）
+
+## 表单数据
+8. 表单提交：new FormData(form) → fetchPage(url, { method: 'POST', body })
+9. 校验用原生 Constraint Validation（required/pattern），不手写 isValid
+
+## 信号联动
+10. signal 变化自动更新组件：effect(() => { list.data = items() })
+11. 路由 handler 内 fetchPage → signal.set
+12. 离开路由时取消 effect：返回的 cleanup 函数在 afterEach 或 beforeEach 调用
+
+---
+
+# Few-shot 示例
+
+## 示例 1：page-list（消息列表）
+
+输入：消息列表页，每条含头像/昵称/最后消息/时间/未读红点
+
+输出：
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/aiflow-ui.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">消息</nav>
+  <af-list id="list" item-height="64" refresh></af-list>
+</div>
+<script type="module">
+import { signal, effect, fetchPage } from '/aiflow-ui.js';
+const list = document.getElementById('list');
+const items = signal([]);
+effect(() => { list.data = items(); });
+list.renderItem = (item) => `
+  <div class="list-item g-3 aic">
+    <img class="avatar" src="${item.avatar}" alt="">
+    <div class="flex-1 fc">
+      <div class="jcsb aic">
+        <span class="body t-b">${item.name}</span>
+        <span class="caption text-muted">${item.time}</span>
+      </div>
+      <span class="caption text-muted ws-nowrap">${item.lastMsg}</span>
+    </div>
+    ${item.unread ? `<span class="badge">${item.unread}</span>` : ''}
+  </div>
+`;
+list.addEventListener('af-list:refresh', async () => {
+  items.set(await fetchPage('/api/messages'));
+  list.endRefresh();
+});
+items.set(await fetchPage('/api/messages'));
+</script>
+</body>
+</html>
+
+## 示例 2：page-login（登录）
+
+输入：登录页，手机号 + 验证码
+
+输出：
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/aiflow-ui.css">
+</head>
+<body>
+<div class="page center p-4">
+  <h1 class="title">登录</h1>
+  <form id="loginForm" class="fc g-3">
+    <input class="input" name="phone" type="tel" required pattern="1\d{10}" placeholder="手机号">
+    <input class="input" name="code" type="text" required minlength="6" placeholder="验证码">
+    <button class="btn btn-block" type="submit">登录</button>
+  </form>
+</div>
+<script type="module">
+import { fetchPage, go } from '/aiflow-ui.js';
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!e.target.checkValidity()) return;
+  const data = new FormData(e.target);
+  try {
+    await fetchPage('/api/login', { method: 'POST', body: data });
+    go('/home');
+  } catch (err) {
+    if (err.status === 401) alert('验证码错误');
+  }
+});
+</script>
+</body>
+</html>
+
+## 示例 3：page-detail（商品详情）
+
+输入：商品详情页，含轮播图/标题/价格/规格/详情图文/底部购买栏
+
+输出：
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/aiflow-ui.css">
+</head>
+<body>
+<div class="page">
+  <af-swiper id="banner" autoplay="3000"></af-swiper>
+  <div class="section p-3">
+    <div class="title">商品名称</div>
+    <div class="body text-brand">¥99.00</div>
+  </div>
+  <div class="section p-3">
+    <div class="body t-b">商品详情</div>
+    <div id="detail-content" class="fc g-2"></div>
+  </div>
+  <nav class="navbar fixed">
+    <button class="btn btn-block">立即购买</button>
+  </nav>
+</div>
+<script type="module">
+import { fetchPage } from '/aiflow-ui.js';
+const data = await fetchPage('/api/product/1');
+document.querySelector('.title').textContent = data.name;
+document.getElementById('banner').innerHTML = data.images.map(src => `<img src="${src}" alt="">`).join('');
+document.getElementById('detail-content').innerHTML = data.detailHtml;
+</script>
+</body>
+</html>
+
+## 示例 4：page-form（反馈表单）
+
+输入：反馈页，类型选择 + 内容 textarea + 联系方式
+
+输出：
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/aiflow-ui.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">意见反馈</nav>
+  <form id="feedbackForm" class="fc g-3 p-3">
+    <select class="input" name="type" required>
+      <option value="">请选择类型</option>
+      <option value="bug">问题反馈</option>
+      <option value="suggest">功能建议</option>
+    </select>
+    <textarea class="input" name="content" required minlength="10" rows="4" placeholder="请输入反馈内容（至少 10 字）"></textarea>
+    <input class="input" name="contact" type="text" placeholder="联系方式（选填）">
+    <button class="btn btn-block" type="submit">提交</button>
+  </form>
+</div>
+<script type="module">
+import { fetchPage, back } from '/aiflow-ui.js';
+document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!e.target.checkValidity()) { e.target.reportValidity(); return; }
+  const data = new FormData(e.target);
+  await fetchPage('/api/feedback', { method: 'POST', body: data });
+  back();
+});
+</script>
+</body>
+</html>
+
+## 示例 5：page-search（搜索）
+
+输入：搜索页，顶部搜索框 + 历史/热门标签 + 结果列表
+
+输出：
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/aiflow-ui.css">
+</head>
+<body>
+<div class="page">
+  <af-search-bar id="search" placeholder="搜索商品"></af-search-bar>
+  <div id="history" class="section p-3">
+    <div class="body t-b">历史搜索</div>
+    <div class="fc g-2 wrap">
+      <span class="tag">手机</span>
+      <span class="tag">电脑</span>
+    </div>
+  </div>
+  <af-list id="results" item-height="60"></af-list>
+</div>
+<script type="module">
+import { signal, effect, fetchPage } from '/aiflow-ui.js';
+const results = signal([]);
+const list = document.getElementById('results');
+effect(() => { list.data = results(); });
+document.getElementById('search').addEventListener('af-search-bar:search', async (e) => {
+  results.set(await fetchPage('/api/search?q=' + encodeURIComponent(e.detail.value)));
+});
+</script>
+</body>
+</html>
+
+## 示例 6：page-profile（个人中心）
+
+输入：个人中心页，头像/昵称 + 菜单列表
+
+输出：
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/aiflow-ui.css">
+</head>
+<body>
+<div class="page">
+  <div class="section center p-4 fc g-2">
+    <img class="avatar" src="/me.jpg" alt="">
+    <div class="title">用户昵称</div>
+  </div>
+  <af-list id="menu" item-height="48">
+    <div data-list-index="0" class="list-item jcsb aic">
+      <span>我的订单</span><span class="caption">›</span>
+    </div>
+    <div data-list-index="1" class="list-item jcsb aic">
+      <span>地址管理</span><span class="caption">›</span>
+    </div>
+    <div data-list-index="2" class="list-item jcsb aic">
+      <span>设置</span><span class="caption">›</span>
+    </div>
+  </af-list>
+</div>
+</body>
+</html>
+
+## 示例 7：page-empty（空态）
+
+输入：404 空态页
+
+输出：
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/aiflow-ui.css">
+</head>
+<body>
+<div class="page center fc g-3 p-4">
+  <div class="title">404</div>
+  <div class="body text-muted">页面不存在</div>
+  <a class="btn" href="/">返回首页</a>
+</div>
+</body>
+</html>
+
+---
+
+# 错误恢复（ESLint 报错后如何修正）
+
+| ESLint 规则 | 报错原因 | 修正方案 |
+|---|---|---|
+| no-inline-style | style="..." 设置禁令属性 | 删除 style，改用 token class（如 padding→p-4） |
+| token-whitelist | 白名单外 class | 查 122 白名单，用最近配方替代（如 .my-card → .card） |
+| no-tailwind-syntax | p-[13px] 任意值语法 | 用最接近的原子类（p-3=12px 或 p-4=16px） |
+| no-arbitrary-value | 自定义任意值 | 同上，改用预定义原子 |
+| no-recipe-break | .btn + text-brand 叠加 | 删除 text-brand，.btn 文字已是 onbrand 色 |
+| prefer-component | 手写列表轮播 | 改用 <af-list>/<af-swiper> 组件 |
+| wc-light-no-style | Light DOM 组件内 style | 迁移到 Shadow 组件或 recipes.project.css |
+| wc-shadow-use-token | Shadow CSS 硬编码颜色 | 改用 var(--c-*) 等 token |
+
+## 修正原则
+- 优先查白名单替换，不要自创新 class
+- 组件能解决的不用原子类堆砌
+- 内联 style 一律改 class，布局属性（display/width）例外
+- 校验用原生 Constraint Validation，不手写状态变量
+
+---
+
+# 场景包（按项目类型注入 1-2 个，非全加载）
+
+本项目暂未注入场景包。如需电商/营销/O2O 等场景，在 prompt/system-prompt.md 末尾追加对应场景包：
+- 电商：cart order product-detail coupon
+- 营销：landing lottery poster
+- O2O：booking store-map review
+- 内容：article video feed
+- 企业：dashboard approval task
+- 工具：result guide
+- 教育：course-list course-detail exam
+- 社交：chat community
+
+场景包注入由 build-prompt.mjs 的 PROJECT_EXTENSION_INJECTION_POINT 处理，本项目不实现。
+
 <!-- {{{ PROJECT_EXTENSION_INJECTION_POINT }}} -->

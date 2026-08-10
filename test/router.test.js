@@ -108,3 +108,48 @@ describe('router 守卫', () => {
     expect(handler).toHaveBeenCalledOnce();
   });
 });
+
+describe('router 嵌套路由', () => {
+  it('父路由返回子 outlet 选择器', async () => {
+    const parent = vi.fn((params, ctx) => {
+      ctx.outlet.innerHTML = '<main data-router-outlet></main>';
+      return 'main[data-router-outlet]';
+    });
+    const child = vi.fn((params, ctx) => {
+      ctx.outlet.innerHTML = '<div>child content</div>';
+    });
+    route('/nest', parent);
+    route('/nest/sub', child);
+    start({ outlet: '#app' });
+    await go('/nest/sub');
+    expect(parent).toHaveBeenCalledOnce();
+    expect(child).toHaveBeenCalledOnce();
+    expect(document.querySelector('[data-router-view] main').innerHTML).toContain('child content');
+  });
+
+  it('ctx.outlet 正确指向子 outlet', async () => {
+    let childOutletTag = null;
+    route('/nest2', (p, ctx) => {
+      ctx.outlet.innerHTML = '<section data-router-outlet></section>';
+      return 'section[data-router-outlet]';
+    });
+    route('/nest2/deep', (p, ctx) => {
+      childOutletTag = ctx.outlet.tagName;
+      ctx.outlet.innerHTML = 'deep';
+    });
+    start({ outlet: '#app' });
+    await go('/nest2/deep');
+    expect(childOutletTag).toBe('SECTION');
+  });
+
+  it('父路由不返回时子路由复用父 outlet', async () => {
+    const child = vi.fn((p, ctx) => {
+      ctx.outlet.innerHTML = '<div>in parent outlet</div>';
+    });
+    route('/nest3', () => {});
+    route('/nest3/sub', child);
+    start({ outlet: '#app' });
+    await go('/nest3/sub');
+    expect(child).toHaveBeenCalledOnce();
+  });
+});

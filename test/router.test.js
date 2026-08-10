@@ -153,3 +153,69 @@ describe('router 嵌套路由', () => {
     expect(child).toHaveBeenCalledOnce();
   });
 });
+
+describe('router 导航取消', () => {
+  it('快速连续导航，旧 handler 被 abort', async () => {
+    const handler = vi.fn(async (params, ctx) => {
+      await new Promise(r => setTimeout(r, 50));
+      if (ctx.signal.aborted) return;
+      ctx.outlet.innerHTML = 'slow';
+    });
+    route('/cancel1', handler);
+    route('/cancel2', () => {});
+    start({ outlet: '#app' });
+    const p1 = go('/cancel1');
+    await go('/cancel2');
+    await p1;
+    expect(document.querySelector('[data-router-view]').innerHTML).not.toContain('slow');
+  });
+
+  it('go 返回 Promise 可 await', async () => {
+    const fn = vi.fn();
+    route('/await1', fn);
+    start({ outlet: '#app' });
+    await go('/await1');
+    expect(fn).toHaveBeenCalledOnce();
+  });
+
+  it('go({ replace: true }) 替换 history', async () => {
+    const fn = vi.fn();
+    route('/replace1', fn);
+    start({ outlet: '#app' });
+    await go('/replace1', { replace: true });
+    expect(fn).toHaveBeenCalledOnce();
+  });
+});
+
+describe('router View Transitions', () => {
+  it('不支持 startViewTransition 时直接导航', async () => {
+    const orig = document.startViewTransition;
+    delete document.startViewTransition;
+    const fn = vi.fn();
+    route('/vt1', fn);
+    start({ outlet: '#app' });
+    await go('/vt1');
+    expect(fn).toHaveBeenCalledOnce();
+    document.startViewTransition = orig;
+  });
+
+  it('transition=false 跳过 View Transitions', async () => {
+    const orig = document.startViewTransition;
+    const vtFn = vi.fn();
+    document.startViewTransition = vtFn;
+    const fn = vi.fn();
+    route('/vt2', fn);
+    start({ outlet: '#app' });
+    await go('/vt2', { transition: false });
+    expect(vtFn).not.toHaveBeenCalled();
+    expect(fn).toHaveBeenCalledOnce();
+    document.startViewTransition = orig;
+  });
+
+  it('前进导航设 data-transition=forward', async () => {
+    route('/dir1', () => {});
+    start({ outlet: '#app' });
+    await go('/dir1');
+    expect(document.documentElement.dataset.transition).toBe('forward');
+  });
+});

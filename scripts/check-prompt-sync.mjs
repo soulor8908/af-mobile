@@ -25,6 +25,21 @@ function main() {
   console.log(`提交态长度：${committed.length} 字符`);
   console.log(`运行时长度：${runtime.length} 字符`);
 
+  // 4 要素存在性检查
+  const REQUIRED_SECTIONS = [
+    { name: '模式选择决策树', pattern: /# 页面模式.*模式选择决策树/s },
+    { name: '数据契约', pattern: /# 数据契约/ },
+    { name: 'Few-shot 示例', pattern: /# Few-shot 示例/ },
+    { name: '错误恢复', pattern: /# 错误恢复/ },
+  ];
+  const missingSections = REQUIRED_SECTIONS.filter(s => !s.pattern.test(committed));
+  if (missingSections.length) {
+    console.log('\n✗ 缺失 4 要素章节：');
+    missingSections.forEach(s => console.log(`  - ${s.name}`));
+    process.exit(1);
+  }
+  console.log('\n✓ 4 要素章节齐全（模式决策树/数据契约/Few-shot/错误恢复）');
+
   if (committed === runtime) {
     console.log('\n✓ 提交态 system-prompt.md 与运行时构建一致');
     process.exit(0);

@@ -1,0 +1,42 @@
+name: Perf (Lighthouse)
+
+# 性能基线检查：Lighthouse 在共享 runner 上耗时长且结果受负载影响，
+# 不适合作为 push/PR 阻断闸门，改为定时任务 + 手动触发。
+# 结果记录到 perf-report.json 供趋势对比，不阻断主分支。
+on:
+  schedule:
+    # 每周一 UTC 04:00（北京 12:00）跑一次基线
+    - cron: '0 4 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Install Playwright browsers
+        timeout-minutes: 10
+        run: npx playwright install --with-deps chromium
+
+      # perf.mjs 内部会探测 Playwright 装的 chromium 作为 CHROME_PATH
+      - name: Run Lighthouse perf budget
+        timeout-minutes: 15
+        run: npm run perf:check
+        continue-on-error: true
+
+      - name: Upload perf report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-report
+          path: perf-report.json
+          if-no-files-found: ignore

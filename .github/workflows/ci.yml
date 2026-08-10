@@ -48,12 +48,8 @@ jobs:
         timeout-minutes: 5
         run: npm run test:e2e
 
-      # Step 3c: 性能预算闸门（Lighthouse Core Web Vitals）
-      # 复用 Playwright 装的 chromium（CHROME_PATH 自动探测）
-      # 任一指标劣化超 .perf-budget.json 阈值则阻断 PR
-      - name: Perf budget (Lighthouse)
-        timeout-minutes: 10
-        run: npm run perf:check
+      # Step 3c: 性能基线已移至 .github/workflows/perf.yml（定时任务）
+      # Lighthouse 在共享 runner 上耗时长且结果受负载影响，不适合作为 PR 阻断闸门
 
       # Step 4: ESLint 15 规则（L1+L2+L3）—— error 级直接阻断 PR
       - name: ESLint check

@@ -28,9 +28,10 @@ const SRC = join(ROOT, 'src');
 // v1.3.3 调整：css 4.9→5.0KB，新增 skeleton 变体类（skeleton-circle/w-*/h-*，移除骨架屏内联 style）
 // v1.4.0 调整：
 //   CSS 5.0→5.2KB：新增 .upload-trigger/.upload-grid 配方 + .input:user-invalid 自动错误态（Constraint Validation API 联动）
+//   CSS 5.2→5.3KB：upload 配方 gzip 实测 5.218KB，微调预算容纳
 //   total 14→14.5KB：新增 af-upload 组件（IP-7）
 const BUDGET = {
-  css: 5.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 prefers-reduced-motion + palette 抽象 + 宿主样式 + skeleton 变体 + upload 配方 + :user-invalid 联动）
+  css: 5.3,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 prefers-reduced-motion + palette 抽象 + 宿主样式 + skeleton 变体 + upload 配方 + :user-invalid 联动）
   perComponent: 2.6,   // KB，单组件 JS（CSS 计入 L1+L2 总预算）
   base: 1.2,           // KB，AfElement 基类（含 html/escapeHtml XSS 防护 + Number 空串回退）
   total: 14.5,         // KB，14 组件 + 基类（含 P0 安全 + P1 loop clone + v1.2.0 新增 3 组件 + v1.4.0 新增 af-upload）

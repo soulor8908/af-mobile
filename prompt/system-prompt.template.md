@@ -407,6 +407,6 @@ document.getElementById('search').addEventListener('af-search-bar:search', async
 - 教育：course-list course-detail exam
 - 社交：chat community
 
-场景包注入由 build-prompt.mjs 的 PROJECT_EXTENSION_INJECTION_POINT 处理，本项目不实现。
+场景包注入由 build-prompt.mjs 的项目扩展注入点处理，本项目不实现。
 
 <!-- {{{ PROJECT_EXTENSION_INJECTION_POINT }}} -->

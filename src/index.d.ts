@@ -544,3 +544,132 @@ export function register(name: string): void;
 
 /** 全量注册 14 个组件 */
 export function registerAll(): void;
+
+// ============================================================
+// 核心运行时：state（响应式原语）
+// ============================================================
+
+/** 可写信号：sig() 读取，sig.set(v) 写入，sig.on(fn) 订阅 */
+export type Signal<T> = {
+  (): T;
+  set(value: T | ((prev: T) => T)): void;
+  on(fn: (value: T) => void): () => void;
+};
+
+/** 创建可写信号 */
+export function signal<T>(initialValue: T): Signal<T>;
+
+/** 创建派生信号（惰性求值，自动追踪依赖） */
+export function computed<T>(fn: () => T): { (): T; on(fn: (value: T) => void): () => void };
+
+/** 副作用：自动追踪依赖，返回取消函数 */
+export function effect(fn: () => void): () => void;
+
+/** 批量更新：合并多次 signal.set 的通知 */
+export function batch(fn: () => void): void;
+
+/** 跨组件事件总线（原生 EventTarget） */
+export const bus: EventTarget;
+
+// ============================================================
+// 核心运行时：fetch（数据获取）
+// ============================================================
+
+/** fetchPage 错误基类 */
+export class FetchError extends Error {}
+/** 超时错误 */
+export class TimeoutError extends FetchError {}
+/** HTTP 状态码错误（非 2xx） */
+export class HttpError extends FetchError {
+  readonly status: number;
+  readonly url: string;
+  readonly body: string | null;
+}
+/** 用户/路由取消错误 */
+export class AbortError extends FetchError {}
+
+/** fetchPage 选项 */
+export interface FetchPageOptions {
+  method?: string;
+  headers?: Record<string, string>;
+  body?: BodyInit | null;
+  timeout?: number;
+  retries?: number;
+  retryDelay?: number;
+  dedupe?: boolean;
+  cache?: boolean;
+  cacheTTL?: number;
+  responseType?: 'json' | 'text' | 'blob' | 'response';
+  signal?: AbortSignal | null;
+}
+
+/** 数据获取主入口 */
+export function fetchPage<T = unknown>(url: string, options?: FetchPageOptions): Promise<T>;
+
+/** 添加全局拦截器：返回 opts 继续，返回 Response 短路 */
+export function addInterceptor(fn: (url: string, opts: any) => Promise<any> | any): void;
+/** 移除拦截器 */
+export function removeInterceptor(fn: (url: string, opts: any) => any): void;
+/** 失效指定 URL 的缓存 */
+export function invalidateCache(url: string): void;
+/** 清空所有缓存 */
+export function clearCache(): void;
+
+// ============================================================
+// 核心运行时：router（SPA 路由）
+// ============================================================
+
+/** 路由 handler 上下文 */
+export interface RouteContext {
+  outlet: HTMLElement;
+  signal: AbortSignal;
+  go: (path: string, options?: { replace?: boolean; transition?: boolean }) => Promise<void>;
+}
+
+/** 路由 handler：可返回子 outlet 选择器（用于嵌套） */
+export type RouteHandler = (
+  params: Record<string, string>,
+  ctx: RouteContext
+) => void | Promise<void | string>;
+
+/** 路由注册选项 */
+export interface RouteOptions {
+  children?: Array<{ path: string; handler: RouteHandler }>;
+  keepAlive?: boolean;
+  scroll?: boolean;
+}
+
+/** 注册路由 */
+export function route(path: string, handler: RouteHandler, options?: RouteOptions): void;
+
+/** 导航到指定路径 */
+export function go(path: string, options?: { replace?: boolean; transition?: boolean }): Promise<void>;
+
+/** history.back() */
+export function back(): void;
+/** history.forward() */
+export function forward(): void;
+
+/** 全局前置守卫：返回 false 阻止，返回 string 重定向，返回 void/true 继续 */
+export function beforeEach(
+  guard: (route: any, params: Record<string, string>, path: string) => Promise<boolean | string | void> | boolean | string | void
+): void;
+
+/** 全局后置钩子 */
+export function afterEach(
+  hook: (route: any, params: Record<string, string>, path: string) => void
+): void;
+
+/** 404 处理 */
+export function notFound(handler: (path: string) => void): void;
+
+/** 获取当前路由信息 */
+export function current(): { path: string; params: Record<string, string>; route: any; outlet: HTMLElement } | null;
+
+/** 启动路由 */
+export function start(options?: {
+  outlet?: string;
+  scrollRestoration?: boolean;
+  keepAliveMax?: number;
+  base?: string;
+}): void;

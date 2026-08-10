@@ -45,7 +45,7 @@ export async function fetchPage(url, opts = {}) {
 
   if (dedupe && method === 'GET') {
     _inflight.set(url, promise);
-    promise.finally(() => _inflight.delete(url));
+    promise.finally(() => _inflight.delete(url)).catch(() => {});
   }
 
   const data = await promise;

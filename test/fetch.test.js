@@ -57,3 +57,67 @@ describe('fetchPage 基础', () => {
     expect(_fetch.mock.calls[0][1].headers['X-Token']).toBe('abc');
   });
 });
+
+describe('fetchPage 错误分类', () => {
+  it('HTTP 404 抛 HttpError 含 status 和 body', async () => {
+    _fetch.mockResolvedValue(new Response('Not Found', { status: 404 }));
+    await expect(fetchPage('/api/404')).rejects.toMatchObject({
+      name: 'HttpError', status: 404, body: 'Not Found',
+    });
+    expect(_fetch).toHaveBeenCalledOnce();  // HTTP 错误不重试
+  });
+
+  it('HTTP 500 抛 HttpError', async () => {
+    _fetch.mockResolvedValue(new Response('Server Error', { status: 500 }));
+    await expect(fetchPage('/api/500')).rejects.toBeInstanceOf(HttpError);
+  });
+
+  it('timeout=0 不超时', async () => {
+    _fetch.mockImplementation(async () => {
+      await new Promise(r => setTimeout(r, 50));
+      return mockResponse({ ok: true });
+    });
+    const data = await fetchPage('/api/slow', { timeout: 0 });
+    expect(data).toEqual({ ok: true });
+  });
+
+  it('timeout 触发 TimeoutError', async () => {
+    _fetch.mockImplementation((_url, opts) => new Promise((resolve, reject) => {
+      if (opts.signal?.aborted) { reject(opts.signal.reason); return; }
+      const timer = setTimeout(() => resolve(mockResponse({})), 200);
+      opts.signal?.addEventListener('abort', () => {
+        clearTimeout(timer);
+        reject(opts.signal.reason);
+      });
+    }));
+    await expect(fetchPage('/api/timeout', { timeout: 50 })).rejects.toBeInstanceOf(TimeoutError);
+  });
+
+  it('外部 signal abort 触发 AbortError', async () => {
+    _fetch.mockImplementation((_url, opts) => new Promise((resolve, reject) => {
+      if (opts.signal?.aborted) { reject(opts.signal.reason); return; }
+      const timer = setTimeout(() => resolve(mockResponse({})), 200);
+      opts.signal?.addEventListener('abort', () => {
+        clearTimeout(timer);
+        reject(opts.signal.reason);
+      });
+    }));
+    const ctrl = new AbortController();
+    const p = fetchPage('/api/abort', { signal: ctrl.signal, timeout: 0 });
+    ctrl.abort(new AbortError());
+    await expect(p).rejects.toBeInstanceOf(AbortError);
+  });
+
+  it('所有错误都是 FetchError 子类', async () => {
+    _fetch.mockResolvedValue(new Response('', { status: 404 }));
+    await expect(fetchPage('/api/e')).rejects.toBeInstanceOf(FetchError);
+  });
+
+  it('JSON 解析失败抛 FetchError', async () => {
+    _fetch.mockImplementation(() => Promise.resolve(new Response('not json', {
+      status: 200, headers: { 'Content-Type': 'application/json' },
+    })));
+    await expect(fetchPage('/api/badjson')).rejects.toBeInstanceOf(FetchError);
+    await expect(fetchPage('/api/badjson')).rejects.not.toBeInstanceOf(HttpError);
+  });
+});

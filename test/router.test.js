@@ -54,3 +54,57 @@ describe('router 注册与匹配', () => {
     expect(c.path).toBe('/cur');
   });
 });
+
+describe('router 守卫', () => {
+  it('beforeEach 返回 false 阻止导航', async () => {
+    const handler = vi.fn();
+    route('/guard1', handler);
+    routerBeforeEach(() => false);
+    start({ outlet: '#app' });
+    await go('/guard1');
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('beforeEach 返回 string 重定向', async () => {
+    const target = vi.fn();
+    route('/guard2', vi.fn());
+    route('/guard2-target', target);
+    routerBeforeEach((r, p, path) => path === '/guard2' ? '/guard2-target' : undefined);
+    start({ outlet: '#app' });
+    await go('/guard2');
+    expect(target).toHaveBeenCalledOnce();
+  });
+
+  it('beforeEach 返回 void 继续', async () => {
+    const handler = vi.fn();
+    route('/guard3', handler);
+    routerBeforeEach(() => {});
+    start({ outlet: '#app' });
+    await go('/guard3');
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it('afterEach 在导航完成后执行', async () => {
+    const handler = vi.fn();
+    const after = vi.fn();
+    route('/after1', handler);
+    routerAfterEach(after);
+    start({ outlet: '#app' });
+    await go('/after1');
+    expect(handler).toHaveBeenCalledOnce();
+    expect(after).toHaveBeenCalledOnce();
+    expect(handler.mock.invocationCallOrder[0]).toBeLessThan(after.mock.invocationCallOrder[0]);
+  });
+
+  it('beforeEach 支持异步', async () => {
+    const handler = vi.fn();
+    route('/async-guard', handler);
+    routerBeforeEach(async () => {
+      await new Promise(r => setTimeout(r, 10));
+      return undefined;
+    });
+    start({ outlet: '#app' });
+    await go('/async-guard');
+    expect(handler).toHaveBeenCalledOnce();
+  });
+});

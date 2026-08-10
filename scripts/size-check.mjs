@@ -141,11 +141,13 @@ async function main() {
     compSizes.push({ file: f, gz });
   }
 
-  // 3. 全量 bundle（index.js，含基类 + 13 组件）
+  // 3. 全量 bundle（index.js，含基类 + 14 组件，不含 coreRuntime）
+  // coreRuntime（router/state/fetch）独立预算，external 掉避免计入 total
   const totalRes = await build({
     entryPoints: [join(SRC, 'index.js')],
     bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
     absWorkingDir: ROOT,
+    external: ['./lib/router.js', './lib/state.js', './lib/fetch.js'],
   });
   const totalGz = gzipSync(Buffer.from(totalRes.outputFiles[0].text)).length;
 

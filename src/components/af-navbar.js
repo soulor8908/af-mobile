@@ -5,6 +5,10 @@ import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfNavbar extends AfElement {
   static useShadow = false;
+  // i18n 映射表：返回按钮 aria-label 优先用 backAriaLabel，否则字典兜底
+  static i18n = {
+    '[data-role="back"]': ['aria-label', 'nb.bk', 'backAriaLabel'],
+  };
 
   mounted() {
     this._render();
@@ -13,7 +17,7 @@ export class AfNavbar extends AfElement {
 
   _render() {
     const back = this.showBack
-      ? `<button class="btn btn-ghost btn-sm" data-role="back" type="button" aria-label="${esc(this.backAriaLabel)}">${esc(this.backText)}</button>`
+      ? `<button class="btn btn-ghost btn-sm" data-role="back" type="button">${esc(this.backText)}</button>`
       : '';
     const title = this.title ? `<span class="title" data-role="title">${esc(this.title)}</span>` : '';
     // 保存 slotted 子节点引用：innerHTML= 会销毁现有子节点，需在重置前抓取再搬入
@@ -44,10 +48,15 @@ export class AfNavbar extends AfElement {
     if (name === 'show-back' || name === 'back-text' || name === 'back-aria-label') {
       this._render();
       this._bindBack();
+      // 重建 DOM 后重新应用 aria-label（backAriaLabel 变化也走 _applyI18n）
+      this._applyI18n();
     } else if (name === 'title') {
       const titleEl = this.$('[data-role="title"]');
       if (titleEl) titleEl.textContent = newVal;
-      else if (newVal) this._render();
+      else if (newVal) {
+        this._render();
+        this._applyI18n();
+      }
     }
   }
 
@@ -59,4 +68,4 @@ export class AfNavbar extends AfElement {
 AfElement.defineProp(AfNavbar.prototype, 'title', { type: String, default: '' });
 AfElement.defineProp(AfNavbar.prototype, 'showBack', { attr: 'show-back', type: Boolean, default: false });
 AfElement.defineProp(AfNavbar.prototype, 'backText', { attr: 'back-text', type: String, default: '←' });
-AfElement.defineProp(AfNavbar.prototype, 'backAriaLabel', { attr: 'back-aria-label', type: String, default: '返回' });
+AfElement.defineProp(AfNavbar.prototype, 'backAriaLabel', { attr: 'back-aria-label', type: String, default: null });

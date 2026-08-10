@@ -32,6 +32,12 @@ const CSS = `
 
 export class AfDialog extends AfElement {
   static useShadow = true;
+  // i18n 映射表：close-btn 关闭按钮 aria-label；dialog aria-label 优先用 title，否则字典兜底
+  // aria-label 由 _applyI18n 在 connectedCallback 末尾统一应用（mounted 之后）
+  static i18n = {
+    '.close-btn': ['aria-label', 'dg.cl'],
+    'dialog':     ['aria-label', 'dg.al', 'title', 'aria-label'],
+  };
 
   constructor() {
     super();
@@ -48,17 +54,13 @@ export class AfDialog extends AfElement {
       <dialog part="dialog" role="dialog">
         <header part="header">
           <h2 class="title"><slot name="title">${esc(this.title)}</slot></h2>
-          <button class="close-btn" part="close" aria-label="关闭" type="button">×</button>
+          <button class="close-btn" part="close" type="button">×</button>
         </header>
         <div class="body" part="content"><slot name="body"></slot></div>
         <footer part="footer"><slot name="footer"></slot></footer>
       </dialog>
     `;
     this._dialog = this.$('dialog');
-
-    if (!this.getAttribute('aria-label')) {
-      this._dialog.setAttribute('aria-label', this.title || '对话框');
-    }
 
     // Esc 关闭
     this._onCancel = (e) => {
@@ -147,9 +149,11 @@ export class AfDialog extends AfElement {
     if (name === 'title') {
       const titleSlot = this.$('.title slot');
       if (titleSlot) titleSlot.textContent = newVal;
-      if (!this.hasAttribute('aria-label')) {
-        this._dialog.setAttribute('aria-label', newVal || '对话框');
-      }
+      // aria-label 由 _applyI18n 重新计算（fallback=title，skipIf=aria-label）
+      this._applyI18n();
+    } else if (name === 'aria-label') {
+      // 用户显式 aria-label 变化时重新应用 i18n（skipIf 控制：有 aria-label 时跳过）
+      this._applyI18n();
     } else if (name === 'open') {
       if (newVal != null && !this._dialog.open) this.open();
       else if (newVal == null && this._dialog.open) this.close('external');

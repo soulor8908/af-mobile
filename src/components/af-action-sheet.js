@@ -4,6 +4,12 @@ import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfActionSheet extends AfElement {
   static useShadow = false;
+  // i18n 映射表：.sheet aria-label 优先用 title，否则字典；取消按钮 textContent 优先用 cancelText，否则字典
+  // 取消按钮仅在 showCancel=true 时渲染；querySelectorAll 返回空则跳过
+  static i18n = {
+    '.sheet':                  ['aria-label', 'as.al', 'title'],
+    '.af-action-sheet-cancel': ['',          'as.cn', 'cancelText'],
+  };
 
   constructor() {
     super();
@@ -95,9 +101,8 @@ export class AfActionSheet extends AfElement {
   }
 
   _render() {
-    const ariaLabel = this.title || '操作面板';
     this.innerHTML = `
-      <div class="sheet" popover role="dialog" aria-label="${esc(ariaLabel)}">
+      <div class="sheet" popover role="dialog">
         <div class="list"></div>
       </div>
     `;
@@ -123,7 +128,7 @@ export class AfActionSheet extends AfElement {
       : '';
 
     const cancelHtml = this.showCancel
-      ? `<div class="p-2"></div><button class="btn btn-ghost btn-block af-action-sheet-cancel">${esc(this.cancelText)}</button>`
+      ? `<div class="p-2"></div><button class="btn btn-ghost btn-block af-action-sheet-cancel"></button>`
       : '';
 
     this._sheet.innerHTML = `${titleHtml}<div class="list">${itemsHtml}</div>${cancelHtml}`;
@@ -141,14 +146,12 @@ export class AfActionSheet extends AfElement {
   // 按属性做最小更新，避免整树重建关闭已打开的浮层 + 丢失焦点
   onAttributeChange(name, oldVal, newVal) {
     if (!this._sheet) return;
-    if (name === 'title') {
-      // 标题变化需更新 aria-label（在 .sheet 元素上）
-      this._sheet.setAttribute('aria-label', this.title || '操作面板');
-    }
     this._renderContent();
     // cancelBtn 引用变了需重绑；列表/标题项变化不涉及事件绑定（click 委托在 _sheet 上）
     this._cancelBtn?.removeEventListener('click', this._onCancelClick);
     this._cancelBtn?.addEventListener('click', this._onCancelClick);
+    // 重渲染后重新应用 i18n（.sheet aria-label + cancelBtn textContent 由 _applyI18n 设置）
+    this._applyI18n();
   }
 
   unmounted() {
@@ -165,4 +168,4 @@ export class AfActionSheet extends AfElement {
 AfElement.defineProp(AfActionSheet.prototype, 'options', { type: Array, default: [] });
 AfElement.defineProp(AfActionSheet.prototype, 'title', { type: String, default: '' });
 AfElement.defineProp(AfActionSheet.prototype, 'showCancel', { attr: 'show-cancel', type: Boolean, default: true });
-AfElement.defineProp(AfActionSheet.prototype, 'cancelText', { attr: 'cancel-text', type: String, default: '取消' });
+AfElement.defineProp(AfActionSheet.prototype, 'cancelText', { attr: 'cancel-text', type: String, default: null });

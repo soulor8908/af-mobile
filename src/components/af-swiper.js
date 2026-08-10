@@ -2,6 +2,7 @@
 // Shadow DOM（useShadow=true），CSS 嵌入 JS 字符串
 // 职责：touch 拖拽 + 自动播放 + 循环 + dots + 键盘 + 尺寸响应
 import { AfElement } from '../lib/af-element.js';
+import { t } from '../lib/i18n.js';
 
 const CSS = `
   :host { display: block; overflow: hidden; position: relative; }
@@ -24,6 +25,16 @@ const CSS = `
 
 export class AfSwiper extends AfElement {
   static useShadow = true;
+  static i18n = {
+    '@': ['aria-label', (host, t) => {
+      const n = host._dots?.children?.length || 0;
+      return t('sw.al', { total: n, current: host.activeIndex + 1 });
+    }],
+    'button.dot': ['aria-label', (host, t, el, i) => {
+      const n = host._dots?.children?.length || 0;
+      return t('sw.dot', { current: i + 1, total: n });
+    }],
+  };
 
   constructor() {
     super();
@@ -61,7 +72,7 @@ export class AfSwiper extends AfElement {
       this._renderDots();
       this._updateDots();
       this._updateTransform();
-      this._updateAria();
+      this._applyI18n();
     };
     this.shadowRoot.querySelector('slot')?.addEventListener('slotchange', this._onSlotChange);
 
@@ -70,7 +81,7 @@ export class AfSwiper extends AfElement {
       this._setupLoopClones();
       this._renderDots();
       this._updateTransform();
-      this._updateAria();
+      this._applyI18n();
     });
 
     this._bindTouch();
@@ -112,7 +123,6 @@ export class AfSwiper extends AfElement {
       btn.setAttribute('role', 'tab');
       btn.setAttribute('aria-selected', String(i === this.activeIndex));
       btn.setAttribute('tabindex', i === this.activeIndex ? '0' : '-1');
-      btn.setAttribute('aria-label', `第 ${i + 1} 张，共 ${n} 张`);
       btn.dataset.idx = String(i);
       this._dots.appendChild(btn);
     }
@@ -152,7 +162,7 @@ export class AfSwiper extends AfElement {
     this._dragOffset = 0;
     this._updateTransform();
     this._updateDots();
-    this._updateAria();
+    this._applyI18n();
   }
 
   next() {
@@ -174,7 +184,7 @@ export class AfSwiper extends AfElement {
     this._dragOffset = 0;
     this._updateTransform();
     this._updateDots();
-    this._updateAria();
+    this._applyI18n();
     this._pendingCorrect = true;
     clearTimeout(this._correctTimer);
     this._correctTimer = setTimeout(() => this._correctTransform(), this.duration + 100);
@@ -283,13 +293,6 @@ export class AfSwiper extends AfElement {
   _stopAutoplay() {
     clearInterval(this._autoplayTimer);
     this._autoplayTimer = null;
-  }
-
-  _updateAria() {
-    const n = this.slideCount;
-    if (n) {
-      this.setAttribute('aria-label', `轮播图，共 ${n} 张，当前第 ${this.activeIndex + 1} 张`);
-    }
   }
 
   // 把 duration 属性接到 track 的 transition 时长（CSS 变量 --af-swipe-dur）

@@ -5,6 +5,10 @@ import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfTabbar extends AfElement {
   static useShadow = false;
+  // i18n 映射表：tabbar aria-label 优先用 ariaLabel 属性，否则字典兜底
+  static i18n = {
+    '.tabbar': ['aria-label', 'bb.al', 'ariaLabel'],
+  };
 
   mounted() {
     this._render();
@@ -14,7 +18,7 @@ export class AfTabbar extends AfElement {
   }
 
   _render() {
-    this.innerHTML = `<div class="tabbar" role="tablist"${this.fixed ? '' : ''} aria-label="${esc(this.ariaLabel)}">${this._renderItems()}</div>`;
+    this.innerHTML = `<div class="tabbar" role="tablist">${this._renderItems()}</div>`;
     this._tabbar = this.$('.tabbar');
     if (this.fixed) this._tabbar.classList.add('tabbar-fixed');
   }
@@ -82,10 +86,14 @@ export class AfTabbar extends AfElement {
       this._bindClick();
       this._bindKeydown();
       this.setActive(this.activeIndex, true);
+      // 重建 DOM 后重新应用 aria-label
+      this._applyI18n();
     } else if (name === 'active-index') {
       this.setActive(this.activeIndex);
     } else if (name === 'fixed') {
       this._tabbar.classList.toggle('tabbar-fixed', this.fixed);
+    } else if (name === 'aria-label') {
+      this._applyI18n();
     }
   }
 
@@ -98,4 +106,4 @@ export class AfTabbar extends AfElement {
 AfElement.defineProp(AfTabbar.prototype, 'tabs', { type: Array, default: [] });
 AfElement.defineProp(AfTabbar.prototype, 'activeIndex', { attr: 'active-index', type: Number, default: 0 });
 AfElement.defineProp(AfTabbar.prototype, 'fixed', { type: Boolean, default: true });
-AfElement.defineProp(AfTabbar.prototype, 'ariaLabel', { attr: 'aria-label', type: String, default: '导航栏' });
+AfElement.defineProp(AfTabbar.prototype, 'ariaLabel', { attr: 'aria-label', type: String, default: null });

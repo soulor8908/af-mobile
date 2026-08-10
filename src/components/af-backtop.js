@@ -5,6 +5,9 @@ import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfBacktop extends AfElement {
   static useShadow = false;
+  static i18n = {
+    'button': ['aria-label', 'bt.al', 'ariaLabelText'],
+  };
 
   constructor() {
     super();
@@ -18,7 +21,7 @@ export class AfBacktop extends AfElement {
       ? document.querySelector(this.target)
       : window;
 
-    this.innerHTML = `<button class="btn btn-ghost" aria-label="${esc(this.ariaLabelText)}">${esc(this.text)}</button>`;
+    this.innerHTML = `<button class="btn btn-ghost">${esc(this.text)}</button>`;
     // fixed 定位由 recipes.css af-backtop 规则提供（position/z-index/bottom/left|right）
     // 项目级样式覆盖用 af-backtop 元素选择器或 af-backtop[position="left-bottom"] 属性选择器做 hook
     // （不再添加未登记白名单的标记类，遵守 Light DOM 仅用 L2 白名单 class 的约束）
@@ -76,8 +79,7 @@ export class AfBacktop extends AfElement {
       const btn = this.$('button');
       if (btn) btn.textContent = newVal;
     } else if (name === 'aria-label-text') {
-      const btn = this.$('button');
-      if (btn) btn.setAttribute('aria-label', newVal);
+      this._applyI18n();
     }
   }
 
@@ -92,5 +94,5 @@ export class AfBacktop extends AfElement {
 AfElement.defineProp(AfBacktop.prototype, 'threshold', { type: Number, default: 200 });
 AfElement.defineProp(AfBacktop.prototype, 'target', { type: String, default: '' });
 AfElement.defineProp(AfBacktop.prototype, 'text', { type: String, default: '↑' });
-AfElement.defineProp(AfBacktop.prototype, 'ariaLabelText', { attr: 'aria-label-text', type: String, default: '回到顶部' });
+AfElement.defineProp(AfBacktop.prototype, 'ariaLabelText', { attr: 'aria-label-text', type: String, default: null });
 AfElement.defineProp(AfBacktop.prototype, 'position', { type: String, default: 'right-bottom' });

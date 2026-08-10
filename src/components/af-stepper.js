@@ -5,12 +5,18 @@ import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfStepper extends AfElement {
   static useShadow = false;
+  // i18n 映射表：减/加按钮 aria-label 用字典；input aria-label 优先用属性，否则字典
+  static i18n = {
+    '[data-role="minus"]': ['aria-label', 'st.mn'],
+    '[data-role="plus"]':  ['aria-label', 'st.pl'],
+    '[data-role="input"]': ['aria-label', 'st.al', 'ariaLabel'],
+  };
 
   mounted() {
     this.innerHTML = `
-      <button class="btn btn-ghost btn-sm" data-role="minus" type="button" aria-label="减少"${this._minusDisabled() ? ' disabled' : ''}>-</button>
-      <input class="input" data-role="input" type="number" inputmode="numeric" value="${esc(this.value)}" min="${esc(this.min)}" max="${esc(this.max)}" step="${esc(this.step)}"${this.disabled ? ' disabled' : ''} aria-label="${esc(this.ariaLabel)}" />
-      <button class="btn btn-ghost btn-sm" data-role="plus" type="button" aria-label="增加"${this._plusDisabled() ? ' disabled' : ''}>+</button>
+      <button class="btn btn-ghost btn-sm" data-role="minus" type="button"${this._minusDisabled() ? ' disabled' : ''}>-</button>
+      <input class="input" data-role="input" type="number" inputmode="numeric" value="${esc(this.value)}" min="${esc(this.min)}" max="${esc(this.max)}" step="${esc(this.step)}"${this.disabled ? ' disabled' : ''} />
+      <button class="btn btn-ghost btn-sm" data-role="plus" type="button"${this._plusDisabled() ? ' disabled' : ''}>+</button>
     `;
     this._minusBtn = this.$('[data-role="minus"]');
     this._plusBtn = this.$('[data-role="plus"]');
@@ -80,6 +86,8 @@ export class AfStepper extends AfElement {
       this._input.max = String(this.max);
       this._input.step = String(this.step);
       this._updateDisabled();
+    } else if (name === 'aria-label') {
+      this._applyI18n();
     }
   }
 
@@ -94,4 +102,4 @@ AfElement.defineProp(AfStepper.prototype, 'min', { type: Number, default: 0 });
 AfElement.defineProp(AfStepper.prototype, 'max', { type: Number, default: 99 });
 AfElement.defineProp(AfStepper.prototype, 'step', { type: Number, default: 1 });
 AfElement.defineProp(AfStepper.prototype, 'disabled', { type: Boolean, default: false });
-AfElement.defineProp(AfStepper.prototype, 'ariaLabel', { attr: 'aria-label', type: String, default: '数量' });
+AfElement.defineProp(AfStepper.prototype, 'ariaLabel', { attr: 'aria-label', type: String, default: null });

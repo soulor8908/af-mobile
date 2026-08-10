@@ -152,6 +152,12 @@ const COMPONENT_META = [
   { tag: 'af-search-bar', purpose: '搜索栏', props: 'value, placeholder, clearable, debounce', events: 'af-search-bar:input, af-search-bar:search, af-search-bar:clear' },
   { tag: 'af-skeleton-page', purpose: '整页骨架屏', props: 'variant', events: '—' },
   { tag: 'af-upload', purpose: '文件上传', props: 'accept, multiple, max-size, max-count, button-text', events: 'af-upload:change, af-upload:error' },
+  { tag: 'af-navbar', purpose: '顶部导航栏', props: 'title, show-back, back-text', events: 'af-navbar:back' },
+  { tag: 'af-tabbar', purpose: '底部标签栏', props: 'tabs, active-index, fixed', events: 'af-tabbar:change' },
+  { tag: 'af-stepper', purpose: '数量选择器', props: 'value, min, max, step, disabled', events: 'af-stepper:change' },
+  { tag: 'af-field', purpose: '结构化表单字段', props: 'label, icon, type, value, placeholder, help, error', events: 'af-field:input, af-field:change' },
+  { tag: 'af-pull-refresh', purpose: '下拉刷新容器', props: 'refreshing', events: 'af-pull-refresh:refresh' },
+  { tag: 'af-swipe-cell', purpose: '滑动单元格', props: 'disabled', events: 'af-swipe-cell:action' },
 ];
 
 // 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）

@@ -25,8 +25,14 @@ import { AfSwitch } from './components/af-switch.js';
 import { AfSearchBar } from './components/af-search-bar.js';
 import { AfSkeletonPage } from './components/af-skeleton-page.js';
 import { AfUpload } from './components/af-upload.js';
+import { AfNavbar } from './components/af-navbar.js';
+import { AfTabbar } from './components/af-tabbar.js';
+import { AfStepper } from './components/af-stepper.js';
+import { AfField } from './components/af-field.js';
+import { AfPullRefresh } from './components/af-pull-refresh.js';
+import { AfSwipeCell } from './components/af-swipe-cell.js';
 
-export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload };
+export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell };
 
 const REGISTRY = {
   'af-list': AfList,
@@ -43,6 +49,12 @@ const REGISTRY = {
   'af-search-bar': AfSearchBar,
   'af-skeleton-page': AfSkeletonPage,
   'af-upload': AfUpload,
+  'af-navbar': AfNavbar,
+  'af-tabbar': AfTabbar,
+  'af-stepper': AfStepper,
+  'af-field': AfField,
+  'af-pull-refresh': AfPullRefresh,
+  'af-swipe-cell': AfSwipeCell,
 };
 
 export function registerAll() {

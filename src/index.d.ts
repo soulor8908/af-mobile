@@ -1,5 +1,5 @@
 // AIFlow UI —— TypeScript 类型声明
-// 公开 API：14 组件类 + AfElement 基类 + 主题 API + escapeHtml + register/registerAll
+// 公开 API：20 组件类 + AfElement 基类 + 主题 API + escapeHtml + register/registerAll
 // ⚠️ 手工维护：新增组件时须同步追加 class 声明，CI 的 types-sync 检查会校验一致
 
 /// <reference lib="dom" />
@@ -536,13 +536,161 @@ export class AfUpload extends AfElement {
 }
 
 // ============================================================
+// af-navbar（v1.5.0 · 顶部导航栏）
+// ============================================================
+
+export class AfNavbar extends AfElement {
+  static useShadow: false;
+  /** 标题 */
+  title: string;
+  /** 显示返回按钮 */
+  showBack: boolean;
+  /** 返回按钮文案 */
+  backText: string;
+  /** 返回按钮 aria-label */
+  backAriaLabel: string;
+  addEventListener(type: 'af-navbar:back', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
+// af-tabbar（v1.5.0 · 底部标签栏）
+// ============================================================
+
+export interface TabbarItem {
+  label?: string;
+  value?: string | number;
+  icon?: string;
+  badge?: string | number;
+  [key: string]: unknown;
+}
+
+export interface TabbarChangeDetail extends AfEventDetail {
+  index: number;
+  value: string | number;
+}
+
+export class AfTabbar extends AfElement {
+  static useShadow: false;
+  /** 标签配置 */
+  tabs: TabbarItem[];
+  /** 当前激活索引 */
+  activeIndex: number;
+  /** 固定在底部 */
+  fixed: boolean;
+  /** aria-label 文案 */
+  ariaLabel: string;
+  /** 设置激活标签 */
+  setActive(index: number, silent?: boolean): void;
+  addEventListener(type: 'af-tabbar:change', listener: (e: CustomEvent<TabbarChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
+// af-stepper（v1.5.0 · 数量选择器）
+// ============================================================
+
+export interface StepperChangeDetail extends AfEventDetail {
+  value: number;
+}
+
+export class AfStepper extends AfElement {
+  static useShadow: false;
+  /** 当前值 */
+  value: number;
+  /** 最小值 */
+  min: number;
+  /** 最大值 */
+  max: number;
+  /** 步长 */
+  step: number;
+  /** 禁用 */
+  disabled: boolean;
+  /** aria-label 文案 */
+  ariaLabel: string;
+  /** 设置值（自动 clamp 到 min/max） */
+  setValue(value: number, silent?: boolean): void;
+  addEventListener(type: 'af-stepper:change', listener: (e: CustomEvent<StepperChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
+// af-field（v1.5.0 · 结构化表单字段）
+// ============================================================
+
+export interface FieldInputDetail extends AfEventDetail {
+  value: string;
+}
+
+export class AfField extends AfElement {
+  static useShadow: false;
+  /** 标签 */
+  label: string;
+  /** 前置图标 */
+  icon: string;
+  /** 控件类型（input/textarea） */
+  type: 'input' | 'textarea';
+  /** input 元素 type 属性（text/password/email...） */
+  inputType: string;
+  /** 当前值 */
+  value: string;
+  /** 占位文案 */
+  placeholder: string;
+  /** 帮助文本 */
+  help: string;
+  /** 校验错误消息 */
+  error: string;
+  /** 禁用 */
+  disabled: boolean;
+  /** 只读 */
+  readonly: boolean;
+  /** aria-label 文案 */
+  ariaLabel: string;
+  /** 设置校验错误（空字符串清除） */
+  setError(msg: string): void;
+  /** 聚焦输入框 */
+  focus(): void;
+  addEventListener(type: 'af-field:input', listener: (e: CustomEvent<FieldInputDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-field:change', listener: (e: CustomEvent<FieldInputDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
+// af-pull-refresh（v1.5.0 · 下拉刷新容器）
+// ============================================================
+
+export class AfPullRefresh extends AfElement {
+  static useShadow: false;
+  /** 加载中状态 */
+  refreshing: boolean;
+  /** 结束刷新（收起指示器） */
+  endRefresh(): void;
+  addEventListener(type: 'af-pull-refresh:refresh', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
+// af-swipe-cell（v1.5.0 · 滑动单元格）
+// ============================================================
+
+export interface SwipeCellActionDetail extends AfEventDetail {
+  action: string;
+}
+
+export class AfSwipeCell extends AfElement {
+  static useShadow: false;
+  /** 禁用滑动 */
+  disabled: boolean;
+  /** 打开右侧操作区 */
+  open(): void;
+  /** 关闭右侧操作区 */
+  close(): void;
+  addEventListener(type: 'af-swipe-cell:action', listener: (e: CustomEvent<SwipeCellActionDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
 // 注册接口
 // ============================================================
 
 /** 按需注册单个组件（传入标签名） */
 export function register(name: string): void;
 
-/** 全量注册 14 个组件 */
+/** 全量注册 20 个组件 */
 export function registerAll(): void;
 
 // ============================================================

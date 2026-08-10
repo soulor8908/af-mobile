@@ -119,6 +119,26 @@ if (!URL.revokeObjectURL) {
   URL.revokeObjectURL = () => {};
 }
 
+// === TouchEvent / Touch（af-pull-refresh / af-swipe-cell 依赖；jsdom 未实现） ===
+// jsdom 不支持触摸 API，补一个最小实现：TouchEvent 继承 Event，touches 为构造参数中的数组
+if (typeof global.Touch === 'undefined') {
+  global.Touch = class Touch {
+    constructor(init = {}) {
+      Object.assign(this, init);
+    }
+  };
+}
+if (typeof global.TouchEvent === 'undefined') {
+  global.TouchEvent = class TouchEvent extends Event {
+    constructor(type, init = {}) {
+      super(type, { bubbles: init.bubbles ?? false, cancelable: init.cancelable ?? false });
+      this.touches = init.touches || [];
+      this.targetTouches = init.targetTouches || [];
+      this.changedTouches = init.changedTouches || [];
+    }
+  };
+}
+
 // 全局清理：每个测试之间隔离
 beforeEach(() => {
   document.documentElement.dataset.theme = '';

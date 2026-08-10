@@ -10,15 +10,15 @@
 # 设计体系速查
 
 - **L1 Token（58 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
-- **L2 配方（70）+ 原子（52）= 122 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
-- **L3 真组件（14 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
+- **L2 配方（102）+ 原子（52）= 154 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
+- **L3 真组件（20 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
 
 # L2 白名单（构建时注入）
 
-## L2 配方（70 个，按用途分组）
+## L2 配方（102 个，按用途分组）
 
 **按钮（7）：** `btn` `btn-sm` `btn-lg` `btn-ghost` `btn-danger` `btn-success` `btn-block`
 **容器（5）：** `page` `card` `cell` `center` `sheet`
@@ -28,6 +28,14 @@
 **反馈（17）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast`
 **导航（5）：** `navbar` `navbar-fixed` `tabbar` `tabbar-fixed` `tab-item`
 **布局（5）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar`
+**Checkbox / Radio（4）：** `checkbox` `radio` `checkbox-sm` `radio-sm`
+**加载指示器（3）：** `spinner` `spinner-sm` `spinner-lg`
+**进度条（5）：** `progress` `progress-sm` `progress-lg` `progress-success` `progress-danger`
+**折叠面板（3）：** `collapse` `collapse-summary` `collapse-content`
+**通知栏（3）：** `notice` `notice-text` `notice-scroll`
+**评分（5）：** `rate` `rate-star` `rate-readonly` `rate-sm` `rate-lg`
+**步骤条（6）：** `steps` `step` `step-done` `step-active` `step-circle` `step-label`
+**分段控制器（3）：** `segmented` `segmented-item` `segmented-block`
 
 ## L2 原子（52 个，按用途分组）
 
@@ -42,9 +50,9 @@
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
 **文本对齐（4，补齐至 52）（4）：** `t-left` `t-center` `t-right` `ws-nowrap`
 
-## L3 真组件标签（14 个）
+## L3 真组件标签（20 个）
 
-`<af-action-sheet>` `<af-backtop>` `<af-dialog>` `<af-dropdown>` `<af-img>` `<af-list>` `<af-picker>` `<af-search-bar>` `<af-skeleton-page>` `<af-swiper>` `<af-switch>` `<af-tabs>` `<af-toast>` `<af-upload>`
+`<af-action-sheet>` `<af-backtop>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-picker>` `<af-pull-refresh>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
 ## L1 Token 变量（58 个，必须用 var(--*) 引用）
 
@@ -74,6 +82,12 @@
 | `<af-search-bar>` | 搜索栏 | value, placeholder, clearable, debounce | af-search-bar:input, af-search-bar:search, af-search-bar:clear |
 | `<af-skeleton-page>` | 整页骨架屏 | variant | — |
 | `<af-upload>` | 文件上传 | accept, multiple, max-size, max-count, button-text | af-upload:change, af-upload:error |
+| `<af-navbar>` | 顶部导航栏 | title, show-back, back-text | af-navbar:back |
+| `<af-tabbar>` | 底部标签栏 | tabs, active-index, fixed | af-tabbar:change |
+| `<af-stepper>` | 数量选择器 | value, min, max, step, disabled | af-stepper:change |
+| `<af-field>` | 结构化表单字段 | label, icon, type, value, placeholder, help, error | af-field:input, af-field:change |
+| `<af-pull-refresh>` | 下拉刷新容器 | refreshing | af-pull-refresh:refresh |
+| `<af-swipe-cell>` | 滑动单元格 | disabled | af-swipe-cell:action |
 
 **通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`。
 
@@ -84,7 +98,7 @@
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-03. 禁止使用 122 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
+03. 禁止使用 154 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success`（破坏 onbrand 对比度）
 05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fc` 原子（自带 `display:flex`，再设会破坏布局）

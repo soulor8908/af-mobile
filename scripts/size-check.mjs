@@ -3,7 +3,7 @@
 // 依据 docs/design/l3-detailed-design.md §8.5 CI 体积监控（数字与下方 BUDGET 一致）
 //   单组件 JS gzip ≤ 2.5KB   PR 阻断（CSS 计入 L1+L2 总预算，不单测）
 //   基类 AfElement gzip     ≤ 0.85KB  PR 阻断
-//   全部 13 组件 + 基类 gzip ≤ 14KB PR 阻断
+//   全部 20 组件 + 基类 gzip ≤ 19.5KB PR 阻断
 //   按需引入 2 组件 gzip    ≤ 5.0KB   warn
 // 实现：esbuild 打包+minify，Node zlib 测 gzip（原生，无 gzip-size 依赖）
 import { build } from 'esbuild';
@@ -32,11 +32,15 @@ const SRC = join(ROOT, 'src');
 //   total 14→14.5KB：新增 af-upload 组件（IP-7）
 // v1.4.1 调整：
 //   CSS 5.3→5.5KB：af-img 内联 style 迁移到 recipes.css 宿主规则（P2-5 wc-light-no-style 合规）
+// v1.5.0 调整：
+//   CSS 5.5→8.0KB：新增 8 个纯 CSS 配方（checkbox/radio/spinner/progress/collapse/notice/rate/steps/segmented）
+//   共 32 个新 class，零 JS 依赖，加完即用（recipe 70→102）+ 6 个 Light DOM 组件宿主样式
+//   total 14.5→19.5KB：新增 6 个 Light DOM 组件（navbar/tabbar/stepper/field/pull-refresh/swipe-cell）
 const BUDGET = {
-  css: 5.5,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 prefers-reduced-motion + palette 抽象 + 宿主样式 + skeleton 变体 + upload 配方 + :user-invalid 联动 + af-img 尺寸宿主规则）
+  css: 8.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.6,   // KB，单组件 JS（CSS 计入 L1+L2 总预算）
   base: 1.2,           // KB，AfElement 基类（含 html/escapeHtml XSS 防护 + Number 空串回退）
-  total: 14.5,         // KB，14 组件 + 基类（含 P0 安全 + P1 loop clone + v1.2.0 新增 3 组件 + v1.4.0 新增 af-upload）
+  total: 19.5,         // KB，20 组件 + 基类（含 P0 安全 + P1 loop clone + v1.2.0 新增 3 组件 + v1.4.0 af-upload + v1.5.0 新增 6 个 Light DOM 组件）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 3.7,     // KB，router(2.0)+state(0.7)+fetch(0.8)+容差(0.2)，独立预算不计入 total
 };
@@ -67,6 +71,8 @@ const FILE_TO_NAME = {
   'af-picker.js': 'AfPicker', 'af-dropdown.js': 'AfDropdown', 'af-img.js': 'AfImg',
   'af-backtop.js': 'AfBacktop', 'af-switch.js': 'AfSwitch', 'af-search-bar.js': 'AfSearchBar',
   'af-skeleton-page.js': 'AfSkeletonPage', 'af-upload.js': 'AfUpload',
+  'af-navbar.js': 'AfNavbar', 'af-tabbar.js': 'AfTabbar', 'af-stepper.js': 'AfStepper',
+  'af-field.js': 'AfField', 'af-pull-refresh.js': 'AfPullRefresh', 'af-swipe-cell.js': 'AfSwipeCell',
 };
 // 类名 → 文件名
 const NAME_TO_FILE = Object.fromEntries(
@@ -188,7 +194,7 @@ async function main() {
   // 全量
   console.log('');
   const totalOver = totalGz > BUDGET.total * KB;
-  console.log(`全量（13 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
+  console.log(`全量（20 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
   if (totalOver) violations.push(`全量 ${fmt(totalGz)} > ${BUDGET.total}KB`);
 
   // 按需 2

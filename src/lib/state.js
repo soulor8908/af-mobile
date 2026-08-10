@@ -50,3 +50,29 @@ export function effect(fn) {
   e.run();
   return () => { e.cleanups.forEach(c => c()); e.cleanups = []; };
 }
+
+export function computed(fn) {
+  let cached;
+  let dirty = true;
+  const subs = new Set();
+  const recompute = () => {
+    dirty = true;
+    for (const s of [...subs]) s.run();
+  };
+  const c = () => {
+    if (_cur) {
+      subs.add(_cur);
+      _cur.cleanups.push(() => subs.delete(_cur));
+    }
+    if (dirty) {
+      dirty = false;
+      const prev = _cur;
+      _cur = { run: recompute, cleanups: [] };
+      try { cached = fn(); }
+      finally { _cur = prev; }
+    }
+    return cached;
+  };
+  c.on = (f) => effect(() => f(c()));
+  return c;
+}

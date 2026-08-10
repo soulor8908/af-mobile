@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { signal, effect } from '../src/lib/state.js';
+import { signal, effect, computed } from '../src/lib/state.js';
 
 describe('signal 基础', () => {
   it('读取初始值', () => {
@@ -95,5 +95,59 @@ describe('effect 自动依赖追踪', () => {
     expect(log).toEqual([100, 200, -1]);
     a.set(1);             // 切回依赖 b
     expect(log).toEqual([100, 200, -1, 300]);
+  });
+});
+
+describe('computed 派生信号', () => {
+  it('惰性求值：创建时不执行 fn', () => {
+    const fn = vi.fn(() => 1);
+    const c = computed(fn);
+    expect(fn).not.toHaveBeenCalled();
+  });
+
+  it('首次读取时执行 fn 并缓存', () => {
+    const a = signal(2);
+    const fn = vi.fn(() => a() * 10);
+    const c = computed(fn);
+    expect(c()).toBe(20);
+    expect(c()).toBe(20);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('依赖 signal 变化后，下次读取重新计算', () => {
+    const a = signal(1);
+    const c = computed(() => a() + 1);
+    expect(c()).toBe(2);
+    a.set(10);
+    expect(c()).toBe(11);
+  });
+
+  it('依赖未变化时不重复计算', () => {
+    const a = signal(1);
+    const fn = vi.fn(() => a());
+    const c = computed(fn);
+    c(); c(); c();
+    expect(fn).toHaveBeenCalledTimes(1);
+    a.set(2);
+    c(); c();
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+
+  it('computed 依赖 computed', () => {
+    const a = signal(2);
+    const b = computed(() => a() * 3);
+    const d = computed(() => b() + 1);
+    expect(d()).toBe(7);
+    a.set(4);
+    expect(d()).toBe(13);
+  });
+
+  it('computed.on 订阅派生信号变化', () => {
+    const a = signal(1);
+    const c = computed(() => a() * 2);
+    const fn = vi.fn();
+    c.on(fn);
+    a.set(5);
+    expect(fn).toHaveBeenCalled();
   });
 });

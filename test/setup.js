@@ -110,6 +110,15 @@ if (!HTMLSlotElement.prototype.assignedElements) {
 
 // === Element.prototype.scrollTo 已被 jsdom 实现 ===
 
+// === URL.createObjectURL / revokeObjectURL（af-upload 依赖；jsdom 未实现） ===
+// 仅返回伪 URL 字符串，够组件追踪句柄与 revoke 匹配；不模拟真实 Blob URL
+if (!URL.createObjectURL) {
+  URL.createObjectURL = () => 'blob:mock://' + Math.random().toString(36).slice(2);
+}
+if (!URL.revokeObjectURL) {
+  URL.revokeObjectURL = () => {};
+}
+
 // 全局清理：每个测试之间隔离
 beforeEach(() => {
   document.documentElement.dataset.theme = '';

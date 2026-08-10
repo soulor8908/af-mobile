@@ -226,6 +226,21 @@
   }
   .input-err:focus { border-color: var(--c-danger); }
 
+  /* 原生 Constraint Validation API 联动：用户输入过且校验失败时自动错误态
+     AI 只需 <input class="input" required type="email">，无需写 JS 校验逻辑
+     :user-invalid 仅在用户交互过才触发，比 :invalid 更克制（首帧不报红） */
+  .input:user-invalid, .textarea:user-invalid { border-color: var(--c-danger); }
+  .input:user-invalid:focus, .textarea:user-invalid:focus { border-color: var(--c-danger); }
+
+  .upload-trigger { display: inline-flex; align-items: center; }
+  .upload-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: var(--s-2);
+    margin-top: var(--s-3);
+  }
+  .upload-grid:empty { display: none; }
+
   /* === 列表（6） === */
   .list {
     background: var(--c-card);

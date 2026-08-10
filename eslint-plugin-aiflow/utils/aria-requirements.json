@@ -54,5 +54,9 @@
     "role": "status",
     "ariaLive": true,
     "description": "骨架屏需要 role=status 和 aria-live=polite"
+  },
+  "af-upload": {
+    "ariaLabel": true,
+    "description": "上传组件的触发按钮需 aria-label；预览网格用 role=list"
   }
 }

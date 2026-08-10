@@ -10,20 +10,20 @@
 # 设计体系速查
 
 - **L1 Token（58 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
-- **L2 配方（68）+ 原子（52）= 120 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
-- **L3 真组件（13 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
+- **L2 配方（70）+ 原子（52）= 122 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
+- **L3 真组件（14 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
 
 # L2 白名单（构建时注入）
 
-## L2 配方（68 个，按用途分组）
+## L2 配方（70 个，按用途分组）
 
 **按钮（7）：** `btn` `btn-sm` `btn-lg` `btn-ghost` `btn-danger` `btn-success` `btn-block`
 **容器（5）：** `page` `card` `cell` `center` `sheet`
 **文本（7）：** `title` `subtitle` `body` `caption` `meta` `price` `price-del`
-**表单（16）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-loading` `switch-thumb` `search-bar-wrap` `search-bar-icon` `search-bar-clear` `input-err`
+**表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-loading` `switch-thumb` `search-bar-wrap` `search-bar-icon` `search-bar-clear` `input-err` `upload-trigger` `upload-grid`
 **列表（6）：** `list` `list-item` `list-item-compact` `divider` `thumb` `avatar`
 **反馈（17）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast`
 **导航（5）：** `navbar` `navbar-fixed` `tabbar` `tabbar-fixed` `tab-item`
@@ -42,9 +42,9 @@
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
 **文本对齐（4，补齐至 52）（4）：** `t-left` `t-center` `t-right` `ws-nowrap`
 
-## L3 真组件标签（13 个）
+## L3 真组件标签（14 个）
 
-`<af-action-sheet>` `<af-backtop>` `<af-dialog>` `<af-dropdown>` `<af-img>` `<af-list>` `<af-picker>` `<af-search-bar>` `<af-skeleton-page>` `<af-swiper>` `<af-switch>` `<af-tabs>` `<af-toast>`
+`<af-action-sheet>` `<af-backtop>` `<af-dialog>` `<af-dropdown>` `<af-img>` `<af-list>` `<af-picker>` `<af-search-bar>` `<af-skeleton-page>` `<af-swiper>` `<af-switch>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
 ## L1 Token 变量（58 个，必须用 var(--*) 引用）
 
@@ -73,6 +73,7 @@
 | `<af-switch>` | 开关 | checked, disabled, loading, size | af-switch:change |
 | `<af-search-bar>` | 搜索栏 | value, placeholder, clearable, debounce | af-search-bar:input, af-search-bar:search, af-search-bar:clear |
 | `<af-skeleton-page>` | 整页骨架屏 | variant | — |
+| `<af-upload>` | 文件上传 | accept, multiple, max-size, max-count, button-text | af-upload:change, af-upload:error |
 
 **通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`。
 
@@ -83,7 +84,7 @@
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-03. 禁止使用 120 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
+03. 禁止使用 122 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success`（破坏 onbrand 对比度）
 05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fc` 原子（自带 `display:flex`，再设会破坏布局）
@@ -92,7 +93,7 @@
 09. 禁止 `.list-item`/`.list-item-compact` 自带 border-top（分隔线由 `.list` 容器管理）
 10. 禁止 `.sheet` 手动 display 切换（显隐必须走原生 popover API `showPopover`/`hidePopover`）
 11. 禁止 `.tab-item` 用 `active` class 表达选中态（选中态单一真相源是 `aria-selected="true"`，视觉由属性选择器 `.tab-item[aria-selected="true"]` 驱动）
-12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img/af-switch/af-search-bar/af-skeleton-page）内含 `<style>` 或 `this.style.xxx`（纯 L2 配方，自定义样式请用 Shadow 组件或 `recipes.project.css`）
+12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img/af-switch/af-search-bar/af-skeleton-page/af-upload）内含 `<style>` 或 `this.style.xxx`（纯 L2 配方，自定义样式请用 Shadow 组件或 `recipes.project.css`）
 13. 禁止 Shadow 组件 CSS 字符串硬编码颜色/间距/字号/圆角（`dialog::backdrop` 遮罩 `rgba(0,0,0,.5)` 例外）
 14. 禁止事件名不符合 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`（Shadow 事件穿透）
 15. 禁止 af-dialog/af-action-sheet 无焦点陷阱（Tab 不逃出；关闭时还原焦点到触发元素）
@@ -121,6 +122,8 @@
   （白名单外 class + 重复造轮子，用 `af-list` 真组件）
 - ❌ `<span class="tag tag-ok tag-danger">混合状态</span>` → ✅ `<span class="tag tag-warn">待处理</span>`
   （`tag-ok` 与 `tag-danger` 互斥变体叠加，只能选一个）
+- ❌ `<form onsubmit="return validate()">` + 手写校验 JS → ✅ `<input class="input" required type="email" pattern="[^@]+@[^@]+" />`
+  （原生 Constraint Validation API：`.input:user-invalid` 自动红框，无需 JS；提交时 `form.reportValidity()` 走原生气泡）
 
 ---
 

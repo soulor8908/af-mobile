@@ -1,5 +1,5 @@
 // AIFlow UI —— TypeScript 类型声明
-// 公开 API：13 组件类 + AfElement 基类 + 主题 API + escapeHtml + register/registerAll
+// 公开 API：14 组件类 + AfElement 基类 + 主题 API + escapeHtml + register/registerAll
 // ⚠️ 手工维护：新增组件时须同步追加 class 声明，CI 的 types-sync 检查会校验一致
 
 /// <reference lib="dom" />
@@ -488,11 +488,59 @@ export class AfSkeletonPage extends AfElement {
 }
 
 // ============================================================
+// af-upload（v1.4.0 · 文件上传）
+// ============================================================
+
+export interface UploadPreview {
+  file: File;
+  url: string;
+  name: string;
+  size: number;
+  [key: string]: unknown;
+}
+
+export interface UploadError {
+  name: string;
+  size: number;
+  reason: 'type' | 'size' | 'count';
+  [key: string]: unknown;
+}
+
+export interface UploadChangeDetail extends AfEventDetail {
+  files: UploadPreview[];
+  errors: UploadError[];
+}
+
+export interface UploadErrorDetail extends AfEventDetail {
+  errors: UploadError[];
+}
+
+export class AfUpload extends AfElement {
+  static useShadow: false;
+  /** accept 文件类型（透传到原生 input） */
+  accept: string;
+  /** 是否多选 */
+  multiple: boolean;
+  /** 单文件大小上限（字节，0=不限） */
+  maxSize: number;
+  /** 文件数量上限（0=不限） */
+  maxCount: number;
+  /** 触发按钮文案 */
+  buttonText: string;
+  /** 触发按钮 aria-label */
+  ariaLabelText: string;
+  /** 清空已选文件 */
+  clear(): void;
+  addEventListener(type: 'af-upload:change', listener: (e: CustomEvent<UploadChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-upload:error', listener: (e: CustomEvent<UploadErrorDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
 // 注册接口
 // ============================================================
 
 /** 按需注册单个组件（传入标签名） */
 export function register(name: string): void;
 
-/** 全量注册 13 个组件 */
+/** 全量注册 14 个组件 */
 export function registerAll(): void;

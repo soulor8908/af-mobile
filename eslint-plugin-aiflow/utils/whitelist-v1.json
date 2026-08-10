@@ -70,7 +70,9 @@
       "textarea",
       "thumb",
       "title",
-      "toast"
+      "toast",
+      "upload-grid",
+      "upload-trigger"
     ],
     "atomic": [
       "aic",
@@ -140,7 +142,8 @@
     "af-swiper",
     "af-switch",
     "af-tabs",
-    "af-toast"
+    "af-toast",
+    "af-upload"
   ],
   "tokens": [
     "--c-bg",

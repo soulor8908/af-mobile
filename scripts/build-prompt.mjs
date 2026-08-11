@@ -161,6 +161,12 @@ const COMPONENT_META = [
   { tag: 'af-data', purpose: '声明式数据源', props: 'src, ref, cache, cache-ttl', events: 'af-data:load, af-data:error' },
 ];
 
+// L3.5 Block 简表元数据（与 src/blocks/af-*.js 一一对应）
+// 新增 Block 时在此追加一行；CI 的 check-types-sync 会校验四源一致，防漂移
+const BLOCK_META = [
+  { tag: 'af-setting-group', purpose: '设置分组（五态+键盘导航）', variant: 'default / with-switch / with-value', props: 'title, items, variant, loading', events: 'af-setting-group:itemclick, af-setting-group:change, af-setting-group:retry' },
+];
+
 // 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）
 export function buildComponentTableSection(meta = COMPONENT_META) {
   const lines = [
@@ -169,6 +175,19 @@ export function buildComponentTableSection(meta = COMPONENT_META) {
   ];
   for (const c of meta) {
     lines.push(`| \`<${c.tag}>\` | ${c.purpose} | ${c.props} | ${c.events} |`);
+  }
+  return lines.join('\n');
+}
+
+// 生成 L3.5 Block 简表 markdown（注入模板，与 src/blocks/ 防漂移）
+export function buildBlockTableSection(meta = BLOCK_META) {
+  if (!meta.length) return '（暂无 Block，待实现）';
+  const lines = [
+    '| Block | 用途 | variant | 核心属性 | 核心事件 |',
+    '|---|---|---|---|---|',
+  ];
+  for (const b of meta) {
+    lines.push(`| \`<${b.tag}>\` | ${b.purpose} | ${b.variant} | ${b.props} | ${b.events} |`);
   }
   return lines.join('\n');
 }
@@ -193,14 +212,17 @@ function main() {
 
   const wlSection = buildWhitelistSection(wl, recipeGroups, atomicGroups);
   const compTableSection = buildComponentTableSection();
+  const blockTableSection = buildBlockTableSection();
   let output = tpl
     .replaceAll('<!-- {{{ WHITELIST_INJECTION_POINT }}} -->', wlSection)
     .replaceAll('<!-- {{{ COMPONENT_TABLE_INJECTION_POINT }}} -->', compTableSection)
+    .replaceAll('<!-- {{{ BLOCK_TABLE_INJECTION_POINT }}} -->', blockTableSection)
     .replaceAll('{{{ TOKEN_COUNT }}}', String(wl.tokens.length))
     .replaceAll('{{{ RECIPE_COUNT }}}', String(wl.classes.recipe.length))
     .replaceAll('{{{ ATOMIC_COUNT }}}', String(wl.classes.atomic.length))
     .replaceAll('{{{ TOTAL_CLASS_COUNT }}}', String(wl.classes.recipe.length + wl.classes.atomic.length))
-    .replaceAll('{{{ COMPONENT_COUNT }}}', String(wl.components.length));
+    .replaceAll('{{{ COMPONENT_COUNT }}}', String(wl.components.length))
+    .replaceAll('{{{ BLOCK_COUNT }}}', String(BLOCK_META.length));
 
   // 项目级扩展（可选）
   let extSection = '';

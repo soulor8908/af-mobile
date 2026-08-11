@@ -718,6 +718,53 @@ export function register(name: string): void;
 /** 全量注册 21 个组件 */
 export function registerAll(): void;
 
+/** 全量注册 L3.5 Block（当前 1 个，后续扩展到 42 个） */
+export function registerAllBlocks(): void;
+
+// ============================================================
+// L3.5 Block 层（复合组件，AI 优先使用）
+// ============================================================
+
+/** 设置项 schema */
+export interface SettingItem {
+  label?: string;
+  icon?: string;
+  value?: string;
+  action?: 'arrow';
+  checked?: boolean;
+  disabled?: boolean;
+  [key: string]: unknown;
+}
+
+export interface SettingGroupItemClickDetail extends AfEventDetail {
+  index: number;
+  item: SettingItem;
+}
+
+export interface SettingGroupChangeDetail extends AfEventDetail {
+  index: number;
+  checked: boolean;
+  item: SettingItem;
+}
+
+/** af-setting-group：设置分组（含五态/键盘导航/移动端适配） */
+export class AfSettingGroup extends AfElement {
+  static useShadow: false;
+  /** 变体：default（箭头）/ with-switch（开关）/ with-value（值+箭头） */
+  variant: 'default' | 'with-switch' | 'with-value';
+  /** 分组标题（空则不渲染标题行） */
+  title: string;
+  /** 设置项列表 */
+  items: SettingItem[];
+  /** 加载态（显示骨架屏） */
+  loading: boolean;
+  /** 触发错误态（如 fetch 失败） */
+  setError(err: unknown): void;
+  addEventListener(type: 'af-setting-group:itemclick', listener: (e: CustomEvent<SettingGroupItemClickDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-setting-group:change', listener: (e: CustomEvent<SettingGroupChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-setting-group:retry', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
 // ============================================================
 // 核心运行时：state（响应式原语）
 // ============================================================

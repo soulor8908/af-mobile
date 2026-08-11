@@ -11,7 +11,8 @@
 
 - **L1 Token（58 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
 - **L2 配方（102）+ 原子（52）= 154 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
-- **L3 真组件（21 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
+- **L3 真组件（22 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
+- **L3.5 Block（1 个复合组件）** → AI 优先使用，内置五态+a11y+移动端适配（详见下方简表；完整设计见 docs/design/l3.5-block-detailed-design.md）
 - **L4 约束层**：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
@@ -50,9 +51,9 @@
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
 **文本对齐（4，补齐至 52）（4）：** `t-left` `t-center` `t-right` `ws-nowrap`
 
-## L3 真组件标签（21 个）
+## L3 真组件标签（22 个）
 
-`<af-action-sheet>` `<af-backtop>` `<af-data>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-picker>` `<af-pull-refresh>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
+`<af-action-sheet>` `<af-backtop>` `<af-data>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-picker>` `<af-pull-refresh>` `<af-search-bar>` `<af-setting-group>` `<af-skeleton-page>` `<af-stepper>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
 ## L1 Token 变量（58 个，必须用 var(--*) 引用）
 
@@ -91,6 +92,20 @@
 | `<af-data>` | 声明式数据源 | src, ref, cache, cache-ttl | af-data:load, af-data:error |
 
 **通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`。
+
+---
+
+# L3.5 Block 简表（复合组件，AI 优先使用，完整设计见 docs/design/l3.5-block-detailed-design.md）
+
+| Block | 用途 | variant | 核心属性 | 核心事件 |
+|---|---|---|---|---|
+| `<af-setting-group>` | 设置分组（五态+键盘导航） | default / with-switch / with-value | title, items, variant, loading | af-setting-group:itemclick, af-setting-group:change, af-setting-group:retry |
+
+**Block 使用规则**：
+1. **优先用 Block，其次用 L3 组件，最后用 L2 class**：Block 内置五态（loading/error/empty/success）+ a11y + 移动端适配，AI 只传 props 即可
+2. **禁止穿透 Block 边界**：不可 `querySelector('af-* > div')` 或访问 `shadowRoot`，只能通过 props/事件交互
+3. **Block 内部结构对 AI 不可见**：AI 只写 `<af-block-tag :prop="...">`，不写内部 input/button 等
+4. **Block 内部交互由库作者维护**（倒计时/校验/虚拟滚动），AI 只做 Block 间协调（`@event` 声明式绑定）
 
 ---
 

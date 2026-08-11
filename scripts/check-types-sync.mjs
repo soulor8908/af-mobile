@@ -1,20 +1,25 @@
 // 校验 d.ts 与源码组件数一致，防手工类型声明漂移
-// 三源对齐：src/components/af-*.js 文件数 == src/index.js import Af* 数 == src/index.d.ts export class Af* 数
-import { readFileSync, readdirSync } from 'node:fs';
+// 四源对齐：src/components/af-*.js + src/blocks/af-*.js == src/index.js import Af* 数 == src/index.d.ts export class Af* 数
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const problems = [];
 
-// A. 源码组件文件
-const srcFiles = readdirSync(join(root, 'src/components'))
-  .filter(f => /^af-.*\.js$/.test(f));
-const srcClasses = srcFiles.map(f => {
+// A. 源码组件文件（L3 组件 + L3.5 Block）
+const fileToClass = (f) => {
   const base = f.replace(/\.js$/, '');           // af-list
   const parts = base.split('-').slice(1);         // ['list']
   return 'Af' + parts.map(p => p[0].toUpperCase() + p.slice(1)).join(''); // AfList
-});
+};
+const componentFiles = readdirSync(join(root, 'src/components')).filter(f => /^af-.*\.js$/.test(f));
+const srcClasses = componentFiles.map(fileToClass);
+const blocksDir = join(root, 'src/blocks');
+if (existsSync(blocksDir)) {
+  const blockFiles = readdirSync(blocksDir).filter(f => /^af-.*\.js$/.test(f));
+  srcClasses.push(...blockFiles.map(fileToClass));
+}
 
 // B. src/index.js import 的组件类名
 const indexJs = readFileSync(join(root, 'src/index.js'), 'utf8');
@@ -32,14 +37,15 @@ const cmp = (label, arr, ref) => {
 };
 cmp('src/index.js', indexImports, srcClasses);
 cmp('src/index.d.ts', dtsClasses, srcClasses);
-cmp('src/components', srcClasses, indexImports);
+cmp('src/components+blocks', srcClasses, indexImports);
 
 if (problems.length) {
-  console.error('✗ types-sync 失败（d.ts / index.js / src/components 三源不一致）:');
+  console.error('✗ types-sync 失败（d.ts / index.js / src/components+blocks 四源不一致）:');
   for (const p of problems) console.error('  - ' + p);
-  console.error(`\n  src/components: ${srcClasses.length} (${srcClasses.join(', ')})`);
-  console.error(`  src/index.js:   ${indexImports.length} (${indexImports.join(', ')})`);
-  console.error(`  src/index.d.ts: ${dtsClasses.length} (${dtsClasses.join(', ')})`);
+  console.error(`\n  src/components+blocks: ${srcClasses.length} (${srcClasses.join(', ')})`);
+  console.error(`  src/index.js:          ${indexImports.length} (${indexImports.join(', ')})`);
+  console.error(`  src/index.d.ts:        ${dtsClasses.length} (${dtsClasses.join(', ')})`);
   process.exit(1);
 }
-console.log(`✓ types-sync: 三源一致，${srcClasses.length} 个组件类`);
+console.log(`✓ types-sync: 四源一致，${srcClasses.length} 个组件/Block 类`);
+

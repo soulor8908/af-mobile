@@ -8,7 +8,7 @@
 // 实现：esbuild 打包+minify，Node zlib 测 gzip（原生，无 gzip-size 依赖）
 import { build } from 'esbuild';
 import { gzipSync } from 'node:zlib';
-import { readFileSync, readdirSync, writeFileSync, mkdtempSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync, mkdtempSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -44,6 +44,9 @@ const SRC = join(ROOT, 'src');
 // v1.7.0 调整（definePage 运行时）：
 //   total 20.5→21.0KB：新增 af-data 组件（~1.4KB）- page/bind 外移到 coreRuntime
 //   coreRuntime 5.2→7.0KB：新增 page.js（definePage 8 原语 ~1.5KB）+ bind.js（:bind 管道 ~1.0KB），独立预算不计入 total
+//   新增 blocks 预算：L3.5 Block 层独立体积监控（不计入 total，与组件层分离）
+//     单 Block ≤ 1.6KB（基准 1.5KB + 五态/a11y 容差 0.1KB，复杂 Block 如 product-grid 可至 2KB）
+//     全量 Block ≤ 15KB（设计文档 §9.1，当前仅 af-setting-group 1 个，目标 42 个）
 const BUDGET = {
   css: 8.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
@@ -51,6 +54,8 @@ const BUDGET = {
   total: 21.0,         // KB，21 组件 + 基类（含 af-data，page/bind 外移到 coreRuntime）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 7.0,    // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total
+  perBlock: 1.6,       // KB，单 L3.5 Block JS（独立预算，不计入 total，含五态/a11y 容差）
+  blocksTotal: 15.0,   // KB，全量 L3.5 Block JS（独立预算，当前 1 个，目标 42 个）
 };
 
 const KB = 1024;
@@ -87,6 +92,14 @@ const FILE_TO_NAME = {
 const NAME_TO_FILE = Object.fromEntries(
   Object.entries(FILE_TO_NAME).map(([f, n]) => [n, f])
 );
+
+// Block 文件名 → 类名（动态生成，新增 Block 自动适配）
+const fileToBlockClass = (f) => {
+  const base = f.replace(/\.js$/, '');
+  const parts = base.split('-').slice(1);
+  return 'Af' + parts.map(p => p[0].toUpperCase() + p.slice(1)).join('');
+};
+const toPosixBlock = (p) => p.replace(/\\/g, '/');
 
 // 按需引入 2 组件：临时入口 import 基类 + 2 组件，bundle 后 minify+gz
 async function onDemand2Gz(compA, compB) {
@@ -180,6 +193,38 @@ async function main() {
   // 5. 核心运行时（router + state + fetch）
   const coreGz = await measureCoreRuntime();
 
+  // 6. L3.5 Block 层（src/blocks/af-*.js，独立预算，不计入 total）
+  const blocksDir = join(SRC, 'blocks');
+  let blockSizes = [];
+  let blocksTotalGz = 0;
+  if (existsSync(blocksDir)) {
+    const blockFiles = readdirSync(blocksDir).filter(f => /^af-.*\.js$/.test(f)).sort();
+    // Block external：基类 + theme + i18n + page + bind（Block 可组合 af-* 组件，不 external 组件）
+    const blockExternal = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js', '../lib/page.js', './page.js', '../lib/bind.js', './bind.js'];
+    for (const f of blockFiles) {
+      const { gz } = await minifyGz(join(blocksDir, f), blockExternal);
+      blockSizes.push({ file: f, gz });
+    }
+    // Block 全量 bundle（独立打包，external coreRuntime + 基类）
+    const blockEntry = blockFiles.map(f => {
+      const cls = fileToBlockClass(f);
+      return `import { ${cls} } from '${toPosixBlock(join(blocksDir, f))}';\n` +
+             `customElements.define('${f.replace(/\.js$/, '')}', ${cls});\n`;
+    }).join('');
+    if (blockEntry) {
+      const dir2 = mkdtempSync(join(tmpdir(), 'aiflow-blocks-'));
+      const entry2 = join(dir2, 'entry.js');
+      writeFileSync(entry2, blockEntry);
+      const blocksRes = await build({
+        entryPoints: [entry2],
+        bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+        absWorkingDir: ROOT,
+        external: blockExternal,
+      });
+      blocksTotalGz = gzipSync(Buffer.from(blocksRes.outputFiles[0].text)).length;
+    }
+  }
+
   // === 报告 ===
   console.log('\n╔══════════════════════════════════════════════════════════╗');
   console.log('║          AIFlow UI —— 体积预算验证                      ║');
@@ -216,6 +261,19 @@ async function main() {
   const onDemandOver = onDemandGz > BUDGET.onDemand2 * KB;
   console.log(`按需 2 组件（${top2Names.join('+')}） ${fmt(onDemandGz).padStart(8)}  预算 ≤ ${BUDGET.onDemand2}KB  ${onDemandOver ? '⚠ warn' : '✓'}`);
   if (onDemandOver) warns.push(`按需 2 组件 ${fmt(onDemandGz)} > ${BUDGET.onDemand2}KB`);
+
+  // L3.5 Block 层（独立预算）
+  if (blockSizes.length) {
+    console.log('');
+    for (const b of blockSizes) {
+      const over = b.gz > BUDGET.perBlock * KB;
+      console.log(`  ${b.file.padEnd(22)} ${fmt(b.gz).padStart(9)}  预算 ≤ ${BUDGET.perBlock}KB  ${over ? '✗ 超限' : '✓'}`);
+      if (over) violations.push(`${b.file} ${fmt(b.gz)} > ${BUDGET.perBlock}KB`);
+    }
+    const blocksTotalOver = blocksTotalGz > BUDGET.blocksTotal * KB;
+    console.log(`L3.5 Block 全量（${blockSizes.length} 个） ${fmt(blocksTotalGz).padStart(8)}  预算 ≤ ${BUDGET.blocksTotal}KB  ${blocksTotalOver ? '✗ 超限' : '✓'}`);
+    if (blocksTotalOver) violations.push(`L3.5 Block 全量 ${fmt(blocksTotalGz)} > ${BUDGET.blocksTotal}KB`);
+  }
 
   // 核心运行时
   console.log('');

@@ -45,8 +45,11 @@ const SRC = join(ROOT, 'src');
 //   total 20.5→21.0KB：新增 af-data 组件（~1.4KB）- page/bind 外移到 coreRuntime
 //   coreRuntime 5.2→7.0KB：新增 page.js（definePage 8 原语 ~1.5KB）+ bind.js（:bind 管道 ~1.0KB），独立预算不计入 total
 //   新增 blocks 预算：L3.5 Block 层独立体积监控（不计入 total，与组件层分离）
-//     单 Block ≤ 1.6KB（基准 1.5KB + 五态/a11y 容差 0.1KB，复杂 Block 如 product-grid 可至 2KB）
-//     全量 Block ≤ 15KB（设计文档 §9.1，当前仅 af-setting-group 1 个，目标 42 个）
+// v1.7.1 调整（Block 体积治理）：
+//   删除 blocksTotal 预算（反模式：测全量 bundle 但消费端从不全量加载，预算本身是误导）
+//   删除 registerAllBlocks() 函数（反模式：诱导全量加载，Block 只能按需 import + define）
+//   新增 blocksOnDemand3 预算：按需 3 Block bundle ≤6KB（模拟复杂页面真实场景，基类共享后增量极小）
+//   单 Block ≤ 1.6KB 保留（防个别 Block 失控）
 const BUDGET = {
   css: 8.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
@@ -55,7 +58,7 @@ const BUDGET = {
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 7.0,    // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total
   perBlock: 1.6,       // KB，单 L3.5 Block JS（独立预算，不计入 total，含五态/a11y 容差）
-  blocksTotal: 15.0,   // KB，全量 L3.5 Block JS（独立预算，当前 1 个，目标 42 个）
+  blocksOnDemand3: 6.0,// KB，按需 3 Block bundle（模拟复杂页面真实场景，含基类共享）
 };
 
 const KB = 1024;
@@ -201,34 +204,37 @@ async function main() {
   const coreGz = await measureCoreRuntime();
 
   // 6. L3.5 Block 层（src/blocks/af-*.js，独立预算，不计入 total）
+  //    perBlock：单 Block external 基类后测体积（防个别 Block 失控）
+  //    blocksOnDemand3：按需 3 Block bundle（模拟复杂页面，基类共享后增量极小）
+  //    不测全量 bundle（反模式：消费端从不全量加载 Block）
   const blocksDir = join(SRC, 'blocks');
   let blockSizes = [];
-  let blocksTotalGz = 0;
+  let blocksOnDemand3Gz = 0;
   if (existsSync(blocksDir)) {
     const blockFiles = readdirSync(blocksDir).filter(f => /^af-.*\.js$/.test(f)).sort();
-    // Block external：基类 + theme + i18n + page + bind（Block 可组合 af-* 组件，不 external 组件）
     const blockExternal = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js', '../lib/page.js', './page.js', '../lib/bind.js', './bind.js'];
     for (const f of blockFiles) {
       const { gz } = await minifyGz(join(blocksDir, f), blockExternal);
       blockSizes.push({ file: f, gz });
     }
-    // Block 全量 bundle（独立打包，external coreRuntime + 基类）
-    const blockEntry = blockFiles.map(f => {
-      const cls = fileToBlockClass(f);
-      return `import { ${cls} } from '${toPosixBlock(join(blocksDir, f))}';\n` +
-             `customElements.define('${f.replace(/\.js$/, '')}', ${cls});\n`;
-    }).join('');
-    if (blockEntry) {
+    // 按需 3 Block bundle（取最大的 3 个，最坏情况；基类 AfElement 会被共享）
+    const top3 = [...blockSizes].sort((a, b) => b.gz - a.gz).slice(0, 3);
+    if (top3.length) {
       const dir2 = mkdtempSync(join(tmpdir(), 'aiflow-blocks-'));
       const entry2 = join(dir2, 'entry.js');
-      writeFileSync(entry2, blockEntry);
+      const onDemand3Code = top3.map(b => {
+        const cls = fileToBlockClass(b.file);
+        const tag = b.file.replace(/\.js$/, '');
+        return `import { ${cls} } from '${toPosixBlock(join(blocksDir, b.file))}';\ncustomElements.define('${tag}', ${cls});\n`;
+      }).join('');
+      writeFileSync(entry2, onDemand3Code);
       const blocksRes = await build({
         entryPoints: [entry2],
         bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
         absWorkingDir: ROOT,
         external: blockExternal,
       });
-      blocksTotalGz = gzipSync(Buffer.from(blocksRes.outputFiles[0].text)).length;
+      blocksOnDemand3Gz = gzipSync(Buffer.from(blocksRes.outputFiles[0].text)).length;
     }
   }
 
@@ -269,7 +275,7 @@ async function main() {
   console.log(`按需 2 组件（${top2Names.join('+')}） ${fmt(onDemandGz).padStart(8)}  预算 ≤ ${BUDGET.onDemand2}KB  ${onDemandOver ? '⚠ warn' : '✓'}`);
   if (onDemandOver) warns.push(`按需 2 组件 ${fmt(onDemandGz)} > ${BUDGET.onDemand2}KB`);
 
-  // L3.5 Block 层（独立预算）
+  // L3.5 Block 层（独立预算，按需 import 模式）
   if (blockSizes.length) {
     console.log('');
     for (const b of blockSizes) {
@@ -277,9 +283,12 @@ async function main() {
       console.log(`  ${b.file.padEnd(22)} ${fmt(b.gz).padStart(9)}  预算 ≤ ${BUDGET.perBlock}KB  ${over ? '✗ 超限' : '✓'}`);
       if (over) violations.push(`${b.file} ${fmt(b.gz)} > ${BUDGET.perBlock}KB`);
     }
-    const blocksTotalOver = blocksTotalGz > BUDGET.blocksTotal * KB;
-    console.log(`L3.5 Block 全量（${blockSizes.length} 个） ${fmt(blocksTotalGz).padStart(8)}  预算 ≤ ${BUDGET.blocksTotal}KB  ${blocksTotalOver ? '✗ 超限' : '✓'}`);
-    if (blocksTotalOver) violations.push(`L3.5 Block 全量 ${fmt(blocksTotalGz)} > ${BUDGET.blocksTotal}KB`);
+    if (blocksOnDemand3Gz > 0) {
+      const top3Names = [...blockSizes].sort((a, b) => b.gz - a.gz).slice(0, 3).map(b => b.file.replace(/\.js$/, ''));
+      const onDemand3Over = blocksOnDemand3Gz > BUDGET.blocksOnDemand3 * KB;
+      console.log(`按需 3 Block（${top3Names.join('+')}） ${fmt(blocksOnDemand3Gz).padStart(8)}  预算 ≤ ${BUDGET.blocksOnDemand3}KB  ${onDemand3Over ? '✗ 超限' : '✓'}`);
+      if (onDemand3Over) violations.push(`按需 3 Block ${fmt(blocksOnDemand3Gz)} > ${BUDGET.blocksOnDemand3}KB`);
+    }
   }
 
   // 核心运行时

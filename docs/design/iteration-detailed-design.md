@@ -1,4 +1,4 @@
-# AIFlow UI —— 迭代版本详细设计（v1.1.0 / v1.2.0 / v1.3.0）
+# AIFlow UI —— 迭代版本详细设计（v1.1.0 / v1.2.0 / v1.3.0 / v1.4.0 / v1.5.0 / v1.6.0）
 
 > 本文档基于 [iteration-plan.md](file:///d:/projects/aiflow-ui/docs/iteration-plan.md)，将 10 个迭代项（IP-1 ~ IP-10）细化为可直接落地的详细设计。
 >
@@ -23,6 +23,14 @@
   - [IP-8 SSR / hydration 指引](#ip-8-ssr--hydration-指引)
   - [IP-9 官方 demo 站](#ip-9-官方-demo-站)
   - [IP-10 slotchange 监听补齐](#ip-10-slotchange-监听补齐)
+- [v1.4.0 L3.5 Block 层 + definePage 基础设施](#v140-l35-block-层--definepage-基础设施)
+  - [IP-11 definePage 运行时 + af-data + :bind](#ip-11-definepage-运行时--af-data--bind)
+  - [IP-12 3 个验证 Block 实现](#ip-12-3-个验证-block-实现)
+  - [IP-13 wc-block-* ESLint 规则集](#ip-13-wc-block-eslint-规则集)
+- [v1.5.0 Block 层补齐 42 个](#v150-block-层补齐-42-个)
+  - [IP-14 Block 批量实现（4 批：10+10+10+9 = 39）](#ip-14-block-批量实现4-批1010109--39)
+- [v1.6.0 跨项目 usechat 协议](#v160-跨项目-usechat-协议)
+  - [IP-15 Block schema 序列化与 usechat](#ip-15-block-schema-序列化与-usechat)
 - [设计决策索引](#设计决策索引)
 
 ---
@@ -931,6 +939,193 @@ af-picker 当前为 Shadow DOM，选项通过 `data` 属性传入（非 slot）�
 
 ---
 
+## v1.4.0 L3.5 Block 层 + definePage 基础设施
+
+> 完整设计见 [l3.5-block-detailed-design.md](file:///d:/projects/aiflow-ui/docs/design/l3.5-block-detailed-design.md)。本节仅列迭代项清单与验收标准。
+
+### IP-11 definePage 运行时 + af-data + :bind
+
+#### 1. 目标
+
+实现 `definePage({...})` 单一入口,统一调度 state/computed/effects/actions/transform/onError/transition/keepAlive,内置 af-data 数据源和 :bind 数据绑定语法糖。复用现有 `state.js`/`router.js`/`fetch.js`,不重造响应式。
+
+#### 2. 文件清单
+
+| 文件 | 职责 | 体积预算 |
+|---|---|---|
+| `src/lib/page.js` | definePage 运行时(state→signal / computed / effects 白名单 / actions / onError / transition / keepAlive 调度) | ≤ 1.0KB |
+| `src/lib/bind.js` | `:bind` / `@event` / `:model` 解析,建立 signal→Block.setAttribute 响应式管道 | ≤ 0.6KB |
+| `src/lib/data.js` | af-data controller(封装 fetchPage + transform + loading/error 状态同步) | ≤ 0.4KB |
+| `src/index.js` | 导出 `definePage` | - |
+| `src/index.d.ts` | definePage / af-data / :bind 类型声明 | - |
+
+#### 3. 实现要点
+
+- `definePage.state` 字段 → 内部 `signal()` 实例,赋值触发 `signal.set`
+- `definePage.computed` → 直接调 `state.js` 的 `computed(fn)`,自动依赖追踪(AI 不写 deps 数组)
+- `definePage.effects` 白名单 key → `effect(fn)` 包裹 + 预定义 EventTarget 订阅(mount/unmount 用 connectedCallback;route 用 `router.current()`;online/visible/resize 用 window 事件;interval 用 setInterval;storage 用 window'storage')
+- `definePage.transform` 纯函数 → af-data fetch 后调用,结果存入 signal
+- `definePage.onError` → try-catch 包裹 af-data fetch 和 action 调用,错误透传(TimeoutError/HttpError/AbortError)
+- `definePage.transition` / `keepAlive` → 透传 `route(path, handler, { transition, keepAlive })`,router.js 已有 startViewTransition 和 _cache 机制
+
+#### 4. 验收标准
+
+- [ ] definePage 8 原语全部实现,单测覆盖
+- [ ] af-data + :bind + :model 在 3 个验证页面跑通
+- [ ] 自动依赖追踪生效(computed 不写 deps,state 变化自动重算)
+- [ ] keepAlive 透传 router.js,缓存生效
+- [ ] transition 透传 router.js,startViewTransition 调用
+- [ ] page.js + bind.js + data.js 合计 ≤ 2KB gzip
+- [ ] `npm run types:check` 通过
+
+---
+
+### IP-12 3 个验证 Block 实现
+
+#### 1. 目标
+
+实现 3 个验证 Block,跑通"标签+props+事件→内部五态+a11y+移动端适配"完整链路。
+
+#### 2. 文件清单
+
+| 文件 | Block | variant | 内部组合 |
+|---|---|---|---|
+| `src/blocks/af-auth-form.js` | af-auth-form | phone-code/password/sms | af-field×N + input-bar + btn + caption + af-skeleton-page(loading)+ empty(error) |
+| `src/blocks/af-product-grid.js` | af-product-grid | one-column/two-column/water-fall | af-img + card + price + badge + af-pull-refresh + af-skeleton-page |
+| `src/blocks/af-setting-group.js` | af-setting-group | default/with-switch/with-value | af-list + list-item×N + af-switch + divider |
+
+#### 3. 实现要点
+
+每个 Block:
+- `extends AfElement`,`static useShadow = false`(Light DOM 复用 recipe)
+- `AfElement.defineProp` 声明 2-5 个 props
+- 实现 5 态:idle/loading/error/empty/success(参考 §1.6 checklist)
+- a11y:aria-label / aria-live / 焦点顺序 / 键盘导航
+- 移动端:触摸热区 ≥ 44px / 安全区 padding / 键盘弹起 / prefers-reduced-motion
+- 事件:`af-{block}:{action}` 格式,emit 含 composed:true
+
+#### 4. 验收标准
+
+- [ ] 3 个 Block 单测全绿
+- [ ] wc-block-states / wc-block-props-count / wc-block-variant-enum 规则通过
+- [ ] 登录页/商品列表/设置页 e2e 跑通,token 降幅 ≥ 70%
+- [ ] 单 Block ≤ 1.5KB gzip(product-grid 可至 2KB)
+- [ ] a11y 测试通过(aria-label/键盘导航/焦点管理)
+
+---
+
+### IP-13 wc-block-* ESLint 规则集
+
+#### 1. 目标
+
+实现 9 条 L3.5 Block 层 ESLint 规则(8 error + 1 warn),约束 Block 协议和 definePage 原语。
+
+#### 2. 文件清单
+
+| 文件 | 规则 | severity |
+|---|---|---|
+| `eslint-plugin-aiflow/rules/wc-block-states.js` | Block 必须实现五态 | error |
+| `eslint-plugin-aiflow/rules/wc-block-props-count.js` | Block props 数 2-5 | error |
+| `eslint-plugin-aiflow/rules/wc-block-no-internal-ref.js` | 消费端禁止穿透 Block 边界 | error |
+| `eslint-plugin-aiflow/rules/wc-effects-whitelist.js` | effects key 只能在白名单 | error |
+| `eslint-plugin-aiflow/rules/wc-transform-pure.js` | transform 函数体无副作用 | error |
+| `eslint-plugin-aiflow/rules/wc-bind-syntax.js` | :bind 只能绑定 state/computed/af-data 字段 | error |
+| `eslint-plugin-aiflow/rules/wc-no-addeventlistener.js` | 消费端禁止裸 addEventListener | error |
+| `eslint-plugin-aiflow/rules/wc-definepage-single.js` | 每页只允许一个 definePage | error |
+| `eslint-plugin-aiflow/rules/wc-state-schema.js` | state 字段必须声明类型 | error |
+| `eslint-plugin-aiflow/rules/wc-pure-function.js` | computed/actions 必须纯函数 | error |
+| `eslint-plugin-aiflow/rules/wc-block-variant-enum.js` | variant 必须限制枚举 | warn |
+
+#### 3. 实现要点
+
+- `wc-block-states`:AST 扫描 Block 类的 render/mounted 方法,检测 loading/error/empty 分支
+- `wc-block-props-count`:统计 `AfElement.defineProp` 调用数
+- `wc-block-no-internal-ref`:正则检测 `querySelector('af-* >')` 和 `.shadowRoot.querySelector`
+- `wc-effects-whitelist`:解析 `definePage({ effects: {...} })` 的 key,对比白名单数组
+- `wc-transform-pure`:AST 分析 transform 函数体,禁止 fetch/document/window/外部赋值
+- `wc-bind-syntax`:解析 HTML attribute `:bind`,验证右侧表达式语法
+- `wc-no-addeventlistener`:检测 `addEventListener` 调用,允许 `// eslint-disable-next-line` 例外
+- `wc-definepage-single`:统计单文件 `definePage(` 调用数 ≤ 1
+- `wc-state-schema`:扫描 `state: {...}` 每个字段,要求同行或上方有 `// {Type}` 注释
+- `wc-pure-function`:AST 分析 computed/actions 函数体,禁止 fetch/document/window,actions 仅允许赋值 `state.*`
+- `wc-block-variant-enum`:检测 variant setter 是否含枚举校验
+
+#### 4. 验收标准
+
+- [ ] 11 条规则全部实现,每条有正反例测试用例
+- [ ] `eslint-plugin-aiflow/index.js` 的 recommended config 追加 11 条(10 error + 1 warn)
+- [ ] `npx eslint src/ test/ scripts/ --max-warnings 0` 全绿
+- [ ] 3 个验证 Block + 验证页面代码通过所有规则
+
+---
+
+## v1.5.0 Block 层补齐 42 个
+
+### IP-14 Block 批量实现（4 批：10+10+10+9 = 39）
+
+#### 1. 目标
+
+在 v1.4.0 的 3 个验证 Block 基础上,补齐剩余 39 个 Block,达到 42 个完整集合。
+
+#### 2. 分批清单
+
+| 批次 | Block 数 | 内容 | 来源章节 |
+|---|---|---|---|
+| 批 1 | 10 | 头部 4(page-header/nav-bar/tab-header/search-header)+ 表单 6(agreement-row/filter-form/edit-form/search-form/upload-form/stepper-form) | l3.5 §5.1/5.2 |
+| 批 2 | 10 | 列表 6(message-list/order-list/comment-list/feed-list/search-result/category-list)+ 卡片 4(profile-card/stat-card/info-card/price-card) | l3.5 §5.3/5.4 |
+| 批 3 | 10 | 卡片 2(user-card/order-card)+ 反馈 5(list-empty/error-state/loading-skeleton/toast-stack/confirm-dialog)+ 导航 3(bottom-tab/bottom-nav/breadcrumb) | l3.5 §5.4/5.5/5.6 |
+| 批 4 | 9 | 导航 1(stepper-nav)+ 操作 5(action-panel/danger-action/bulk-action/floating-action/third-login)+ 展示 3(hero-banner/swiper-card/detail-gallery) | l3.5 §5.6/5.7/5.8 |
+
+#### 3. 每批交付物
+
+- `src/blocks/af-*.js` 实现 + 单测
+- `prompt/system-prompt.template.md` 追加 Block 简表
+- `scripts/build-prompt.mjs` 扫描 src/blocks/ 自动提取元数据
+- `npm run size:blocks` 体积检查
+- `npm run prompt:check` 一致性检查
+
+#### 4. 验收标准
+
+- [ ] 42 个 Block 全部实现,单测全绿
+- [ ] L3.5 全量 ≤ 15KB gzip
+- [ ] 单 Block ≤ 1.5KB gzip(复杂 Block 可至 2KB)
+- [ ] wc-block-* 规则全绿
+- [ ] system-prompt 的 Block 简表与 src/blocks/ 一致
+
+---
+
+## v1.6.0 跨项目 usechat 协议
+
+### IP-15 Block schema 序列化与 usechat
+
+#### 1. 目标
+
+基于 Block schema 序列化实现跨项目 AI 一致性(usechat)。同一 AI agent 在不同项目生成的 Block 代码一致,因 schema 一致。
+
+#### 2. 范围
+
+- **Block schema 序列化格式**(JSON):标签名/variant 枚举/props schema/事件 schema/状态完整性声明
+- **usechat 协议**:跨项目复用 Block 配置(不是代码,是配置 schema)
+- **CLI/MCP 分发**:Block 集合作为 MCP 工具暴露给 AI agent
+
+#### 3. 文件清单(预估)
+
+| 文件 | 职责 |
+|---|---|
+| `src/lib/schema.js` | Block schema 序列化/反序列化 |
+| `scripts/gen-schema.mjs` | 扫描 src/blocks/ 生成 schema.json |
+| `src/lib/usechat.js` | usechat 协议实现(配置同步) |
+| `src/mcp/server.js` | MCP server(暴露 Block 集合给 AI agent) |
+
+#### 4. 验收标准
+
+- [ ] schema.json 覆盖 42 个 Block,字段完整
+- [ ] usechat 协议在 2 个不同项目验证:同一 AI 生成的 Block 代码一致
+- [ ] MCP server 可被 AI agent 调用,返回 Block schema
+- [ ] `npm run schema:check` 校验 schema.json 与 src/blocks/ 一致
+
+---
+
 ## 设计决策索引
 
 | 决策编号 | 决策内容 | 所属 IP |
@@ -950,3 +1145,14 @@ af-picker 当前为 Shadow DOM，选项通过 `data` 属性传入（非 slot）�
 | D-DM-01 | demo 站自建（Vite + 原生），不用 Storybook | IP-9 |
 | D-SC-01 | af-tabs 用 MutationObserver（非 slotchange）监听子节点 | IP-10 |
 | D-SC-02 | af-picker 不需 slotchange（选项走 data 属性） | IP-10 |
+| D-BL-01 | L3.5 独立目录 src/blocks/ + 独立 wc-block-* 规则集 | IP-11 |
+| D-BL-02 | definePage 含 af-data + :bind（统一入口,内部 page.js/bind.js/data.js 分文件） | IP-11 |
+| D-BL-03 | definePage 复用 state.js signal/computed/effect,不重造响应式 | IP-11 |
+| D-BL-04 | keepAlive/transition 透传 router.js,不重复实现 | IP-11 |
+| D-BL-05 | Block 颗粒度上限 60 行/80 tokens/5 props | IP-12 |
+| D-BL-06 | Block 强制五态 + a11y + 移动端适配（区别 DesignGUI 的质量保证层） | IP-12 |
+| D-BL-07 | Block 用 data-role 不膨胀白名单 | IP-12 |
+| D-BL-08 | on-* 只接受声明式字符串（redirect:/toast:$msg/setState:key=val/action:fn/dialog:id） | IP-13 |
+| D-BL-09 | effects 白名单 12 key（mount/unmount/route/online/offline/visible/hidden/storage/interval/resize/themechange/localechange） | IP-13 |
+| D-BL-10 | transform 必须 AST 级纯函数（禁 fetch/DOM/外部赋值） | IP-13 |
+| D-BL-11 | usechat 协议基于 Block schema 序列化（配置同步,非代码同步） | IP-15 |

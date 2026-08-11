@@ -53,4 +53,17 @@ test.describe('af-dialog showModal', () => {
     });
     expect(focusedInDialog).toBeTruthy();
   });
+
+  test('关闭后焦点还原到打开前的触发元素', async ({ page }) => {
+    const trigger = page.locator('#open-dialog');
+    await trigger.focus();
+    await trigger.click();
+    await expect(page.locator('af-dialog [part=dialog]')).toBeVisible();
+    // ESC 关闭（action: esc）
+    await page.locator('af-dialog [part=dialog]').press('Escape');
+    await expect(page.locator('af-dialog [part=dialog]')).toBeHidden();
+    // 焦点应回到触发按钮（_previouslyFocused.focus()）
+    const restored = await page.evaluate(() => document.activeElement === document.getElementById('open-dialog'));
+    expect(restored).toBeTruthy();
+  });
 });

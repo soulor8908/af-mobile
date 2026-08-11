@@ -45,6 +45,38 @@
     <p id="swiper-index">当前索引：0</p>
   </section>
 
+  <!-- af-swipe-cell -->
+  <section data-testid="swipe-section">
+    <af-swipe-cell id="swc">
+      <div slot="content">滑动单元格内容</div>
+      <div slot="right">
+        <button class="btn btn-danger" data-action="delete">删除</button>
+        <button class="btn btn-ghost" data-action="more">更多</button>
+      </div>
+    </af-swipe-cell>
+  </section>
+
+  <!-- af-pull-refresh -->
+  <section data-testid="pull-section">
+    <af-pull-refresh id="pr">
+      <div style="height:1600px;padding:16px;">向下拉动刷新（顶部内容）</div>
+    </af-pull-refresh>
+  </section>
+
+  <!-- af-backtop -->
+  <section data-testid="backtop-section">
+    <af-backtop id="bt" threshold="100"></af-backtop>
+    <div style="height:2000px;">长页面，用于触发回到顶部</div>
+  </section>
+
+  <!-- af-img -->
+  <section data-testid="img-section">
+    <af-img id="img-eager" lazy="false" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='40'%20height='40'%3E%3Crect%20width='40'%20height='40'%20fill='%234285f4'/%3E%3C/svg%3E" alt="eager"></af-img>
+    <div style="height:2000px;"></div>
+    <af-img id="img-lazy" src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='40'%20height='40'%3E%3Crect%20width='40'%20height='40'%20fill='%2334a853'/%3E%3C/svg%3E" alt="lazy"></af-img>
+    <af-img id="img-fail" lazy="false" src="data:image/png;base64,not-a-valid-image" fail-src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='40'%20height='40'%3E%3Crect%20width='40'%20height='40'%20fill='%23ea4335'/%3E%3C/svg%3E" alt="fail"></af-img>
+  </section>
+
   <script type="module">
     import '../src/index.css';
     import { registerAll } from '../src/index.js';

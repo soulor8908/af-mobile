@@ -51,3 +51,6 @@ perf-report.json
 
 # 测试覆盖率产物（每次跑 coverage 生成，不入库）
 coverage/
+
+# Vite/Vitest 运行临时碎片（*.config.js.timestamp-*.mjs，自动重建，不入库）
+*.timestamp-*.mjs

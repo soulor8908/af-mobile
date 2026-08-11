@@ -849,6 +849,8 @@
     display: block; position: fixed; z-index: var(--z-dropdown);
     bottom: calc(var(--s-4) + env(safe-area-inset-bottom));
   }
+  /* hidden 属性控制显隐：覆盖上面的 display:block，否则 hidden 失效 */
+  af-backtop[hidden] { display: none; }
   af-backtop[position="left-bottom"] { left: calc(var(--s-4) + env(safe-area-inset-left)); }
   af-backtop:not([position="left-bottom"]) { right: calc(var(--s-4) + env(safe-area-inset-right)); }
 

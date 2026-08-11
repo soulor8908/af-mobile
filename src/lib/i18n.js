@@ -45,6 +45,11 @@ export const messages = {
     'sg.ld': '加载中…',
     'sg.er': '加载失败',
     'sg.rt': '重试',
+    'pc.al': '商品卡片',
+    'pc.em': '暂无数据',
+    'pc.ld': '加载中…',
+    'pc.er': '加载失败',
+    'pc.rt': '重试',
   },
   'en-US': {
     'bt.al': 'Back to top',
@@ -85,6 +90,11 @@ export const messages = {
     'sg.ld': 'Loading...',
     'sg.er': 'Load failed',
     'sg.rt': 'Retry',
+    'pc.al': '商品卡片',
+    'pc.em': 'No data',
+    'pc.ld': 'Loading...',
+    'pc.er': 'Load failed',
+    'pc.rt': 'Retry',
   },
 };
 

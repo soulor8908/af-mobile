@@ -33,6 +33,7 @@ import { AfPullRefresh } from './components/af-pull-refresh.js';
 import { AfSwipeCell } from './components/af-swipe-cell.js';
 import { AfData } from './components/af-data.js';
 import { AfSettingGroup } from './blocks/af-setting-group.js';
+import { AfProductCard } from './blocks/af-product-card.js';
 
 export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfData };
 
@@ -62,8 +63,10 @@ const REGISTRY = {
 
 // L3.5 Block 标签（独立注册器，与 L3 组件分离，便于按需引入 Block 层）
 export { AfSettingGroup };
+export { AfProductCard };
 const BLOCK_REGISTRY = {
   'af-setting-group': AfSettingGroup,
+  'af-product-card': AfProductCard,
 };
 
 export function registerAllBlocks() {

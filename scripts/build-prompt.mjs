@@ -165,6 +165,7 @@ const COMPONENT_META = [
 // 新增 Block 时在此追加一行；CI 的 check-types-sync 会校验四源一致，防漂移
 const BLOCK_META = [
   { tag: 'af-setting-group', purpose: '设置分组（五态+键盘导航）', variant: 'default / with-switch / with-value', props: 'title, items, variant, loading', events: 'af-setting-group:itemclick, af-setting-group:change, af-setting-group:retry' },
+  { tag: 'af-product-card', purpose: '商品卡片（五态+键盘导航）', variant: 'default / grid', props: 'title, price, items, loading', events: 'af-product-card:itemclick, af-product-card:retry' },
 ];
 
 // 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）

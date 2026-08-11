@@ -175,13 +175,20 @@ async function main() {
     compSizes.push({ file: f, gz });
   }
 
-  // 3. 全量 bundle（index.js，含基类 + 21 组件，不含 coreRuntime）
+  // 3. 全量 bundle（index.js，含基类 + 21 组件，不含 coreRuntime 和 Block）
   // coreRuntime（router/state/fetch/i18n/page/bind）独立预算，external 掉避免计入 total
+  // Block（src/blocks/）独立预算（perBlock/blocksTotal），用 plugin external 掉避免计入 total
   const totalRes = await build({
     entryPoints: [join(SRC, 'index.js')],
     bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
     absWorkingDir: ROOT,
     external: ['./lib/router.js', './lib/state.js', './lib/fetch.js', './lib/i18n.js', './lib/page.js', './lib/bind.js'],
+    plugins: [{
+      name: 'exclude-blocks',
+      setup(b) {
+        b.onResolve({ filter: /^\.\/blocks\// }, args => ({ path: args.path, external: true }));
+      },
+    }],
   });
   const totalGz = gzipSync(Buffer.from(totalRes.outputFiles[0].text)).length;
 

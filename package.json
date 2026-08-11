@@ -43,6 +43,7 @@
     "size": "node scripts/size-check.mjs",
     "size:check": "node scripts/size-check.mjs",
     "whitelist": "node scripts/gen-whitelist.mjs",
+    "new-block": "node scripts/new-block.mjs",
     "whitelist:check": "node scripts/check-whitelist-sync.mjs",
     "prompt:check": "node scripts/check-prompt-sync.mjs",
     "types:check": "node scripts/check-types-sync.mjs",

@@ -765,6 +765,35 @@ export class AfSettingGroup extends AfElement {
   addEventListener(type: 'af-setting-group:retry', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
 }
 
+
+/** af-product-card item schema */
+export interface ProductCardItem {
+  label?: string;
+  value?: string;
+  action?: 'arrow';
+  checked?: boolean;
+  disabled?: boolean;
+  [key: string]: unknown;
+}
+
+export interface ProductCardClickDetail extends AfEventDetail {
+  index: number;
+  item: ProductCardItem;
+}
+
+/** af-product-card：商品卡片（含五态/键盘导航/移动端适配） */
+export class AfProductCard extends AfElement {
+  static useShadow: false;
+  title: string;
+  price: string;
+  items: ProductCardItem[];
+  loading: boolean;
+  /** 触发错误态（如 fetch 失败） */
+  setError(err: unknown): void;
+  addEventListener(type: 'af-product-card:itemclick', listener: (e: CustomEvent<ProductCardClickDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-product-card:retry', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
 // ============================================================
 // 核心运行时：state（响应式原语）
 // ============================================================

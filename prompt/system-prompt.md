@@ -11,8 +11,8 @@
 
 - **L1 Token（58 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
 - **L2 配方（102）+ 原子（52）= 154 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
-- **L3 真组件（22 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
-- **L3.5 Block（1 个复合组件）** → AI 优先使用，内置五态+a11y+移动端适配（详见下方简表；完整设计见 docs/design/l3.5-block-detailed-design.md）
+- **L3 真组件（23 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
+- **L3.5 Block（2 个复合组件）** → AI 优先使用，内置五态+a11y+移动端适配（详见下方简表；完整设计见 docs/design/l3.5-block-detailed-design.md）
 - **L4 约束层**：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
@@ -51,9 +51,9 @@
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
 **文本对齐（4，补齐至 52）（4）：** `t-left` `t-center` `t-right` `ws-nowrap`
 
-## L3 真组件标签（22 个）
+## L3 真组件标签（23 个）
 
-`<af-action-sheet>` `<af-backtop>` `<af-data>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-picker>` `<af-pull-refresh>` `<af-search-bar>` `<af-setting-group>` `<af-skeleton-page>` `<af-stepper>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
+`<af-action-sheet>` `<af-backtop>` `<af-data>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-picker>` `<af-product-card>` `<af-pull-refresh>` `<af-search-bar>` `<af-setting-group>` `<af-skeleton-page>` `<af-stepper>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
 ## L1 Token 变量（58 个，必须用 var(--*) 引用）
 
@@ -100,6 +100,7 @@
 | Block | 用途 | variant | 核心属性 | 核心事件 |
 |---|---|---|---|---|
 | `<af-setting-group>` | 设置分组（五态+键盘导航） | default / with-switch / with-value | title, items, variant, loading | af-setting-group:itemclick, af-setting-group:change, af-setting-group:retry |
+| `<af-product-card>` | 商品卡片（五态+键盘导航） | default / grid | title, price, items, loading | af-product-card:itemclick, af-product-card:retry |
 
 **Block 使用规则**：
 1. **优先用 Block，其次用 L3 组件，最后用 L2 class**：Block 内置五态（loading/error/empty/success）+ a11y + 移动端适配，AI 只传 props 即可

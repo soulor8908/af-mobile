@@ -5,9 +5,9 @@ import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfTabs extends AfElement {
   static useShadow = false;
-  // i18n 映射表：tablist aria-label 用字典兜底
+  // i18n 映射表：tablist aria-label 优先透传 host 属性，无则用字典兜底
   static i18n = {
-    '.tabbar': ['aria-label', 'tb.al'],
+    '.tabbar': ['aria-label', (host, t) => host.getAttribute('aria-label') || t('tb.al')],
   };
 
   constructor() {

@@ -48,3 +48,6 @@ perf-report.json
 
 # WorkBuddy 项目数据（不入库）
 .workbuddy/
+
+# 测试覆盖率产物（每次跑 coverage 生成，不入库）
+coverage/

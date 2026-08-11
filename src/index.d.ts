@@ -687,6 +687,27 @@ export class AfSwipeCell extends AfElement {
   addEventListener(type: 'af-swipe-cell:action', listener: (e: CustomEvent<SwipeCellActionDetail>) => void, options?: boolean | AddEventListenerOptions): void;
 }
 
+// —— af-data ——
+export interface AfDataLoadDetail extends AfEventDetail {
+  data: unknown;
+}
+export interface AfDataErrorDetail extends AfEventDetail {
+  error: Error;
+}
+export class AfData extends AfElement {
+  static useShadow: false;
+  src: string;
+  ref: string;
+  cache: boolean;
+  cacheTtl: number;
+  refresh(): Promise<void>;
+  getData(): unknown;
+  getLoading(): boolean;
+  getError(): Error | null;
+  addEventListener(type: 'af-data:load', listener: (e: CustomEvent<AfDataLoadDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-data:error', listener: (e: CustomEvent<AfDataErrorDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
 // ============================================================
 // 注册接口
 // ============================================================
@@ -694,7 +715,7 @@ export class AfSwipeCell extends AfElement {
 /** 按需注册单个组件（传入标签名） */
 export function register(name: string): void;
 
-/** 全量注册 20 个组件 */
+/** 全量注册 21 个组件 */
 export function registerAll(): void;
 
 // ============================================================
@@ -853,3 +874,62 @@ export function addMessages(locale: Locale, dict: Record<string, string>): void;
 
 /** 全部语言字典 */
 export const messages: Record<Locale, Record<string, string>>;
+
+// ============================================================
+// L3.5 definePage 页面运行时 + :bind 响应式绑定
+// ============================================================
+
+/** definePage 配置：8 原语 */
+export interface DefinePageConfig {
+  state?: Record<string, unknown>;
+  computed?: Record<string, () => unknown>;
+  effects?: {
+    mount?: () => void;
+    unmount?: () => void;
+    route?: (params: Record<string, string>) => void;
+    online?: (e: { online: boolean }) => void;
+    offline?: (e: { online: boolean }) => void;
+    visible?: (e: { hidden: boolean }) => void;
+    hidden?: (e: { hidden: boolean }) => void;
+    storage?: [string, (value: string | null) => void] | ((e: StorageEvent) => void);
+    interval?: [number, () => void];
+    resize?: (e: { width: number; height: number }) => void;
+    themechange?: (theme: string) => void;
+    localechange?: (locale: string) => void;
+  };
+  transform?: (raw: unknown) => unknown;
+  actions?: Record<string, (...args: unknown[]) => void>;
+  onError?: (err: unknown) => void;
+  transition?: unknown;
+  keepAlive?: unknown;
+}
+
+/** 页面运行时入口：声明 8 原语，自动建立响应式管道 */
+export function definePage(config: DefinePageConfig): void;
+
+/** 响应式 state 对象：state.key 读 / state.key = val 写 */
+export const state: Record<string, unknown>;
+
+/** 派生计算对象：derived.key 读取 computed 值 */
+export const derived: Record<string, unknown>;
+
+/** actions 对象：actions.fnName(args) 触发批量状态变更 */
+export const actions: Record<string, (...args: unknown[]) => void>;
+
+/** 路由切换时清理 effects 订阅（保留 state/computed 全局共享） */
+export function clearPageState(): void;
+
+/** 获取当前页面 transition 配置 */
+export function getTransition(): unknown;
+
+/** 获取当前页面 keepAlive 配置 */
+export function getKeepAlive(): unknown;
+
+/** 初始化 :bind 扫描（应用启动时调用一次），返回取消观察函数 */
+export function initBind(root?: Document | Element): () => void;
+
+/** 注册 af-data ref（供 :bind 引用 refName.field） */
+export function registerDataRef(name: string, getData: () => unknown): void;
+
+/** 取消注册 af-data ref */
+export function unregisterDataRef(name: string): void;

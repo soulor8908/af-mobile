@@ -63,7 +63,17 @@ export default [
   {
     files: ['**/*.test.js', 'test/**/*.js', 'scripts/**/*.js', '.cache/**/*.js'],
     plugins: { aiflow },
-    rules: { ...AI_RULES },
+    rules: {
+      ...AI_RULES,
+      // 测试代码非消费端，关闭 L3.5 消费端约束（规则本身仍由 RuleTester 测试）
+      'aiflow/wc-definepage-single': 'off',
+      'aiflow/wc-state-schema': 'off',
+      'aiflow/wc-effects-whitelist': 'off',
+      'aiflow/wc-transform-pure': 'off',
+      'aiflow/wc-pure-function': 'off',
+      'aiflow/wc-bind-syntax': 'off',
+      'aiflow/wc-no-addeventlistener': 'off',
+    },
   },
   // ESLint 规则测试夹具 + ai-fix 循环测试：含故意违规用例以验证规则/修复本身，关闭 AI 约束
   {

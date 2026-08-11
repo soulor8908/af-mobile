@@ -164,6 +164,7 @@
   "components": [
     "af-action-sheet",
     "af-backtop",
+    "af-data",
     "af-dialog",
     "af-dropdown",
     "af-field",

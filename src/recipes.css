@@ -906,4 +906,7 @@
     display: flex; align-items: stretch;
   }
   af-swipe-cell [data-role="right"] > .btn { border-radius: 0; }
+
+  /* af-data：数据源组件，无视觉渲染，隐藏自身 */
+  af-data { display: none; }
 }

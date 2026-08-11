@@ -40,14 +40,17 @@ const SRC = join(ROOT, 'src');
 //   base 1.2→1.5KB：AfElement 新增 _applyI18n + localechange 订阅/清理
 //   perComponent 2.6→2.8KB：16 个组件新增 static i18n 映射表
 //   total 19.5→20.5KB：基类增量 + 16 组件映射表增量
-//   coreRuntime 3.7→5.2KB：新增 i18n.js（字典 + API ~1.1KB）+ 容差
+//   coreRuntime 3.7→5.2KB：新增 i18n.js（字典 + API ~1.1KB）+ 容差(0.6)
+// v1.7.0 调整（definePage 运行时）：
+//   total 20.5→21.0KB：新增 af-data 组件（~1.4KB）- page/bind 外移到 coreRuntime
+//   coreRuntime 5.2→7.0KB：新增 page.js（definePage 8 原语 ~1.5KB）+ bind.js（:bind 管道 ~1.0KB），独立预算不计入 total
 const BUDGET = {
   css: 8.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 1.5,           // KB，AfElement 基类（+_applyI18n + localechange 订阅）
-  total: 20.5,         // KB，20 组件 + 基类（含 i18n 增量）
+  total: 21.0,         // KB，21 组件 + 基类（含 af-data，page/bind 外移到 coreRuntime）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
-  coreRuntime: 5.2,    // KB，router(2.0)+state(0.7)+fetch(0.8)+i18n(1.1)+容差(0.6)，独立预算不计入 total
+  coreRuntime: 7.0,    // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total
 };
 
 const KB = 1024;
@@ -78,6 +81,7 @@ const FILE_TO_NAME = {
   'af-skeleton-page.js': 'AfSkeletonPage', 'af-upload.js': 'AfUpload',
   'af-navbar.js': 'AfNavbar', 'af-tabbar.js': 'AfTabbar', 'af-stepper.js': 'AfStepper',
   'af-field.js': 'AfField', 'af-pull-refresh.js': 'AfPullRefresh', 'af-swipe-cell.js': 'AfSwipeCell',
+  'af-data.js': 'AfData',
 };
 // 类名 → 文件名
 const NAME_TO_FILE = Object.fromEntries(
@@ -106,13 +110,13 @@ async function onDemand2Gz(compA, compB) {
     minify: true,
     legalComments: 'none',
     absWorkingDir: ROOT,
-    // i18n.js 属 coreRuntime，按需引入场景也 external 掉
-    external: ['./lib/i18n.js', '../lib/i18n.js'],
+    // i18n.js/page.js/bind.js 属 coreRuntime，按需引入场景也 external 掉
+    external: ['./lib/i18n.js', '../lib/i18n.js', './lib/page.js', '../lib/page.js', './lib/bind.js', '../lib/bind.js'],
   });
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
 
-// 核心运行时：router + state + fetch + i18n 合计 gzip（独立预算，不计入 total）
+// 核心运行时：router + state + fetch + i18n + page + bind 合计 gzip（独立预算，不计入 total）
 // 注意：package.json 的 sideEffects 只列了 "**/*.css"，src/lib/*.js 被视为无副作用，
 // bare import 会被 esbuild tree-shake 摇除。因此用具名导入 + globalThis 引用强制保留代码
 // （与 onDemand2Gz 用 customElements.define 防摇除同理）。
@@ -125,8 +129,10 @@ async function measureCoreRuntime() {
     `import { fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache } from '${toPosix(join(SRC, 'lib/fetch.js'))}';\n` +
     `import { route, go, back, forward, beforeEach, afterEach, notFound, current, start } from '${toPosix(join(SRC, 'lib/router.js'))}';\n` +
     `import { t, getLocale, setLocale, initLocale, addMessages, messages } from '${toPosix(join(SRC, 'lib/i18n.js'))}';\n` +
+    `import { definePage, state, derived, actions, clearPageState, getTransition, getKeepAlive } from '${toPosix(join(SRC, 'lib/page.js'))}';\n` +
+    `import { initBind, registerDataRef, unregisterDataRef } from '${toPosix(join(SRC, 'lib/bind.js'))}';\n` +
     `// 引用以防 tree-shake 摇除\n` +
-    `globalThis.__aiflow_core = [signal, computed, effect, batch, bus, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages];\n`
+    `globalThis.__aiflow_core = [signal, computed, effect, batch, bus, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages, definePage, state, derived, actions, clearPageState, getTransition, getKeepAlive, initBind, registerDataRef, unregisterDataRef];\n`
   );
   const res = await build({
     entryPoints: [entry],
@@ -137,8 +143,8 @@ async function measureCoreRuntime() {
 }
 
 async function main() {
-  // i18n.js 属于 coreRuntime（与 router/state/fetch 同级），在基类/组件/onDemand2 测量中均 external 掉
-  const external = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js'];
+  // i18n.js/page.js/bind.js 属于 coreRuntime（与 router/state/fetch 同级），在基类/组件/onDemand2 测量中均 external 掉
+  const external = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js', '../lib/page.js', './page.js', '../lib/bind.js', './bind.js'];
 
   // 0. L1+L2 CSS（tokens+recipes+atomic 拼接后 gzip）
   const cssFiles = ['tokens.css', 'recipes.css', 'atomic.css'];
@@ -156,13 +162,13 @@ async function main() {
     compSizes.push({ file: f, gz });
   }
 
-  // 3. 全量 bundle（index.js，含基类 + 14 组件，不含 coreRuntime）
-  // coreRuntime（router/state/fetch）独立预算，external 掉避免计入 total
+  // 3. 全量 bundle（index.js，含基类 + 21 组件，不含 coreRuntime）
+  // coreRuntime（router/state/fetch/i18n/page/bind）独立预算，external 掉避免计入 total
   const totalRes = await build({
     entryPoints: [join(SRC, 'index.js')],
     bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
     absWorkingDir: ROOT,
-    external: ['./lib/router.js', './lib/state.js', './lib/fetch.js', './lib/i18n.js'],
+    external: ['./lib/router.js', './lib/state.js', './lib/fetch.js', './lib/i18n.js', './lib/page.js', './lib/bind.js'],
   });
   const totalGz = gzipSync(Buffer.from(totalRes.outputFiles[0].text)).length;
 
@@ -203,7 +209,7 @@ async function main() {
   // 全量
   console.log('');
   const totalOver = totalGz > BUDGET.total * KB;
-  console.log(`全量（20 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
+  console.log(`全量（21 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
   if (totalOver) violations.push(`全量 ${fmt(totalGz)} > ${BUDGET.total}KB`);
 
   // 按需 2
@@ -214,7 +220,7 @@ async function main() {
   // 核心运行时
   console.log('');
   const coreOver = coreGz > BUDGET.coreRuntime * KB;
-  console.log(`核心运行时（state+fetch+router+i18n） ${fmt(coreGz).padStart(8)}  预算 ≤ ${BUDGET.coreRuntime}KB  ${coreOver ? '✗ 超限' : '✓'}`);
+  console.log(`核心运行时（state+fetch+router+i18n+page+bind） ${fmt(coreGz).padStart(4)}  预算 ≤ ${BUDGET.coreRuntime}KB  ${coreOver ? '✗ 超限' : '✓'}`);
   if (coreOver) violations.push(`核心运行时 ${fmt(coreGz)} > ${BUDGET.coreRuntime}KB`);
 
   // 汇总

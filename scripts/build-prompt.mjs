@@ -158,6 +158,7 @@ const COMPONENT_META = [
   { tag: 'af-field', purpose: '结构化表单字段', props: 'label, icon, type, value, placeholder, help, error', events: 'af-field:input, af-field:change' },
   { tag: 'af-pull-refresh', purpose: '下拉刷新容器', props: 'refreshing', events: 'af-pull-refresh:refresh' },
   { tag: 'af-swipe-cell', purpose: '滑动单元格', props: 'disabled', events: 'af-swipe-cell:action' },
+  { tag: 'af-data', purpose: '声明式数据源', props: 'src, ref, cache, cache-ttl', events: 'af-data:load, af-data:error' },
 ];
 
 // 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）

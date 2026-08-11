@@ -45,3 +45,6 @@ perf-report.json
 
 # Trae 临时共享包
 .trae-html-share-packages/
+
+# WorkBuddy 项目数据（不入库）
+.workbuddy/

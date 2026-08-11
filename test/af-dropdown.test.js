@@ -135,3 +135,55 @@ describe('af-dropdown', () => {
     expect(focusSpy).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('af-dropdown 键盘导航与属性变更（补充分支）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('keydown 非方向键不移动焦点', () => {
+    const el = makeDropdown();
+    const items = el.$$('.list-item');
+    items[0].focus();
+    el.$('.list').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(document.activeElement).toBe(items[0]);
+  });
+
+  it('keydown ArrowDown/ArrowUp 在选项间导航', () => {
+    const el = makeDropdown();
+    const items = el.$$('.list-item');
+    items[0].focus();
+    el.$('.list').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(document.activeElement).toBe(items[1]);
+    el.$('.list').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+    expect(document.activeElement).toBe(items[0]);
+  });
+
+  it('空选项时 ArrowDown 安全返回', () => {
+    const el = makeDropdown({ options: [] });
+    expect(el.$$('.list-item').length).toBe(0);
+    expect(() => el.$('.list').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))).not.toThrow();
+  });
+
+  it('options 属性变化重渲染列表', () => {
+    const el = makeDropdown();
+    el.options = [{ label: 'X', value: 'x' }, { label: 'Y', value: 'y' }];
+    expect(el.$$('.list-item').length).toBe(2);
+  });
+
+  it('placeholder 属性变化更新 trigger 文案', () => {
+    const el = makeDropdown();
+    el.setAttribute('placeholder', '请选择');
+    expect(el.$('.af-dropdown-trigger > .flex-1').textContent).toBe('请选择');
+  });
+
+  it('trigger-class 属性变化更新按钮 className', () => {
+    const el = makeDropdown();
+    el.triggerClass = 'my-trigger';
+    expect(el.$('.af-dropdown-trigger').classList.contains('my-trigger')).toBe(true);
+  });
+
+  it('disabled 属性变化更新 trigger 的 disabled 状态', () => {
+    const el = makeDropdown();
+    el.disabled = true;
+    expect(el.$('.af-dropdown-trigger').hasAttribute('disabled')).toBe(true);
+  });
+});

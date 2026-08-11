@@ -98,3 +98,15 @@ describe('af-stepper', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
+
+describe('af-stepper 输入校验（补充分支）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('输入框清空（空串）保留原值并回填', () => {
+    const el = makeStepper({ value: 5 });
+    el.$('[data-role="input"]').value = '';
+    el.$('[data-role="input"]').dispatchEvent(new Event('change'));
+    expect(el.value).toBe(5);
+    expect(el.$('[data-role="input"]').value).toBe('5');
+  });
+});

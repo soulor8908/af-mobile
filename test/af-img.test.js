@@ -110,3 +110,20 @@ describe('af-img', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
+
+describe('af-img variant 动态切换（补充分支）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('variant 属性变化切换 thumb/avatar 类', () => {
+    const el = makeImg({ src: 'a.jpg' });
+    el.variant = 'avatar';
+    expect(el.classList.contains('avatar')).toBe(true);
+    expect(el.classList.contains('thumb')).toBe(false);
+    el.variant = 'thumb';
+    expect(el.classList.contains('thumb')).toBe(true);
+    expect(el.classList.contains('avatar')).toBe(false);
+    el.variant = 'default';
+    expect(el.classList.contains('thumb')).toBe(false);
+    expect(el.classList.contains('avatar')).toBe(false);
+  });
+});

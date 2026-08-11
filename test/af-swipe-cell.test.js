@@ -121,3 +121,24 @@ describe('af-swipe-cell', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
+
+describe('af-swipe-cell 点击收起（补充分支）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('点击非操作区且已展开时收起', () => {
+    const el = makeSwipeCell({ content: '内容', right: '<button data-action="delete">删除</button>' });
+    Object.defineProperty(el.$('[data-role="right"]'), 'offsetWidth', { value: 80, configurable: true });
+    el.open();
+    expect(el.$('[data-role="track"]').style.getPropertyValue('--af-swipe-x')).toBe('-80px');
+    const closeSpy = vi.spyOn(el, 'close');
+    el.$('[data-role="content"]').click();
+    expect(closeSpy).toHaveBeenCalled();
+  });
+
+  it('未展开时点击非操作区不触发关闭', () => {
+    const el = makeSwipeCell({ content: '内容', right: '<button data-action="delete">删除</button>' });
+    const closeSpy = vi.spyOn(el, 'close');
+    el.$('[data-role="content"]').click();
+    expect(closeSpy).not.toHaveBeenCalled();
+  });
+});

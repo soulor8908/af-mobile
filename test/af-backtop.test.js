@@ -116,3 +116,39 @@ describe('af-backtop', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
+
+describe('af-backtop 属性变更（补充分支）', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    window.scrollY = 0;
+  });
+
+  it('target 属性变化重绑滚动监听到新容器', () => {
+    const scroller = document.createElement('div');
+    scroller.id = 'scroll-area-2';
+    document.body.appendChild(scroller);
+    const el = makeBacktop({ target: '#scroll-area-2' });
+    const other = document.createElement('div');
+    other.id = 'scroll-area-3';
+    document.body.appendChild(other);
+    el.target = '#scroll-area-3';
+    expect(el._scrollTarget).toBe(other);
+  });
+
+  it('aria-label-text 属性变化更新按钮 aria-label', () => {
+    const el = makeBacktop();
+    el.setAttribute('aria-label-text', '回到顶部啦');
+    expect(el.$('button').getAttribute('aria-label')).toBe('回到顶部啦');
+  });
+
+  it('target 为非 window 元素时 scrollToTop 调用该元素 scrollTo', () => {
+    const scroller = document.createElement('div');
+    scroller.id = 'scroll-area-4';
+    document.body.appendChild(scroller);
+    const el = makeBacktop({ target: '#scroll-area-4' });
+    const spy = vi.fn();
+    scroller.scrollTo = spy;
+    el.$('button').click();
+    expect(spy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+  });
+});

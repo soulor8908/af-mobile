@@ -309,3 +309,33 @@ describe('af-swiper slotchange 动态增删 slide（P2-5）', () => {
     expect(el.$$('.af-swiper-clone').length).toBe(2);
   });
 });
+
+describe('af-swiper 属性变更与主题（补充分支）', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    vi.useFakeTimers();
+  });
+  afterEach(() => { vi.useRealTimers(); });
+
+  it('loop 属性变化重建 clone', async () => {
+    const el = makeSwiper(3, { loop: false });
+    await Promise.resolve();
+    expect(el.$$('.af-swiper-clone').length).toBe(0);
+    el.setAttribute('loop', '');
+    expect(el.$$('.af-swiper-clone').length).toBe(2);
+  });
+
+  it('disabled 属性变化更新 this.disabled', () => {
+    const el = makeSwiper(3, { disabled: false });
+    el.disabled = true;
+    expect(el.disabled).toBe(true);
+  });
+
+  it('onThemeChange 调用 _updateTransform', async () => {
+    const el = makeSwiper(3);
+    await Promise.resolve();
+    const spy = vi.spyOn(el, '_updateTransform');
+    el.onThemeChange();
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+});

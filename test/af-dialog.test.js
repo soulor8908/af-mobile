@@ -183,3 +183,74 @@ describe('af-dialog 焦点集合覆盖 composed 树（P0-4）', () => {
     expect(focusable).toContain(footerBtn);
   });
 });
+
+describe('af-dialog 焦点陷阱键盘逻辑（补充分支）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  function mockVisible(el) {
+    const btns = [...el.querySelectorAll('button'), ...el.shadowRoot.querySelectorAll('button')];
+    for (const btn of btns) {
+      Object.defineProperty(btn, 'offsetParent', { value: document.body, configurable: true });
+    }
+  }
+
+  it('_trapKeydown：非 Tab 键不阻止默认', () => {
+    const el = makeDialog({ title: '确认' });
+    const e = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+    el.$('dialog').dispatchEvent(e);
+    expect(e.defaultPrevented).toBe(false);
+  });
+
+  it('_trapKeydown：可聚焦元素 < 2 时 Tab 阻止默认', () => {
+    const el = makeDialog({ title: '确认' });
+    el.querySelector('[slot="footer"]').remove(); // 仅剩关闭按钮
+    mockVisible(el);
+    const e = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    el.$('dialog').dispatchEvent(e);
+    expect(e.defaultPrevented).toBe(true);
+  });
+
+  it('_trapKeydown：首项 shift+Tab 跳到末项', () => {
+    const el = makeDialog({ title: '确认' });
+    mockVisible(el);
+    const closeBtn = el.shadowRoot.querySelector('.close-btn');
+    const footerBtn = el.querySelector('[slot="footer"] button');
+    const spy = vi.spyOn(footerBtn, 'focus');
+    Object.defineProperty(document, 'activeElement', { value: closeBtn, configurable: true });
+    el.$('dialog').dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }));
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it('_trapKeydown：末项 Tab 跳回首项', () => {
+    const el = makeDialog({ title: '确认' });
+    mockVisible(el);
+    const closeBtn = el.shadowRoot.querySelector('.close-btn');
+    const footerBtn = el.querySelector('[slot="footer"] button');
+    const spy = vi.spyOn(closeBtn, 'focus');
+    Object.defineProperty(document, 'activeElement', { value: footerBtn, configurable: true });
+    el.$('dialog').dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
+    expect(spy).toHaveBeenCalled();
+  });
+});
+
+describe('af-dialog title/open 属性变更（补充分支）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('title 属性变化更新 title slot', () => {
+    const el = makeDialog({ title: '原' });
+    el.title = '新标题';
+    expect(el.$('.title slot').textContent).toContain('新标题');
+  });
+
+  it('onAttributeChange：open 属性变化触发 open/close', () => {
+    // 注：'open' 非受观测属性（无 defineProp），attribute 变更不会自动触发；
+    // 此处直接调用 onAttributeChange 覆盖 153-156 分支（open()/close('external')）。
+    const el = makeDialog({ title: '确认' });
+    const openSpy = vi.spyOn(el, 'open');
+    el.onAttributeChange('open', null, '');
+    expect(openSpy).toHaveBeenCalled();
+    const closeSpy = vi.spyOn(el, 'close');
+    el.onAttributeChange('open', '', null);
+    expect(closeSpy).toHaveBeenCalledWith('external');
+  });
+});

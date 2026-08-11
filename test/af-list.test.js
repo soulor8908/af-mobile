@@ -170,3 +170,36 @@ describe('af-list 虚拟滚动', () => {
     expect(el.$('.list').getAttribute('tabindex')).toBe('0');
   });
 });
+
+describe('af-list 属性变更与下拉刷新（补充分支）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('height 属性变化应用 --af-list-h', () => {
+    const el = makeList({ data: makeData(3) });
+    el.setAttribute('height', '500px');
+    expect(el.style.getPropertyValue('--af-list-h')).toBe('500px');
+  });
+
+  it('下拉超过阈值派发 af-list:refresh', () => {
+    const el = makeList({ data: makeData(5), refresh: true });
+    el._scroller.scrollTop = 0;
+    const handler = vi.fn();
+    el.addEventListener('af-list:refresh', handler);
+    el._onTouchStart({ touches: [{ clientY: 200 }] });
+    el._onTouchMove({ touches: [{ clientY: 400 }], preventDefault() {} }); // delta 200 → h=60>40
+    el._onTouchEnd();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('下拉未达阈值松手回弹（不派发 refresh）', () => {
+    const el = makeList({ data: makeData(5), refresh: true });
+    el._scroller.scrollTop = 0;
+    const handler = vi.fn();
+    el.addEventListener('af-list:refresh', handler);
+    el._onTouchStart({ touches: [{ clientY: 200 }] });
+    el._onTouchMove({ touches: [{ clientY: 215 }], preventDefault() {} }); // delta 15 → h=7.5<40
+    el._onTouchEnd();
+    expect(handler).not.toHaveBeenCalled();
+    expect(el._refreshIndicator.style.getPropertyValue('--af-refresh-h')).toBe('0px');
+  });
+});

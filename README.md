@@ -3,8 +3,8 @@
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
 
 - **L1 Token**：43 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
-- **L2 配方 + 原子**：114 个白名单封闭集 class（62 配方 + 52 原子，`btn`/`card`/`p-4`/...）
-- **L3 真组件**：13 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
+- **L2 配方 + 原子**：154 个白名单封闭集 class（102 配方 + 52 原子，`btn`/`card`/`p-4`/...）
+- **L3 真组件**：20 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 15 规则兜底 + CI 保护
 
 ## 安装
@@ -87,6 +87,13 @@ npm install aiflow-ui
 | 开关 | `<af-switch>` | `checked` `loading` `disabled` `size` | `af-switch:change` |
 | 搜索栏 | `<af-search-bar>` | `value` `placeholder` `clearable` `debounce` | `af-search-bar:input` `af-search-bar:search` `af-search-bar:clear` |
 | 骨架屏页面 | `<af-skeleton-page>` | `variant` | — |
+| 文件上传 | `<af-upload>` | `accept` `multiple` `max-size` `max-count` `button-text` | `af-upload:change` `af-upload:error` |
+| 顶部导航栏 | `<af-navbar>` | `title` `show-back` `back-text` | `af-navbar:back` |
+| 底部标签栏 | `<af-tabbar>` | `tabs` `active-index` `fixed` | `af-tabbar:change` |
+| 步进器 | `<af-stepper>` | `value` `min` `max` `step` `disabled` | `af-stepper:change` |
+| 表单字段 | `<af-field>` | `label` `icon` `type` `input-type` `value` `placeholder` `help` `error` `disabled` `readonly` | `af-field:input` `af-field:change` |
+| 下拉刷新 | `<af-pull-refresh>` | `refreshing` | `af-pull-refresh:refresh` |
+| 滑动单元格 | `<af-swipe-cell>` | `disabled` | `af-swipe-cell:action` |
 
 事件名遵循 `af-{组件}:{动作}` 格式，`event.detail` 携带结构化数据。
 
@@ -162,6 +169,13 @@ Nuxt / Remix 同理：服务端输出 Light DOM + L2 class 作首屏占位，客
 | af-switch | Light | ✓ 渲染 switch 结构 | ✓ 重建+接管 | 非增量 hydrate |
 | af-search-bar | Light | ✓ 渲染搜索输入框 | ✓ 重建+接管 | 非增量 hydrate |
 | af-skeleton-page | Light | ✓ 渲染骨架屏 | ✓ 重建+接管 | 适合 SSR loading 态 |
+| af-navbar | Light | ✓ 渲染导航栏结构 | ✓ 重建+接管 | 非增量 hydrate |
+| af-tabbar | Light | ✓ 渲染标签栏结构 | ✓ 重建+接管 | 非增量 hydrate |
+| af-stepper | Light | ✓ 渲染步进器结构 | ✓ 重建+接管 | 非增量 hydrate |
+| af-field | Light | ✓ 渲染表单字段结构 | ✓ 重建+接管 | 非增量 hydrate |
+| af-upload | Light | ✓ 渲染上传触发器结构 | ✓ 重建+接管 | 非增量 hydrate |
+| af-pull-refresh | Light | ✓ 渲染刷新指示结构 | ✓ 重建+接管 | 非增量 hydrate |
+| af-swipe-cell | Light | ✓ 渲染滑动单元结构 | ✓ 重建+接管 | 非增量 hydrate |
 
 > 规则：**Light DOM + 有初始可见结构** 的组件支持 SSR 预渲染作首屏占位；Shadow DOM 与按需弹层类组件仅客户端渲染。所有 Light DOM 组件 upgrade 时均为「重建接管」而非「增量 hydrate」。
 
@@ -217,7 +231,7 @@ toggleTheme();            // 切换并持久化
 
 1. `tokens.css` 以外不可重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 2. `style=""` 不可设置 `color/background*/padding*/margin*/font-size/border-radius/box-shadow`
-3. 不可使用 114 白名单外的 class 名或自定义组件标签
+3. 不可使用 154 白名单外的 class 名或自定义组件标签
 4. `.btn`（非 ghost）不可叠加 `text-brand/text-danger/text-success`
 5. `.input` 不可叠加 `t-sm/t-xs`（iOS 聚焦 < 16px 自动放大页面）
 6. `.cell/.list-item` 不可叠加 `f/fc` 原子
@@ -226,7 +240,7 @@ toggleTheme();            // 切换并持久化
 9. `.list-item/.list-item-compact` 自带 border-top 由 `.list` 容器管理，不要单独设
 10. `.sheet` 显隐必须走原生 popover API `showPopover/hidePopover`
 11. `.tab-item` 选中态单一真相源是 `aria-selected="true"`（视觉由属性选择器驱动，不可用 `active` class）
-12. **Light DOM 组件**（`af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img/af-switch/af-search-bar/af-skeleton-page`）不可含 `<style>` 或 `this.style.xxx=`
+12. **Light DOM 组件**（`af-list`/`af-tabs`/`af-toast`/`af-action-sheet`/`af-dropdown`/`af-backtop`/`af-img`/`af-switch`/`af-search-bar`/`af-skeleton-page`/`af-navbar`/`af-tabbar`/`af-stepper`/`af-field`/`af-upload`/`af-pull-refresh`/`af-swipe-cell` 共 17 个）不可含 `<style>` 或 `this.style.xxx=`
 13. **Shadow 组件** CSS 字符串不可硬编码颜色/间距/字号/圆角（`::backdrop` 遮罩 rgba(0,0,0,.5) 例外）
 14. 事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`
 15. `af-dialog/af-action-sheet` 必须有焦点陷阱（Tab 不逃出，关闭还原焦点）
@@ -279,7 +293,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 |---|---|---|
 | 1 | 白名单三源同步（CSS/JS ↔ whitelist.json ↔ Prompt 注入） | `npm run whitelist:check` |
 | 1b | d.ts 与源码组件数同步（防类型声明漂移） | `npm run types:check` |
-| 2 | 体积预算（L1+L2 ≤ 4.9KB / L3 ≤ 14KB / 按需2组件 ≤ 5.5KB / 单组件 ≤ 2.6KB） | `npm run size` |
+| 2 | 体积预算（L1+L2 CSS ≤ 8.0KB / 全量 20 组件+基类 ≤ 19.5KB / 按需2组件 ≤ 5.5KB / 单组件 JS ≤ 2.6KB / 基类 ≤ 1.2KB） | `npm run size` |
 | 3 | 单元测试（jsdom） | `npm test` |
 | 4 | ESLint 15 规则（10 error + 5 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
 | 5 | 发布前检查（build + Tree Shaking + sideEffects + types-sync + npm pack） | `npm run publish:check` |

@@ -92,20 +92,30 @@ L3 组件
 
 > 预算修订说明：初版按 RFC 3KB 总预算自上而下摊派，单组件 0.1–0.5KB。实现阶段发现该预算与 §1.2 强制的 WCAG 2.1 AA / WAI-ARIA、虚拟滚动、焦点陷阱、scroll-snap 等不可兼得——0.3KB gzip 不足以容纳一个带 ARIA + 键盘导航的 Custom Element 类壳。遂按 esbuild minify + gzip 实测值修订（各值 = 实测 + ~10% 余量），保留全部无障碍功能。详见 §8.5。
 
-| 组件 | gzip（JS+CSS） | 预算 | 备注 |
+| 组件 | gzip（JS） | 预算 | 备注 |
 |---|---|---|---|
-| `af-list` | 1.98KB | 2.1KB | 虚拟滚动 + 下拉刷新 + 上拉加载 + 事件委托 |
-| `af-swiper` | 1.99KB | 2.1KB | touch + transform + dots + 键盘 + ResizeObserver |
-| `af-tabs` | 1.28KB | 1.4KB | ARIA tablist + roving tabindex + 内容联动 |
-| `af-dialog` | 1.59KB | 1.7KB | 原生 dialog + 焦点陷阱 + Esc/backdrop |
-| `af-toast` | 0.40KB | 0.5KB | 单例 + aria-live |
-| `af-action-sheet` | 0.93KB | 1.0KB | popover 封装；Light DOM |
-| `af-picker` | 2.38KB | 2.5KB | 多列 + CSS scroll-snap + 键盘 + 联动 |
-| `af-dropdown` | 0.95KB | 1.0KB | popover 封装；Light DOM |
-| `af-img` | 1.00KB | 1.1KB | IntersectionObserver 懒加载；Light DOM |
-| `af-backtop` | 0.81KB | 0.9KB | 滚动监听 + 平滑滚动 |
-| **基类 AfElement** | 0.75KB | 0.8KB | 生命周期 + defineProp + 主题订阅 |
-| **全量 bundle**（10 组件+基类，共享基类+gzip 交叉压缩） | **10.04KB** | **10.5KB** | 单文件 sum 14KB，bundle 后 10KB |
+| `af-list` | 2.35KB | 2.6KB | 虚拟滚动 + 下拉刷新 + 上拉加载 + 事件委托 |
+| `af-swiper` | 2.51KB | 2.6KB | touch + transform + dots + 键盘 + ResizeObserver（Shadow DOM） |
+| `af-tabs` | 1.42KB | 2.6KB | ARIA tablist + roving tabindex + 内容联动 |
+| `af-dialog` | 1.76KB | 2.6KB | 原生 dialog + 焦点陷阱 + Esc/backdrop（Shadow DOM） |
+| `af-toast` | 0.52KB | 2.6KB | 单例 + aria-live |
+| `af-action-sheet` | 1.42KB | 2.6KB | popover 封装；Light DOM |
+| `af-picker` | 2.57KB | 2.6KB | 多列 + CSS scroll-snap + 键盘 + 联动（Shadow DOM） |
+| `af-dropdown` | 1.39KB | 2.6KB | popover 封装；Light DOM |
+| `af-img` | 0.97KB | 2.6KB | IntersectionObserver 懒加载；Light DOM |
+| `af-backtop` | 0.80KB | 2.6KB | 滚动监听 + 平滑滚动 |
+| `af-switch` | 0.64KB | 2.6KB | 开关；Light DOM |
+| `af-search-bar` | 0.99KB | 2.6KB | 搜索输入 + 防抖 + 清除；Light DOM |
+| `af-skeleton-page` | 0.43KB | 2.6KB | 纯 CSS 骨架屏；Light DOM |
+| `af-upload` | 1.25KB | 2.6KB | 文件选择 / 预览 / 校验；Light DOM |
+| `af-navbar` | 0.66KB | 2.6KB | 顶部导航 + 返回；Light DOM |
+| `af-tabbar` | 1.04KB | 2.6KB | 底部标签栏 + 路由联动；Light DOM |
+| `af-stepper` | 0.96KB | 2.6KB | 步进器 + 边界；Light DOM |
+| `af-field` | 1.14KB | 2.6KB | 表单字段 + 校验态；Light DOM |
+| `af-pull-refresh` | 0.94KB | 2.6KB | 下拉刷新指示；Light DOM |
+| `af-swipe-cell` | 0.89KB | 2.6KB | 滑动操作单元；Light DOM |
+| **基类 AfElement** | 1.12KB | 1.2KB | 生命周期 + defineProp + 主题订阅 |
+| **全量 bundle**（20 组件+基类，共享基类+gzip 交叉压缩） | 17.45KB | ≤ 19.5KB | CI `npm run size` 实测（详见 L4 §0.3 预算汇总） |
 
 ---
 

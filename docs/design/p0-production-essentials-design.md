@@ -15,7 +15,7 @@
 | Router (~1KB) | 12 行：`routes={}` + `go()` + `popstate` | `match()` 未定义；无 `:param` 解析；无 404；无异步 handler；无滚动恢复；无生命周期钩子；无 `base` 路径；无 router-view/keep-alive/转场 |
 | State (~0.5KB) | 8 行：`signal(v)` + `bus=EventTarget` | 无 `computed` 派生信号；无 `effect` 自动追踪；无批量更新；无组件集成模式 |
 | fetchPage (~0.5KB) | 8 行：AbortController + `r.json()` | 无 method/headers/body；无错误分类（超时/网络/HTTP）；无重试；无骨架联动；无响应类型；无去重/缓存/拦截器 |
-| System Prompt | 已有 122 白名单 + 14 组件 + 25 禁令 | 缺 §12.4 的 4 要素：④模式决策树 ⑤数据契约 ⑥Few-shot ⑦错误恢复 |
+| System Prompt | 已有 154 白名单 + 20 组件 + 25 禁令 | 缺 §12.4 的 4 要素：④模式决策树 ⑤数据契约 ⑥Few-shot ⑦错误恢复 |
 
 ### 0.2 用户确认的设计边界
 
@@ -1010,7 +1010,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 | ESLint 规则 | 报错原因 | 修正方案 |
 |---|---|---|
 | no-inline-style | style="..." 设置禁令属性 | 删除 style，改用 token class（如 padding→p-4） |
-| token-whitelist | 白名单外 class | 查 122 白名单，用最近配方替代（如 .my-card → .card） |
+| token-whitelist | 白名单外 class | 查 154 白名单，用最近配方替代（如 .my-card → .card） |
 | no-tailwind-syntax | p-[13px] 任意值语法 | 用最接近的原子类（p-3=12px 或 p-4=16px） |
 | no-arbitrary-value | 自定义任意值 | 同上，改用预定义原子 |
 | no-recipe-break | .btn + text-brand 叠加 | 删除 text-brand，.btn 文字已是 onbrand 色 |
@@ -1092,10 +1092,10 @@ test/
 
 ```javascript
 const BUDGET = {
-  css: 5.5,            // KB，不变
-  perComponent: 2.6,   // KB，不变
-  base: 1.2,           // KB，不变
-  total: 14.5,         // KB，不变（仅组件+基类）
+  css: 8.0,            // KB，L1+L2 CSS（随配方增长上调）
+  perComponent: 2.6,   // KB，单组件 JS 预算
+  base: 1.2,           // KB，基类 AfElement
+  total: 19.5,         // KB，20 组件+基类（随组件新增上调）
   onDemand2: 5.5,      // KB，不变
   coreRuntime: 3.7,    // KB，新增：router(2.0)+state(0.7)+fetch(0.8)+容差(0.2)
 };

@@ -191,3 +191,33 @@ describe('af-picker 焦点管理（P1-4）', () => {
     expect(el._previouslyFocused).toBeNull();
   });
 });
+
+describe('af-picker 属性变更（补充分支）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('onAttributeChange：confirmText 变化更新确定按钮', () => {
+    const el = makePicker({ columns: COLUMNS, confirmText: '确定' });
+    el.confirmText = 'OK';
+    expect(el.$('.btn-confirm').textContent).toBe('OK');
+  });
+
+  it('onAttributeChange：cancelText 变化更新取消按钮', () => {
+    const el = makePicker({ columns: COLUMNS, cancelText: '取消' });
+    el.cancelText = 'X';
+    expect(el.$('.btn-cancel').textContent).toBe('X');
+  });
+
+  it('onAttributeChange：columns 变化重渲染列', () => {
+    const el = makePicker({ columns: COLUMNS });
+    el.columns = [[{ label: 'A', value: 'a' }]];
+    expect(el.$$('.column').length).toBe(1);
+    expect(el.$$('.column')[0].querySelectorAll('.item').length).toBe(1);
+  });
+
+  it('onAttributeChange：item-height/visible-count 变化重设列高', () => {
+    const el = makePicker({ columns: COLUMNS, itemHeight: 36, visibleCount: 5 });
+    el.itemHeight = 50;
+    el.visibleCount = 7;
+    expect(el.$('.columns').style.height).toBe('350px');
+  });
+});

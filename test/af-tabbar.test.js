@@ -97,3 +97,21 @@ describe('af-tabbar', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
+
+describe('af-tabbar 属性变更（补充分支）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('tabs 属性变化重渲染 tab-item', () => {
+    const el = makeTabbar({ tabs: TABS });
+    el.tabs = [{ label: '新', value: 'n' }];
+    expect(el.$$('.tab-item').length).toBe(1);
+    expect(el.$$('.tab-item')[0].querySelector('[data-role="label"]').textContent).toBe('新');
+  });
+
+  it('fixed 属性变化切换 tabbar-fixed 类', () => {
+    const el = makeTabbar({ tabs: TABS, fixed: true });
+    expect(el.$('.tabbar').classList.contains('tabbar-fixed')).toBe(true);
+    el.fixed = false;
+    expect(el.$('.tabbar').classList.contains('tabbar-fixed')).toBe(false);
+  });
+});

@@ -302,3 +302,22 @@ describe('af-tabs slotchange 监听（IP-10: MutationObserver）', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
+
+describe('af-tabs 透传与属性变更（补充分支）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('aria-label 属性透传到 tabbar', () => {
+    const el = new AfTabs();
+    el.tabs = TABS;
+    el.setAttribute('aria-label', '我的标签页');
+    document.body.appendChild(el);
+    expect(el.$('.tabbar').getAttribute('aria-label')).toBe('我的标签页');
+  });
+
+  it('fixed 属性变化切换 tabbar-fixed 类', () => {
+    const el = makeTabs({ fixed: true });
+    expect(el.$('.tabbar').classList.contains('tabbar-fixed')).toBe(true);
+    el.fixed = false;
+    expect(el.$('.tabbar').classList.contains('tabbar-fixed')).toBe(false);
+  });
+});

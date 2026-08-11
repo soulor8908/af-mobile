@@ -90,3 +90,24 @@ describe('af-toast', () => {
     vi.useRealTimers();
   });
 });
+
+describe('af-toast dismiss 分支（补充）', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    vi.useRealTimers();
+  });
+
+  it('dismiss 无 .toast 元素时立即清空并派发', () => {
+    const el = makeToast();
+    el.show('hi', 999999);
+    // 模拟 .toast 已被外部移除（但 _message 仍在）
+    el.innerHTML = '';
+    const handler = vi.fn();
+    el.addEventListener('af-toast:dismiss', handler);
+    el.dismiss();
+    expect(el.$('.toast')).toBeNull();
+    expect(el._message).toBe('');
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail).toEqual({ message: 'hi' });
+  });
+});

@@ -2517,7 +2517,7 @@ document.getElementById('search').addEventListener('af-search-bar:search', async
 | ESLint 规则 | 报错原因 | 修正方案 |
 |---|---|---|
 | no-inline-style | style="..." 设置禁令属性 | 删除 style，改用 token class（如 padding→p-4） |
-| token-whitelist | 白名单外 class | 查 122 白名单，用最近配方替代（如 .my-card → .card） |
+| token-whitelist | 白名单外 class | 查 154 白名单，用最近配方替代（如 .my-card → .card） |
 | no-tailwind-syntax | p-[13px] 任意值语法 | 用最接近的原子类（p-3=12px 或 p-4=16px） |
 | no-arbitrary-value | 自定义任意值 | 同上，改用预定义原子 |
 | no-recipe-break | .btn + text-brand 叠加 | 删除 text-brand，.btn 文字已是 onbrand 色 |

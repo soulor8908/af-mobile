@@ -80,3 +80,8 @@ export {
 export {
   route, go, back, forward, beforeEach, afterEach, notFound, current, start,
 } from './lib/router.js';
+
+// ============================================================
+// 核心运行时：i18n（国际化，按需 import，不计入组件体积预算）
+// ============================================================
+export { t, getLocale, setLocale, initLocale, addMessages, messages } from './lib/i18n.js';

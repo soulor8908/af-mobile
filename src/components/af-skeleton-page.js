@@ -11,16 +11,24 @@ const TEMPLATES = {
 
 export class AfSkeletonPage extends AfElement {
   static useShadow = false;
+  // i18n 映射表：骨架屏 aria-label 用字典
+  static i18n = {
+    '.skeleton-page': ['aria-label', 'sk.al'],
+  };
 
   mounted() { this._render(); }
 
   _render() {
     const tpl = TEMPLATES[this.variant] || TEMPLATES.list;
-    this.innerHTML = `<div class="skeleton-page skeleton-page-${this.variant}" role="status" aria-live="polite" aria-label="加载中">${tpl}</div>`;
+    this.innerHTML = `<div class="skeleton-page skeleton-page-${this.variant}" role="status" aria-live="polite">${tpl}</div>`;
   }
 
   onAttributeChange(name) {
-    if (name === 'variant') this._render();
+    if (name === 'variant') {
+      this._render();
+      // 重建 DOM 后重新应用 aria-label
+      this._applyI18n();
+    }
   }
 }
 

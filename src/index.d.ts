@@ -74,6 +74,10 @@ export class AfElement extends HTMLElement {
   protected onAttributeChange?(name: string, oldVal: string, newVal: string): void;
   /** 主题切换回调 */
   protected onThemeChange?(theme: ThemeName): void;
+  /** 语言切换回调（默认调用 _applyI18n） */
+  protected onLocaleChange?(locale: string): void;
+  /** i18n 映射表：{ selector: [attr, keyOrFn, fallbackProp?, skipIfAttr?] } */
+  static i18n?: Record<string, [string, string | ((host: AfElement, t: (key: string, vars?: TranslateVars) => string, el: Element, index: number) => string), string?, string?]>;
   /** 定义属性（attribute 与 property 双向同步） */
   static defineProp(
     proto: AfElement,
@@ -821,3 +825,31 @@ export function start(options?: {
   keepAliveMax?: number;
   base?: string;
 }): void;
+
+// ============================================================
+// 核心运行时：i18n（国际化）
+// ============================================================
+
+/** 语言代码 */
+export type Locale = string;
+
+/** 翻译变量映射 */
+export type TranslateVars = Record<string, string | number>;
+
+/** 翻译函数：回退链 当前 locale → zh-CN → key 自身 */
+export function t(key: string, vars?: TranslateVars): string;
+
+/** 获取当前语言（默认 'zh-CN'） */
+export function getLocale(): Locale;
+
+/** 设置语言 + 持久化到 localStorage + dispatch 'localechange' 事件 */
+export function setLocale(locale: Locale): void;
+
+/** 从 localStorage 恢复语言（入口尽早调用） */
+export function initLocale(): void;
+
+/** 注册/覆盖语言包（浅合并） */
+export function addMessages(locale: Locale, dict: Record<string, string>): void;
+
+/** 全部语言字典 */
+export const messages: Record<Locale, Record<string, string>>;

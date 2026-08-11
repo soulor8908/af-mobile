@@ -7,10 +7,16 @@ const CLEAR_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" width="12" heigh
 
 export class AfSearchBar extends AfElement {
   static useShadow = false;
+  // i18n 映射表：input placeholder 优先用属性，否则字典；清除按钮 aria-label 用字典
+  // clear 按钮仅在 clearable=true 时渲染；querySelectorAll 返回空则跳过
+  static i18n = {
+    'input.search-input': ['placeholder', 'sb.ph', 'placeholder'],
+    '.search-bar-clear':  ['aria-label',  'sb.clr'],
+  };
 
   mounted() {
-    const clearBtn = this.clearable ? `<button class="search-bar-clear" type="button" aria-label="清除" hidden>${CLEAR_ICON}</button>` : '';
-    this.innerHTML = `<div class="search-bar-wrap">${ICON}<input class="search-input" type="search" placeholder="${esc(this.placeholder)}" />${clearBtn}</div>`;
+    const clearBtn = this.clearable ? `<button class="search-bar-clear" type="button" hidden>${CLEAR_ICON}</button>` : '';
+    this.innerHTML = `<div class="search-bar-wrap">${ICON}<input class="search-input" type="search" />${clearBtn}</div>`;
     this._input = this.$('.search-input');
     this._clear = this.$('.search-bar-clear');
     this._input.value = this.value;
@@ -73,7 +79,7 @@ export class AfSearchBar extends AfElement {
   onAttributeChange(name) {
     if (!this._input) return;
     if (name === 'value') this._input.value = this.value;
-    if (name === 'placeholder') this._input.placeholder = this.placeholder;
+    if (name === 'placeholder') this._applyI18n();
   }
 
   unmounted() {
@@ -85,6 +91,6 @@ export class AfSearchBar extends AfElement {
 }
 
 AfElement.defineProp(AfSearchBar.prototype, 'value', { type: String, default: '' });
-AfElement.defineProp(AfSearchBar.prototype, 'placeholder', { type: String, default: '搜索' });
+AfElement.defineProp(AfSearchBar.prototype, 'placeholder', { type: String, default: null });
 AfElement.defineProp(AfSearchBar.prototype, 'clearable', { type: Boolean, default: true });
 AfElement.defineProp(AfSearchBar.prototype, 'debounce', { type: Number, default: 300 });

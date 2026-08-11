@@ -4,6 +4,12 @@ import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfDropdown extends AfElement {
   static useShadow = false;
+  // i18n 映射表：trigger 内 .flex-1 textContent，selectedLabel > placeholder > 字典兜底
+  static i18n = {
+    '.af-dropdown-trigger > .flex-1': ['', (host, t) =>
+      host.selectedLabel || host.placeholder || t('dd.ph')
+    ],
+  };
 
   constructor() {
     super();
@@ -77,7 +83,7 @@ export class AfDropdown extends AfElement {
     if (!this._listboxId) this._listboxId = 'af-dropdown-listbox-' + Math.random().toString(36).slice(2, 9);
     this.innerHTML = `
       <button class="${esc(this.triggerClass)} af-dropdown-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="${this._listboxId}"${disabledAttr}>
-        <span class="flex-1">${esc(this.selectedLabel || this.placeholder)}</span>
+        <span class="flex-1"></span>
         <span aria-hidden="true">▾</span>
       </button>
       <div class="list" popover role="listbox" id="${this._listboxId}"></div>
@@ -104,8 +110,8 @@ export class AfDropdown extends AfElement {
 
   _updateTrigger() {
     if (!this._trigger) return;
-    const label = this.$('.af-dropdown-trigger > .flex-1');
-    if (label) label.textContent = this.selectedLabel || this.placeholder;
+    // textContent 由 _applyI18n 设置（selectedLabel > placeholder > t('dd.ph')）
+    this._applyI18n();
     if (this.disabled) this._trigger.setAttribute('disabled', '');
     else this._trigger.removeAttribute('disabled');
   }
@@ -146,6 +152,6 @@ export class AfDropdown extends AfElement {
 // 属性定义（必须在 customElements.define 之前）
 AfElement.defineProp(AfDropdown.prototype, 'options', { type: Array, default: [] });
 AfElement.defineProp(AfDropdown.prototype, 'value', { type: String, default: '' });
-AfElement.defineProp(AfDropdown.prototype, 'placeholder', { type: String, default: '请选择' });
+AfElement.defineProp(AfDropdown.prototype, 'placeholder', { type: String, default: null });
 AfElement.defineProp(AfDropdown.prototype, 'triggerClass', { attr: 'trigger-class', type: String, default: 'input' });
 AfElement.defineProp(AfDropdown.prototype, 'disabled', { type: Boolean, default: false });

@@ -48,6 +48,13 @@ const CSS = `
 
 export class AfPicker extends AfElement {
   static useShadow = true;
+  // i18n 映射表：title/confirm/cancel 优先用属性，否则字典；column aria-label 用循环索引
+  static i18n = {
+    'div.title':          ['', (host, t) => host.title || t('pk.tt')],
+    'button.btn-confirm': ['', (host, t) => host.confirmText || t('pk.ok')],
+    'button.btn-cancel':  ['', (host, t) => host.cancelText || t('pk.cn')],
+    '.column':            ['aria-label', (host, t, el, i) => t('pk.col', { n: i + 1 })],
+  };
 
   constructor() {
     super();
@@ -63,9 +70,9 @@ export class AfPicker extends AfElement {
       <style>${CSS}</style>
       <div class="picker" part="picker" popover="auto">
         <div class="header" part="header">
-          <button class="btn-cancel" part="cancel" type="button">${esc(this.cancelText)}</button>
-          <div class="title">${esc(this.title)}</div>
-          <button class="btn-confirm" part="confirm" type="button">${esc(this.confirmText)}</button>
+          <button class="btn-cancel" part="cancel" type="button"></button>
+          <div class="title"></div>
+          <button class="btn-confirm" part="confirm" type="button"></button>
         </div>
         <div class="columns" part="columns">
           <div class="mask"></div>
@@ -127,9 +134,9 @@ export class AfPicker extends AfElement {
       colEl.className = 'column';
       colEl.setAttribute('part', 'column');
       colEl.setAttribute('role', 'listbox');
-      colEl.setAttribute('aria-label', `第 ${c + 1} 列`);
       colEl.setAttribute('tabindex', '0');
       colEl.dataset.col = String(c);
+      // aria-label 由 _applyI18n 设置（t('pk.col', { n: c + 1 })）
 
       const items = (col || []).map((item, i) => {
         const selected = this.values[c] != null && item.value === this.values[c];
@@ -221,6 +228,7 @@ export class AfPicker extends AfElement {
       this.values = newValues;
     }
     this._renderColumns();
+    this._applyI18n(); // 新建 column 后重新应用 aria-label
     this._rafIds.push(requestAnimationFrame(() => {
       const col = this._scrollers[colIdx];
       if (col) {
@@ -256,17 +264,13 @@ export class AfPicker extends AfElement {
     if (name === 'columns') {
       this._renderColumns();
       this._rafIds.push(requestAnimationFrame(() => this._scrollToValues(true)));
+      // 新建 column 后需重新应用 i18n（aria-label 由 _applyI18n 设置）
+      this._applyI18n();
     } else if (name === 'values') {
       this._rafIds.push(requestAnimationFrame(() => this._scrollToValues(true)));
-    } else if (name === 'title') {
-      const t = this.$('.title');
-      if (t) t.textContent = newVal;
-    } else if (name === 'confirm-text') {
-      const b = this.$('.btn-confirm');
-      if (b) b.textContent = newVal;
-    } else if (name === 'cancel-text') {
-      const b = this.$('.btn-cancel');
-      if (b) b.textContent = newVal;
+    } else if (name === 'title' || name === 'confirm-text' || name === 'cancel-text') {
+      // textContent 由 _applyI18n 重新计算（fallback=对应属性）
+      this._applyI18n();
     } else if (name === 'item-height' || name === 'visible-count') {
       this._applyItemHeight();
     }
@@ -288,8 +292,8 @@ export class AfPicker extends AfElement {
 // 属性定义（必须在 customElements.define 之前）
 AfElement.defineProp(AfPicker.prototype, 'columns', { type: Array, default: [] });
 AfElement.defineProp(AfPicker.prototype, 'values', { type: Array, default: [] });
-AfElement.defineProp(AfPicker.prototype, 'title', { type: String, default: '请选择' });
-AfElement.defineProp(AfPicker.prototype, 'confirmText', { attr: 'confirm-text', type: String, default: '确定' });
-AfElement.defineProp(AfPicker.prototype, 'cancelText', { attr: 'cancel-text', type: String, default: '取消' });
+AfElement.defineProp(AfPicker.prototype, 'title', { type: String, default: null });
+AfElement.defineProp(AfPicker.prototype, 'confirmText', { attr: 'confirm-text', type: String, default: null });
+AfElement.defineProp(AfPicker.prototype, 'cancelText', { attr: 'cancel-text', type: String, default: null });
 AfElement.defineProp(AfPicker.prototype, 'itemHeight', { attr: 'item-height', type: Number, default: 36 });
 AfElement.defineProp(AfPicker.prototype, 'visibleCount', { attr: 'visible-count', type: Number, default: 5 });

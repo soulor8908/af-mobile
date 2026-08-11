@@ -3,12 +3,20 @@
 // 职责：触摸下拉刷新 + 阻尼系数 + 阈值激活 + 加载态指示器
 // 用法：<af-pull-refresh><div class="list">...</div></af-pull-refresh>
 import { AfElement } from '../lib/af-element.js';
+import { t } from '../lib/i18n.js';
 
 const THRESHOLD = 60;
 const MAX_PULL = 100;
 
 export class AfPullRefresh extends AfElement {
   static useShadow = false;
+  static i18n = {
+    '[data-role="indicator"]': ['aria-label', (host, t) => {
+      if (host.refreshing) return t('pr.ld');
+      const h = parseFloat(host._indicator?.style.getPropertyValue('--af-pull-h')) || 0;
+      return h >= THRESHOLD ? t('pr.rl') : t('pr.pl');
+    }],
+  };
 
   constructor() {
     super();
@@ -22,7 +30,7 @@ export class AfPullRefresh extends AfElement {
       n.nodeType !== Node.TEXT_NODE || n.textContent.trim()
     );
     this.innerHTML = `
-      <div data-role="indicator" aria-live="polite" aria-label="下拉刷新" hidden></div>
+      <div data-role="indicator" aria-live="polite" hidden></div>
       <div data-role="content"></div>
     `;
     this._indicator = this.$('[data-role="indicator"]');
@@ -77,8 +85,9 @@ export class AfPullRefresh extends AfElement {
     this._indicator.style.setProperty('--af-pull-h', h + 'px');
     this._indicator.hidden = h <= 0;
     if (h > 0) {
-      const reaching = h >= THRESHOLD;
-      this._indicator.setAttribute('aria-label', reaching ? '释放立即刷新' : '下拉刷新');
+      this._indicator.setAttribute('aria-label',
+        this.refreshing ? t('pr.ld') : (h >= THRESHOLD ? t('pr.rl') : t('pr.pl'))
+      );
     }
   }
 
@@ -87,7 +96,7 @@ export class AfPullRefresh extends AfElement {
     if (this.refreshing) return;
     this.refreshing = true;
     this._setPull(THRESHOLD);
-    this._indicator.innerHTML = '<span class="spinner spinner-sm"></span><span class="caption">加载中...</span>';
+    this._indicator.innerHTML = `<span class="spinner spinner-sm"></span><span class="caption">${t('pr.ld')}</span>`;
     this.emit('af-pull-refresh:refresh', {});
   }
 

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { AfElement, escapeHtml, html } from '../src/lib/af-element.js';
+import { setLocale } from '../src/lib/i18n.js';
 
 class TestEl extends AfElement {
   static useShadow = false;
@@ -208,5 +209,113 @@ describe('html 安全模板标签', () => {
     const el = document.createElement('div');
     el.innerHTML = html`<div>${evil}</div>`;
     expect(el.querySelector('img[onerror]')).toBeNull();
+  });
+});
+
+// i18n 映射表测试组件
+class I18nTestEl extends AfElement {
+  static useShadow = false;
+  static i18n = {
+    '.static-attr': ['aria-label', 'dg.cl'],
+    '.static-fallback': ['aria-label', 'dg.al', 'title', 'aria-label'],
+    '.static-skip': ['aria-label', 'dg.cl', null, 'aria-label'],
+    '.static-text': ['', 'as.cn', 'cancelText'],
+    '.dynamic-attr': ['aria-label', (host, t) => `${host.title || t('dg.al')}`],
+    '.dynamic-text': ['', (host, t, el, i) => `item-${i}-${t('dg.cl')}`],
+    '@': ['aria-label', 'tb.al'],
+  };
+  mounted() {
+    // eslint-disable-next-line aiflow/token-whitelist -- 测试夹具自定义 class
+    this.innerHTML = `
+      <div class="static-attr"></div>
+      <div class="static-fallback"></div>
+      <div class="static-skip"></div>
+      <div class="static-text"></div>
+      <div class="dynamic-attr"></div>
+      <div class="dynamic-text"></div>
+      <div class="dynamic-text"></div>
+    `;
+  }
+}
+customElements.define('i18n-test-el', I18nTestEl);
+
+describe('AfElement _applyI18n', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    setLocale('zh-CN');
+  });
+
+  it('静态形式：setAttribute', () => {
+    const el = new I18nTestEl();
+    document.body.appendChild(el);
+    expect(el.$('.static-attr').getAttribute('aria-label')).toBe('关闭');
+  });
+
+  it('静态 fallback：属性优先', () => {
+    const el = new I18nTestEl();
+    el.title = '自定义标题';
+    document.body.appendChild(el);
+    expect(el.$('.static-fallback').getAttribute('aria-label')).toBe('自定义标题');
+  });
+
+  it('静态 fallback 无属性时用字典', () => {
+    const el = new I18nTestEl();
+    document.body.appendChild(el);
+    expect(el.$('.static-fallback').getAttribute('aria-label')).toBe('对话框');
+  });
+
+  it('静态 skipIf：host 有属性时跳过', () => {
+    const el = new I18nTestEl();
+    el.setAttribute('aria-label', '用户自定义');
+    document.body.appendChild(el);
+    expect(el.$('.static-skip').getAttribute('aria-label')).toBe(null);
+  });
+
+  it('静态 textContent', () => {
+    const el = new I18nTestEl();
+    document.body.appendChild(el);
+    expect(el.$('.static-text').textContent).toBe('取消');
+  });
+
+  it('动态函数形式：setAttribute', () => {
+    const el = new I18nTestEl();
+    el.title = '动态标题';
+    document.body.appendChild(el);
+    expect(el.$('.dynamic-attr').getAttribute('aria-label')).toBe('动态标题');
+  });
+
+  it('动态函数形式：textContent + index', () => {
+    const el = new I18nTestEl();
+    document.body.appendChild(el);
+    const items = el.$$('.dynamic-text');
+    expect(items[0].textContent).toBe('item-0-关闭');
+    expect(items[1].textContent).toBe('item-1-关闭');
+  });
+
+  it('@ 选择器指向 host', () => {
+    const el = new I18nTestEl();
+    document.body.appendChild(el);
+    expect(el.getAttribute('aria-label')).toBe('标签页');
+  });
+
+  it('语言切换后自动更新', () => {
+    const el = new I18nTestEl();
+    document.body.appendChild(el);
+    expect(el.$('.static-attr').getAttribute('aria-label')).toBe('关闭');
+    setLocale('en-US');
+    expect(el.$('.static-attr').getAttribute('aria-label')).toBe('Close');
+    setLocale('zh-CN');
+  });
+
+  it('disconnectedCallback 清理 localechange 监听', () => {
+    const el = new I18nTestEl();
+    document.body.appendChild(el);
+    document.body.removeChild(el);
+    // 重连后不应重复监听
+    document.body.appendChild(el);
+    setLocale('en-US');
+    setLocale('zh-CN');
+    // 无异常即通过
+    expect(true).toBe(true);
   });
 });

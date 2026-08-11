@@ -5,6 +5,10 @@ import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfTabs extends AfElement {
   static useShadow = false;
+  // i18n 映射表：tablist aria-label 用字典兜底
+  static i18n = {
+    '.tabbar': ['aria-label', 'tb.al'],
+  };
 
   constructor() {
     super();
@@ -36,11 +40,7 @@ export class AfTabs extends AfElement {
     this._tabbar = this.$('.tabbar');
     this._panelContainer = this.$('.af-tabs-panel-container');
     if (this.fixed) this._tabbar.classList.add('tabbar-fixed');
-    if (this.getAttribute('aria-label')) {
-      this._tabbar.setAttribute('aria-label', this.getAttribute('aria-label'));
-    } else {
-      this._tabbar.setAttribute('aria-label', '标签页');
-    }
+    // aria-label 由 _applyI18n 在 connectedCallback 末尾统一应用
   }
 
   _renderTabs() {

@@ -5,6 +5,11 @@ import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 
 export class AfUpload extends AfElement {
   static useShadow = false;
+  static i18n = {
+    '.upload-grid':           ['aria-label', 'up.pv'],
+    'button.btn':             ['',           'up.btn', 'buttonText'],
+    '.upload-trigger button': ['aria-label', 'up.al', 'ariaLabelText'],
+  };
 
   constructor() {
     super();
@@ -15,10 +20,10 @@ export class AfUpload extends AfElement {
   mounted() {
     this.innerHTML = `
       <div class="upload-trigger">
-        <button class="btn btn-ghost" type="button" aria-label="${esc(this.ariaLabelText)}">${esc(this.buttonText)}</button>
+        <button class="btn btn-ghost" type="button"></button>
         <input class="upload-input" type="file" accept="${esc(this.accept)}"${this.multiple ? ' multiple' : ''} hidden>
       </div>
-      <div class="upload-grid" role="list" aria-label="文件预览"></div>
+      <div class="upload-grid" role="list"></div>
     `;
     this._input = this.$('.upload-input');
     this._grid = this.$('.upload-grid');
@@ -112,12 +117,8 @@ export class AfUpload extends AfElement {
     else if (name === 'multiple') {
       if (this.multiple) this._input.setAttribute('multiple', '');
       else this._input.removeAttribute('multiple');
-    } else if (name === 'button-text') {
-      const btn = this.$('.btn');
-      if (btn) btn.textContent = newVal;
-    } else if (name === 'aria-label') {
-      const btn = this.$('.btn');
-      if (btn) btn.setAttribute('aria-label', newVal);
+    } else if (name === 'button-text' || name === 'aria-label') {
+      this._applyI18n();
     }
   }
 
@@ -133,5 +134,5 @@ AfElement.defineProp(AfUpload.prototype, 'accept', { type: String, default: 'ima
 AfElement.defineProp(AfUpload.prototype, 'multiple', { type: Boolean, default: true });
 AfElement.defineProp(AfUpload.prototype, 'maxSize', { attr: 'max-size', type: Number, default: 0 });
 AfElement.defineProp(AfUpload.prototype, 'maxCount', { attr: 'max-count', type: Number, default: 0 });
-AfElement.defineProp(AfUpload.prototype, 'buttonText', { attr: 'button-text', type: String, default: '+ 选择文件' });
-AfElement.defineProp(AfUpload.prototype, 'ariaLabelText', { attr: 'aria-label', type: String, default: '上传文件' });
+AfElement.defineProp(AfUpload.prototype, 'buttonText', { attr: 'button-text', type: String, default: null });
+AfElement.defineProp(AfUpload.prototype, 'ariaLabelText', { attr: 'aria-label', type: String, default: null });

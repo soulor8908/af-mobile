@@ -2,6 +2,7 @@
 // Light DOM（useShadow=false），复用 L2 .list/.list-item 配方
 // 职责：虚拟滚动 + 下拉刷新 + 上拉加载 + itemclick 事件委托
 import { AfElement, escapeHtml as esc, html } from '../lib/af-element.js';
+import { t } from '../lib/i18n.js';
 
 const LOADINGMORE_DISTANCE = 2; // 距底 N 项触发
 const REFRESH_THRESHOLD = 40;
@@ -9,6 +10,17 @@ const REFRESH_MAX = 60;
 
 export class AfList extends AfElement {
   static useShadow = false;
+  static i18n = {
+    '[data-role="refresh-indicator"]': ['aria-label', 'ls.rf'],
+    '[data-role="loadmore"]': ['', (host, t) =>
+      host._hasMore ? (host._isLoadingMore ? t('ls.ld') : '') : t('ls.nm')
+    ],
+    '.empty p.body': ['', (host, t) => host.emptyText || t('ls.em')],
+    '@': ['aria-label', (host, t) => {
+      const total = host._totalCount == null ? host.data.length : host.totalCount;
+      return t('ls.al', { n: total });
+    }],
+  };
 
   constructor() {
     super();
@@ -31,7 +43,7 @@ export class AfList extends AfElement {
   }
 
   get totalCount() { return this._totalCount ?? Infinity; }
-  set totalCount(n) { this._totalCount = n; this._updateAria(); }
+  set totalCount(n) { this._totalCount = n; this._applyI18n(); }
 
   get scrollTop() { return this._scroller ? this._scroller.scrollTop : 0; }
 
@@ -43,7 +55,6 @@ export class AfList extends AfElement {
     if (this.refresh) this._bindPullRefresh();
     this._bindClick();
     this._bindKeydown();
-    this._updateAria();
   }
 
   // 应用 height 属性到宿主（通过 CSS 自定义属性传递，recipes.css af-list 读取）
@@ -58,7 +69,7 @@ export class AfList extends AfElement {
   _buildShell() {
     this.innerHTML = `
       <div class="list" role="list" tabindex="0">
-        <div data-role="refresh-indicator" aria-live="polite" aria-label="正在刷新"></div>
+        <div data-role="refresh-indicator" aria-live="polite"></div>
         <div data-role="spacer-before"></div>
         <div data-role="viewport"></div>
         <div data-role="spacer-after"></div>
@@ -158,7 +169,7 @@ export class AfList extends AfElement {
   _checkLoadmore(scroller, total) {
     if (this._isLoadingMore || !this._hasMore) return;
     if (this.data.length >= total) {
-      this._loadmoreEl.textContent = '没有更多了';
+      this._loadmoreEl.textContent = t('ls.nm');
       this._hasMore = false;
       return;
     }
@@ -166,7 +177,7 @@ export class AfList extends AfElement {
     if (distanceToBottom < this.itemHeight * LOADINGMORE_DISTANCE) {
       this._isLoadingMore = true;
       this._page += 1;
-      this._loadmoreEl.textContent = '加载中…';
+      this._loadmoreEl.textContent = t('ls.ld');
       this.emit('af-list:loadmore', { page: this._page });
     }
   }
@@ -174,7 +185,7 @@ export class AfList extends AfElement {
   endLoadMore(hasMore) {
     this._isLoadingMore = false;
     this._hasMore = !!hasMore;
-    this._loadmoreEl.textContent = hasMore ? '' : '没有更多了';
+    this._loadmoreEl.textContent = hasMore ? '' : t('ls.nm');
   }
 
   endRefresh() {
@@ -287,12 +298,6 @@ export class AfList extends AfElement {
     }
   }
 
-  _updateAria() {
-    // totalCount 未显式设置（Infinity）时用 data.length 展示，避免 aria 出现 "Infinity"
-    const total = this._totalCount == null ? this.data.length : this.totalCount;
-    this.setAttribute('aria-label', `列表，共 ${total} 项`);
-  }
-
   onAttributeChange(name, oldVal, newVal) {
     if (!this._scroller) return;
     // data/mode/item-height/empty-text 变化会让可见区内容或 spacer 高度改变，
@@ -306,6 +311,8 @@ export class AfList extends AfElement {
     } else {
       this._render();
     }
+    // 重渲染后更新 i18n 文本（aria-label 总数 / 空态文案 / loadmore 状态文本）
+    this._applyI18n();
   }
 
   unmounted() {
@@ -329,5 +336,5 @@ AfElement.defineProp(AfList.prototype, 'buffer', { type: Number, default: 5 });
 AfElement.defineProp(AfList.prototype, 'mode', { type: String, default: 'normal' });
 AfElement.defineProp(AfList.prototype, 'refresh', { type: Boolean, default: true });
 AfElement.defineProp(AfList.prototype, 'loading', { type: Boolean, default: false });
-AfElement.defineProp(AfList.prototype, 'emptyText', { attr: 'empty-text', type: String, default: '暂无数据' });
+AfElement.defineProp(AfList.prototype, 'emptyText', { attr: 'empty-text', type: String, default: null });
 AfElement.defineProp(AfList.prototype, 'height', { type: String, default: '' });

@@ -7,7 +7,7 @@
 // 六源同步：
 //   1. src/blocks/af-<tag>.js          五态骨架（loading/error/empty/success）+ a11y + 键盘导航
 //   2. test/af-<tag>.test.js           8 个冒烟测试（五态 + 交互 + a11y + XSS）
-//   3. src/index.js                    import + export + BLOCK_REGISTRY
+//   3. src/index.js                    import + export（按需 import 模式，无全量注册器）
 //   4. src/index.d.ts                  interface + class 声明
 //   5. scripts/build-prompt.mjs        BLOCK_META 追加一行
 //   6. src/lib/i18n.js                 zh-CN + en-US 字典追加 5 个 key
@@ -348,22 +348,7 @@ function patchIndexJs(src) {
     lines.splice(lastBlockExportIdx + 1, 0, exportLine);
   }
 
-  // 追加 BLOCK_REGISTRY 条目
-  const registryLine = `  '${tag}': ${cls},`;
-  const registryIdx = lines.findIndex(l => l.includes('const BLOCK_REGISTRY'));
-  if (registryIdx >= 0) {
-    // 找 BLOCK_REGISTRY 的闭合 } 行
-    let closeIdx = registryIdx;
-    let depth = 0;
-    for (let i = registryIdx; i < lines.length; i++) {
-      if (lines[i].includes('{')) depth++;
-      if (lines[i].includes('}')) {
-        depth--;
-        if (depth === 0) { closeIdx = i; break; }
-      }
-    }
-    lines.splice(closeIdx, 0, registryLine);
-  }
+  // 注：不追加 BLOCK_REGISTRY（已移除全量注册器，Block 只能按需 import + customElements.define）
 
   return lines.join('\n');
 }
@@ -509,7 +494,7 @@ function main() {
   console.log('✓ 六源已写入：');
   console.log('  1. src/blocks/' + tag + '.js');
   console.log('  2. test/' + tag + '.test.js');
-  console.log('  3. src/index.js（import + export + BLOCK_REGISTRY）');
+  console.log('  3. src/index.js（import + export，按需模式）');
   console.log('  4. src/index.d.ts（interface + class）');
   console.log('  5. scripts/build-prompt.mjs（BLOCK_META）');
   console.log('  6. src/lib/i18n.js（zh-CN + en-US）');

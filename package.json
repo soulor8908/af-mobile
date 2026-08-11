@@ -17,6 +17,7 @@
     "./recipes.css": "./src/recipes.css",
     "./atomic.css": "./src/atomic.css",
     "./components/*": "./src/components/*",
+    "./blocks/*": "./src/blocks/*",
     "./lib/*": "./src/lib/*",
     "./dist": "./dist/index.js",
     "./dist/css": "./dist/index.css",

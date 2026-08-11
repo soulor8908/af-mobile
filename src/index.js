@@ -61,19 +61,10 @@ const REGISTRY = {
   'af-data': AfData,
 };
 
-// L3.5 Block 标签（独立注册器，与 L3 组件分离，便于按需引入 Block 层）
+// L3.5 Block 标签（按需 import + customElements.define，不提供全量注册器，避免诱导全量加载）
+// 用法：import { AfSettingGroup } from 'aiflow-ui'; customElements.define('af-setting-group', AfSettingGroup);
 export { AfSettingGroup };
 export { AfProductCard };
-const BLOCK_REGISTRY = {
-  'af-setting-group': AfSettingGroup,
-  'af-product-card': AfProductCard,
-};
-
-export function registerAllBlocks() {
-  for (const [name, ctor] of Object.entries(BLOCK_REGISTRY)) {
-    if (!customElements.get(name)) customElements.define(name, ctor);
-  }
-}
 
 export function registerAll() {
   for (const [name, ctor] of Object.entries(REGISTRY)) {

@@ -718,9 +718,6 @@ export function register(name: string): void;
 /** 全量注册 21 个组件 */
 export function registerAll(): void;
 
-/** 全量注册 L3.5 Block（当前 1 个，后续扩展到 42 个） */
-export function registerAllBlocks(): void;
-
 // ============================================================
 // L3.5 Block 层（复合组件，AI 优先使用）
 // ============================================================

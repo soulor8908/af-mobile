@@ -9,7 +9,13 @@
   "exports": {
     ".": {
       "import": "./src/index.js",
+      "types": "./src/index.d.ts",
       "default": "./src/index.js"
+    },
+    "./page": {
+      "import": "./src/page.js",
+      "types": "./src/page.d.ts",
+      "default": "./src/page.js"
     },
     "./css": "./src/index.css",
     "./aiflow-ui.css": "./src/index.css",

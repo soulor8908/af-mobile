@@ -50,13 +50,18 @@ const SRC = join(ROOT, 'src');
 //   删除 registerAllBlocks() 函数（反模式：诱导全量加载，Block 只能按需 import + define）
 //   新增 blocksOnDemand3 预算：按需 3 Block bundle ≤6KB（模拟复杂页面真实场景，基类共享后增量极小）
 //   单 Block ≤ 1.6KB 保留（防个别 Block 失控）
+// v1.7.2 调整（page 子包解耦）：
+//   coreRuntime 7.0→4.5KB：page.js + bind.js 移到 aiflow-ui/page 子包，主包核心运行时只剩 router+state+fetch+i18n
+//   新增 pageSubpackage 预算：aiflow-ui/page 子包（page.js + bind.js + data-ref.js）独立监控 ≤2.5KB
+//   af-data 改 import data-ref.js（轻量 Map），不再拖入 bind.js → page.js 链
 const BUDGET = {
   css: 8.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 1.5,           // KB，AfElement 基类（+_applyI18n + localechange 订阅）
-  total: 21.0,         // KB，21 组件 + 基类（含 af-data，page/bind 外移到 coreRuntime）
+  total: 21.0,         // KB，21 组件 + 基类（含 af-data，page/bind 已移到子包）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
-  coreRuntime: 7.0,    // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total
+  coreRuntime: 4.5,    // KB，router+state+fetch+i18n（page/bind 移到子包，独立预算不计入 total）
+  pageSubpackage: 2.5, // KB，aiflow-ui/page 子包（page.js+bind.js+data-ref.js，独立预算不计入 total）
   perBlock: 1.6,       // KB，单 L3.5 Block JS（独立预算，不计入 total，含五态/a11y 容差）
   blocksOnDemand3: 6.0,// KB，按需 3 Block bundle（模拟复杂页面真实场景，含基类共享）
 };
@@ -132,7 +137,8 @@ async function onDemand2Gz(compA, compB) {
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
 
-// 核心运行时：router + state + fetch + i18n + page + bind 合计 gzip（独立预算，不计入 total）
+// 核心运行时：router + state + fetch + i18n 合计 gzip（独立预算，不计入 total）
+// v1.7.2：page.js + bind.js 移到 aiflow-ui/page 子包，主包核心运行时不含 definePage/:bind
 // 注意：package.json 的 sideEffects 只列了 "**/*.css"，src/lib/*.js 被视为无副作用，
 // bare import 会被 esbuild tree-shake 摇除。因此用具名导入 + globalThis 引用强制保留代码
 // （与 onDemand2Gz 用 customElements.define 防摇除同理）。
@@ -145,15 +151,35 @@ async function measureCoreRuntime() {
     `import { fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache } from '${toPosix(join(SRC, 'lib/fetch.js'))}';\n` +
     `import { route, go, back, forward, beforeEach, afterEach, notFound, current, start } from '${toPosix(join(SRC, 'lib/router.js'))}';\n` +
     `import { t, getLocale, setLocale, initLocale, addMessages, messages } from '${toPosix(join(SRC, 'lib/i18n.js'))}';\n` +
-    `import { definePage, state, derived, actions, clearPageState, getTransition, getKeepAlive } from '${toPosix(join(SRC, 'lib/page.js'))}';\n` +
-    `import { initBind, registerDataRef, unregisterDataRef } from '${toPosix(join(SRC, 'lib/bind.js'))}';\n` +
     `// 引用以防 tree-shake 摇除\n` +
-    `globalThis.__aiflow_core = [signal, computed, effect, batch, bus, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages, definePage, state, derived, actions, clearPageState, getTransition, getKeepAlive, initBind, registerDataRef, unregisterDataRef];\n`
+    `globalThis.__aiflow_core = [signal, computed, effect, batch, bus, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages];\n`
   );
   const res = await build({
     entryPoints: [entry],
     bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
     absWorkingDir: ROOT,
+  });
+  return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
+}
+
+// aiflow-ui/page 子包：page.js + bind.js + data-ref.js 合计 gzip（独立预算，不计入 total）
+// 消费端：import { definePage, initBind } from 'aiflow-ui/page'
+// 依赖主包的 state.js/router.js（在 coreRuntime 预算内），此处 external 掉避免重复计入
+async function measurePageSubpackage() {
+  const dir = mkdtempSync(join(tmpdir(), 'aiflow-page-'));
+  const entry = join(dir, 'entry.js');
+  const toPosix = (p) => p.replace(/\\/g, '/');
+  writeFileSync(entry,
+    `import { definePage, state, derived, actions, clearPageState, getTransition, getKeepAlive } from '${toPosix(join(SRC, 'lib/page.js'))}';\n` +
+    `import { initBind, registerDataRef, unregisterDataRef } from '${toPosix(join(SRC, 'lib/bind.js'))}';\n` +
+    `// 引用以防 tree-shake 摇除\n` +
+    `globalThis.__aiflow_page = [definePage, state, derived, actions, clearPageState, getTransition, getKeepAlive, initBind, registerDataRef, unregisterDataRef];\n`
+  );
+  const res = await build({
+    entryPoints: [entry],
+    bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+    absWorkingDir: ROOT,
+    external: ['./state.js', '../lib/state.js', './router.js', '../lib/router.js'],
   });
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
@@ -200,8 +226,11 @@ async function main() {
   const top2Names = top2.map(c => FILE_TO_NAME[c.file]);
   const onDemandGz = await onDemand2Gz(top2Names[0], top2Names[1]);
 
-  // 5. 核心运行时（router + state + fetch）
+  // 5. 核心运行时（router + state + fetch + i18n，v1.7.2 起 page/bind 移到子包）
   const coreGz = await measureCoreRuntime();
+
+  // 5b. aiflow-ui/page 子包（page.js + bind.js + data-ref.js，独立预算）
+  const pageGz = await measurePageSubpackage();
 
   // 6. L3.5 Block 层（src/blocks/af-*.js，独立预算，不计入 total）
   //    perBlock：单 Block external 基类后测体积（防个别 Block 失控）
@@ -294,8 +323,13 @@ async function main() {
   // 核心运行时
   console.log('');
   const coreOver = coreGz > BUDGET.coreRuntime * KB;
-  console.log(`核心运行时（state+fetch+router+i18n+page+bind） ${fmt(coreGz).padStart(4)}  预算 ≤ ${BUDGET.coreRuntime}KB  ${coreOver ? '✗ 超限' : '✓'}`);
+  console.log(`核心运行时（state+fetch+router+i18n） ${fmt(coreGz).padStart(4)}  预算 ≤ ${BUDGET.coreRuntime}KB  ${coreOver ? '✗ 超限' : '✓'}`);
   if (coreOver) violations.push(`核心运行时 ${fmt(coreGz)} > ${BUDGET.coreRuntime}KB`);
+
+  // aiflow-ui/page 子包
+  const pageOver = pageGz > BUDGET.pageSubpackage * KB;
+  console.log(`page 子包（page+bind+data-ref）     ${fmt(pageGz).padStart(10)}  预算 ≤ ${BUDGET.pageSubpackage}KB  ${pageOver ? '✗ 超限' : '✓'}`);
+  if (pageOver) violations.push(`page 子包 ${fmt(pageGz)} > ${BUDGET.pageSubpackage}KB`);
 
   // 汇总
   console.log('\n──────────────────────────────────────────────────────────');

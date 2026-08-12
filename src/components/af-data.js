@@ -5,7 +5,7 @@
 import { AfElement } from '../lib/af-element.js';
 import { fetchPage } from '../lib/fetch.js';
 import { signal } from '../lib/state.js';
-import { registerDataRef, unregisterDataRef } from '../lib/bind.js';
+import { registerDataRef, unregisterDataRef } from '../lib/data-ref.js';
 
 export class AfData extends AfElement {
   static useShadow = false;

@@ -5,19 +5,13 @@
 
 import { effect } from './state.js';
 import { state, derived } from './page.js';
+import { getDataRef, _resetDataRefs } from './data-ref.js';
 
 const _bindings = new WeakMap();   // element → cleanup
-const _dataRefs = new Map();       // refName → () => data object
 
-/** af-data 注册 ref，供 :bind 引用 */
-export function registerDataRef(name, getData) {
-  _dataRefs.set(name, getData);
-}
-
-/** af-data 卸载时取消注册 */
-export function unregisterDataRef(name) {
-  _dataRefs.delete(name);
-}
+// 向后兼容：re-export 注册表 API（af-data 现已直接从 data-ref.js import，
+// 此 re-export 仅为旧测试和潜在消费端代码保留）
+export { registerDataRef, unregisterDataRef } from './data-ref.js';
 
 /** 初始化 :bind 扫描（应用启动时调用一次） */
 export function initBind(root = document) {
@@ -77,7 +71,7 @@ function parseExpr(expr) {
   if (/^[a-zA-Z_$][\w$]*\.[a-zA-Z_$][\w$]*$/.test(expr)) {
     const [refName, ...rest] = expr.split('.');
     return { get: () => {
-      const getData = _dataRefs.get(refName);
+      const getData = getDataRef(refName);
       return getData ? getPath(getData(), rest.join('.')) : undefined;
     }};
   }
@@ -100,7 +94,7 @@ function applyValue(el, attrName, val) {
   }
 }
 
-/** 测试用：重置内部状态 */
+/** 测试用：重置内部状态（重置 data-ref 注册表） */
 export function _resetBind() {
-  _dataRefs.clear();
+  _resetDataRefs();
 }

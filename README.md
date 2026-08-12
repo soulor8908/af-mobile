@@ -197,6 +197,26 @@ import { registerAll } from 'aiflow-ui';
 registerAll();
 ```
 
+## aiflow-ui/page 子包（definePage + :bind）
+
+`definePage` 页面运行时与 `:bind` 响应式绑定已从主包独立为 `aiflow-ui/page` 子包，与核心库解耦。**不引此子包时，page.js + bind.js 不计入核心运行时预算**（~1.5KB gzip 节省）。
+
+```js
+// 显式引入页面运行时（仅复杂状态编排场景需要）
+import { definePage, initBind, state, derived, actions } from 'aiflow-ui/page';
+
+definePage({
+  state: { count: 0, list: [] },
+  computed: { total: () => state.list.reduce((s, i) => s + i, 0) },
+  effects: { mount: () => console.log('mounted') },
+  actions: { add: (n) => state.count += n },
+});
+
+initBind();  // 启动 :bind 扫描（应用启动时调用一次）
+```
+
+> **使用边界**：OPC 列表/表单/详情等 90% 场景用原生 `fetch + DOM 赋值` 即可，无需引入 page 子包。仅在多 Block 状态联动、跨页面状态共享等复杂场景才引入。`af-data` 组件通过轻量 `data-ref.js` 注册表与 `:bind` 通信，本身不依赖 page 子包。
+
 ## 主题切换
 
 提供 `initTheme` / `setTheme` / `toggleTheme` / `getTheme` 四个 API，通过 `data-theme` 属性控制 light/dark。
@@ -293,7 +313,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 |---|---|---|
 | 1 | 白名单三源同步（CSS/JS ↔ whitelist.json ↔ Prompt 注入） | `npm run whitelist:check` |
 | 1b | d.ts 与源码组件数同步（防类型声明漂移） | `npm run types:check` |
-| 2 | 体积预算（L1+L2 CSS ≤ 8.0KB / 全量 20 组件+基类 ≤ 19.5KB / 按需2组件 ≤ 5.5KB / 单组件 JS ≤ 2.6KB / 基类 ≤ 1.2KB） | `npm run size` |
+| 2 | 体积预算（L1+L2 CSS ≤ 8.0KB / 全量 21 组件+基类 ≤ 21KB / 按需2组件 ≤ 5.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 1.5KB / 核心运行时 ≤ 4.5KB / page 子包 ≤ 2.5KB） | `npm run size` |
 | 3 | 单元测试（jsdom） | `npm test` |
 | 4 | ESLint 15 规则（10 error + 5 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
 | 5 | 发布前检查（build + Tree Shaking + sideEffects + types-sync + npm pack） | `npm run publish:check` |

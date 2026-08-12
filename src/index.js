@@ -91,12 +91,12 @@ export {
 } from './lib/router.js';
 
 // ============================================================
-// definePage 页面运行时 + :bind 响应式绑定（L3.5）
-// ============================================================
-export { definePage, state, derived, actions, clearPageState, getTransition, getKeepAlive } from './lib/page.js';
-export { initBind, registerDataRef, unregisterDataRef } from './lib/bind.js';
-
-// ============================================================
 // 核心运行时：i18n（国际化，按需 import，不计入组件体积预算）
 // ============================================================
 export { t, getLocale, setLocale, initLocale, addMessages, messages } from './lib/i18n.js';
+
+// ============================================================
+// aiflow-ui/page 子包（definePage + :bind）已独立，不再从主包导出
+// 消费端显式 import { definePage, initBind } from 'aiflow-ui/page'
+// 见 src/page.js
+// ============================================================

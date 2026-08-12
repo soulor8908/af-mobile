@@ -1,0 +1,235 @@
+/* AIFlow UI —— L2 配方层 · form 子集
+   表单输入 / 开关 / 搜索条 / 上传 / Checkbox / Radio / af-field/af-stepper 宿主
+   表单页按需引：import 'aiflow-ui/css/form'; */
+@layer components {
+  /* === 表单（8） === */
+  .label {
+    display: block;
+    margin-bottom: var(--s-1);
+    font-size: var(--t-sm);
+    color: var(--c-muted);
+  }
+
+  .input, .textarea {
+    width: 100%;
+    padding: var(--s-2) var(--s-3);
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-m);
+    font-size: var(--t-md);
+    color: var(--c-text);
+    line-height: var(--lh-tight);
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .input:focus, .textarea:focus {
+    outline: none;
+    border-color: var(--c-brand);
+  }
+  .input::placeholder, .textarea::placeholder { color: var(--c-muted); }
+  .textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: var(--lh-normal);
+  }
+
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+    margin-bottom: var(--s-3);
+  }
+  .form-row-h {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--s-3);
+    margin-bottom: var(--s-3);
+  }
+
+  .form-err {
+    font-size: var(--t-xs);
+    color: var(--c-danger);
+    line-height: var(--lh-tight);
+  }
+
+  .search-input {
+    width: 100%;
+    padding: var(--s-2) var(--s-3) var(--s-2) var(--s-5);
+    background: var(--c-muted-bg);
+    border: none;
+    border-radius: var(--r-f);
+    font-size: var(--t-md);
+    color: var(--c-text);
+  }
+  .search-input:focus { outline: none; }
+  .search-input::placeholder { color: var(--c-muted); }
+
+  .switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 52px;
+    height: 32px;
+    border-radius: var(--r-f);
+    background: var(--c-muted-bg);
+    border: 1px solid var(--c-border);
+    transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .switch-sm { width: 40px; height: 24px; }
+  .switch-on { background: var(--c-brand); border-color: var(--c-brand); }
+  .switch-loading { pointer-events: none; }
+  .switch[disabled] { opacity: 0.5; cursor: not-allowed; }
+  .switch-thumb {
+    display: block;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--c-bg);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform var(--dur-base) var(--ease-out);
+    margin: 0 2px;
+    flex-shrink: 0;
+  }
+  .switch-sm .switch-thumb { width: 20px; height: 20px; }
+  .switch-on .switch-thumb { transform: translateX(20px); }
+  .switch-sm.switch-on .switch-thumb { transform: translateX(16px); }
+  .switch-loading .switch-thumb { animation: switch-spin 0.8s linear infinite; }
+  @keyframes switch-spin { to { transform: rotate(360deg); } }
+
+  .search-bar-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .search-bar-icon {
+    position: absolute;
+    left: var(--s-2);
+    width: 16px;
+    height: 16px;
+    color: var(--c-muted);
+    pointer-events: none;
+  }
+  .search-bar-clear {
+    position: absolute;
+    right: var(--s-1);
+    border: none;
+    background: var(--c-muted-bg);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--c-muted);
+    padding: 0;
+  }
+  .search-bar-clear[hidden] { display: none; }
+
+  .input-err {
+    border-color: var(--c-danger);
+  }
+  .input-err:focus { border-color: var(--c-danger); }
+
+  /* 原生 Constraint Validation API 联动：用户输入过且校验失败时自动错误态
+     AI 只需 <input class="input" required type="email">，无需写 JS 校验逻辑
+     :user-invalid 仅在用户交互过才触发，比 :invalid 更克制（首帧不报红） */
+  .input:user-invalid, .textarea:user-invalid { border-color: var(--c-danger); }
+  .input:user-invalid:focus, .textarea:user-invalid:focus { border-color: var(--c-danger); }
+
+  .upload-trigger { display: inline-flex; align-items: center; }
+  .upload-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: var(--s-2);
+    margin-top: var(--s-3);
+  }
+  .upload-grid:empty { display: none; }
+
+  /* === Checkbox / Radio（4） === */
+  /* 纯 CSS：appearance:none + :checked::after 自绘勾选/圆点
+     用法：<label class="checkbox"><input type="checkbox"><span>文本</span></label> */
+  .checkbox, .radio {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .checkbox-sm, .radio-sm { gap: var(--s-1); }
+  .checkbox input, .radio input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--c-border);
+    background: var(--c-card);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin: 0;
+    transition: background var(--dur-fast) var(--ease-out),
+                border-color var(--dur-fast) var(--ease-out);
+  }
+  .checkbox input { border-radius: var(--r-s); }
+  .radio input { border-radius: 50%; }
+  .checkbox input:checked { background: var(--c-brand); border-color: var(--c-brand); }
+  .radio input:checked { border-color: var(--c-brand); }
+  .checkbox input:checked::after {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 10px;
+    border: solid var(--c-onbrand);
+    border-width: 0 2px 2px 0;
+    transform: translate(6px, 3px) rotate(45deg);
+  }
+  .radio input:checked::after {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--c-brand);
+    transform: translate(4px, 4px);
+  }
+  .checkbox input:focus-visible, .radio input:focus-visible {
+    outline: 2px solid var(--c-brand);
+    outline-offset: 2px;
+  }
+  .checkbox input:disabled, .radio input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .checkbox-sm input, .radio-sm input {
+    width: 16px;
+    height: 16px;
+  }
+  .checkbox-sm input:checked::after {
+    width: 4px; height: 8px;
+    transform: translate(4px, 2px) rotate(45deg);
+  }
+  .radio-sm input:checked::after {
+    width: 8px; height: 8px;
+    transform: translate(3px, 3px);
+  }
+
+  /* === af-stepper / af-field 宿主样式（form 子集，表单页才引） === */
+  /* af-stepper：横向紧凑布局 + 居中数字输入 */
+  af-stepper { display: inline-flex; align-items: center; gap: var(--s-1); }
+  af-stepper [data-role="input"] { width: 64px; text-align: center; }
+
+  /* af-field：图标绝对定位 + 控件容器相对定位 */
+  af-field { display: block; }
+  af-field [data-role="control-wrap"] {
+    position: relative; display: flex; align-items: center;
+  }
+  af-field [data-role="icon"] {
+    position: absolute; left: var(--s-3); display: inline-flex;
+    color: var(--c-muted); pointer-events: none; font-size: var(--t-md);
+  }
+  af-field [data-role="icon"] ~ [data-role="input"] { padding-left: var(--s-6); }
+}

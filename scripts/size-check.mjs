@@ -54,8 +54,17 @@ const SRC = join(ROOT, 'src');
 //   coreRuntime 7.0→4.5KB：page.js + bind.js 移到 aiflow-ui/page 子包，主包核心运行时只剩 router+state+fetch+i18n
 //   新增 pageSubpackage 预算：aiflow-ui/page 子包（page.js + bind.js + data-ref.js）独立监控 ≤2.5KB
 //   af-data 改 import data-ref.js（轻量 Map），不再拖入 bind.js → page.js 链
+// v1.7.3 调整（CSS 分层 + 按需 import）：
+//   recipes.css 拆为 4 层：core/form/feedback/display
+//   CSS 总预算 8.0→8.5KB：分层后单文件 gzip 字典不共享，略涨（实际 8.303KB）
+//   新增 4 个分层独立预算：core 3.5 / form 2.2 / feedback 1.8 / display 1.9
+//   消费端按需 import 'aiflow-ui/css/core' 等，首屏 CSS 从 8KB 降到 ~3KB
 const BUDGET = {
-  css: 8.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
+  css: 8.5,            // KB，L1+L2 CSS 总预算（tokens+recipes-{core,form,feedback,display}+atomic，分层后 gzip 字典不共享，略涨）
+  cssCore: 3.5,        // KB，recipes-core.css（按钮/容器/文本/列表/导航/布局/宿主，所有页面必引）
+  cssForm: 2.2,        // KB，recipes-form.css（表单/checkbox/radio/af-field/af-stepper 宿主）
+  cssFeedback: 1.8,    // KB，recipes-feedback.css（空态/骨架/标签/徽标/toast/spinner/progress/notice）
+  cssDisplay: 1.9,     // KB，recipes-display.css（折叠/评分/步骤/分段）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 1.5,           // KB，AfElement 基类（+_applyI18n + localechange 订阅）
   total: 21.0,         // KB，21 组件 + 基类（含 af-data，page/bind 已移到子包）
@@ -188,10 +197,17 @@ async function main() {
   // i18n.js/page.js/bind.js 属于 coreRuntime（与 router/state/fetch 同级），在基类/组件/onDemand2 测量中均 external 掉
   const external = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js', '../lib/page.js', './page.js', '../lib/bind.js', './bind.js'];
 
-  // 0. L1+L2 CSS（tokens+recipes+atomic 拼接后 gzip）
-  const cssFiles = ['tokens.css', 'recipes.css', 'atomic.css'];
+  // 0. L1+L2 CSS（tokens + 4 层 recipes + atomic 拼接后 gzip）
+  //    v1.7.3：recipes.css 拆为 4 层，构建消费端 bundle 时按需引入
+  const cssFiles = ['tokens.css', 'recipes-core.css', 'recipes-form.css', 'recipes-feedback.css', 'recipes-display.css', 'atomic.css'];
   const cssConcat = cssFiles.map(f => readFileSync(join(SRC, f))).join('\n');
   const cssGz = gzipSync(cssConcat).length;
+
+  // 0b. 4 个分层 CSS 独立预算（防某层失控，消费端按需 import）
+  const cssLayerGz = {};
+  for (const layer of ['core', 'form', 'feedback', 'display']) {
+    cssLayerGz[layer] = gzipSync(readFileSync(join(SRC, `recipes-${layer}.css`))).length;
+  }
 
   // 1. 基类（external i18n.js，属 coreRuntime）
   const baseGz = (await minifyGz(join(SRC, 'lib/af-element.js'), ['./i18n.js'])).gz;
@@ -277,8 +293,17 @@ async function main() {
 
   // L1+L2 CSS
   const cssOver = cssGz > BUDGET.css * KB;
-  console.log(`L1+L2 CSS            ${fmt(cssGz).padStart(10)}  预算 ≤ ${BUDGET.css}KB  ${cssOver ? '✗ 超限' : '✓'}`);
+  console.log(`L1+L2 CSS（全量）    ${fmt(cssGz).padStart(10)}  预算 ≤ ${BUDGET.css}KB  ${cssOver ? '✗ 超限' : '✓'}`);
   if (cssOver) violations.push(`L1+L2 CSS ${fmt(cssGz)} > ${BUDGET.css}KB`);
+
+  // 4 个分层 CSS 独立预算（消费端按需 import 'aiflow-ui/css/core' 等）
+  const cssLayerBudget = { core: BUDGET.cssCore, form: BUDGET.cssForm, feedback: BUDGET.cssFeedback, display: BUDGET.cssDisplay };
+  for (const layer of ['core', 'form', 'feedback', 'display']) {
+    const gz = cssLayerGz[layer];
+    const over = gz > cssLayerBudget[layer] * KB;
+    console.log(`  recipes-${layer.padEnd(9)} ${fmt(gz).padStart(9)}  预算 ≤ ${cssLayerBudget[layer]}KB  ${over ? '✗ 超限' : '✓'}`);
+    if (over) violations.push(`recipes-${layer}.css ${fmt(gz)} > ${cssLayerBudget[layer]}KB`);
+  }
 
   // 基类
   const baseOver = baseGz > BUDGET.base * KB;

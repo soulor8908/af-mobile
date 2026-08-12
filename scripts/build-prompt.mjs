@@ -14,6 +14,8 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TEMPLATE = join(ROOT, 'prompt/system-prompt.template.md');
 const WHITELIST = join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json');
 const RECIPES_CSS = join(ROOT, 'src/recipes.css');
+const RECIPES_LAYER_CSS = ['recipes-core.css', 'recipes-form.css', 'recipes-feedback.css', 'recipes-display.css']
+  .map(f => join(ROOT, 'src', f));
 const ATOMIC_CSS = join(ROOT, 'src/atomic.css');
 const DEFAULT_OUT = join(ROOT, 'prompt/system-prompt.md');
 
@@ -208,7 +210,9 @@ export function buildProjectExtensionSection(items) {
 function main() {
   const tpl = readFileSync(TEMPLATE, 'utf8');
   const wl = JSON.parse(readFileSync(WHITELIST, 'utf8'));
-  const recipeGroups = extractGroupsFromCss(readFileSync(RECIPES_CSS, 'utf8'));
+  // v1.7.3：recipes.css 已拆为 4 层，分组注释在分层文件里，读取所有分层拼接
+  const recipeCss = RECIPES_LAYER_CSS.map(f => readFileSync(f, 'utf8')).join('\n');
+  const recipeGroups = extractGroupsFromCss(recipeCss);
   const atomicGroups = extractGroupsFromCss(readFileSync(ATOMIC_CSS, 'utf8'));
 
   const wlSection = buildWhitelistSection(wl, recipeGroups, atomicGroups);

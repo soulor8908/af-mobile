@@ -65,8 +65,13 @@ await build({
 console.log('✓ dist/aiflow-ui.umd.js (UMD, auto-register)');
 
 // ---------- 3. dist/index.css（内联 @import 的全量 CSS） ----------
-// 把 tokens.css + recipes.css + atomic.css 拼接内联为单文件
-const cssFiles = ['tokens.css', 'recipes.css', 'atomic.css'];
+// 把 tokens.css + recipes-{core,form,feedback,display}.css + atomic.css 拼接内联为单文件
+// v1.7.3：recipes.css 已拆为 4 层 + 聚合入口，构建时直接内联 4 个分层文件
+const cssFiles = [
+  'tokens.css',
+  'recipes-core.css', 'recipes-form.css', 'recipes-feedback.css', 'recipes-display.css',
+  'atomic.css',
+];
 let cssConcat = '/* AIFlow UI —— dist/index.css（构建产物，勿手改。源码见 src/*.css） */\n';
 for (const f of cssFiles) {
   const content = readFileSync(join(SRC, f), 'utf8');

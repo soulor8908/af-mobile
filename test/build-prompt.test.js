@@ -13,9 +13,7 @@ import {
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WL = JSON.parse(readFileSync(join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json'), 'utf8'));
-// v1.7.3：recipes.css 已拆为 4 层 + 聚合入口，分组注释在分层文件里
-const RECIPES_LAYER_FILES = ['recipes-core.css', 'recipes-form.css', 'recipes-feedback.css', 'recipes-display.css'];
-const RECIPES_CSS = RECIPES_LAYER_FILES.map(f => readFileSync(join(ROOT, 'src', f), 'utf8')).join('\n');
+const RECIPES_CSS = readFileSync(join(ROOT, 'src/recipes.css'), 'utf8');
 const ATOMIC_CSS = readFileSync(join(ROOT, 'src/atomic.css'), 'utf8');
 
 describe('build-prompt / extractGroupsFromCss', () => {

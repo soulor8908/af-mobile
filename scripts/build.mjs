@@ -6,7 +6,7 @@
 //   dist/index.css        全量 CSS（tokens+recipes+atomic，@import 内联）
 //   dist/index.d.ts       类型声明（复制 src/index.d.ts）
 import { build, transform } from 'esbuild';
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -40,14 +40,11 @@ console.log('✓ dist/index.js (ESM bundle)');
 
 // ---------- 2. dist/aiflow-ui.umd.js（IIFE bundle，自动注册全组件） ----------
 // 命名 UMD 沿用历史习惯（unpkg/jsdelivr 字段指向此文件）；实为 IIFE（esbuild 无 UMD，IIFE 足够 CDN 直引场景）
-// 入口：bundle 全部组件并自动调用 register(...names) 显式列名（CDN 直引场景全量加载合理）
-// 组件名列表从 src/components/ 动态扫描，新增组件自动适配
-const componentFiles = readdirSync(join(SRC, 'components')).filter(f => /^af-.*\.js$/.test(f)).sort();
-const allComponentNames = componentFiles.map(f => `'${f.replace(/\.js$/, '')}'`).join(', ');
+// 入口：bundle 全部组件并自动调用 registerAll()
 const umdEntryCode = `
-import { register } from '${join(SRC, 'index.js').replace(/\\/g, '/')}';
+import { registerAll } from '${join(SRC, 'index.js').replace(/\\/g, '/')}';
 if (typeof window !== 'undefined') {
-  register(${allComponentNames});
+  registerAll();
 }
 `;
 const umdEntryPath = join(DIST, '_umd-entry.js');
@@ -68,13 +65,8 @@ await build({
 console.log('✓ dist/aiflow-ui.umd.js (UMD, auto-register)');
 
 // ---------- 3. dist/index.css（内联 @import 的全量 CSS） ----------
-// 把 tokens.css + recipes-{core,form,feedback,display}.css + atomic.css 拼接内联为单文件
-// v1.7.3：recipes.css 已拆为 4 层 + 聚合入口，构建时直接内联 4 个分层文件
-const cssFiles = [
-  'tokens.css',
-  'recipes-core.css', 'recipes-form.css', 'recipes-feedback.css', 'recipes-display.css',
-  'atomic.css',
-];
+// 把 tokens.css + recipes.css + atomic.css 拼接内联为单文件
+const cssFiles = ['tokens.css', 'recipes.css', 'atomic.css'];
 let cssConcat = '/* AIFlow UI —— dist/index.css（构建产物，勿手改。源码见 src/*.css） */\n';
 for (const f of cssFiles) {
   const content = readFileSync(join(SRC, f), 'utf8');

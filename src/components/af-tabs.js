@@ -2,11 +2,9 @@
 // Light DOM（useShadow=false），复用 L2 .tabbar/.tab-item 配方
 // 职责：选中态 + 内容联动 + WAI-ARIA tab 模式（roving tabindex + 键盘）
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
-import { withI18n } from '../lib/with-i18n.js';
 
-export class AfTabs extends withI18n(AfElement) {
+export class AfTabs extends AfElement {
   static useShadow = false;
-  static i18nKeys = ['tb.al'];
   // i18n 映射表：tablist aria-label 优先透传 host 属性，无则用字典兜底
   static i18n = {
     '.tabbar': ['aria-label', (host, t) => host.getAttribute('aria-label') || t('tb.al')],

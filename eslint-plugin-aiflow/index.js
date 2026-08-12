@@ -1,5 +1,5 @@
 // AIFlow UI —— eslint-plugin-aiflow 入口（ESLint 9 flat config 兼容）
-// 26 条规则（20 error + 6 warn），L1(2) + L2(7) + L3(6) + L3.5(11)
+// 15 条规则（10 error + 5 warn），L1(2) + L2(7) + L3(6)
 import noTokenModification from './rules/no-token-modification.js';
 import noInlineStyle from './rules/no-inline-style.js';
 import tokenWhitelist from './rules/token-whitelist.js';
@@ -15,18 +15,6 @@ import wcPartNaming from './rules/wc-part-naming.js';
 import wcEventNaming from './rules/wc-event-naming.js';
 import wcAriaRequired from './rules/wc-aria-required.js';
 import wcCleanup from './rules/wc-cleanup.js';
-import wcBlockStates from './rules/wc-block-states.js';
-import wcBlockPropsCount from './rules/wc-block-props-count.js';
-import wcBlockNoInternalRef from './rules/wc-block-no-internal-ref.js';
-import wcEffectsWhitelist from './rules/wc-effects-whitelist.js';
-import wcTransformPure from './rules/wc-transform-pure.js';
-import wcBindSyntax from './rules/wc-bind-syntax.js';
-import wcNoAddeventlistener from './rules/wc-no-addeventlistener.js';
-import wcDefinepageSingle from './rules/wc-definepage-single.js';
-import wcStateSchema from './rules/wc-state-schema.js';
-import wcPureFunction from './rules/wc-pure-function.js';
-import wcBlockVariantEnum from './rules/wc-block-variant-enum.js';
-import noRegisterAll from './rules/no-register-all.js';
 
 const plugin = {
   meta: { name: 'eslint-plugin-aiflow', version: '1.0.0' },
@@ -50,19 +38,6 @@ const plugin = {
     'wc-event-naming': wcEventNaming,
     'wc-aria-required': wcAriaRequired,
     'wc-cleanup': wcCleanup,
-    // L3.5（11 条：10 error + 1 warn）
-    'wc-block-states': wcBlockStates,
-    'wc-block-props-count': wcBlockPropsCount,
-    'wc-block-no-internal-ref': wcBlockNoInternalRef,
-    'wc-effects-whitelist': wcEffectsWhitelist,
-    'wc-transform-pure': wcTransformPure,
-    'wc-bind-syntax': wcBindSyntax,
-    'wc-no-addeventlistener': wcNoAddeventlistener,
-    'wc-definepage-single': wcDefinepageSingle,
-    'wc-state-schema': wcStateSchema,
-    'wc-pure-function': wcPureFunction,
-    'wc-block-variant-enum': wcBlockVariantEnum,
-    'no-register-all': noRegisterAll,
   },
   configs: {},
 };
@@ -92,21 +67,6 @@ Object.assign(plugin.configs, {
       // L3 warn
       'aiflow/wc-part-naming': 'warn',
       'aiflow/wc-cleanup': 'warn',
-      // L3.5 error（10 条）
-      'aiflow/wc-block-states': 'error',
-      'aiflow/wc-block-props-count': 'error',
-      'aiflow/wc-block-no-internal-ref': 'error',
-      'aiflow/wc-effects-whitelist': 'error',
-      'aiflow/wc-transform-pure': 'error',
-      'aiflow/wc-bind-syntax': 'error',
-      'aiflow/wc-no-addeventlistener': 'error',
-      'aiflow/wc-definepage-single': 'error',
-      'aiflow/wc-state-schema': 'error',
-      'aiflow/wc-pure-function': 'error',
-      // L3.5 warn
-      'aiflow/wc-block-variant-enum': 'warn',
-      // L3 error（v1.8.0 新增）
-      'aiflow/no-register-all': 'error',
     },
   },
 });

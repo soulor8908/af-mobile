@@ -7,7 +7,6 @@ import wcPartNaming from '../../eslint-plugin-aiflow/rules/wc-part-naming.js';
 import wcEventNaming from '../../eslint-plugin-aiflow/rules/wc-event-naming.js';
 import wcAriaRequired from '../../eslint-plugin-aiflow/rules/wc-aria-required.js';
 import wcCleanup from '../../eslint-plugin-aiflow/rules/wc-cleanup.js';
-import noRegisterAll from '../../eslint-plugin-aiflow/rules/no-register-all.js';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
@@ -282,34 +281,6 @@ describe('L3-6 aiflow/wc-cleanup', () => {
       valid: [{
         filename: 'src/components/af-foo.js',
         code: `export class AfFoo { mounted() { this._t = setTimeout(fn, 1000); } unmounted() { clearTimeout(this._t); } }`,
-      }],
-      invalid: [],
-    });
-  });
-});
-
-describe('L3-7 aiflow/no-register-all', () => {
-  it('registerAll() 调用报错', () => {
-    ruleTester.run('no-register-all', noRegisterAll, {
-      valid: [],
-      invalid: [{
-        code: `import { registerAll } from 'aiflow-ui'; registerAll();`,
-        errors: [{ messageId: 'registerAll' }],
-      }],
-    });
-  });
-  it('register(...names) 放行', () => {
-    ruleTester.run('no-register-all', noRegisterAll, {
-      valid: [{
-        code: `import { register } from 'aiflow-ui'; register('af-list', 'af-dialog');`,
-      }],
-      invalid: [],
-    });
-  });
-  it('成员调用 obj.registerAll() 不报错（仅检测裸 registerAll）', () => {
-    ruleTester.run('no-register-all', noRegisterAll, {
-      valid: [{
-        code: `foo.registerAll();`,
       }],
       invalid: [],
     });

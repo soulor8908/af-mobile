@@ -1,5 +1,5 @@
 // AIFlow UI —— TypeScript 类型声明
-// 公开 API：20 组件类 + AfElement 基类 + 主题 API + escapeHtml + register + withI18n
+// 公开 API：20 组件类 + AfElement 基类 + 主题 API + escapeHtml + register/registerAll
 // ⚠️ 手工维护：新增组件时须同步追加 class 声明，CI 的 types-sync 检查会校验一致
 
 /// <reference lib="dom" />
@@ -687,109 +687,15 @@ export class AfSwipeCell extends AfElement {
   addEventListener(type: 'af-swipe-cell:action', listener: (e: CustomEvent<SwipeCellActionDetail>) => void, options?: boolean | AddEventListenerOptions): void;
 }
 
-// —— af-data ——
-export interface AfDataLoadDetail extends AfEventDetail {
-  data: unknown;
-}
-export interface AfDataErrorDetail extends AfEventDetail {
-  error: Error;
-}
-export class AfData extends AfElement {
-  static useShadow: false;
-  src: string;
-  ref: string;
-  cache: boolean;
-  cacheTtl: number;
-  refresh(): Promise<void>;
-  getData(): unknown;
-  getLoading(): boolean;
-  getError(): Error | null;
-  addEventListener(type: 'af-data:load', listener: (e: CustomEvent<AfDataLoadDetail>) => void, options?: boolean | AddEventListenerOptions): void;
-  addEventListener(type: 'af-data:error', listener: (e: CustomEvent<AfDataErrorDetail>) => void, options?: boolean | AddEventListenerOptions): void;
-}
-
 // ============================================================
 // 注册接口
 // ============================================================
 
-/** 按需注册组件（传入标签名，可多个；registerAll 已废弃） */
-export function register(...names: string[]): void;
+/** 按需注册单个组件（传入标签名） */
+export function register(name: string): void;
 
-/** i18n mixin：用 i18n 的组件 extends withI18n(AfElement)，不用 i18n 的组件零成本 */
-export function withI18n<T extends new (...args: any[]) => any>(Base: T): T;
-
-// ============================================================
-// L3.5 Block 层（复合组件，AI 优先使用）
-// ============================================================
-
-/** 设置项 schema */
-export interface SettingItem {
-  label?: string;
-  icon?: string;
-  value?: string;
-  action?: 'arrow';
-  checked?: boolean;
-  disabled?: boolean;
-  [key: string]: unknown;
-}
-
-export interface SettingGroupItemClickDetail extends AfEventDetail {
-  index: number;
-  item: SettingItem;
-}
-
-export interface SettingGroupChangeDetail extends AfEventDetail {
-  index: number;
-  checked: boolean;
-  item: SettingItem;
-}
-
-/** af-setting-group：设置分组（含五态/键盘导航/移动端适配） */
-export class AfSettingGroup extends AfElement {
-  static useShadow: false;
-  /** 变体：default（箭头）/ with-switch（开关）/ with-value（值+箭头） */
-  variant: 'default' | 'with-switch' | 'with-value';
-  /** 分组标题（空则不渲染标题行） */
-  title: string;
-  /** 设置项列表 */
-  items: SettingItem[];
-  /** 加载态（显示骨架屏） */
-  loading: boolean;
-  /** 触发错误态（如 fetch 失败） */
-  setError(err: unknown): void;
-  addEventListener(type: 'af-setting-group:itemclick', listener: (e: CustomEvent<SettingGroupItemClickDetail>) => void, options?: boolean | AddEventListenerOptions): void;
-  addEventListener(type: 'af-setting-group:change', listener: (e: CustomEvent<SettingGroupChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
-  addEventListener(type: 'af-setting-group:retry', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
-}
-
-
-/** af-product-card item schema */
-export interface ProductCardItem {
-  label?: string;
-  value?: string;
-  action?: 'arrow';
-  checked?: boolean;
-  disabled?: boolean;
-  [key: string]: unknown;
-}
-
-export interface ProductCardClickDetail extends AfEventDetail {
-  index: number;
-  item: ProductCardItem;
-}
-
-/** af-product-card：商品卡片（含五态/键盘导航/移动端适配） */
-export class AfProductCard extends AfElement {
-  static useShadow: false;
-  title: string;
-  price: string;
-  items: ProductCardItem[];
-  loading: boolean;
-  /** 触发错误态（如 fetch 失败） */
-  setError(err: unknown): void;
-  addEventListener(type: 'af-product-card:itemclick', listener: (e: CustomEvent<ProductCardClickDetail>) => void, options?: boolean | AddEventListenerOptions): void;
-  addEventListener(type: 'af-product-card:retry', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
-}
+/** 全量注册 20 个组件 */
+export function registerAll(): void;
 
 // ============================================================
 // 核心运行时：state（响应式原语）
@@ -947,8 +853,3 @@ export function addMessages(locale: Locale, dict: Record<string, string>): void;
 
 /** 全部语言字典 */
 export const messages: Record<Locale, Record<string, string>>;
-
-// ============================================================
-// L3.5 definePage + :bind 已独立为 aiflow-ui/page 子包
-// 见 src/page.d.ts，消费端：import { definePage, initBind } from 'aiflow-ui/page'
-// ============================================================

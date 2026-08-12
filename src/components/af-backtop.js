@@ -2,11 +2,9 @@
 // Light DOM，复用 L2 .btn 配方；内置 fixed 定位（开箱即用）
 // 职责：滚动监听显隐 + 点击平滑滚动到顶部
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
-import { withI18n } from '../lib/with-i18n.js';
 
-export class AfBacktop extends withI18n(AfElement) {
+export class AfBacktop extends AfElement {
   static useShadow = false;
-  static i18nKeys = ['bt.al'];
   static i18n = {
     'button': ['aria-label', 'bt.al', 'ariaLabelText'],
   };

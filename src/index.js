@@ -1,13 +1,12 @@
 // AIFlow UI —— L3 组件汇总导出
 // ESM 命名导出 + Tree Shaking + sideEffects:false
-// 使用方式 A：按需注册（推荐，Tree Shaking 友好）
+// 使用方式 A：按需注册（推荐）
 //   import { AfList, AfDialog } from 'aiflow-ui';
 //   customElements.define('af-list', AfList);
 //   customElements.define('af-dialog', AfDialog);
-// 使用方式 B：显式列名注册
-//   import { register } from 'aiflow-ui';
-//   register('af-list', 'af-dialog');
-// 注意：registerAll() 已废弃（诱导全量加载，失去 Tree Shaking），ESLint no-register-all 规则阻断
+// 使用方式 B：全量注册
+//   import { registerAll } from 'aiflow-ui';
+//   registerAll();
 
 export { AfElement, escapeHtml, html } from './lib/af-element.js';
 export { getTheme, setTheme, toggleTheme, initTheme } from './lib/theme.js';
@@ -32,11 +31,8 @@ import { AfStepper } from './components/af-stepper.js';
 import { AfField } from './components/af-field.js';
 import { AfPullRefresh } from './components/af-pull-refresh.js';
 import { AfSwipeCell } from './components/af-swipe-cell.js';
-import { AfData } from './components/af-data.js';
-import { AfSettingGroup } from './blocks/af-setting-group.js';
-import { AfProductCard } from './blocks/af-product-card.js';
 
-export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfData };
+export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell };
 
 const REGISTRY = {
   'af-list': AfList,
@@ -59,25 +55,18 @@ const REGISTRY = {
   'af-field': AfField,
   'af-pull-refresh': AfPullRefresh,
   'af-swipe-cell': AfSwipeCell,
-  'af-data': AfData,
 };
 
-// L3.5 Block 标签（按需 import + customElements.define，不提供全量注册器，避免诱导全量加载）
-// 用法：import { AfSettingGroup } from 'aiflow-ui'; customElements.define('af-setting-group', AfSettingGroup);
-export { AfSettingGroup };
-export { AfProductCard };
-
-// registerAll() 已废弃：诱导全量加载，失去 Tree Shaking
-// 改用 register(...names) 显式列名，配合 ESLint no-register-all 规则阻断全量注册
-export function register(...names) {
-  if (names.length === 0) {
-    throw new Error('[aiflow-ui] register(...names) 需显式传入组件名，全量注册已被废弃');
-  }
-  for (const name of names) {
-    const ctor = REGISTRY[name];
-    if (!ctor) throw new Error(`[aiflow-ui] unknown component: ${name}`);
+export function registerAll() {
+  for (const [name, ctor] of Object.entries(REGISTRY)) {
     if (!customElements.get(name)) customElements.define(name, ctor);
   }
+}
+
+export function register(name) {
+  const ctor = REGISTRY[name];
+  if (!ctor) throw new Error(`[aiflow-ui] unknown component: ${name}`);
+  if (!customElements.get(name)) customElements.define(name, ctor);
 }
 
 // ============================================================
@@ -93,15 +82,6 @@ export {
 } from './lib/router.js';
 
 // ============================================================
-// i18n（国际化，独立子路径 aiflow-ui/i18n，不进 coreRuntime 预算）
-// 消费端显式 import { setLocale, initLocale } from 'aiflow-ui/i18n'
-// 组件通过 withI18n mixin 按需拉入，不用 i18n 的组件零成本
+// 核心运行时：i18n（国际化，按需 import，不计入组件体积预算）
 // ============================================================
 export { t, getLocale, setLocale, initLocale, addMessages, messages } from './lib/i18n.js';
-export { withI18n } from './lib/with-i18n.js';
-
-// ============================================================
-// aiflow-ui/page 子包（definePage + :bind）已独立，不再从主包导出
-// 消费端显式 import { definePage, initBind } from 'aiflow-ui/page'
-// 见 src/page.js
-// ============================================================

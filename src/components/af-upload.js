@@ -2,11 +2,9 @@
 // Light DOM，原生 <input type="file"> + 缩略图预览，复用 L2 .btn / .thumb / .upload-trigger / .upload-grid
 // 职责：文件选择 + 大小/数量/类型校验 + 图片预览（URL.createObjectURL）+ revokeObjectURL 防泄漏
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
-import { withI18n } from '../lib/with-i18n.js';
 
-export class AfUpload extends withI18n(AfElement) {
+export class AfUpload extends AfElement {
   static useShadow = false;
-  static i18nKeys = ['up.pv', 'up.btn', 'up.al'];
   static i18n = {
     '.upload-grid':           ['aria-label', 'up.pv'],
     'button.btn':             ['',           'up.btn', 'buttonText'],

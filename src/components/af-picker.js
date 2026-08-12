@@ -2,7 +2,6 @@
 // Shadow DOM（useShadow=true），CSS scroll-snap 原生吸附
 // 职责：多列滚轮 + scroll-snap 吸附 + 滚动停止触发 change + 确认/取消
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
-import { withI18n } from '../lib/with-i18n.js';
 
 const CSS = `
   :host { display: contents; }
@@ -47,9 +46,8 @@ const CSS = `
   }
 `;
 
-export class AfPicker extends withI18n(AfElement) {
+export class AfPicker extends AfElement {
   static useShadow = true;
-  static i18nKeys = ['pk.tt', 'pk.ok', 'pk.cn', 'pk.col'];
   // i18n 映射表：title/confirm/cancel 优先用属性，否则字典；column aria-label 用循环索引
   static i18n = {
     'div.title':          ['', (host, t) => host.title || t('pk.tt')],

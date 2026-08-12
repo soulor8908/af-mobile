@@ -1,7 +1,6 @@
 // AIFlow UI —— af-skeleton-page：整页骨架屏
 // Light DOM，4 种预设布局变体（list/detail/profile/card），复用 L2 .skeleton .skeleton-line .skeleton-block
 import { AfElement } from '../lib/af-element.js';
-import { withI18n } from '../lib/with-i18n.js';
 
 const TEMPLATES = {
   list: '<div class="skeleton-line"></div>'.repeat(6),
@@ -10,9 +9,8 @@ const TEMPLATES = {
   card: '<div class="skeleton skeleton-block skeleton-block-h-sm"></div>'.repeat(2) + '<div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line skeleton-w-60"></div>',
 };
 
-export class AfSkeletonPage extends withI18n(AfElement) {
+export class AfSkeletonPage extends AfElement {
   static useShadow = false;
-  static i18nKeys = ['sk.al'];
   // i18n 映射表：骨架屏 aria-label 用字典
   static i18n = {
     '.skeleton-page': ['aria-label', 'sk.al'],

@@ -12,7 +12,6 @@
 - **L1 Token（{{{ TOKEN_COUNT }}} 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
 - **L2 配方（{{{ RECIPE_COUNT }}}）+ 原子（{{{ ATOMIC_COUNT }}}）= {{{ TOTAL_CLASS_COUNT }}} 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
 - **L3 真组件（{{{ COMPONENT_COUNT }}} 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
-- **L3.5 Block（{{{ BLOCK_COUNT }}} 个复合组件）** → AI 优先使用，内置五态+a11y+移动端适配（详见下方简表；完整设计见 docs/design/l3.5-block-detailed-design.md）
 - **L4 约束层**：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
@@ -28,20 +27,6 @@
 <!-- {{{ COMPONENT_TABLE_INJECTION_POINT }}} -->
 
 **通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`。
-
----
-
-# L3.5 Block 简表（复合组件，AI 优先使用，完整设计见 docs/design/l3.5-block-detailed-design.md）
-
-<!-- {{{ BLOCK_TABLE_INJECTION_POINT }}} -->
-
-**Block 使用规则**：
-1. **优先用 Block，其次用 L3 组件，最后用 L2 class**：Block 内置五态（loading/error/empty/success）+ a11y + 移动端适配，AI 只传 props 即可
-2. **禁止穿透 Block 边界**：不可 `querySelector('af-* > div')` 或访问 `shadowRoot`，只能通过 props/事件交互
-3. **Block 内部结构对 AI 不可见**：AI 只写 `<af-block-tag :prop="...">`，不写内部 input/button 等
-4. **Block 内部交互由库作者维护**（倒计时/校验/虚拟滚动），AI 只做 Block 间协调（`@event` 声明式绑定）
-5. **单页面最多 3 个 Block**：Block 是按需 import + `customElements.define` 加载，单页面 1-3 个 Block 已覆盖绝大多数场景；超出 3 个说明页面应拆分路由
-6. **禁止全量注册**：不调用 `registerAll()`（已废弃，ESLint `no-register-all` 阻断），组件用 `register('af-list', 'af-dialog')` 显式列名，Block 只能按需 import 单个类后 `customElements.define`
 
 ---
 

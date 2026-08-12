@@ -2,11 +2,10 @@
 // Light DOM（D19），复用 L2 .thumb/.avatar/.skeleton/.empty 配方
 // 职责：IntersectionObserver 懒加载 + 占位 + 失败回退 + 事件
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
-import { withI18n } from '../lib/with-i18n.js';
+import { t } from '../lib/i18n.js';
 
-export class AfImg extends withI18n(AfElement) {
+export class AfImg extends AfElement {
   static useShadow = false;
-  static i18nKeys = ['im.fail'];
 
   constructor() {
     super();
@@ -90,7 +89,7 @@ export class AfImg extends withI18n(AfElement) {
       this.insertAdjacentHTML('beforeend', `<div class="empty" data-role="error" role="alert" aria-live="assertive"></div>`);
       err = this.$('[data-role="error"]');
     }
-    err.innerHTML = `<p class="caption">${this.t('im.fail')}</p>`;
+    err.innerHTML = `<p class="caption">${t('im.fail')}</p>`;
   }
 
   onAttributeChange(name, oldVal, newVal) {

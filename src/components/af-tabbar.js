@@ -2,11 +2,9 @@
 // Light DOM，复用 L2 .tabbar/.tab-item 配方；active 状态管理 + badge 支持 + 路由联动
 // 职责：active 索引管理 + 选中态 ARIA + 数值徽标 + 键盘导航（Home/End/Arrow）
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
-import { withI18n } from '../lib/with-i18n.js';
 
-export class AfTabbar extends withI18n(AfElement) {
+export class AfTabbar extends AfElement {
   static useShadow = false;
-  static i18nKeys = ['bb.al'];
   // i18n 映射表：tabbar aria-label 优先用 ariaLabel 属性，否则字典兜底
   static i18n = {
     '.tabbar': ['aria-label', 'bb.al', 'ariaLabel'],

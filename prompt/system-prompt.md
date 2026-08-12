@@ -11,8 +11,7 @@
 
 - **L1 Token（58 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
 - **L2 配方（102）+ 原子（52）= 154 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
-- **L3 真组件（21 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
-- **L3.5 Block（2 个复合组件）** → AI 优先使用，内置五态+a11y+移动端适配（详见下方简表；完整设计见 docs/design/l3.5-block-detailed-design.md）
+- **L3 真组件（20 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
@@ -24,16 +23,16 @@
 **按钮（7）：** `btn` `btn-sm` `btn-lg` `btn-ghost` `btn-danger` `btn-success` `btn-block`
 **容器（5）：** `page` `card` `cell` `center` `sheet`
 **文本（7）：** `title` `subtitle` `body` `caption` `meta` `price` `price-del`
+**表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-loading` `switch-thumb` `search-bar-wrap` `search-bar-icon` `search-bar-clear` `input-err` `upload-trigger` `upload-grid`
 **列表（6）：** `list` `list-item` `list-item-compact` `divider` `thumb` `avatar`
+**反馈（17）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast`
 **导航（5）：** `navbar` `navbar-fixed` `tabbar` `tabbar-fixed` `tab-item`
 **布局（5）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar`
-**表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-loading` `switch-thumb` `search-bar-wrap` `search-bar-icon` `search-bar-clear` `input-err` `upload-trigger` `upload-grid`
 **Checkbox / Radio（4）：** `checkbox` `radio` `checkbox-sm` `radio-sm`
-**反馈（17）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast`
 **加载指示器（3）：** `spinner` `spinner-sm` `spinner-lg`
 **进度条（5）：** `progress` `progress-sm` `progress-lg` `progress-success` `progress-danger`
-**通知栏（3）：** `notice` `notice-text` `notice-scroll`
 **折叠面板（3）：** `collapse` `collapse-summary` `collapse-content`
+**通知栏（3）：** `notice` `notice-text` `notice-scroll`
 **评分（5）：** `rate` `rate-star` `rate-readonly` `rate-sm` `rate-lg`
 **步骤条（6）：** `steps` `step` `step-done` `step-active` `step-circle` `step-label`
 **分段控制器（3）：** `segmented` `segmented-item` `segmented-block`
@@ -51,9 +50,9 @@
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
 **文本对齐（4，补齐至 52）（4）：** `t-left` `t-center` `t-right` `ws-nowrap`
 
-## L3 真组件标签（21 个）
+## L3 真组件标签（20 个）
 
-`<af-action-sheet>` `<af-backtop>` `<af-data>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-picker>` `<af-pull-refresh>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
+`<af-action-sheet>` `<af-backtop>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-picker>` `<af-pull-refresh>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
 ## L1 Token 变量（58 个，必须用 var(--*) 引用）
 
@@ -89,26 +88,8 @@
 | `<af-field>` | 结构化表单字段 | label, icon, type, value, placeholder, help, error | af-field:input, af-field:change |
 | `<af-pull-refresh>` | 下拉刷新容器 | refreshing | af-pull-refresh:refresh |
 | `<af-swipe-cell>` | 滑动单元格 | disabled | af-swipe-cell:action |
-| `<af-data>` | 声明式数据源 | src, ref, cache, cache-ttl | af-data:load, af-data:error |
 
 **通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`。
-
----
-
-# L3.5 Block 简表（复合组件，AI 优先使用，完整设计见 docs/design/l3.5-block-detailed-design.md）
-
-| Block | 用途 | variant | 核心属性 | 核心事件 |
-|---|---|---|---|---|
-| `<af-setting-group>` | 设置分组（五态+键盘导航） | default / with-switch / with-value | title, items, variant, loading | af-setting-group:itemclick, af-setting-group:change, af-setting-group:retry |
-| `<af-product-card>` | 商品卡片（五态+键盘导航） | default / grid | title, price, items, loading | af-product-card:itemclick, af-product-card:retry |
-
-**Block 使用规则**：
-1. **优先用 Block，其次用 L3 组件，最后用 L2 class**：Block 内置五态（loading/error/empty/success）+ a11y + 移动端适配，AI 只传 props 即可
-2. **禁止穿透 Block 边界**：不可 `querySelector('af-* > div')` 或访问 `shadowRoot`，只能通过 props/事件交互
-3. **Block 内部结构对 AI 不可见**：AI 只写 `<af-block-tag :prop="...">`，不写内部 input/button 等
-4. **Block 内部交互由库作者维护**（倒计时/校验/虚拟滚动），AI 只做 Block 间协调（`@event` 声明式绑定）
-5. **单页面最多 3 个 Block**：Block 是按需 import + `customElements.define` 加载，单页面 1-3 个 Block 已覆盖绝大多数场景；超出 3 个说明页面应拆分路由
-6. **禁止全量注册**：不调用 `registerAll()`（已废弃，ESLint `no-register-all` 阻断），组件用 `register('af-list', 'af-dialog')` 显式列名，Block 只能按需 import 单个类后 `customElements.define`
 
 ---
 

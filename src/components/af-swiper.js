@@ -2,7 +2,7 @@
 // Shadow DOM（useShadow=true），CSS 嵌入 JS 字符串
 // 职责：touch 拖拽 + 自动播放 + 循环 + dots + 键盘 + 尺寸响应
 import { AfElement } from '../lib/af-element.js';
-import { withI18n } from '../lib/with-i18n.js';
+import { t } from '../lib/i18n.js';
 
 const CSS = `
   :host { display: block; overflow: hidden; position: relative; }
@@ -23,9 +23,8 @@ const CSS = `
   }
 `;
 
-export class AfSwiper extends withI18n(AfElement) {
+export class AfSwiper extends AfElement {
   static useShadow = true;
-  static i18nKeys = ['sw.dot', 'sw.al'];
   static i18n = {
     '@': ['aria-label', (host, t) => {
       const n = host._dots?.children?.length || 0;

@@ -116,14 +116,14 @@ aiflow-ui 是浏览器端 Custom Elements 库，`customElements` 在 Node 服务
 ```js
 // 仅在浏览器环境注册组件
 if (typeof window !== 'undefined') {
-  const { register } = await import('aiflow-ui');
-  register('af-list', 'af-dialog', 'af-toast');
+  const { registerAll } = await import('aiflow-ui');
+  registerAll();
 }
 ```
 
 ### 2. SSR 预渲染 Light DOM（首屏占位）
 
-Light DOM 组件的结构（含 L2 class）可由服务端直接渲染到 HTML 作为**首屏占位**。客户端 `register(...names)` 后组件 `connectedCallback` 触发，**会用组件内部模板重建 DOM 并接管交互**——这不是增量 hydration，SSR 子节点会被覆盖。因此 SSR 预渲染的价值是「避免白屏」，而非「复用服务端 DOM」。Shadow DOM 组件内部结构不可预渲染，仅客户端挂载。
+Light DOM 组件的结构（含 L2 class）可由服务端直接渲染到 HTML 作为**首屏占位**。客户端 `registerAll()` 后组件 `connectedCallback` 触发，**会用组件内部模板重建 DOM 并接管交互**——这不是增量 hydration，SSR 子节点会被覆盖。因此 SSR 预渲染的价值是「避免白屏」，而非「复用服务端 DOM」。Shadow DOM 组件内部结构不可预渲染，仅客户端挂载。
 
 > ⚠️ **非增量 hydrate**：组件 `mounted()` 会用 `innerHTML` 重建内部结构（虚拟列表的 `.list` 外壳、tabbar 等）。SSR 输出的子节点仅作首屏占位，客户端 upgrade 后即被替换。若对首屏闪烁敏感，可在组件外加 `style="visibility:hidden"` 占位，upgrade 后再显隐。
 
@@ -142,8 +142,9 @@ function ProductList({ items }) {
           ))}
         </div>
       </af-list>
-      {/* 客户端 lazy 加载组件库并注册（UMD bundle 自动全量注册） */}
-      <Script src="/aiflow-ui.js" strategy="lazyOnload" />
+      {/* 客户端 lazy 加载组件库并注册 */}
+      <Script src="/aiflow-ui.js" strategy="lazyOnload"
+        onLoad={() => window.AiflowUI?.registerAll()} />
     </>
   );
 }
@@ -186,80 +187,15 @@ import { AfList, AfDialog } from 'aiflow-ui';
 customElements.define('af-list', AfList);
 customElements.define('af-dialog', AfDialog);
 
-// B. 显式列名注册（可多个）
+// B. 单个注册辅助函数
 import { register } from 'aiflow-ui';
-register('af-list', 'af-dialog');
+register('af-list');
+register('af-dialog');
 
-// C. CDN 直引（UMD bundle 自动全量注册，无需手动 register）
-// <script src="https://unpkg.com/aiflow-ui"></script>
+// C. 全量注册（不推荐，会失去 Tree Shaking）
+import { registerAll } from 'aiflow-ui';
+registerAll();
 ```
-
-> `registerAll()` 已废弃（诱导全量加载，失去 Tree Shaking），ESLint `no-register-all` 规则阻断。UMD bundle 仍自动全量注册（CDN 场景无 Tree Shaking 需求）。
-
-## aiflow-ui/page 子包（definePage + :bind）
-
-`definePage` 页面运行时与 `:bind` 响应式绑定已从主包独立为 `aiflow-ui/page` 子包，与核心库解耦。**不引此子包时，page.js + bind.js 不计入核心运行时预算**（~1.5KB gzip 节省）。
-
-```js
-// 显式引入页面运行时（仅复杂状态编排场景需要）
-import { definePage, initBind, state, derived, actions } from 'aiflow-ui/page';
-
-definePage({
-  state: { count: 0, list: [] },
-  computed: { total: () => state.list.reduce((s, i) => s + i, 0) },
-  effects: { mount: () => console.log('mounted') },
-  actions: { add: (n) => state.count += n },
-});
-
-initBind();  // 启动 :bind 扫描（应用启动时调用一次）
-```
-
-> **使用边界**：OPC 列表/表单/详情等 90% 场景用原生 `fetch + DOM 赋值` 即可，无需引入 page 子包。仅在多 Block 状态联动、跨页面状态共享等复杂场景才引入。`af-data` 组件通过轻量 `data-ref.js` 注册表与 `:bind` 通信，本身不依赖 page 子包。
-
-## CSS 分层 + 按需 import
-
-`recipes.css` 已拆为 4 个分层文件，与组件 tree-shaking 对齐。消费端按页面类型按需 import，**首屏 CSS 从全量 8.3KB 降到 ~3KB（core 子集）**。
-
-| 子路径 | 文件 | 内容 | 适用场景 |
-|---|---|---|---|
-| `aiflow-ui/css/core` | recipes-core.css | 按钮/容器/文本/列表/导航/布局/Light DOM 宿主 | 所有页面必引 |
-| `aiflow-ui/css/form` | recipes-form.css | 表单输入/开关/搜索条/上传/Checkbox/Radio/af-field/af-stepper 宿主 | 表单页 |
-| `aiflow-ui/css/feedback` | recipes-feedback.css | 空态/骨架屏/标签/徽标/Toast/Spinner/Progress/Notice | 反馈类页面 |
-| `aiflow-ui/css/display` | recipes-display.css | 折叠面板/评分/步骤条/分段控制器 | 展示类页面 |
-
-```js
-// 按需引入 CSS（与组件 tree-shaking 对齐）
-import 'aiflow-ui/tokens.css';       // L1 Token，所有页面必引
-import 'aiflow-ui/css/core';         // L2 基础配方，所有页面必引
-import 'aiflow-ui/css/feedback';     // 列表页需要 skeleton/empty
-// import 'aiflow-ui/css/form';      // 表单页才引
-// import 'aiflow-ui/css/display';   // 展示类才引
-import 'aiflow-ui/atomic.css';       // L2 原子工具类（按需）
-
-// 等价于全量引入（向后兼容）：
-// import 'aiflow-ui/css';
-```
-
-> **tokens.css + atomic.css** 仍是单文件，未分层（tokens 必须全量，atomic 体积小且使用频率高）。
-
-## CSS Tree Shaking（生产构建裁剪）
-
-对于按需 import 仍无法覆盖的场景（如消费端只用了 `.btn` 但全量引入了 `aiflow-ui/css`），用 `css-tree-shake` 脚本扫描消费端源码用到的 class，postcss 裁剪未用规则：
-
-```bash
-# 扫描消费端 src 目录用到的 class，裁剪 aiflow-ui CSS
-npm run css:shake -- --src ./src --css node_modules/aiflow-ui/src/index.css --out ./dist/aiflow-ui.shaken.css
-```
-
-裁剪规则：
-- selector 含 `.class`：所有 `.class` 必须在消费端用到的 class 集合内才保留
-- selector 含 `af-xxx` 标签（组件宿主）：保留
-- selector 含 `[data-role]`（Light DOM 组件内部结构）：保留
-- selector 无 `.class`（`:root` / `*` / `body`）：保留
-- `@keyframes`：仅保留被保留规则引用的动画
-- 空的 `@layer` / `@media` 容器自动清理
-
-实测：消费端只用 `.btn` + `af-list` 时，CSS 从 34KB 裁到 13KB（**-62%**）。
 
 ## 主题切换
 
@@ -357,7 +293,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 |---|---|---|
 | 1 | 白名单三源同步（CSS/JS ↔ whitelist.json ↔ Prompt 注入） | `npm run whitelist:check` |
 | 1b | d.ts 与源码组件数同步（防类型声明漂移） | `npm run types:check` |
-| 2 | 体积预算（L1+L2 CSS ≤ 8.5KB / 4 层 recipes-{core,form,feedback,display} 独立预算 / 全量 21 组件+基类 ≤ 21KB / 按需2组件 ≤ 5.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 1.5KB / 核心运行时 ≤ 4.5KB / page 子包 ≤ 2.5KB） | `npm run size` |
+| 2 | 体积预算（L1+L2 CSS ≤ 8.0KB / 全量 20 组件+基类 ≤ 19.5KB / 按需2组件 ≤ 5.5KB / 单组件 JS ≤ 2.6KB / 基类 ≤ 1.2KB） | `npm run size` |
 | 3 | 单元测试（jsdom） | `npm test` |
 | 4 | ESLint 15 规则（10 error + 5 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
 | 5 | 发布前检查（build + Tree Shaking + sideEffects + types-sync + npm pack） | `npm run publish:check` |

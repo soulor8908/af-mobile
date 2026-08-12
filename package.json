@@ -9,33 +9,14 @@
   "exports": {
     ".": {
       "import": "./src/index.js",
-      "types": "./src/index.d.ts",
       "default": "./src/index.js"
     },
-    "./page": {
-      "import": "./src/page.js",
-      "types": "./src/page.d.ts",
-      "default": "./src/page.js"
-    },
-    "./i18n": {
-      "import": "./src/lib/i18n.js",
-      "default": "./src/lib/i18n.js"
-    },
     "./css": "./src/index.css",
-    "./css/core": "./src/recipes-core.css",
-    "./css/form": "./src/recipes-form.css",
-    "./css/feedback": "./src/recipes-feedback.css",
-    "./css/display": "./src/recipes-display.css",
     "./aiflow-ui.css": "./src/index.css",
     "./tokens.css": "./src/tokens.css",
     "./recipes.css": "./src/recipes.css",
-    "./recipes-core.css": "./src/recipes-core.css",
-    "./recipes-form.css": "./src/recipes-form.css",
-    "./recipes-feedback.css": "./src/recipes-feedback.css",
-    "./recipes-display.css": "./src/recipes-display.css",
     "./atomic.css": "./src/atomic.css",
     "./components/*": "./src/components/*",
-    "./blocks/*": "./src/blocks/*",
     "./lib/*": "./src/lib/*",
     "./dist": "./dist/index.js",
     "./dist/css": "./dist/index.css",
@@ -61,9 +42,7 @@
     "perf:check": "node scripts/perf.mjs --budget",
     "size": "node scripts/size-check.mjs",
     "size:check": "node scripts/size-check.mjs",
-    "css:shake": "node scripts/css-tree-shake.mjs",
     "whitelist": "node scripts/gen-whitelist.mjs",
-    "new-block": "node scripts/new-block.mjs",
     "whitelist:check": "node scripts/check-whitelist-sync.mjs",
     "prompt:check": "node scripts/check-prompt-sync.mjs",
     "types:check": "node scripts/check-types-sync.mjs",

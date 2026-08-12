@@ -23,22 +23,28 @@ describe('index.js 汇总导出', () => {
     expect(typeof AiflowUI.toggleTheme).toBe('function');
   });
 
-  it('导出 register 多组件注册函数', () => {
+  it('导出 registerAll 函数', () => {
+    expect(typeof AiflowUI.registerAll).toBe('function');
+  });
+
+  it('导出 register 单组件注册函数', () => {
     expect(typeof AiflowUI.register).toBe('function');
   });
 
-  it('registerAll 已废弃，不再导出', () => {
-    expect(AiflowUI.registerAll).toBeUndefined();
-  });
-
-  it('register(...names) 注册多个组件到 customElements', () => {
-    AiflowUI.register('af-list', 'af-dialog', 'af-toast');
-    expect(customElements.get('af-list')).toBeDefined();
-    expect(customElements.get('af-dialog')).toBeDefined();
-    expect(customElements.get('af-toast')).toBeDefined();
+  it('registerAll 注册所有 10 个组件到 customElements', () => {
+    // 先清理已注册（无法真正撤销 define，所以用 try/catch 检测）
+    AiflowUI.registerAll();
+    const tags = [
+      'af-list', 'af-swiper', 'af-tabs', 'af-dialog', 'af-toast',
+      'af-action-sheet', 'af-picker', 'af-dropdown', 'af-img', 'af-backtop',
+    ];
+    tags.forEach(tag => {
+      expect(customElements.get(tag)).toBeDefined();
+    });
   });
 
   it('register(name) 注册单个组件', () => {
+    // registerAll 已注册过 af-list，register 应幂等返回已注册的构造器
     expect(() => AiflowUI.register('af-list')).not.toThrow();
     expect(customElements.get('af-list')).toBe(AiflowUI.AfList);
   });
@@ -47,14 +53,10 @@ describe('index.js 汇总导出', () => {
     expect(() => AiflowUI.register('af-unknown')).toThrow(/unknown component/);
   });
 
-  it('register() 无参数抛错（阻断全量注册）', () => {
-    expect(() => AiflowUI.register()).toThrow(/显式传入组件名/);
-  });
-
-  it('register 幂等：多次调用不报错', () => {
+  it('registerAll 幂等：多次调用不报错', () => {
     expect(() => {
-      AiflowUI.register('af-list');
-      AiflowUI.register('af-list');
+      AiflowUI.registerAll();
+      AiflowUI.registerAll();
     }).not.toThrow();
   });
 });

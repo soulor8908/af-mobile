@@ -1,7 +1,7 @@
 // AIFlow UI —— whitelist-v1.json 生成器（单一真相源）
-// 从 src/tokens.css + recipes-core/form/feedback/display.css + atomic.css + components/*.js 自动提取
+// 从 src/tokens.css + recipes.css + atomic.css + components/*.js 自动提取
 // 用法：node scripts/gen-whitelist.mjs
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -43,22 +43,9 @@ export function extractComponents() {
 // 故不登记到 AI 白名单，避免 AI 在 Light DOM 误用无 CSS 定义的 .active
 const STATE_MODIFIERS = [];
 
-// 扫描所有 recipes-*.css 分层文件（v1.7.3：recipes.css 已拆为 4 层 + 聚合入口）
-// 聚合入口 recipes.css 只含 @import，无 class 定义，跳过避免空扫描
-function extractAllRecipeClasses() {
-  const files = readdirSync(SRC)
-    .filter(f => /^recipes-.+\.css$/.test(f))
-    .sort();
-  const set = new Set();
-  for (const f of files) {
-    for (const c of extractClasses(join(SRC, f))) set.add(c);
-  }
-  return [...set].sort();
-}
-
 // 从源码扫描，构造 whitelist 对象（A 集合）
 export function buildWhitelistFromSources() {
-  const recipe = extractAllRecipeClasses();
+  const recipe = extractClasses(join(SRC, 'recipes.css'));
   // 合并状态修饰符（去重）
   const recipeSet = new Set(recipe);
   for (const m of STATE_MODIFIERS) recipeSet.add(m);

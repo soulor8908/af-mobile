@@ -27,17 +27,6 @@ const COMPONENT_RULES = {
   'aiflow/atomic-duplicate': 'off',
 };
 
-// L3.5 Block 层规则（src/blocks/ 适用）
-// 库作者写 Block，启用 Block 自身质量规则 + L3 Light DOM 规则
-// 不启用消费端规则（no-internal-ref/effects-whitelist/transform-pure/bind-syntax/no-addeventlistener/definepage-single/state-schema/pure-function 是约束 AI 生成代码的）
-const BLOCK_RULES = {
-  ...COMPONENT_RULES,
-  // L3.5 Block 质量规则
-  'aiflow/wc-block-states': 'error',
-  'aiflow/wc-block-props-count': 'error',
-  'aiflow/wc-block-variant-enum': 'warn',
-};
-
 export default [
   // 忽略：CSS（ESLint 不解析 @layer）/ node_modules / dist / docs
   // 注意：.cache/** 不忽略——ai-fix.mjs 把待修代码写入 .cache/ai-fix/snippet.js 需被 AI 规则检测
@@ -47,15 +36,9 @@ export default [
       'src/**/*.css', 'eslint-plugin-aiflow/**/*.css',
     ],
   },
-  // 库源码：src/blocks/ 下 Block 文件启用 BLOCK_RULES（含 Block 质量规则 + L3 Light DOM 规则）
+  // 库源码：src/ 下所有 JS 文件关闭 AI 约束规则
   {
-    files: ['src/blocks/**/*.js'],
-    plugins: { aiflow },
-    rules: { ...BLOCK_RULES },
-  },
-  // 库源码：src/components/ 和 src/lib/ 下 JS 文件用 COMPONENT_RULES（不启用 Block 规则）
-  {
-    files: ['src/components/**/*.js', 'src/lib/**/*.js', 'src/index.js'],
+    files: ['src/**/*.js'],
     plugins: { aiflow },
     rules: { ...COMPONENT_RULES },
   },
@@ -63,17 +46,7 @@ export default [
   {
     files: ['**/*.test.js', 'test/**/*.js', 'scripts/**/*.js', '.cache/**/*.js'],
     plugins: { aiflow },
-    rules: {
-      ...AI_RULES,
-      // 测试代码非消费端，关闭 L3.5 消费端约束（规则本身仍由 RuleTester 测试）
-      'aiflow/wc-definepage-single': 'off',
-      'aiflow/wc-state-schema': 'off',
-      'aiflow/wc-effects-whitelist': 'off',
-      'aiflow/wc-transform-pure': 'off',
-      'aiflow/wc-pure-function': 'off',
-      'aiflow/wc-bind-syntax': 'off',
-      'aiflow/wc-no-addeventlistener': 'off',
-    },
+    rules: { ...AI_RULES },
   },
   // ESLint 规则测试夹具 + ai-fix 循环测试：含故意违规用例以验证规则/修复本身，关闭 AI 约束
   {

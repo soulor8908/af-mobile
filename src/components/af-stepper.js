@@ -2,9 +2,11 @@
 // Light DOM，复用 L2 .btn 配方；min/max/step/禁用态，比 input[type=number] 体验更好
 // 职责：±按钮 + 数值边界 + 步长 + 禁用态 + 键盘可访问
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
+import { withI18n } from '../lib/with-i18n.js';
 
-export class AfStepper extends AfElement {
+export class AfStepper extends withI18n(AfElement) {
   static useShadow = false;
+  static i18nKeys = ['st.mn', 'st.pl', 'st.al'];
   // i18n 映射表：减/加按钮 aria-label 用字典；input aria-label 优先用属性，否则字典
   static i18n = {
     '[data-role="minus"]': ['aria-label', 'st.mn'],

@@ -1,9 +1,11 @@
 // AIFlow UI —— af-action-sheet：底部操作面板
 // Light DOM，复用 L2 .sheet/.list/.list-item 配方 + 原生 popover API
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
+import { withI18n } from '../lib/with-i18n.js';
 
-export class AfActionSheet extends AfElement {
+export class AfActionSheet extends withI18n(AfElement) {
   static useShadow = false;
+  static i18nKeys = ['as.al', 'as.cn'];
   // i18n 映射表：.sheet aria-label 优先用 title，否则字典；取消按钮 textContent 优先用 cancelText，否则字典
   // 取消按钮仅在 showCancel=true 时渲染；querySelectorAll 返回空则跳过
   static i18n = {

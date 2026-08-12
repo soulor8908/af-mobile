@@ -59,17 +59,23 @@ const SRC = join(ROOT, 'src');
 //   CSS 总预算 8.0→8.5KB：分层后单文件 gzip 字典不共享，略涨（实际 8.303KB）
 //   新增 4 个分层独立预算：core 3.5 / form 2.2 / feedback 1.8 / display 1.9
 //   消费端按需 import 'aiflow-ui/css/core' 等，首屏 CSS 从 8KB 降到 ~3KB
+// v1.8.0 调整（i18n 解耦 + withI18n mixin + register(...names)）：
+//   base 1.5→0.9KB：_applyI18n + localechange 订阅从 AfElement 移到 withI18n mixin，不用 i18n 的组件不付成本
+//   coreRuntime 4.5→3.5KB：i18n.js 移到 aiflow-ui/i18n 子路径，主包核心运行时只剩 router+state+fetch
+//   新增 i18n 预算 1.5KB：aiflow-ui/i18n 子包（API+字典），消费端不引不付成本
+//   组件声明 static i18nKeys = [...] 供未来打包器 tree-shake 字典
 const BUDGET = {
   css: 8.5,            // KB，L1+L2 CSS 总预算（tokens+recipes-{core,form,feedback,display}+atomic，分层后 gzip 字典不共享，略涨）
   cssCore: 3.5,        // KB，recipes-core.css（按钮/容器/文本/列表/导航/布局/宿主，所有页面必引）
   cssForm: 2.2,        // KB，recipes-form.css（表单/checkbox/radio/af-field/af-stepper 宿主）
   cssFeedback: 1.8,    // KB，recipes-feedback.css（空态/骨架/标签/徽标/toast/spinner/progress/notice）
   cssDisplay: 1.9,     // KB，recipes-display.css（折叠/评分/步骤/分段）
-  perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
-  base: 1.5,           // KB，AfElement 基类（+_applyI18n + localechange 订阅）
-  total: 21.0,         // KB，21 组件 + 基类（含 af-data，page/bind 已移到子包）
+  perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表，withI18n mixin external 掉）
+  base: 1.2,           // KB，AfElement 基类（i18n 逻辑移到 withI18n mixin，瘦身 ~0.4KB；含 escapeHtml/html/defineProp/scrollLock）
+  total: 21.0,         // KB，21 组件 + 基类（含 af-data + withI18n mixin，page/bind/i18n 已移到子包）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
-  coreRuntime: 4.5,    // KB，router+state+fetch+i18n（page/bind 移到子包，独立预算不计入 total）
+  coreRuntime: 3.5,    // KB，router+state+fetch（i18n 移到子包，独立预算不计入 total）
+  i18n: 1.5,           // KB，aiflow-ui/i18n 子包（API+字典，消费端不引不付成本）
   pageSubpackage: 2.5, // KB，aiflow-ui/page 子包（page.js+bind.js+data-ref.js，独立预算不计入 total）
   perBlock: 1.6,       // KB，单 L3.5 Block JS（独立预算，不计入 total，含五态/a11y 容差）
   blocksOnDemand3: 6.0,// KB，按需 3 Block bundle（模拟复杂页面真实场景，含基类共享）
@@ -146,8 +152,9 @@ async function onDemand2Gz(compA, compB) {
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
 
-// 核心运行时：router + state + fetch + i18n 合计 gzip（独立预算，不计入 total）
+// 核心运行时：router + state + fetch 合计 gzip（独立预算，不计入 total）
 // v1.7.2：page.js + bind.js 移到 aiflow-ui/page 子包，主包核心运行时不含 definePage/:bind
+// v1.8.0：i18n.js 移到 aiflow-ui/i18n 子包，主包核心运行时不含 i18n
 // 注意：package.json 的 sideEffects 只列了 "**/*.css"，src/lib/*.js 被视为无副作用，
 // bare import 会被 esbuild tree-shake 摇除。因此用具名导入 + globalThis 引用强制保留代码
 // （与 onDemand2Gz 用 customElements.define 防摇除同理）。
@@ -159,9 +166,28 @@ async function measureCoreRuntime() {
     `import { signal, computed, effect, batch, bus } from '${toPosix(join(SRC, 'lib/state.js'))}';\n` +
     `import { fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache } from '${toPosix(join(SRC, 'lib/fetch.js'))}';\n` +
     `import { route, go, back, forward, beforeEach, afterEach, notFound, current, start } from '${toPosix(join(SRC, 'lib/router.js'))}';\n` +
+    `// 引用以防 tree-shake 摇除\n` +
+    `globalThis.__aiflow_core = [signal, computed, effect, batch, bus, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, route, go, back, forward, beforeEach, afterEach, notFound, current, start];\n`
+  );
+  const res = await build({
+    entryPoints: [entry],
+    bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+    absWorkingDir: ROOT,
+  });
+  return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
+}
+
+// aiflow-ui/i18n 子包：i18n.js（API + 字典）合计 gzip（独立预算，不计入 total）
+// 消费端：import { setLocale, initLocale } from 'aiflow-ui/i18n'
+// 组件通过 withI18n mixin 按需拉入，不用 i18n 的组件零成本
+async function measureI18n() {
+  const dir = mkdtempSync(join(tmpdir(), 'aiflow-i18n-'));
+  const entry = join(dir, 'entry.js');
+  const toPosix = (p) => p.replace(/\\/g, '/');
+  writeFileSync(entry,
     `import { t, getLocale, setLocale, initLocale, addMessages, messages } from '${toPosix(join(SRC, 'lib/i18n.js'))}';\n` +
     `// 引用以防 tree-shake 摇除\n` +
-    `globalThis.__aiflow_core = [signal, computed, effect, batch, bus, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages];\n`
+    `globalThis.__aiflow_i18n = [t, getLocale, setLocale, initLocale, addMessages, messages];\n`
   );
   const res = await build({
     entryPoints: [entry],
@@ -195,7 +221,7 @@ async function measurePageSubpackage() {
 
 async function main() {
   // i18n.js/page.js/bind.js 属于 coreRuntime（与 router/state/fetch 同级），在基类/组件/onDemand2 测量中均 external 掉
-  const external = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js', '../lib/page.js', './page.js', '../lib/bind.js', './bind.js'];
+  const external = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js', '../lib/with-i18n.js', './with-i18n.js', '../lib/page.js', './page.js', '../lib/bind.js', './bind.js'];
 
   // 0. L1+L2 CSS（tokens + 4 层 recipes + atomic 拼接后 gzip）
   //    v1.7.3：recipes.css 拆为 4 层，构建消费端 bundle 时按需引入
@@ -242,10 +268,13 @@ async function main() {
   const top2Names = top2.map(c => FILE_TO_NAME[c.file]);
   const onDemandGz = await onDemand2Gz(top2Names[0], top2Names[1]);
 
-  // 5. 核心运行时（router + state + fetch + i18n，v1.7.2 起 page/bind 移到子包）
+  // 5. 核心运行时（router + state + fetch，v1.8.0 起 i18n 移到子包）
   const coreGz = await measureCoreRuntime();
 
-  // 5b. aiflow-ui/page 子包（page.js + bind.js + data-ref.js，独立预算）
+  // 5b. aiflow-ui/i18n 子包（i18n.js API+字典，独立预算，消费端不引不付成本）
+  const i18nGz = await measureI18n();
+
+  // 5c. aiflow-ui/page 子包（page.js + bind.js + data-ref.js，独立预算）
   const pageGz = await measurePageSubpackage();
 
   // 6. L3.5 Block 层（src/blocks/af-*.js，独立预算，不计入 total）
@@ -257,7 +286,7 @@ async function main() {
   let blocksOnDemand3Gz = 0;
   if (existsSync(blocksDir)) {
     const blockFiles = readdirSync(blocksDir).filter(f => /^af-.*\.js$/.test(f)).sort();
-    const blockExternal = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js', '../lib/page.js', './page.js', '../lib/bind.js', './bind.js'];
+    const blockExternal = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js', '../lib/with-i18n.js', './with-i18n.js', '../lib/page.js', './page.js', '../lib/bind.js', './bind.js'];
     for (const f of blockFiles) {
       const { gz } = await minifyGz(join(blocksDir, f), blockExternal);
       blockSizes.push({ file: f, gz });
@@ -348,8 +377,13 @@ async function main() {
   // 核心运行时
   console.log('');
   const coreOver = coreGz > BUDGET.coreRuntime * KB;
-  console.log(`核心运行时（state+fetch+router+i18n） ${fmt(coreGz).padStart(4)}  预算 ≤ ${BUDGET.coreRuntime}KB  ${coreOver ? '✗ 超限' : '✓'}`);
+  console.log(`核心运行时（state+fetch+router） ${fmt(coreGz).padStart(8)}  预算 ≤ ${BUDGET.coreRuntime}KB  ${coreOver ? '✗ 超限' : '✓'}`);
   if (coreOver) violations.push(`核心运行时 ${fmt(coreGz)} > ${BUDGET.coreRuntime}KB`);
+
+  // aiflow-ui/i18n 子包
+  const i18nOver = i18nGz > BUDGET.i18n * KB;
+  console.log(`i18n 子包（API+字典）            ${fmt(i18nGz).padStart(10)}  预算 ≤ ${BUDGET.i18n}KB  ${i18nOver ? '✗ 超限' : '✓'}`);
+  if (i18nOver) violations.push(`i18n 子包 ${fmt(i18nGz)} > ${BUDGET.i18n}KB`);
 
   // aiflow-ui/page 子包
   const pageOver = pageGz > BUDGET.pageSubpackage * KB;

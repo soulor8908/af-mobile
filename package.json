@@ -17,6 +17,10 @@
       "types": "./src/page.d.ts",
       "default": "./src/page.js"
     },
+    "./i18n": {
+      "import": "./src/lib/i18n.js",
+      "default": "./src/lib/i18n.js"
+    },
     "./css": "./src/index.css",
     "./css/core": "./src/recipes-core.css",
     "./css/form": "./src/recipes-form.css",

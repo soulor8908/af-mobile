@@ -108,7 +108,7 @@
 3. **Block 内部结构对 AI 不可见**：AI 只写 `<af-block-tag :prop="...">`，不写内部 input/button 等
 4. **Block 内部交互由库作者维护**（倒计时/校验/虚拟滚动），AI 只做 Block 间协调（`@event` 声明式绑定）
 5. **单页面最多 3 个 Block**：Block 是按需 import + `customElements.define` 加载，单页面 1-3 个 Block 已覆盖绝大多数场景；超出 3 个说明页面应拆分路由
-6. **禁止全量注册 Block**：不调用 `registerAll*` 全量注册器（库已移除该 API），Block 只能按需 import 单个类后 `customElements.define`
+6. **禁止全量注册**：不调用 `registerAll()`（已废弃，ESLint `no-register-all` 阻断），组件用 `register('af-list', 'af-dialog')` 显式列名，Block 只能按需 import 单个类后 `customElements.define`
 
 ---
 

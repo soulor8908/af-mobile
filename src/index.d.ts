@@ -1,5 +1,5 @@
 // AIFlow UI —— TypeScript 类型声明
-// 公开 API：20 组件类 + AfElement 基类 + 主题 API + escapeHtml + register/registerAll
+// 公开 API：20 组件类 + AfElement 基类 + 主题 API + escapeHtml + register + withI18n
 // ⚠️ 手工维护：新增组件时须同步追加 class 声明，CI 的 types-sync 检查会校验一致
 
 /// <reference lib="dom" />
@@ -712,11 +712,11 @@ export class AfData extends AfElement {
 // 注册接口
 // ============================================================
 
-/** 按需注册单个组件（传入标签名） */
-export function register(name: string): void;
+/** 按需注册组件（传入标签名，可多个；registerAll 已废弃） */
+export function register(...names: string[]): void;
 
-/** 全量注册 21 个组件 */
-export function registerAll(): void;
+/** i18n mixin：用 i18n 的组件 extends withI18n(AfElement)，不用 i18n 的组件零成本 */
+export function withI18n<T extends new (...args: any[]) => any>(Base: T): T;
 
 // ============================================================
 // L3.5 Block 层（复合组件，AI 优先使用）

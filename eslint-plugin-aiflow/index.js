@@ -26,6 +26,7 @@ import wcDefinepageSingle from './rules/wc-definepage-single.js';
 import wcStateSchema from './rules/wc-state-schema.js';
 import wcPureFunction from './rules/wc-pure-function.js';
 import wcBlockVariantEnum from './rules/wc-block-variant-enum.js';
+import noRegisterAll from './rules/no-register-all.js';
 
 const plugin = {
   meta: { name: 'eslint-plugin-aiflow', version: '1.0.0' },
@@ -61,6 +62,7 @@ const plugin = {
     'wc-state-schema': wcStateSchema,
     'wc-pure-function': wcPureFunction,
     'wc-block-variant-enum': wcBlockVariantEnum,
+    'no-register-all': noRegisterAll,
   },
   configs: {},
 };
@@ -103,6 +105,8 @@ Object.assign(plugin.configs, {
       'aiflow/wc-pure-function': 'error',
       // L3.5 warn
       'aiflow/wc-block-variant-enum': 'warn',
+      // L3 error（v1.8.0 新增）
+      'aiflow/no-register-all': 'error',
     },
   },
 });

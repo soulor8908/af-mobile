@@ -2,14 +2,15 @@
 // Light DOM（useShadow=false），复用 L2 .list/.list-item 配方
 // 职责：虚拟滚动 + 下拉刷新 + 上拉加载 + itemclick 事件委托
 import { AfElement, escapeHtml as esc, html } from '../lib/af-element.js';
-import { t } from '../lib/i18n.js';
+import { withI18n } from '../lib/with-i18n.js';
 
 const LOADINGMORE_DISTANCE = 2; // 距底 N 项触发
 const REFRESH_THRESHOLD = 40;
 const REFRESH_MAX = 60;
 
-export class AfList extends AfElement {
+export class AfList extends withI18n(AfElement) {
   static useShadow = false;
+  static i18nKeys = ['ls.rf', 'ls.ld', 'ls.nm', 'ls.em', 'ls.al'];
   static i18n = {
     '[data-role="refresh-indicator"]': ['aria-label', 'ls.rf'],
     '[data-role="loadmore"]': ['', (host, t) =>
@@ -169,7 +170,7 @@ export class AfList extends AfElement {
   _checkLoadmore(scroller, total) {
     if (this._isLoadingMore || !this._hasMore) return;
     if (this.data.length >= total) {
-      this._loadmoreEl.textContent = t('ls.nm');
+      this._loadmoreEl.textContent = this.t('ls.nm');
       this._hasMore = false;
       return;
     }
@@ -177,7 +178,7 @@ export class AfList extends AfElement {
     if (distanceToBottom < this.itemHeight * LOADINGMORE_DISTANCE) {
       this._isLoadingMore = true;
       this._page += 1;
-      this._loadmoreEl.textContent = t('ls.ld');
+      this._loadmoreEl.textContent = this.t('ls.ld');
       this.emit('af-list:loadmore', { page: this._page });
     }
   }
@@ -185,7 +186,7 @@ export class AfList extends AfElement {
   endLoadMore(hasMore) {
     this._isLoadingMore = false;
     this._hasMore = !!hasMore;
-    this._loadmoreEl.textContent = hasMore ? '' : t('ls.nm');
+    this._loadmoreEl.textContent = hasMore ? '' : this.t('ls.nm');
   }
 
   endRefresh() {

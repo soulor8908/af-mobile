@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { AfElement, escapeHtml, html } from '../src/lib/af-element.js';
+import { withI18n } from '../src/lib/with-i18n.js';
 import { setLocale } from '../src/lib/i18n.js';
 
 class TestEl extends AfElement {
@@ -212,8 +213,8 @@ describe('html 安全模板标签', () => {
   });
 });
 
-// i18n 映射表测试组件
-class I18nTestEl extends AfElement {
+// i18n 映射表测试组件（extends withI18n 才有 _applyI18n 能力）
+class I18nTestEl extends withI18n(AfElement) {
   static useShadow = false;
   static i18n = {
     '.static-attr': ['aria-label', 'dg.cl'],

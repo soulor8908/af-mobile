@@ -3,13 +3,14 @@
 // 职责：触摸下拉刷新 + 阻尼系数 + 阈值激活 + 加载态指示器
 // 用法：<af-pull-refresh><div class="list">...</div></af-pull-refresh>
 import { AfElement } from '../lib/af-element.js';
-import { t } from '../lib/i18n.js';
+import { withI18n } from '../lib/with-i18n.js';
 
 const THRESHOLD = 60;
 const MAX_PULL = 100;
 
-export class AfPullRefresh extends AfElement {
+export class AfPullRefresh extends withI18n(AfElement) {
   static useShadow = false;
+  static i18nKeys = ['pr.pl', 'pr.rl', 'pr.ld'];
   static i18n = {
     '[data-role="indicator"]': ['aria-label', (host, t) => {
       if (host.refreshing) return t('pr.ld');
@@ -86,7 +87,7 @@ export class AfPullRefresh extends AfElement {
     this._indicator.hidden = h <= 0;
     if (h > 0) {
       this._indicator.setAttribute('aria-label',
-        this.refreshing ? t('pr.ld') : (h >= THRESHOLD ? t('pr.rl') : t('pr.pl'))
+        this.refreshing ? this.t('pr.ld') : (h >= THRESHOLD ? this.t('pr.rl') : this.t('pr.pl'))
       );
     }
   }
@@ -96,7 +97,7 @@ export class AfPullRefresh extends AfElement {
     if (this.refreshing) return;
     this.refreshing = true;
     this._setPull(THRESHOLD);
-    this._indicator.innerHTML = `<span class="spinner spinner-sm"></span><span class="caption">${t('pr.ld')}</span>`;
+    this._indicator.innerHTML = `<span class="spinner spinner-sm"></span><span class="caption">${this.t('pr.ld')}</span>`;
     this.emit('af-pull-refresh:refresh', {});
   }
 

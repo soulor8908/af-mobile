@@ -1,12 +1,13 @@
 // AIFlow UI —— L3 组件汇总导出
 // ESM 命名导出 + Tree Shaking + sideEffects:false
-// 使用方式 A：按需注册（推荐）
+// 使用方式 A：按需注册（推荐，Tree Shaking 友好）
 //   import { AfList, AfDialog } from 'aiflow-ui';
 //   customElements.define('af-list', AfList);
 //   customElements.define('af-dialog', AfDialog);
-// 使用方式 B：全量注册
-//   import { registerAll } from 'aiflow-ui';
-//   registerAll();
+// 使用方式 B：显式列名注册
+//   import { register } from 'aiflow-ui';
+//   register('af-list', 'af-dialog');
+// 注意：registerAll() 已废弃（诱导全量加载，失去 Tree Shaking），ESLint no-register-all 规则阻断
 
 export { AfElement, escapeHtml, html } from './lib/af-element.js';
 export { getTheme, setTheme, toggleTheme, initTheme } from './lib/theme.js';
@@ -66,16 +67,17 @@ const REGISTRY = {
 export { AfSettingGroup };
 export { AfProductCard };
 
-export function registerAll() {
-  for (const [name, ctor] of Object.entries(REGISTRY)) {
+// registerAll() 已废弃：诱导全量加载，失去 Tree Shaking
+// 改用 register(...names) 显式列名，配合 ESLint no-register-all 规则阻断全量注册
+export function register(...names) {
+  if (names.length === 0) {
+    throw new Error('[aiflow-ui] register(...names) 需显式传入组件名，全量注册已被废弃');
+  }
+  for (const name of names) {
+    const ctor = REGISTRY[name];
+    if (!ctor) throw new Error(`[aiflow-ui] unknown component: ${name}`);
     if (!customElements.get(name)) customElements.define(name, ctor);
   }
-}
-
-export function register(name) {
-  const ctor = REGISTRY[name];
-  if (!ctor) throw new Error(`[aiflow-ui] unknown component: ${name}`);
-  if (!customElements.get(name)) customElements.define(name, ctor);
 }
 
 // ============================================================
@@ -91,9 +93,12 @@ export {
 } from './lib/router.js';
 
 // ============================================================
-// 核心运行时：i18n（国际化，按需 import，不计入组件体积预算）
+// i18n（国际化，独立子路径 aiflow-ui/i18n，不进 coreRuntime 预算）
+// 消费端显式 import { setLocale, initLocale } from 'aiflow-ui/i18n'
+// 组件通过 withI18n mixin 按需拉入，不用 i18n 的组件零成本
 // ============================================================
 export { t, getLocale, setLocale, initLocale, addMessages, messages } from './lib/i18n.js';
+export { withI18n } from './lib/with-i18n.js';
 
 // ============================================================
 // aiflow-ui/page 子包（definePage + :bind）已独立，不再从主包导出

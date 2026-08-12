@@ -1,9 +1,11 @@
 // AIFlow UI —— af-dropdown：下拉菜单
 // Light DOM，复用 L2 .input/.list/.list-item 配方 + 原生 popover API
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
+import { withI18n } from '../lib/with-i18n.js';
 
-export class AfDropdown extends AfElement {
+export class AfDropdown extends withI18n(AfElement) {
   static useShadow = false;
+  static i18nKeys = ['dd.ph'];
   // i18n 映射表：trigger 内 .flex-1 textContent，selectedLabel > placeholder > 字典兜底
   static i18n = {
     '.af-dropdown-trigger > .flex-1': ['', (host, t) =>

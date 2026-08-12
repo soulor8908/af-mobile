@@ -2,12 +2,14 @@
 // Light DOM，五态（loading/error/empty/success）+ a11y + 键盘导航
 // variant: default / grid
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
+import { withI18n } from '../lib/with-i18n.js';
 
 const ARROW = '›';
 const SKEL_ROWS = 4;
 
-export class AfProductCard extends AfElement {
+export class AfProductCard extends withI18n(AfElement) {
   static useShadow = false;
+  static i18nKeys = ['pc.al', 'pc.em', 'pc.ld', 'pc.er', 'pc.rt'];
   static i18n = {
     '@': ['aria-label', 'pc.al'],
     '[data-role="empty-text"]': ['', 'pc.em'],

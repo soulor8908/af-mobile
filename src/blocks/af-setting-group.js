@@ -2,12 +2,14 @@
 // Light DOM，五态（loading/error/empty/success）+ a11y + 键盘导航
 // variant: default / with-switch / with-value
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
+import { withI18n } from '../lib/with-i18n.js';
 
 const ARROW = '›';
 const SKEL_ROWS = 4;
 
-export class AfSettingGroup extends AfElement {
+export class AfSettingGroup extends withI18n(AfElement) {
   static useShadow = false;
+  static i18nKeys = ['sg.al', 'sg.em', 'sg.ld', 'sg.er', 'sg.rt'];
   static i18n = {
     '@': ['aria-label', 'sg.al'],
     '[data-role="empty-text"]': ['', 'sg.em'],

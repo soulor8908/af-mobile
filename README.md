@@ -116,14 +116,14 @@ aiflow-ui 是浏览器端 Custom Elements 库，`customElements` 在 Node 服务
 ```js
 // 仅在浏览器环境注册组件
 if (typeof window !== 'undefined') {
-  const { registerAll } = await import('aiflow-ui');
-  registerAll();
+  const { register } = await import('aiflow-ui');
+  register('af-list', 'af-dialog', 'af-toast');
 }
 ```
 
 ### 2. SSR 预渲染 Light DOM（首屏占位）
 
-Light DOM 组件的结构（含 L2 class）可由服务端直接渲染到 HTML 作为**首屏占位**。客户端 `registerAll()` 后组件 `connectedCallback` 触发，**会用组件内部模板重建 DOM 并接管交互**——这不是增量 hydration，SSR 子节点会被覆盖。因此 SSR 预渲染的价值是「避免白屏」，而非「复用服务端 DOM」。Shadow DOM 组件内部结构不可预渲染，仅客户端挂载。
+Light DOM 组件的结构（含 L2 class）可由服务端直接渲染到 HTML 作为**首屏占位**。客户端 `register(...names)` 后组件 `connectedCallback` 触发，**会用组件内部模板重建 DOM 并接管交互**——这不是增量 hydration，SSR 子节点会被覆盖。因此 SSR 预渲染的价值是「避免白屏」，而非「复用服务端 DOM」。Shadow DOM 组件内部结构不可预渲染，仅客户端挂载。
 
 > ⚠️ **非增量 hydrate**：组件 `mounted()` 会用 `innerHTML` 重建内部结构（虚拟列表的 `.list` 外壳、tabbar 等）。SSR 输出的子节点仅作首屏占位，客户端 upgrade 后即被替换。若对首屏闪烁敏感，可在组件外加 `style="visibility:hidden"` 占位，upgrade 后再显隐。
 
@@ -142,9 +142,8 @@ function ProductList({ items }) {
           ))}
         </div>
       </af-list>
-      {/* 客户端 lazy 加载组件库并注册 */}
-      <Script src="/aiflow-ui.js" strategy="lazyOnload"
-        onLoad={() => window.AiflowUI?.registerAll()} />
+      {/* 客户端 lazy 加载组件库并注册（UMD bundle 自动全量注册） */}
+      <Script src="/aiflow-ui.js" strategy="lazyOnload" />
     </>
   );
 }
@@ -187,15 +186,15 @@ import { AfList, AfDialog } from 'aiflow-ui';
 customElements.define('af-list', AfList);
 customElements.define('af-dialog', AfDialog);
 
-// B. 单个注册辅助函数
+// B. 显式列名注册（可多个）
 import { register } from 'aiflow-ui';
-register('af-list');
-register('af-dialog');
+register('af-list', 'af-dialog');
 
-// C. 全量注册（不推荐，会失去 Tree Shaking）
-import { registerAll } from 'aiflow-ui';
-registerAll();
+// C. CDN 直引（UMD bundle 自动全量注册，无需手动 register）
+// <script src="https://unpkg.com/aiflow-ui"></script>
 ```
+
+> `registerAll()` 已废弃（诱导全量加载，失去 Tree Shaking），ESLint `no-register-all` 规则阻断。UMD bundle 仍自动全量注册（CDN 场景无 Tree Shaking 需求）。
 
 ## aiflow-ui/page 子包（definePage + :bind）
 

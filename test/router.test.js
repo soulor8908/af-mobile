@@ -96,6 +96,36 @@ describe('router 守卫', () => {
     expect(handler.mock.invocationCallOrder[0]).toBeLessThan(after.mock.invocationCallOrder[0]);
   });
 
+  it('afterEach 返回取消函数，可移除订阅', async () => {
+    const after = vi.fn();
+    route('/after-cancel', () => {});
+    route('/after-cancel2', () => {});
+    const cancel = routerAfterEach(after);
+    start({ outlet: '#app' });
+    await go('/after-cancel');
+    expect(after).toHaveBeenCalledTimes(1);
+    cancel();
+    await go('/after-cancel2');
+    expect(after).toHaveBeenCalledTimes(1);   // 取消后不再触发
+  });
+
+  it('多个 afterEach 钩子互不干扰', async () => {
+    const a = vi.fn();
+    const b = vi.fn();
+    route('/after-multi', () => {});
+    route('/after-multi2', () => {});
+    const cancelA = routerAfterEach(a);
+    routerAfterEach(b);
+    start({ outlet: '#app' });
+    await go('/after-multi');
+    expect(a).toHaveBeenCalledOnce();
+    expect(b).toHaveBeenCalledOnce();
+    cancelA();
+    await go('/after-multi2');
+    expect(a).toHaveBeenCalledOnce();   // a 已取消
+    expect(b).toHaveBeenCalledTimes(2); // b 仍订阅
+  });
+
   it('beforeEach 支持异步', async () => {
     const handler = vi.fn();
     route('/async-guard', handler);

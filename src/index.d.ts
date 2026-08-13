@@ -813,10 +813,10 @@ export function beforeEach(
   guard: (route: any, params: Record<string, string>, path: string) => Promise<boolean | string | void> | boolean | string | void
 ): void;
 
-/** 全局后置钩子 */
+/** 全局后置钩子：返回取消函数，可注册到 owner 在页面卸载时清理 */
 export function afterEach(
   hook: (route: any, params: Record<string, string>, path: string) => void
-): void;
+): () => void;
 
 /** 404 处理 */
 export function notFound(handler: (path: string) => void): void;
@@ -831,6 +831,42 @@ export function start(options?: {
   keepAliveMax?: number;
   base?: string;
 }): void;
+
+// ============================================================
+// 核心运行时：page（页面运行时工厂）
+// ============================================================
+
+/** createPage 页面配置 */
+export interface PageConfig {
+  state?: Record<string, unknown>;
+  computed?: Record<string, (s: Record<string, unknown>) => unknown>;
+  /** 命令式初始化（createResource 等），在 state/computed 之后、effects 之前调用；返回值挂 refs */
+  setup?: (s: Record<string, unknown>) => Record<string, unknown>;
+  effects?: Record<string, unknown>;
+  transform?: (data: unknown) => unknown;
+  actions?: Record<string, (s: Record<string, unknown>, ...args: unknown[]) => void>;
+  onError?: (err: unknown) => void;
+  transition?: unknown;
+  keepAlive?: boolean;
+}
+
+/** createPage 返回的页面实例 */
+export interface PageInstance {
+  state: Record<string, unknown>;
+  derived: Record<string, unknown>;
+  actions: Record<string, (...args: unknown[]) => void>;
+  /** setup 返回值 */
+  refs: Record<string, unknown>;
+  transform: ((data: unknown) => unknown) | null;
+  transition: unknown;
+  keepAlive: boolean;
+  mount(root: HTMLElement): void;
+  /** 级联清理所有 effect/computed/上游订阅 */
+  unmount(): void;
+}
+
+/** 页面运行时工厂（实例化，参数注入 state） */
+export function createPage(config?: PageConfig): PageInstance;
 
 // ============================================================
 // 核心运行时：i18n（国际化）

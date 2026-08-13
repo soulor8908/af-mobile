@@ -7,7 +7,7 @@ let _rootOutlet = null;
 let _currentNav = null;
 let _currentRoute = null;
 let _beforeEachGuard = null;
-let _afterEachHook = null;
+const _afterEachHooks = new Set();   // v3.0：数组化，多页面 route effect 互不干扰
 let _notFoundHandler = null;
 const _navStack = [];
 const _cache = new Map();           // path → { outlet, scrollTop, route }
@@ -58,8 +58,15 @@ export function route(path, handler, options = {}) {
 }
 
 export function beforeEach(guard) { _beforeEachGuard = guard; }
-export function afterEach(hook) { _afterEachHook = hook; }
+export function afterEach(hook) {
+  _afterEachHooks.add(hook);
+  return () => _afterEachHooks.delete(hook);   // 返回取消函数，支持订阅清理
+}
 export function notFound(handler) { _notFoundHandler = handler; }
+
+function callAfterEach(route, params, path) {
+  _afterEachHooks.forEach(h => h(route, params, path));
+}
 
 export function current() {
   return _currentRoute ? { ..._currentRoute } : null;
@@ -103,7 +110,7 @@ async function render(path) {
     }
     if (typeof scrollTo !== 'undefined') scrollTo(0, cached.scrollTop);
     _currentRoute = { path, params: {}, route: cached.route, outlet: cached.outlet };
-    _afterEachHook?.(cached.route, {}, path);
+    callAfterEach(cached.route, {}, path);
     return;
   }
 
@@ -152,7 +159,7 @@ async function render(path) {
   }
 
   _currentRoute = { path, params: lastParams, route: lastRoute, outlet: node };
-  _afterEachHook?.(lastRoute, lastParams, path);
+  callAfterEach(lastRoute, lastParams, path);
   if (lastRoute.scroll !== false && typeof scrollTo !== 'undefined') scrollTo(0, 0);
 }
 
@@ -186,7 +193,7 @@ export function forward() {
 export function _resetRouter() {
   _routes.length = 0;
   _beforeEachGuard = null;
-  _afterEachHook = null;
+  _afterEachHooks.clear();
   _notFoundHandler = null;
   _currentRoute = null;
   _currentNav = null;

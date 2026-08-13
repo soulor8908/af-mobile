@@ -8,7 +8,7 @@ const BIND_RE = /:([a-zA-Z-]+)\s*=\s*"([^"]+)"/g;
 export default {
   meta: {
     type: 'problem',
-    docs: { description: ':bind 只能绑定到 state.*/computed.*/{ref}.* 字段' },
+    docs: { description: ':bind 只能绑定到 state.*/computed.*/{ref}.* 字段', fixable: 'manual' },
     schema: [],
     messages: {
       invalid: "':{{attr}}=\"{{expr}}\"' must bind to state.xxx / computed.xxx / {ref}.xxx (where {ref} is af-data ref name)",
@@ -16,12 +16,10 @@ export default {
   },
   create(context) {
     const filename = context.filename || context.getFilename();
-    // 库源码放行（库内部模板生成 :bind）
-    if (/src[\\/](components|blocks|lib)[\\/].*\.js$/.test(filename)) return {};
-    // 测试夹具放行
-    if (/test[\\/]eslint-plugin[\\/]/.test(filename)) return {};
+    // 非消费端放行：库源码/单元测试/构建脚本
+    if (/src[\\/]|test[\\/]|scripts[\\/]/.test(filename)) return {};
 
-    function checkBinding(expr, node) {
+    function checkBinding(expr, attr, node) {
       // 合法形式：state.xxx / computed.xxx / {refName}.xxx（refName 是 af-data 的 ref 属性值）
       // refName 是标识符（如 ds / cfg），后跟 .xxx
       if (/^state\.[a-zA-Z_$][\w$]*(\.[a-zA-Z_$][\w$]*)*$/.test(expr)) return;
@@ -30,7 +28,7 @@ export default {
       if (/^[a-zA-Z_$][\w$]*\.[a-zA-Z_$][\w$]*$/.test(expr)) return;
       // 支持声明式指令：redirect:/path / toast:$msg / setState:k=v / action:fn / dialog:id
       if (/^(redirect|toast|setState|action|dialog):/.test(expr)) return;
-      context.report({ node, messageId: 'invalid', data: { attr: '', expr } });
+      context.report({ node, messageId: 'invalid', data: { attr, expr } });
     }
 
     return {
@@ -39,8 +37,7 @@ export default {
         let m;
         BIND_RE.lastIndex = 0;
         while ((m = BIND_RE.exec(node.value)) !== null) {
-          const expr = m[2];
-          checkBinding(expr, node);
+          checkBinding(m[2], m[1], node);
         }
       },
       TemplateElement(node) {
@@ -49,8 +46,7 @@ export default {
         let m;
         BIND_RE.lastIndex = 0;
         while ((m = BIND_RE.exec(raw)) !== null) {
-          const expr = m[2];
-          checkBinding(expr, node);
+          checkBinding(m[2], m[1], node);
         }
       },
     };

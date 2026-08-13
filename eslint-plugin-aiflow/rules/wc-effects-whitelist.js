@@ -11,13 +11,16 @@ const WHITELIST = new Set([
 export default {
   meta: {
     type: 'problem',
-    docs: { description: 'definePage.effects 的 key 只能在白名单内' },
+    docs: { description: 'definePage.effects 的 key 只能在白名单内', fixable: 'ai-rewrite' },
     schema: [],
     messages: {
       invalidKey: "effects key '{{key}}' not in whitelist; allowed: mount/unmount/route/online/offline/visible/hidden/storage/interval/resize/themechange/localechange",
     },
   },
   create(context) {
+    const filename = context.filename || context.getFilename();
+    // 非消费端放行：库源码/单元测试/构建脚本
+    if (/src[\\/]|test[\\/]|scripts[\\/]/.test(filename)) return {};
     return {
       CallExpression(node) {
         const callee = node.callee;

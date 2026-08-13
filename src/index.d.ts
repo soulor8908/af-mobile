@@ -848,7 +848,17 @@ export function start(options?: {
   scrollRestoration?: boolean;
   keepAliveMax?: number;
   base?: string;
+  /** 滚动位置：{x,y} 坐标 | {el,top} 元素 | false 禁止滚动（仿 Vue Router） */
+  scrollBehavior?: (
+    to: { path: string; params: Record<string, string>; query: Record<string, string> },
+    from: { path: string; params: Record<string, string>; query: Record<string, string> } | null,
+    savedPosition: { x: number; y: number } | null
+  ) => ({ x?: number; y?: number } | { el: string | Element; top?: number } | false | null)
+    | Promise<{ x?: number; y?: number } | { el: string | Element; top?: number } | false | null>;
 }): void;
+
+/** 路由错误：outlet 选择器未命中时抛出 */
+export class RouterError extends Error {}
 
 // ============================================================
 // 核心运行时：page（页面运行时工厂）

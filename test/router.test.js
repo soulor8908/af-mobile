@@ -3,7 +3,7 @@ import {
   route, go, current, start, notFound,
   beforeEach as routerBeforeEach,
   afterEach as routerAfterEach,
-  back, forward, _resetRouter,
+  back, forward, _resetRouter, RouterError,
 } from '../src/lib/router.js';
 
 beforeEach(() => {
@@ -52,6 +52,95 @@ describe('router 注册与匹配', () => {
     await go('/cur');
     const c = current();
     expect(c.path).toBe('/cur');
+  });
+
+  it('query 参数解析并合并进 params', async () => {
+    let received = null;
+    route('/search', (params) => { received = params; });
+    start({ outlet: '#app' });
+    await go('/search?q=aiflow&page=2');
+    expect(received).toEqual({ q: 'aiflow', page: '2' });
+  });
+
+  it('query 与 :param 并存，path 参数不受影响', async () => {
+    let received = null;
+    route('/users/:id', (params) => { received = params; });
+    start({ outlet: '#app' });
+    await go('/users/123?tab=posts');
+    expect(received).toEqual({ id: '123', tab: 'posts' });
+  });
+
+  it('query 为空的 URL 正常匹配', async () => {
+    let received = null;
+    route('/plain', (params) => { received = params; });
+    start({ outlet: '#app' });
+    await go('/plain?');
+    expect(received).toEqual({});
+  });
+});
+
+describe('router outlet 错误', () => {
+  it('根 outlet 未找到时 start 抛出 RouterError', () => {
+    document.body.innerHTML = '';
+    expect(() => start({ outlet: '#app' })).toThrow(RouterError);
+  });
+
+  it('子 outlet 选择器未命中时 go 抛出 RouterError', async () => {
+    route('/bad', (p, ctx) => {
+      ctx.outlet.innerHTML = '<main></main>';
+      return 'main[data-router-outlet]';   // 该选择器不存在
+    });
+    start({ outlet: '#app' });
+    await expect(go('/bad')).rejects.toBeInstanceOf(RouterError);
+  });
+});
+
+describe('router scrollBehavior', () => {
+  it('回调接收 to/from，返回 {x,y} 时触发 scrollTo', async () => {
+    const sb = vi.fn(() => ({ x: 100, y: 200 }));
+    const scrollSpy = vi.spyOn(window, 'scrollTo');
+    route('/sb1', (p, ctx) => { ctx.outlet.innerHTML = '<div>page</div>'; });
+    start({ outlet: '#app', scrollBehavior: sb });
+    await go('/sb1');
+    expect(sb).toHaveBeenCalledOnce();
+    expect(sb.mock.calls[0][0].path).toBe('/sb1');
+    expect(scrollSpy).toHaveBeenCalledWith(100, 200);
+  });
+
+  it('返回 { el } 时滚动到指定元素', async () => {
+    const sb = vi.fn(() => ({ el: '#target' }));
+    const scrollIntoView = vi.fn();
+    const orig = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = scrollIntoView;
+    route('/sb2', (p, ctx) => {
+      ctx.outlet.innerHTML = '<div id="target">t</div>';
+    });
+    start({ outlet: '#app', scrollBehavior: sb });
+    await go('/sb2');
+    expect(scrollIntoView).toHaveBeenCalledOnce();
+    Element.prototype.scrollIntoView = orig;
+  });
+
+  it('返回 false 时不滚动', async () => {
+    const sb = vi.fn(() => false);
+    const scrollSpy = vi.spyOn(window, 'scrollTo');
+    route('/sb3', () => {});
+    start({ outlet: '#app', scrollBehavior: sb });
+    await go('/sb3');
+    expect(scrollSpy).not.toHaveBeenCalled();
+  });
+
+  it('to 含 query，from 为导航前路由', async () => {
+    const sb = vi.fn(() => ({ x: 0, y: 0 }));
+    route('/sbq', (p, ctx) => { ctx.outlet.innerHTML = '<div>q</div>'; });
+    route('/sbq2', () => {});
+    start({ outlet: '#app', scrollBehavior: sb });
+    await go('/sbq?tab=1');
+    await go('/sbq2');
+    const [to, from] = sb.mock.calls[1];
+    expect(to.path).toBe('/sbq2');
+    expect(from.path).toBe('/sbq');
+    expect(from.query).toEqual({ tab: '1' });
   });
 });
 

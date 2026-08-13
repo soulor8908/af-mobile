@@ -122,6 +122,85 @@ describe('i18n', () => {
     });
   });
 
+  describe('复数规则（CLDR plural）', () => {
+    const enItems = { one: '{n} item', other: '{n} items' };
+
+    it('en：n=1 用 one，其余用 other', () => {
+      addMessages('en-US', { 'test.items': enItems });
+      setLocale('en-US');
+      expect(t('test.items', { n: 1 })).toBe('1 item');
+      expect(t('test.items', { n: 0 })).toBe('0 items');
+      expect(t('test.items', { n: 2 })).toBe('2 items');
+    });
+
+    it('zh：恒为 other（无复数）', () => {
+      addMessages('zh-CN', { 'test.items': { one: '1 项', other: '{n} 项' } });
+      expect(t('test.items', { n: 1 })).toBe('1 项');
+      expect(t('test.items', { n: 3 })).toBe('3 项');
+    });
+
+    it('fr：n=0/1 用 one', () => {
+      addMessages('fr-FR', { 'test.items': { one: '{n} élément', other: '{n} éléments' } });
+      setLocale('fr-FR');
+      expect(t('test.items', { n: 0 })).toBe('0 élément');
+      expect(t('test.items', { n: 1 })).toBe('1 élément');
+      expect(t('test.items', { n: 5 })).toBe('5 éléments');
+    });
+
+    it('ar：六形式（zero/one/two/few/many/other）', () => {
+      addMessages('ar-SA', {
+        'test.items': {
+          zero: 'لا عناصر', one: 'عنصر واحد', two: 'عنصران',
+          few: '{n} عناصر', many: '{n} عنصرًا', other: '{n} عنصر',
+        },
+      });
+      setLocale('ar-SA');
+      expect(t('test.items', { n: 0 })).toBe('لا عناصر');
+      expect(t('test.items', { n: 1 })).toBe('عنصر واحد');
+      expect(t('test.items', { n: 2 })).toBe('عنصران');
+      expect(t('test.items', { n: 3 })).toBe('3 عناصر');
+      expect(t('test.items', { n: 11 })).toBe('11 عنصرًا');
+      expect(t('test.items', { n: 100 })).toBe('100 عنصر');
+    });
+
+    it('ru：one/few/many 三形式', () => {
+      addMessages('ru-RU', {
+        'test.items': { one: '{n} элемент', few: '{n} элемента', many: '{n} элементов' },
+      });
+      setLocale('ru-RU');
+      expect(t('test.items', { n: 1 })).toBe('1 элемент');
+      expect(t('test.items', { n: 2 })).toBe('2 элемента');
+      expect(t('test.items', { n: 5 })).toBe('5 элементов');
+      expect(t('test.items', { n: 21 })).toBe('21 элемент');
+    });
+
+    it('未知语言回退 en 规则', () => {
+      addMessages('ko-KR', { 'test.items': enItems });
+      setLocale('ko-KR');
+      expect(t('test.items', { n: 1 })).toBe('1 item');
+      expect(t('test.items', { n: 7 })).toBe('7 items');
+    });
+
+    it('复数条目选形与 other 均缺失时回退 key', () => {
+      addMessages('en-US', { 'test.missing': { one: 'single' } });
+      setLocale('en-US');
+      expect(t('test.missing', { n: 2 })).toBe('test.missing');
+    });
+
+    it('复数条目无 n 时用 other 且不崩', () => {
+      addMessages('en-US', { 'test.noarg': enItems });
+      setLocale('en-US');
+      expect(t('test.noarg')).toBe('{n} items');
+    });
+
+    it('复数条目不干扰普通字符串翻译', () => {
+      addMessages('en-US', { 'test.mix': enItems });
+      setLocale('en-US');
+      expect(t('dg.cl')).toBe('Close');
+      expect(t('dg.cl', { n: 3 })).toBe('Close');
+    });
+  });
+
   describe('messages 导出', () => {
     it('包含 zh-CN 和 en-US', () => {
       expect(messages['zh-CN']).toBeDefined();

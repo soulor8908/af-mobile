@@ -79,7 +79,7 @@ export {
 } from './lib/fetch.js';
 export { createResource } from './lib/resource.js';
 export {
-  route, go, back, forward, beforeEach, afterEach, notFound, current, start,
+  route, go, back, forward, beforeEach, afterEach, notFound, current, start, RouterError,
 } from './lib/router.js';
 export { createPage } from './lib/page.js';
 

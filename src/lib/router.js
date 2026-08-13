@@ -1,5 +1,6 @@
 // AIFlow UI —— 移动端 SPA 路由
 // route/go/back/forward + beforeEach/afterEach/notFound + router-view + keep-alive + 转场
+// W7：query string 支持（parsePath 分离）+ outlet 失败抛 RouterError + scrollBehavior 仿 Vue Router
 // 顶层无副作用，start() 显式启动（SSR 安全）
 
 const _routes = [];
@@ -12,6 +13,40 @@ let _notFoundHandler = null;
 const _navStack = [];
 const _cache = new Map();           // path → { outlet, scrollTop, route }
 let _keepAliveMax = 5;
+let _scrollBehavior = null;         // (to, from, savedPosition) => position | false
+
+/** 路由错误：outlet 选择器未命中时抛出 */
+export class RouterError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'RouterError';
+  }
+}
+
+// 分离 path/search/hash：`/a/b?x=1#top` → { path:'/a/b', query:{x:'1'}, hash:'#top' }
+function parsePath(fullPath) {
+  const [path, search = ''] = fullPath.split('?');
+  const [cleanPath, hash = ''] = path.split('#');
+  const query = Object.fromEntries(new URLSearchParams(search));
+  return { path: cleanPath, query, hash };
+}
+
+// 应用 scrollBehavior 返回值：{ x, y } | { el, top } | false | null
+function applyScroll(position) {
+  if (!position || position === false) return;
+  if (position.el) {
+    const el = typeof position.el === 'string' ? document.querySelector(position.el) : position.el;
+    if (el) el.scrollIntoView({ block: 'start' });
+  } else {
+    const { x = 0, y = 0 } = position;
+    if (typeof scrollTo !== 'undefined') scrollTo(x, y);
+  }
+}
+
+// 归一化路由为 scrollBehavior 的 to/from 对象
+function toObj(r) {
+  return { path: parsePath(r.path).path, params: r.params || {}, query: r.query || {} };
+}
 
 function matchPath(pattern, path) {
   const pp = pattern.split('/').filter(Boolean);
@@ -36,18 +71,20 @@ function match(path) {
   return null;
 }
 
-// 嵌套路由匹配：按路径段从深到浅匹配，返回从父到子的匹配链
-function matchNested(path) {
+// 嵌套路由匹配：按路径段从深到浅匹配，返回从父到子的匹配链；query 合并进每层 params
+function matchNested(fullPath) {
+  const { path, query } = parsePath(fullPath);
   const segments = path.split('/').filter(Boolean);
   const matches = [];
+  const merge = m => m && { ...m, params: { ...m.params, ...query } };
   if (segments.length === 0) {
-    const m = match('/');
+    const m = merge(match('/'));
     if (m) matches.push(m);
     return matches;
   }
   for (let i = segments.length; i >= 1; i--) {
     const prefix = '/' + segments.slice(0, i).join('/');
-    const m = match(prefix);
+    const m = merge(match(prefix));
     if (m) matches.unshift(m);
   }
   return matches;
@@ -74,19 +111,21 @@ export function current() {
 
 export function start(options = {}) {
   if (typeof history === 'undefined') return;
-  const { scrollRestoration = true, outlet = '#app', keepAliveMax = 5 } = options;
+  const { scrollRestoration = true, outlet = '#app', keepAliveMax = 5, scrollBehavior } = options;
   if (scrollRestoration && 'scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
   }
   _rootOutlet = document.querySelector(outlet);
+  if (!_rootOutlet) throw new RouterError(`router outlet 未找到: ${outlet}`);
   _keepAliveMax = keepAliveMax;
+  _scrollBehavior = scrollBehavior || null;
   addEventListener('popstate', () => {
     _navStack.pop();
     document.documentElement.dataset.transition = 'back';
-    render(location.pathname);
+    render(location.pathname + location.search + location.hash);
   });
   // 首次渲染：仅在当前路径匹配已注册路由时自动渲染，避免首次加载即触发 notFound
-  const currentPath = location.pathname;
+  const currentPath = location.pathname + location.search + location.hash;
   if (matchNested(currentPath).length > 0) {
     render(currentPath);
   }
@@ -94,6 +133,8 @@ export function start(options = {}) {
 
 async function render(path) {
   _currentNav?.abort();
+  const from = _currentRoute ? toObj(_currentRoute) : null;   // 导航前捕获旧路由
+  const { path: cleanPath, query } = parsePath(path);
   const nav = {
     aborted: false,
     controller: new AbortController(),
@@ -108,8 +149,10 @@ async function render(path) {
       _rootOutlet.innerHTML = '';
       _rootOutlet.appendChild(cached.outlet);
     }
-    if (typeof scrollTo !== 'undefined') scrollTo(0, cached.scrollTop);
-    _currentRoute = { path, params: {}, route: cached.route, outlet: cached.outlet };
+    _currentRoute = { path, params: {}, query, route: cached.route, outlet: cached.outlet };
+    applyScroll(_scrollBehavior
+      ? await _scrollBehavior({ path: cleanPath, params: {}, query }, from, { x: 0, y: cached.scrollTop })
+      : { x: 0, y: cached.scrollTop });
     callAfterEach(cached.route, {}, path);
     return;
   }
@@ -117,7 +160,7 @@ async function render(path) {
   const matches = matchNested(path);
   if (matches.length === 0) {
     _notFoundHandler?.(path);
-    _currentRoute = { path, params: {}, route: null, outlet: _rootOutlet };
+    _currentRoute = { path, params: {}, query, route: null, outlet: _rootOutlet };
     return;
   }
 
@@ -142,7 +185,9 @@ async function render(path) {
     const ctx = { outlet: currentOutlet, signal: nav.controller.signal, go };
     const subOutletSelector = await m.route.handler(m.params, ctx);
     if (typeof subOutletSelector === 'string') {
-      currentOutlet = currentOutlet.querySelector(subOutletSelector) || currentOutlet;
+      const sub = currentOutlet.querySelector(subOutletSelector);
+      if (!sub) throw new RouterError(`router 嵌套 outlet 未找到: ${subOutletSelector}`);
+      currentOutlet = sub;
     }
     lastRoute = m.route;
     lastParams = m.params;
@@ -158,9 +203,13 @@ async function render(path) {
     _cache.set(path, { outlet: node, scrollTop: 0, route: lastRoute });
   }
 
-  _currentRoute = { path, params: lastParams, route: lastRoute, outlet: node };
+  _currentRoute = { path, params: lastParams, query, route: lastRoute, outlet: node };
   callAfterEach(lastRoute, lastParams, path);
-  if (lastRoute.scroll !== false && typeof scrollTo !== 'undefined') scrollTo(0, 0);
+  if (lastRoute.scroll !== false) {
+    applyScroll(_scrollBehavior
+      ? await _scrollBehavior({ path: cleanPath, params: lastParams, query }, from, null)
+      : { x: 0, y: 0 });
+  }
 }
 
 export function go(path, options = {}) {
@@ -199,4 +248,5 @@ export function _resetRouter() {
   _currentNav = null;
   _navStack.length = 0;
   _cache.clear();
+  _scrollBehavior = null;
 }

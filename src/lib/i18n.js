@@ -40,6 +40,11 @@ export const messages = {
     'up.btn': '+ 选择文件',
     'up.al': '上传文件',
     'im.fail': '图片加载失败',
+    'sg.al': '设置',
+    'sg.em': '暂无设置项',
+    'sg.ld': '加载中…',
+    'sg.er': '加载失败',
+    'sg.rt': '重试',
   },
   'en-US': {
     'bt.al': 'Back to top',
@@ -75,6 +80,11 @@ export const messages = {
     'up.btn': '+ Select file',
     'up.al': 'Upload file',
     'im.fail': 'Image load failed',
+    'sg.al': 'Settings',
+    'sg.em': 'No settings',
+    'sg.ld': 'Loading...',
+    'sg.er': 'Load failed',
+    'sg.rt': 'Retry',
   },
 };
 

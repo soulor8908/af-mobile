@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { initBind, registerDataRef, unregisterDataRef, _resetBind } from '../src/lib/bind.js';
-import { definePage, state, derived, _resetPage } from '../src/lib/page.js';
+import { definePage, createPage, state, derived, _resetPage } from '../src/lib/page.js';
 
 beforeEach(() => {
   document.body.innerHTML = '';
@@ -95,5 +95,30 @@ describe('initBind MutationObserver', () => {
     // MutationObserver 异步触发
     await new Promise(r => setTimeout(r, 0));
     expect(div.getAttribute('title')).toBe('foo');
+  });
+});
+
+describe('initBind 多实例（ctx）', () => {
+  it('ctx.state 绑定到独立实例', () => {
+    const page = createPage({ state: { title: 'Instance A' } });
+    document.body.innerHTML = `<div :title="state.title"></div>`;
+    initBind(document.body, page);
+    const div = document.querySelector('div');
+    expect(div.getAttribute('title')).toBe('Instance A');
+    page.state.title = 'Updated';
+    expect(div.getAttribute('title')).toBe('Updated');
+  });
+
+  it('ctx 实例与全局隔离', () => {
+    definePage({ state: { title: 'Global' } });
+    const page = createPage({ state: { title: 'Instance' } });
+    document.body.innerHTML = `<div :title="state.title"></div>`;
+    initBind(document.body, page);
+    const div = document.querySelector('div');
+    expect(div.getAttribute('title')).toBe('Instance');
+    state.title = 'Global2';   // 全局变化不影响 ctx 实例绑定
+    expect(div.getAttribute('title')).toBe('Instance');
+    page.state.title = 'Instance2';
+    expect(div.getAttribute('title')).toBe('Instance2');
   });
 });

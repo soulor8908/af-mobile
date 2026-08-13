@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { AfElement, escapeHtml, html } from '../src/lib/af-element.js';
 import { setLocale } from '../src/lib/i18n.js';
+import { withI18n } from '../src/lib/with-i18n.js';
 
 class TestEl extends AfElement {
   static useShadow = false;
@@ -212,8 +213,8 @@ describe('html 安全模板标签', () => {
   });
 });
 
-// i18n 映射表测试组件
-class I18nTestEl extends AfElement {
+// i18n 映射表测试组件（v3.0：_applyI18n 迁至 withI18n mixin）
+class I18nTestEl extends withI18n(AfElement) {
   static useShadow = false;
   static i18n = {
     '.static-attr': ['aria-label', 'dg.cl'],
@@ -239,7 +240,7 @@ class I18nTestEl extends AfElement {
 }
 customElements.define('i18n-test-el', I18nTestEl);
 
-describe('AfElement _applyI18n', () => {
+describe('withI18n _applyI18n', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
     setLocale('zh-CN');

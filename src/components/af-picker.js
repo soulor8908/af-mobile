@@ -2,6 +2,7 @@
 // Shadow DOM（useShadow=true），CSS scroll-snap 原生吸附
 // 职责：多列滚轮 + scroll-snap 吸附 + 滚动停止触发 change + 确认/取消
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
+import { withI18n } from '../lib/with-i18n.js';
 
 const CSS = `
   :host { display: contents; }
@@ -15,8 +16,9 @@ const CSS = `
     display: flex; align-items: center; justify-content: space-between;
     padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--c-border);
   }
-  .btn-cancel { color: var(--c-muted); background: none; border: none; font-size: var(--t-md); padding: var(--s-1) var(--s-2); cursor: pointer; }
-  .btn-confirm { color: var(--c-brand); background: none; border: none; font-size: var(--t-md); font-weight: var(--fw-medium); padding: var(--s-1) var(--s-2); cursor: pointer; }
+  .btn-cancel, .btn-confirm { background: none; border: none; font-size: var(--t-md); padding: var(--s-1) var(--s-2); cursor: pointer; }
+  .btn-cancel { color: var(--c-muted); }
+  .btn-confirm { color: var(--c-brand); font-weight: var(--fw-medium); }
   .title { font-size: var(--t-md); font-weight: var(--fw-medium); color: var(--c-text); }
   .columns { display: flex; position: relative; }
   .column {
@@ -32,11 +34,8 @@ const CSS = `
   }
   .item.active { color: var(--c-text); font-weight: var(--fw-bold); }
   .mask {
-    position: absolute; left: 0; right: 0; top: 0; bottom: 0;
-    pointer-events: none;
-    background: linear-gradient(to bottom,
-      var(--c-card) 0%, transparent calc(var(--af-item-h) * 2),
-      transparent calc(100% - var(--af-item-h) * 2), var(--c-card) 100%);
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(var(--c-card), transparent calc(var(--af-item-h)*2), transparent calc(100% - var(--af-item-h)*2), var(--c-card));
   }
   .indicator {
     position: absolute; left: var(--s-3); right: var(--s-3);
@@ -46,13 +45,13 @@ const CSS = `
   }
 `;
 
-export class AfPicker extends AfElement {
+export class AfPicker extends withI18n(AfElement) {
   static useShadow = true;
-  // i18n 映射表：title/confirm/cancel 优先用属性，否则字典；column aria-label 用循环索引
+  // i18n 映射表：title/confirm/cancel 用静态 fallback 形式（属性优先，否则字典）；column aria-label 用循环索引
   static i18n = {
-    'div.title':          ['', (host, t) => host.title || t('pk.tt')],
-    'button.btn-confirm': ['', (host, t) => host.confirmText || t('pk.ok')],
-    'button.btn-cancel':  ['', (host, t) => host.cancelText || t('pk.cn')],
+    'div.title':          ['', 'pk.tt', 'title'],
+    'button.btn-confirm': ['', 'pk.ok', 'confirmText'],
+    'button.btn-cancel':  ['', 'pk.cn', 'cancelText'],
     '.column':            ['aria-label', (host, t, el, i) => t('pk.col', { n: i + 1 })],
   };
 
@@ -85,16 +84,10 @@ export class AfPicker extends AfElement {
 
     // popover=auto 的 light dismiss（点遮罩/Esc）会绕过 close()，用 toggle 事件兜底解锁 + 焦点还原
     this._onPickerToggle = (e) => {
-      if (e.newState === 'closed') {
-        if (this._scrollLocked) {
-          AfElement.unlockScroll();
-          this._scrollLocked = false;
-        }
-        if (this._previouslyFocused && typeof this._previouslyFocused.focus === 'function') {
-          this._previouslyFocused.focus();
-          this._previouslyFocused = null;
-        }
-      }
+      if (e.newState !== 'closed') return;
+      if (this._scrollLocked) { AfElement.unlockScroll(); this._scrollLocked = false; }
+      this._previouslyFocused?.focus();
+      this._previouslyFocused = null;
     };
     this._picker.addEventListener('toggle', this._onPickerToggle);
 
@@ -118,9 +111,7 @@ export class AfPicker extends AfElement {
 
   _applyItemHeight() {
     this.style.setProperty('--af-item-h', this.itemHeight + 'px');
-    if (this._columnsEl) {
-      this._columnsEl.style.height = (this.itemHeight * this.visibleCount) + 'px';
-    }
+    if (this._columnsEl) this._columnsEl.style.height = this.itemHeight * this.visibleCount + 'px';
   }
 
   _renderColumns() {
@@ -171,8 +162,8 @@ export class AfPicker extends AfElement {
 
     const newValues = [...this.values];
     newValues[c] = colData[idx].value;
+    // defineProp 的 Array setter 会自动 setAttribute('values', ...)，无需手动同步
     this.values = newValues;
-    this.setAttribute('values', JSON.stringify(newValues));
 
     this._updateActive(c, idx);
     this.emit('af-picker:change', { column: c, value: colData[idx].value, index: idx });
@@ -231,11 +222,10 @@ export class AfPicker extends AfElement {
     this._applyI18n(); // 新建 column 后重新应用 aria-label
     this._rafIds.push(requestAnimationFrame(() => {
       const col = this._scrollers[colIdx];
-      if (col) {
-        const idx = this._findIndex(colIdx, this.values[colIdx]);
-        col.scrollTop = idx * this.itemHeight;
-        this._updateActive(colIdx, idx);
-      }
+      if (!col) return;
+      const idx = this._findIndex(colIdx, this.values[colIdx]);
+      col.scrollTop = idx * this.itemHeight;
+      this._updateActive(colIdx, idx);
     }));
   }
 
@@ -244,19 +234,14 @@ export class AfPicker extends AfElement {
     if (!this._scrollLocked) { AfElement.lockScroll(); this._scrollLocked = true; }
     // 焦点管理：保存触发元素 + 聚焦首列以便键盘操作
     this._previouslyFocused = document.activeElement;
-    this._rafIds.push(requestAnimationFrame(() => {
-      const first = this._scrollers[0];
-      if (first && typeof first.focus === 'function') first.focus();
-    }));
+    this._rafIds.push(requestAnimationFrame(() => this._scrollers[0]?.focus()));
   }
   close() {
     this._picker?.hidePopover();
     if (this._scrollLocked) { AfElement.unlockScroll(); this._scrollLocked = false; }
     // 焦点还原到触发元素
-    if (this._previouslyFocused && typeof this._previouslyFocused.focus === 'function') {
-      this._previouslyFocused.focus();
-      this._previouslyFocused = null;
-    }
+    this._previouslyFocused?.focus();
+    this._previouslyFocused = null;
   }
 
   onAttributeChange(name, oldVal, newVal) {

@@ -51,7 +51,9 @@ Object.assign(plugin.configs, {
       'aiflow/no-token-modification': 'error',
       'aiflow/no-inline-style': 'error',
       // L2 error
-      'aiflow/token-whitelist': 'error',
+      // extraComponents: af-data 属 L3.5 Block 层数据源元素（非 L3 注册组件，不在 whitelist-v1.json），
+      // 但 AI 生成的页面代码（definePage/:bind 体系）需要能使用 <af-data>，故在规则级放行
+      'aiflow/token-whitelist': ['error', { extraComponents: ['af-data'] }],
       'aiflow/no-recipe-break': 'error',
       'aiflow/no-arbitrary-value': 'error',
       'aiflow/no-tailwind-syntax': 'error',

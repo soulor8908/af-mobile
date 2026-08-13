@@ -158,7 +158,7 @@ export function createPage(config = {}) {
     transition: config.transition || null,
     keepAlive: config.keepAlive || null,
     mount(root) {
-      initBind(root);   // bind.js 多实例解耦为 W3 任务，W2 先全局绑定
+      initBind(root, this);   // bind.js 接收 page 实例，绑定到实例的 state/derived
     },
     unmount() {
       while (cleanups.length) { try { cleanups.pop()(); } catch { /* 清理失败忽略 */ } }

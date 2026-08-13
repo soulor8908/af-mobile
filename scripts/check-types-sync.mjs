@@ -8,8 +8,10 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const problems = [];
 
 // A. 源码组件文件
+// 排除 af-data.js：L3.5 Block 层数据源元素（见 l3.5-block-detailed-design.md），
+// 非 L3 的 20 个注册组件之一，不参与 index.js/index.d.ts 三源对齐（由 aiflow-ui/page 子包生态独立消费）
 const srcFiles = readdirSync(join(root, 'src/components'))
-  .filter(f => /^af-.*\.js$/.test(f));
+  .filter(f => /^af-.*\.js$/.test(f) && f !== 'af-data.js');
 const srcClasses = srcFiles.map(f => {
   const base = f.replace(/\.js$/, '');           // af-list
   const parts = base.split('-').slice(1);         // ['list']

@@ -1,8 +1,7 @@
 // AIFlow UI —— L3 基类 AfElement
-// 5 生命周期钩子 + 主题订阅 + 语言订阅 + defineProp 双向同步 + emit
+// 5 生命周期钩子 + 主题订阅 + defineProp 双向同步 + emit
 // 子类声明 static useShadow = true/false 决定是否 attachShadow
-
-import { t as _t } from './i18n.js';
+// v3.0：移除 i18n（_applyI18n/onLocaleChange/import t 迁至 withI18n mixin），基类无 i18n 依赖
 
 // HTML 转义：注入数据到 innerHTML 前必经，防 XSS
 // 使用命名实体（&lt; &gt; &amp; &quot;）+ 数值实体（&#39;）匹配浏览器 DOM 行为
@@ -58,23 +57,13 @@ export class AfElement extends HTMLElement {
       this._themeHandler = (e) => this.onThemeChange(e.detail);
       document.documentElement.addEventListener('themechange', this._themeHandler);
     }
-    // 语言订阅（与 themechange 对称）：localechange 时调用 onLocaleChange → _applyI18n
-    if (this.onLocaleChange) {
-      this._localeHandler = (e) => this.onLocaleChange(e.detail);
-      document.documentElement.addEventListener('localechange', this._localeHandler);
-    }
     this.mounted?.();
-    this._applyI18n();
   }
 
   disconnectedCallback() {
     if (this._themeHandler) {
       document.documentElement.removeEventListener('themechange', this._themeHandler);
       this._themeHandler = null;
-    }
-    if (this._localeHandler) {
-      document.documentElement.removeEventListener('localechange', this._localeHandler);
-      this._localeHandler = null;
     }
     this.unmounted?.();
     // 复位挂载标志：下次 connectedCallback 重新执行 mounted，重建监听与 DOM
@@ -95,44 +84,6 @@ export class AfElement extends HTMLElement {
   emit(name, detail = {}) {
     this.dispatchEvent(new CustomEvent(name, { detail, bubbles: true, composed: true }));
   }
-
-  /** 应用 static i18n 映射表（初次渲染 + 语言切换时调用）
-   *  映射表格式：{ selector: [attr, keyOrFn, fallbackProp?, skipIfAttr?] }
-   *  - selector '@' 指向 host 自身（querySelector 不支持 :host）
-   *  - attr 空串 '' 表示设置 textContent
-   *  - keyOrFn 为字符串时用 t(key)，为函数时调 fn(host, t, el, index)
-   *  - fallbackProp 仅静态形式：host[fallbackProp] 为 truthy 时优先用 host 属性值
-   *  - skipIfAttr 仅静态形式：host 有该属性时跳过
-   */
-  _applyI18n() {
-    const map = this.constructor.i18n;
-    if (!map) return;
-    for (const sel in map) {
-      const [attr, keyOrFn, fallback, skipIf] = map[sel];
-      // skipIf：host 有该属性时跳过（用户显式覆盖优先）
-      if (skipIf && this.hasAttribute(skipIf)) continue;
-      if (sel === '@') {
-        const val = typeof keyOrFn === 'function'
-          ? keyOrFn(this, _t, this, 0)
-          : (fallback && this[fallback] ? this[fallback] : _t(keyOrFn));
-        if (attr) this.setAttribute(attr, val);
-        else this.textContent = val;
-        continue;
-      }
-      // 普通选择器：querySelectorAll 支持循环场景（picker columns / swiper dots）
-      const els = this.$root.querySelectorAll(sel);
-      els.forEach((el, i) => {
-        const val = typeof keyOrFn === 'function'
-          ? keyOrFn(this, _t, el, i)
-          : (fallback && this[fallback] ? this[fallback] : _t(keyOrFn));
-        if (attr) el.setAttribute(attr, val);
-        else el.textContent = val;
-      });
-    }
-  }
-
-  /** 语言切换回调（默认调用 _applyI18n，子类可重写） */
-  onLocaleChange() { this._applyI18n(); }
 
   // === 背景滚动锁（模态组件 open/close 配对调用，引用计数支持多实例嵌套） ===
   static _scrollLockCount = 0;

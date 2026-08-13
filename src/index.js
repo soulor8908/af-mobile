@@ -77,6 +77,7 @@ export {
   fetchPage, FetchError, TimeoutError, HttpError, AbortError,
   addInterceptor, removeInterceptor, invalidateCache, clearCache,
 } from './lib/fetch.js';
+export { createResource } from './lib/resource.js';
 export {
   route, go, back, forward, beforeEach, afterEach, notFound, current, start,
 } from './lib/router.js';

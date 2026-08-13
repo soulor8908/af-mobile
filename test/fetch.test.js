@@ -257,3 +257,36 @@ describe('fetchPage 拦截器', () => {
     expect(order).toEqual(['a', 'b']);
   });
 });
+
+describe('fetchPage 拦截器分阶段', () => {
+  afterEach(() => _resetInterceptors());
+
+  it('response 阶段拦截器变换数据', async () => {
+    _fetch.mockResolvedValue(mockResponse({ a: 1 }));
+    addInterceptor('response', (url, data) => ({ ...data, transformed: true }));
+    const data = await fetchPage('/api/r1');
+    expect(data).toEqual({ a: 1, transformed: true });
+  });
+
+  it('error 阶段拦截器恢复错误（返回数据）', async () => {
+    _fetch.mockRejectedValue(new TypeError('network'));
+    addInterceptor('error', (url, err) => ({ recovered: true }));
+    const data = await fetchPage('/api/r2');
+    expect(data).toEqual({ recovered: true });
+  });
+
+  it('error 阶段拦截器返回 undefined 时继续抛错', async () => {
+    _fetch.mockRejectedValue(new TypeError('network'));
+    addInterceptor('error', () => undefined);
+    await expect(fetchPage('/api/r3')).rejects.toBeInstanceOf(TypeError);
+  });
+
+  it('request/response 阶段按顺序执行', async () => {
+    _fetch.mockResolvedValue(mockResponse({}));
+    const order = [];
+    addInterceptor((url, opts) => { order.push('req'); return opts; });
+    addInterceptor('response', (url, data) => { order.push('res'); return data; });
+    await fetchPage('/api/r4');
+    expect(order).toEqual(['req', 'res']);
+  });
+});

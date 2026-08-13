@@ -764,14 +764,32 @@ export interface FetchPageOptions {
 /** 数据获取主入口 */
 export function fetchPage<T = unknown>(url: string, options?: FetchPageOptions): Promise<T>;
 
-/** 添加全局拦截器：返回 opts 继续，返回 Response 短路 */
-export function addInterceptor(fn: (url: string, opts: any) => Promise<any> | any): void;
+/** 添加全局拦截器：request 返回 opts 继续 / Response 短路；response 变换数据；error 返回数据恢复 / undefined 继续 */
+export function addInterceptor(
+  fnOrPhase: ((url: string, opts: any) => Promise<any> | any) | 'request' | 'response' | 'error',
+  fn?: (url: string, arg: any) => Promise<any> | any
+): void;
 /** 移除拦截器 */
 export function removeInterceptor(fn: (url: string, opts: any) => any): void;
 /** 失效指定 URL 的缓存 */
 export function invalidateCache(url: string): void;
 /** 清空所有缓存 */
 export function clearCache(): void;
+
+/** createResource 返回的资源句柄（signal，函数式读取） */
+export interface Resource<T = unknown> {
+  data: () => T;
+  isLoading: () => boolean;
+  error: () => Error | null;
+  isError: () => boolean;
+}
+
+/** 创建响应式资源：source 变化自动重新拉取，effect 注册到当前 owner（在 createPage.setup 中调用） */
+export function createResource<T = unknown>(
+  source: (() => unknown) | unknown,
+  fetcher: (key: unknown) => Promise<T>,
+  options?: { initialValue?: T }
+): Resource<T>;
 
 // ============================================================
 // 核心运行时：router（SPA 路由）

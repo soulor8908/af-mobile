@@ -124,11 +124,12 @@ async function measureCoreRuntime() {
   const toPosix = (p) => p.replace(/\\/g, '/');
   writeFileSync(entry,
     `import { signal, computed, effect, batch, createRoot, getOwner, untrack } from '${toPosix(join(SRC, 'lib/state.js'))}';\n` +
+    `import { createResource } from '${toPosix(join(SRC, 'lib/resource.js'))}';\n` +
     `import { fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache } from '${toPosix(join(SRC, 'lib/fetch.js'))}';\n` +
     `import { route, go, back, forward, beforeEach, afterEach, notFound, current, start } from '${toPosix(join(SRC, 'lib/router.js'))}';\n` +
     `import { t, getLocale, setLocale, initLocale, addMessages, messages } from '${toPosix(join(SRC, 'lib/i18n.js'))}';\n` +
     `// 引用以防 tree-shake 摇除\n` +
-    `globalThis.__aiflow_core = [signal, computed, effect, batch, createRoot, getOwner, untrack, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages];\n`
+    `globalThis.__aiflow_core = [signal, computed, effect, batch, createRoot, getOwner, untrack, createResource, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages];\n`
   );
   const res = await build({
     entryPoints: [entry],
@@ -159,12 +160,12 @@ async function main() {
   }
 
   // 3. 全量 bundle（index.js，含基类 + 14 组件，不含 coreRuntime）
-  // coreRuntime（router/state/fetch）独立预算，external 掉避免计入 total
+  // coreRuntime（router/state/fetch/i18n/resource/theme）独立预算，external 掉避免计入 total
   const totalRes = await build({
     entryPoints: [join(SRC, 'index.js')],
     bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
     absWorkingDir: ROOT,
-    external: ['./lib/router.js', './lib/state.js', './lib/fetch.js', './lib/i18n.js'],
+    external: ['./lib/router.js', './lib/state.js', './lib/fetch.js', './lib/i18n.js', './lib/resource.js', './lib/theme.js'],
   });
   const totalGz = gzipSync(Buffer.from(totalRes.outputFiles[0].text)).length;
 

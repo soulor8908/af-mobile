@@ -77,9 +77,30 @@
     <af-img id="img-fail" lazy="false" src="data:image/png;base64,not-a-valid-image" fail-src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='40'%20height='40'%3E%3Crect%20width='40'%20height='40'%20fill='%23ea4335'/%3E%3C/svg%3E" alt="fail"></af-img>
   </section>
 
+  <!-- router（SPA 路由：query / scrollBehavior / outlet 抛错） -->
+  <section data-testid="router-section">
+    <button id="router-go-query" class="btn">go /list?page=2</button>
+    <button id="router-go-el" class="btn">go /el（滚动到元素）</button>
+    <button id="router-go-bad" class="btn">go /bad（outlet 抛错）</button>
+    <div id="router-app" data-router-outlet style="min-height:120px;border:1px dashed var(--c-border);"></div>
+    <p id="router-query-out"></p>
+    <p id="router-error-out"></p>
+  </section>
+
+  <!-- i18n（复数规则：en / ar） -->
+  <section data-testid="i18n-section">
+    <button id="i18n-en" class="btn">en-US</button>
+    <button id="i18n-ar" class="btn">ar-SA</button>
+    <p id="i18n-plural-out"></p>
+  </section>
+
   <script type="module">
     import '../src/index.css';
     import { registerAll } from '../src/index.js';
+    import {
+      route as defineRoute, go as navTo, start as startRouter, RouterError,
+    } from '../src/index.js';
+    import { addMessages, setLocale, t as i18nT } from '../src/index.js';
     registerAll();
 
     // dialog
@@ -132,6 +153,48 @@
     swp.addEventListener('af-swiper:change', (e) => {
       idxLabel.textContent = '当前索引：' + e.detail.index;
     });
+
+    // router：query / scrollBehavior / outlet 抛错（e2e 用 transition:false 保证确定性）
+    defineRoute('/', (p, ctx) => { ctx.outlet.innerHTML = '<div>home</div>'; });
+    defineRoute('/list', (p, ctx) => {
+      ctx.outlet.innerHTML = `<div>list page ${p.page}</div>`;
+      document.getElementById('router-query-out').textContent = 'page=' + p.page;
+    });
+    defineRoute('/el', (p, ctx) => {
+      ctx.outlet.innerHTML = '<div style="height:2000px;">长页面<div id="scroll-target" style="margin-top:1800px;">target</div></div>';
+    });
+    defineRoute('/bad', (p, ctx) => {
+      ctx.outlet.innerHTML = '<main></main>';
+      return 'main[data-router-outlet]';   // 该选择器不存在 → 抛 RouterError
+    });
+    startRouter({
+      outlet: '#router-app',
+      scrollBehavior: (to) => to.path === '/el' ? { el: '#scroll-target' } : { x: 0, y: 0 },
+    });
+    document.getElementById('router-go-query').addEventListener('click', () => navTo('/list?page=2', { transition: false }));
+    document.getElementById('router-go-el').addEventListener('click', () => navTo('/el', { transition: false }));
+    document.getElementById('router-go-bad').addEventListener('click', () => {
+      navTo('/bad', { transition: false }).catch(e => {
+        document.getElementById('router-error-out').textContent = e instanceof RouterError ? e.name : 'unknown';
+      });
+    });
+    window.__routerGo = (path) => navTo(path, { transition: false });   // 测试用：暴露解析后的 promise
+
+    // i18n 复数：en（两形式）+ ar（六形式）
+    addMessages('en-US', { 'e2e.items': { one: '{n} item', other: '{n} items' } });
+    addMessages('ar-SA', {
+      'e2e.items': {
+        zero: 'لا عناصر', one: 'عنصر واحد', two: 'عنصران',
+        few: '{n} عناصر', many: '{n} عنصرًا', other: '{n} عنصر',
+      },
+    });
+    const pluralOut = document.getElementById('i18n-plural-out');
+    const renderPlural = () => {
+      pluralOut.textContent = [0, 1, 2, 3, 11, 100].map(n => `${n}:${i18nT('e2e.items', { n })}`).join(' | ');
+    };
+    document.getElementById('i18n-en').addEventListener('click', () => { setLocale('en-US'); renderPlural(); });
+    document.getElementById('i18n-ar').addEventListener('click', () => { setLocale('ar-SA'); renderPlural(); });
+    renderPlural();
 
     // 标记组件已就绪（playwright 等待此属性）
     window.__ready = true;

@@ -41,13 +41,15 @@ const SRC = join(ROOT, 'src');
 //   perComponent 2.6→2.8KB：16 个组件新增 static i18n 映射表
 //   total 19.5→20.5KB：基类增量 + 16 组件映射表增量
 //   coreRuntime 3.7→5.2KB：新增 i18n.js（字典 + API ~1.1KB）+ 容差
+// v3.0 调整（state.js Owner pattern，Phase 1 W1）：
+//   coreRuntime 5.2→5.4KB：state.js 新增 createRoot/getOwner/untrack + computed tempEffect 引用 + _pendingSubs Map，移除 bus 死代码（净 +0.2KB）
 const BUDGET = {
   css: 8.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 1.5,           // KB，AfElement 基类（+_applyI18n + localechange 订阅）
   total: 20.5,         // KB，20 组件 + 基类（含 i18n 增量）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
-  coreRuntime: 5.2,    // KB，router(2.0)+state(0.7)+fetch(0.8)+i18n(1.1)+容差(0.6)，独立预算不计入 total
+  coreRuntime: 5.4,    // KB，router(2.0)+state(0.9)+fetch(0.8)+i18n(1.1)+容差(0.6)，独立预算不计入 total（v3.0 state.js +Owner pattern）
 };
 
 const KB = 1024;
@@ -121,12 +123,12 @@ async function measureCoreRuntime() {
   const entry = join(dir, 'entry.js');
   const toPosix = (p) => p.replace(/\\/g, '/');
   writeFileSync(entry,
-    `import { signal, computed, effect, batch, bus } from '${toPosix(join(SRC, 'lib/state.js'))}';\n` +
+    `import { signal, computed, effect, batch, createRoot, getOwner, untrack } from '${toPosix(join(SRC, 'lib/state.js'))}';\n` +
     `import { fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache } from '${toPosix(join(SRC, 'lib/fetch.js'))}';\n` +
     `import { route, go, back, forward, beforeEach, afterEach, notFound, current, start } from '${toPosix(join(SRC, 'lib/router.js'))}';\n` +
     `import { t, getLocale, setLocale, initLocale, addMessages, messages } from '${toPosix(join(SRC, 'lib/i18n.js'))}';\n` +
     `// 引用以防 tree-shake 摇除\n` +
-    `globalThis.__aiflow_core = [signal, computed, effect, batch, bus, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages];\n`
+    `globalThis.__aiflow_core = [signal, computed, effect, batch, createRoot, getOwner, untrack, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages];\n`
   );
   const res = await build({
     entryPoints: [entry],

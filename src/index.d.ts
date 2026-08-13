@@ -720,8 +720,14 @@ export function effect(fn: () => void): () => void;
 /** 批量更新：合并多次 signal.set 的通知 */
 export function batch(fn: () => void): void;
 
-/** 跨组件事件总线（原生 EventTarget） */
-export const bus: EventTarget;
+/** Owner 作用域：fn 内创建的 effect/computed 自动注册到 owner，dispose 时级联清理 */
+export function createRoot<T>(fn: (dispose: () => void) => T): T;
+
+/** 获取当前 owner（createRoot 内部用，外部调试用） */
+export function getOwner(): { disposers: Array<() => void>; parent: object | null } | null;
+
+/** 在 fn 内读取 signal 不建立依赖（写入仍生效） */
+export function untrack<T>(fn: () => T): T;
 
 // ============================================================
 // 核心运行时：fetch（数据获取）

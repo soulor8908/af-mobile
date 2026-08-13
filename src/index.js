@@ -72,7 +72,7 @@ export function register(name) {
 // ============================================================
 // 核心运行时（按需 import，不计入组件体积预算）
 // ============================================================
-export { signal, computed, effect, batch, bus } from './lib/state.js';
+export { signal, computed, effect, batch, createRoot, getOwner, untrack } from './lib/state.js';
 export {
   fetchPage, FetchError, TimeoutError, HttpError, AbortError,
   addInterceptor, removeInterceptor, invalidateCache, clearCache,

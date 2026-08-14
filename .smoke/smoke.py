@@ -97,7 +97,45 @@ with sync_playwright() as p:
             page.wait_for_timeout(500)
             log("Chat closed via x button OK")
 
-    # ---- 7. Final report ----
+    # ---- 7. af-swipe-cell 左滑（纯触屏手势，无需 PC/鼠标支持） ----
+    tabs.nth(1).click()
+    page.wait_for_timeout(400)
+    # 列表为空则先造一个账户，保证有可滑动的单元格
+    if page.locator("af-swipe-cell").count() == 0:
+        page.locator(".account-form input[placeholder*='账户名']").fill("冒烟账户")
+        page.locator(".account-form input[placeholder*='初始余额']").fill("100")
+        page.locator(".account-form button[type='submit']").click()
+        page.wait_for_timeout(500)
+    cells = page.locator("af-swipe-cell")
+    assert cells.count() > 0, "af-swipe-cell not found"
+    first = cells.first
+
+    SWIPE_LEFT_JS = """(el) => {
+      const rect = el.getBoundingClientRect();
+      const mk = (type, x) => {
+        const t = new Touch({ identifier: 1, target: el, clientX: x, clientY: rect.top + rect.height / 2 });
+        el.dispatchEvent(new TouchEvent(type, { touches: [t], targetTouches: [t], changedTouches: [t], bubbles: true, cancelable: true }));
+      };
+      mk('touchstart', rect.right - 10);
+      for (let i = 1; i <= 10; i++) mk('touchmove', rect.right - 10 - i * 20);
+      mk('touchend', rect.right - 10 - 200);
+    }"""
+    offset_js = "(el) => getComputedStyle(el.querySelector('[data-role=\"track\"]')).getPropertyValue('--af-swipe-x')"
+
+    first.evaluate(SWIPE_LEFT_JS)
+    page.wait_for_timeout(400)
+    x = first.evaluate(offset_js)
+    assert x.strip().startswith("-"), f"swipe-to-open failed, x={x!r}"
+    log("Swipe cell: swipe-to-open OK")
+
+    # 点击内容区收起（组件点击非操作区自动 close）
+    first.evaluate("(el) => { const c = el.querySelector('[data-role=\"content\"]'); const r = c.getBoundingClientRect(); el.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: r.left + 10, clientY: r.top + 10 })); }")
+    page.wait_for_timeout(400)
+    x2 = first.evaluate(offset_js)
+    assert x2.strip() in ("", "0px", "0"), f"click-to-close failed, x={x2!r}"
+    log("Swipe cell: click-to-close OK")
+
+    # ---- 8. Final report ----
     log("=" * 40)
     log(f"Total errors: {len(errors)}")
     for e in errors:

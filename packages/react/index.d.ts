@@ -33,7 +33,7 @@ export declare const AfTabbar: (props: P<'tabs' | 'activeIndex' | 'fixed' | 'ari
 export declare const AfStepper: (props: P<'value' | 'min' | 'max' | 'step' | 'disabled' | 'ariaLabel'> & E<'Change'> & Attrs) => ReactElement;
 export declare const AfField: (props: P<'label' | 'icon' | 'type' | 'inputType' | 'value' | 'placeholder' | 'help' | 'error' | 'disabled' | 'readonly' | 'ariaLabel'> & E<'Input' | 'Change'> & Attrs) => ReactElement;
 export declare const AfPullRefresh: (props: P<'refreshing'> & E<'Refresh'> & Attrs) => ReactElement;
-export declare const AfSwipeCell: (props: P<'disabled'> & E<'Action'> & Attrs) => ReactElement;
+export declare const AfSwipeCell: (props: P<never> & E<'Action' | 'Change'> & Attrs) => ReactElement;
 export declare const AfRate: (props: P<'value' | 'max' | 'readonly' | 'size' | 'label'> & E<'Change'> & Attrs) => ReactElement;
 export declare const AfNoticeBar: (props: P<'text' | 'scroll'> & Attrs) => ReactElement;
 export declare const AfProgress: (props: P<'value' | 'max' | 'color'> & Attrs) => ReactElement;

@@ -81,11 +81,10 @@ export class AfSwipeCell extends AfElement {
       const threshold = maxLeft * THRESHOLD;
       // 超过阈值吸附到完全打开，否则回弹收起
       if (this._offset <= -threshold) {
-        this._offset = -maxLeft;
+        this.open();
       } else {
-        this._offset = 0;
+        this.close();
       }
-      this._track.style.setProperty('--af-swipe-x', this._offset + 'px');
     };
 
     this.addEventListener('touchstart', this._onTouchStart, { passive: true });
@@ -111,11 +110,14 @@ export class AfSwipeCell extends AfElement {
     if (!this._right) return;
     this._offset = -this._right.offsetWidth;
     this._track.style.setProperty('--af-swipe-x', this._offset + 'px');
+    this.emit('af-swipe-cell:change', { open: true });
   }
 
   close() {
+    if (this._offset === 0) return;
     this._offset = 0;
     this._track.style.setProperty('--af-swipe-x', '0px');
+    this.emit('af-swipe-cell:change', { open: false });
   }
 
   unmounted() {
@@ -125,5 +127,3 @@ export class AfSwipeCell extends AfElement {
     this.removeEventListener('click', this._onClick);
   }
 }
-
-AfElement.defineProp(AfSwipeCell.prototype, 'disabled', { type: Boolean, default: false });

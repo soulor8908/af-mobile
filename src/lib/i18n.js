@@ -5,6 +5,9 @@
 
 let _locale = 'zh-CN';
 
+// 语言包懒加载表：locale → Promise<dict>（addMessages 函数式调用去重，加载后常驻缓存）
+const _loaders = new Map();
+
 export const messages = {
   'zh-CN': {
     'bt.al': '回到顶部',
@@ -160,7 +163,22 @@ export function initLocale() {
   }
 }
 
-/** 注册/覆盖语言包（浅合并） */
-export function addMessages(locale, dict) {
-  messages[locale] = { ...messages[locale], ...dict };
+/** 注册/覆盖语言包（浅合并）；dict 为函数时支持懒加载（如 () => import(...)），返回加载 Promise */
+export function addMessages(locale, dictOrLoader) {
+  if (typeof dictOrLoader === 'function') {
+    if (!_loaders.has(locale)) {
+      _loaders.set(locale, Promise.resolve(dictOrLoader()).then(
+        dict => { messages[locale] = { ...messages[locale], ...dict }; return dict; },
+        err => { _loaders.delete(locale); throw err; }  // 失败移出表，允许重试
+      ));
+    }
+    return _loaders.get(locale);
+  }
+  messages[locale] = { ...messages[locale], ...dictOrLoader };
+  return undefined;
+}
+
+// 测试用：重置懒加载表（不导出到 index.js）
+export function _resetLoaders() {
+  _loaders.clear();
 }

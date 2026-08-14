@@ -861,6 +861,20 @@ export function invalidateCache(url: string): void;
 /** 清空所有缓存 */
 export function clearCache(): void;
 
+/** 缓存后端接口（与 Map 同构：get/set/delete/clear） */
+export interface CacheAdapter {
+  get(url: string): { data: unknown; expiry: number } | undefined;
+  set(url: string, entry: { data: unknown; expiry: number }): void;
+  delete(url: string): void;
+  clear(): void;
+}
+
+/** 创建 localStorage 持久化缓存后端（仅缓存 JSON 可序列化数据，Blob/Response/ArrayBuffer 自动跳过） */
+export function localStorageAdapter(options?: { prefix?: string }): CacheAdapter;
+
+/** 切换缓存后端（默认内存 Map；传 localStorageAdapter() 启用持久化缓存） */
+export function setCacheAdapter(adapter: CacheAdapter): void;
+
 /** createResource 返回的资源句柄（signal，函数式读取） */
 export interface Resource<T = unknown> {
   data: () => T;
@@ -1003,8 +1017,11 @@ export function setLocale(locale: Locale): void;
 /** 从 localStorage 恢复语言（入口尽早调用） */
 export function initLocale(): void;
 
-/** 注册/覆盖语言包（浅合并） */
-export function addMessages(locale: Locale, dict: Record<string, string>): void;
+/** 注册/覆盖语言包（浅合并）；dictOrLoader 为函数时支持懒加载（如 () => import(...)），返回加载 Promise */
+export function addMessages(
+  locale: Locale,
+  dictOrLoader: Record<string, string> | (() => Record<string, string> | Promise<Record<string, string>>)
+): void | Promise<Record<string, string>>;
 
 /** 全部语言字典 */
 export const messages: Record<Locale, Record<string, string>>;

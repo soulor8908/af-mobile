@@ -3,6 +3,7 @@ import {
   fetchPage, FetchError, TimeoutError, HttpError, AbortError,
   invalidateCache, clearCache,
   addInterceptor, removeInterceptor, _resetInterceptors,
+  localStorageAdapter, setCacheAdapter, _resetCacheAdapter,
 } from '../src/lib/fetch.js';
 
 // 全局 fetch mock
@@ -11,6 +12,8 @@ beforeEach(() => {
   _fetch.mockReset();
   globalThis.fetch = _fetch;
   globalThis.Response = Response;
+  localStorage.clear();
+  _resetCacheAdapter();
 });
 afterEach(() => vi.restoreAllMocks());
 
@@ -288,5 +291,84 @@ describe('fetchPage 拦截器分阶段', () => {
     addInterceptor('response', (url, data) => { order.push('res'); return data; });
     await fetchPage('/api/r4');
     expect(order).toEqual(['req', 'res']);
+  });
+});
+
+describe('fetchPage 持久化缓存（localStorageAdapter）', () => {
+  it('setCacheAdapter 切换后缓存命中跳过 fetch', async () => {
+    setCacheAdapter(localStorageAdapter());
+    _fetch.mockResolvedValue(mockResponse({ v: 1 }));
+    await fetchPage('/api/p1', { cache: true, cacheTTL: 10000 });
+    const data = await fetchPage('/api/p1', { cache: true, cacheTTL: 10000 });
+    expect(data).toEqual({ v: 1 });
+    expect(_fetch).toHaveBeenCalledOnce();
+  });
+
+  it('缓存持久化到 localStorage', async () => {
+    setCacheAdapter(localStorageAdapter());
+    _fetch.mockResolvedValue(mockResponse({ v: 1 }));
+    await fetchPage('/api/p2', { cache: true, cacheTTL: 10000 });
+    expect(localStorage.getItem('aiflow-cache:/api/p2')).toContain('"v":1');
+  });
+
+  it('重建 adapter 后缓存仍在（模拟刷新）', async () => {
+    setCacheAdapter(localStorageAdapter());
+    _fetch.mockResolvedValue(mockResponse({ v: 1 }));
+    await fetchPage('/api/p3', { cache: true, cacheTTL: 10000 });
+
+    _fetch.mockClear();
+    _fetch.mockResolvedValue(mockResponse({ v: 2 }));  // 若仍发请求会返回 v:2
+    setCacheAdapter(localStorageAdapter());             // 重建后端 = 模拟页面刷新
+    const data = await fetchPage('/api/p3', { cache: true, cacheTTL: 10000 });
+    expect(data).toEqual({ v: 1 });                     // 命中持久化缓存
+    expect(_fetch).not.toHaveBeenCalled();
+  });
+
+  it('过期条目读取时清理并从网络重取', async () => {
+    const adapter = localStorageAdapter();
+    // 预置过期条目
+    localStorage.setItem('aiflow-cache:/api/p4', JSON.stringify({ data: { v: 1 }, expiry: Date.now() - 1000 }));
+    expect(adapter.get('/api/p4')).toBeUndefined();      // 过期读取返回 undefined
+    expect(localStorage.getItem('aiflow-cache:/api/p4')).toBeNull();  // 且已清理
+
+    setCacheAdapter(adapter);
+    _fetch.mockResolvedValue(mockResponse({ v: 2 }));
+    const data = await fetchPage('/api/p4', { cache: true, cacheTTL: 1000 });
+    expect(data).toEqual({ v: 2 });                      // 过期后从网络重取
+  });
+
+  it('Blob/Response 数据不可持久化（跳过，不影响请求）', async () => {
+    setCacheAdapter(localStorageAdapter());
+    _fetch.mockResolvedValue(new Response('x'.repeat(10), { status: 200, headers: { 'Content-Type': 'image/png' } }));
+    const data = await fetchPage('/api/p5', { cache: true, responseType: 'blob', cacheTTL: 10000 });
+    expect(data.size).toBe(10);                          // 跨 realm 用字段断言而非 instanceof
+    expect(localStorage.getItem('aiflow-cache:/api/p5')).toBeNull();
+  });
+
+  it('invalidateCache 删除持久化条目', async () => {
+    setCacheAdapter(localStorageAdapter());
+    _fetch.mockResolvedValue(mockResponse({ v: 1 }));
+    await fetchPage('/api/p6', { cache: true, cacheTTL: 10000 });
+    invalidateCache('/api/p6');
+    expect(localStorage.getItem('aiflow-cache:/api/p6')).toBeNull();
+  });
+
+  it('clearCache 清空全部持久化条目（不影响其他 key）', async () => {
+    setCacheAdapter(localStorageAdapter());
+    localStorage.setItem('unrelated', 'keep');
+    _fetch.mockImplementation(() => Promise.resolve(mockResponse({})));
+    await fetchPage('/api/p7', { cache: true, cacheTTL: 10000 });
+    await fetchPage('/api/p8', { cache: true, cacheTTL: 10000 });
+    clearCache();
+    expect(localStorage.getItem('aiflow-cache:/api/p7')).toBeNull();
+    expect(localStorage.getItem('aiflow-cache:/api/p8')).toBeNull();
+    expect(localStorage.getItem('unrelated')).toBe('keep');  // 只清前缀内条目
+  });
+
+  it('自定义 prefix', async () => {
+    setCacheAdapter(localStorageAdapter({ prefix: 'my-cache:' }));
+    _fetch.mockResolvedValue(mockResponse({ v: 1 }));
+    await fetchPage('/api/p9', { cache: true, cacheTTL: 10000 });
+    expect(localStorage.getItem('my-cache:/api/p9')).toContain('"v":1');
   });
 });

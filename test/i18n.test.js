@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { t, getLocale, setLocale, initLocale, addMessages, messages } from '../src/lib/i18n.js';
+import { t, getLocale, setLocale, initLocale, addMessages, messages, _resetLoaders } from '../src/lib/i18n.js';
 
 describe('i18n', () => {
   beforeEach(() => {
@@ -205,6 +205,67 @@ describe('i18n', () => {
     it('包含 zh-CN 和 en-US', () => {
       expect(messages['zh-CN']).toBeDefined();
       expect(messages['en-US']).toBeDefined();
+    });
+  });
+
+  describe('addMessages() 懒加载', () => {
+    beforeEach(() => {
+      _resetLoaders();
+      addMessages('zh-CN', { 'dg.cl': '关闭' });  // 还原 zh-CN，隔离前序用例对 messages 的覆盖污染
+    });
+
+    it('函数 loader 返回 Promise：加载后翻译生效', async () => {
+      const p = addMessages('ja-JP', () => Promise.resolve({ 'dg.cl': '閉じる' }));
+      expect(p).toBeInstanceOf(Promise);
+      await p;
+      setLocale('ja-JP');
+      expect(t('dg.cl')).toBe('閉じる');
+    });
+
+    it('函数 loader 同步返回字典同样生效', async () => {
+      await addMessages('ko-KR', () => ({ 'dg.cl': '닫기' }));
+      setLocale('ko-KR');
+      expect(t('dg.cl')).toBe('닫기');
+    });
+
+    it('重复调用同一 locale 的 loader 只执行一次', async () => {
+      const loader = vi.fn(() => Promise.resolve({ 'dg.cl': '閉じる' }));
+      const a = addMessages('ja-JP', loader);
+      const b = addMessages('ja-JP', loader);
+      expect(a).toBe(b);
+      await a;
+      expect(loader).toHaveBeenCalledTimes(1);
+    });
+
+    it('浅合并不影响其他 key', async () => {
+      await addMessages('fr-FR', () => Promise.resolve({ 'custom.key': 'perso' }));
+      setLocale('fr-FR');
+      expect(t('custom.key')).toBe('perso');
+      expect(t('dg.cl')).toBe('关闭');  // 未提供 key 回退 zh-CN
+    });
+
+    it('loader 加载成功后仍可用普通字典覆盖', async () => {
+      await addMessages('ja-JP', () => Promise.resolve({ 'dg.cl': '閉じる' }));
+      addMessages('ja-JP', { 'dg.cl': '閉じる（改）' });
+      setLocale('ja-JP');
+      expect(t('dg.cl')).toBe('閉じる（改）');
+    });
+
+    it('loader 失败后可重试', async () => {
+      const loader = vi.fn()
+        .mockRejectedValueOnce(new Error('load failed'))
+        .mockResolvedValueOnce({ 'dg.cl': '閉じる' });
+      await expect(addMessages('ja-JP', loader)).rejects.toThrow('load failed');
+      await addMessages('ja-JP', loader);
+      setLocale('ja-JP');
+      expect(t('dg.cl')).toBe('閉じる');
+      expect(loader).toHaveBeenCalledTimes(2);
+    });
+
+    it('加载完成前翻译回退 zh-CN 不抛错', () => {
+      addMessages('de-DE', () => new Promise(() => {}));  // 永不 resolve
+      setLocale('de-DE');
+      expect(t('dg.cl')).toBe('关闭');
     });
   });
 });

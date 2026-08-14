@@ -16,7 +16,7 @@ export class HttpError extends FetchError {
 export class AbortError extends FetchError {}
 
 const _inflight = new Map();      // url → Promise（GET 去重）
-const _cache = new Map();         // url → { data, expiry }
+let _cache = new Map();           // url → { data, expiry }（默认内存；setCacheAdapter 可换持久化后端）
 const _interceptors = { request: [], response: [], error: [] };  // 拦截器按阶段分组
 
 export async function fetchPage(url, opts = {}) {
@@ -150,6 +150,44 @@ export function invalidateCache(url) {
 
 export function clearCache() {
   _cache.clear();
+}
+
+/** 持久化缓存后端：localStorageAdapter() 创建（与 Map 同接口 get/set/delete/clear） */
+export function localStorageAdapter({ prefix = 'aiflow-cache:' } = {}) {
+  const get = (url) => {
+    try {
+      const raw = localStorage.getItem(prefix + url);
+      if (raw == null) return undefined;
+      const hit = JSON.parse(raw);
+      if (hit.expiry <= Date.now()) { localStorage.removeItem(prefix + url); return undefined; }  // 过期清理
+      return hit;
+    } catch { return undefined; }
+  };
+  const set = (url, entry) => {
+    const d = entry.data;
+    // 不可 JSON 序列化（Blob/Response/ArrayBuffer，跨 realm 用 toString tag 判定），跳过持久化
+    const tag = d && Object.prototype.toString.call(d);
+    if (tag === '[object Blob]' || tag === '[object Response]' || tag === '[object ArrayBuffer]') return;
+    try { localStorage.setItem(prefix + url, JSON.stringify(entry)); } catch { /* 容量超限等静默降级 */ }
+  };
+  const del = (url) => { localStorage.removeItem(prefix + url); };
+  const clear = () => {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix)) localStorage.removeItem(k);
+    }
+  };
+  return { get, set, delete: del, clear };
+}
+
+/** 切换缓存后端（默认内存 Map；传 localStorageAdapter() 启用持久化缓存） */
+export function setCacheAdapter(adapter) {
+  _cache = adapter;
+}
+
+// 测试用：重置缓存后端为内存 Map（不导出到 index.js）
+export function _resetCacheAdapter() {
+  _cache = new Map();
 }
 
 // 测试用：重置拦截器（不导出到 index.js）

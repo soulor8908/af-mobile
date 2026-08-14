@@ -25,3 +25,4 @@ export { AfField } from './components/af-field.js';
 export { AfPullRefresh } from './components/af-pull-refresh.js';
 export { AfSwipeCell } from './components/af-swipe-cell.js';
 export { AfRate } from './components/af-rate.js';
+export { AfNoticeBar } from './components/af-notice-bar.js';

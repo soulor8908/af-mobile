@@ -31,3 +31,4 @@ export declare const AfField: (props: P<'label' | 'icon' | 'type' | 'inputType' 
 export declare const AfPullRefresh: (props: P<'refreshing'> & E<'Refresh'> & Attrs) => ReactElement;
 export declare const AfSwipeCell: (props: P<'disabled'> & E<'Action'> & Attrs) => ReactElement;
 export declare const AfRate: (props: P<'value' | 'max' | 'readonly' | 'size' | 'label'> & E<'Change'> & Attrs) => ReactElement;
+export declare const AfNoticeBar: (props: P<'text' | 'scroll'> & Attrs) => ReactElement;

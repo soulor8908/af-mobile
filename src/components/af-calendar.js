@@ -92,7 +92,7 @@ export class AfCalendar extends AfElement {
     for (let i = 0; i < trailing; i++) cells += '<span class="blank"></span>';
 
     this.shadowRoot.innerHTML = `
-      <style>${CSS}</style>
+      ${AfElement.cssTag(CSS, 'af-calendar')}
       <div class="calendar">
         <div class="header">
           <button class="nav" data-nav="-1" type="button" aria-label="上一月">‹</button>

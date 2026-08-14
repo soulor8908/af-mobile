@@ -51,7 +51,7 @@ export class AfDialog extends withI18n(AfElement) {
 
   mounted() {
     this.shadowRoot.innerHTML = `
-      <style>${CSS}</style>
+      ${AfElement.cssTag(CSS, 'af-dialog')}
       <dialog part="dialog" role="dialog">
         <header part="header">
           <h2 class="title"><slot name="title">${esc(this.title)}</slot></h2>

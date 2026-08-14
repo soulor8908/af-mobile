@@ -66,7 +66,7 @@ export class AfPicker extends withI18n(AfElement) {
 
   mounted() {
     this.shadowRoot.innerHTML = `
-      <style>${CSS}</style>
+      ${AfElement.cssTag(CSS, 'af-picker')}
       <div class="picker" part="picker" popover="auto">
         <div class="header" part="header">
           <button class="btn-cancel" part="cancel" type="button"></button>

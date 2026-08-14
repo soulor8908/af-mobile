@@ -82,7 +82,7 @@ async function minifyGz(entry, external = []) {
 const FILE_TO_NAME = {
   'af-list.js': 'AfList', 'af-swiper.js': 'AfSwiper', 'af-tabs.js': 'AfTabs',
   'af-dialog.js': 'AfDialog', 'af-toast.js': 'AfToast', 'af-action-sheet.js': 'AfActionSheet',
-  'af-picker.js': 'AfPicker', 'af-dropdown.js': 'AfDropdown', 'af-img.js': 'AfImg',
+  'af-picker.js': 'AfPicker', 'af-cascade-picker.js': 'AfCascadePicker', 'af-dropdown.js': 'AfDropdown', 'af-img.js': 'AfImg',
   'af-backtop.js': 'AfBacktop', 'af-badge.js': 'AfBadge', 'af-calendar.js': 'AfCalendar', 'af-switch.js': 'AfSwitch', 'af-search-bar.js': 'AfSearchBar',
   'af-skeleton-page.js': 'AfSkeletonPage', 'af-upload.js': 'AfUpload',
   'af-navbar.js': 'AfNavbar', 'af-tabbar.js': 'AfTabbar', 'af-stepper.js': 'AfStepper',
@@ -149,7 +149,8 @@ async function measureCoreRuntime() {
 
 async function main() {
   // i18n.js 属于 coreRuntime（与 router/state/fetch 同级），在基类/组件/onDemand2 测量中均 external 掉
-  const external = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js'];
+  // af-cascade-picker 复用 af-picker（子类继承滚轮内核）：af-picker 单独测一次，级联组件只测增量
+  const external = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js', './af-picker.js', '../components/af-picker.js'];
 
   // 0. L1+L2 CSS（tokens+recipes+atomic 拼接后 gzip）
   const cssFiles = ['tokens.css', 'recipes.css', 'atomic.css'];

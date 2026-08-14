@@ -816,6 +816,8 @@ static _injectStylesheet(href) {
 
 **策略**：默认用 `<style>` 内联（零请求、Shadow DOM 封装）；提供 `--aiflow-css-mode: external` CSS 变量或构建时配置切换为 `<link>` 外部引用。
 
+> **已落地（2026-08-14）**：实现为基类静态 API，比上述设计更简洁——`AfElement.cssMode = 'inline' | 'external'` + `AfElement.cssBaseUrl` + `AfElement.cssTag(css, id)`。4 个 Shadow DOM 组件（picker/swiper/calendar/dialog）的 `<style>${CSS}</style>` 改为 `${AfElement.cssTag(CSS, 'af-xxx')}`，默认 inline 行为零变化；external 模式渲染 `<link rel="stylesheet" data-css-id>`（严格 CSP 下 `style-src 'self'` 放行）。构建脚本 `build.mjs` 提取组件 CSS 生成 `dist/components.css`（无动态插值，正则提取安全）。不用 CSS 变量做开关（`<style>` 内联 + CSS 变量本身即被严格 CSP 阻断，悖论）。
+
 ---
 
 ## 四、L3 组件层演进设计
@@ -960,6 +962,8 @@ connectedCallback() {
 > - **af-badge（2026-08-14）**：Light DOM，复用 L2 `.badge` 配方；`content/max/dot/color` 属性，数值超 `max` 显示 `max+`，包裹内容时 `data-corner` 角标定位（slot assignedNodes 检测）；新增宿主样式 + 白名单/prompt/types 三源同步；体积预算 total 20.5→21.0KB、css 8.0→8.2KB（用户确认）。自检：ESLint 0 错、vitest 848 用例全绿、size/whitelist/types/prompt 全过。
 > - **af-rate（2026-08-14）**：Light DOM，复用 L2 `.rate` 纯 CSS 配方（radio + row-reverse 实现只读/可选 + 键盘原生）；`value/max/readonly/size/label` 属性，radiogroup 语义，点击/键盘更新 value 并派发 `af-rate:change`；体积 total 21.0→21.3KB（用户确认）。自检：ESLint 0 错、vitest 859 用例全绿、size/whitelist/types/prompt 全过。
 > - **af-calendar（2026-08-14）**：Shadow DOM，原生 Date + Intl.DateTimeFormat（无 i18n 字典依赖）；`value/month/min/max` 属性，单日期选择 + 月份导航（跨年回退）+ min/max 禁用 + 今天高亮；`af-calendar:select` / `af-calendar:monthchange`；日高用 `--af-day-h` 自定义属性（setProperty，wc-shadow-use-token 合规），今天标记用 outline；体积 total 21.3→23.0KB（用户确认）。自检：ESLint 0 错、vitest 871 用例全绿、size/whitelist/types/prompt 全过。
+> - **af-cascade-picker（2026-08-14）**：Shadow DOM，继承 `af-picker` 滚轮内核；`tree/values` 属性，级联自动重建各列并回退失效首项；`af-picker:change` / `af-picker:confirm` 事件。修复 `AfElement.defineProp` 属性继承（子类不影子覆盖父类 observedAttributes/_propMeta）。白名单/prompt/types 三源同步。自检：ESLint 0 错、vitest 882 用例全绿、size/whitelist/types/prompt 全过（按需 2 组件 warn 为既有项）。
+> - **CSP 合规样式方案（2026-08-14）**：`AfElement.cssMode/cssBaseUrl/cssTag` 静态 API，默认 inline `<style>`（行为零变化），external 模式输出 `<link>`（strict CSP `style-src 'self'` 合规）；4 个 Shadow DOM 组件迁移；build.mjs 生成 `dist/components.css`；基类 + 组件 + 构建 + 类型 + 3 用例（默认/external/渲染）。自检：ESLint 0 错、vitest 882 用例全绿、size/whitelist/types/prompt 全过。
 
 ---
 

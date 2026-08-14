@@ -78,6 +78,20 @@ const { code: cssMin } = await transform(cssConcat, { loader: 'css', minify: tru
 writeFileSync(join(DIST, 'index.css'), cssMin);
 console.log('✓ dist/index.css (CSS inlined + minified)');
 
+// ---------- 3.5 dist/components.css（Shadow DOM 组件外部样式，CSP 外部模式使用） ----------
+// 提取 Shadow DOM 组件的 const CSS 模板字符串，拼接为单文件
+// 用法：设置 AfElement.cssMode='external' + cssBaseUrl 指向此文件
+const shadowComponents = ['af-picker', 'af-swiper', 'af-calendar', 'af-dialog'];
+let compCssConcat = '/* AIFlow UI —— dist/components.css（Shadow DOM 组件样式，CSP 外部模式使用） */\n';
+for (const name of shadowComponents) {
+  const code = readFileSync(join(SRC, 'components', `${name}.js`), 'utf8');
+  const m = code.match(/const CSS = `([\s\S]*?)`;/);
+  if (m) compCssConcat += `/* ${name} */\n${m[1]}\n`;
+}
+const { code: compCssMin } = await transform(compCssConcat, { loader: 'css', minify: true, target: ['es2020'] });
+writeFileSync(join(DIST, 'components.css'), compCssMin);
+console.log('✓ dist/components.css (Shadow component CSS, CSP external mode)');
+
 // ---------- 4. dist/index.d.ts（类型声明复制） ----------
 copyFileSync(join(SRC, 'index.d.ts'), join(DIST, 'index.d.ts'));
 console.log('✓ dist/index.d.ts (types)');

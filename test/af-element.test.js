@@ -177,6 +177,41 @@ describe('AfElement 基类', () => {
   });
 });
 
+describe('cssTag 样式注入（CSP 合规）', () => {
+  afterEach(() => {
+    AfElement.cssMode = 'inline';
+  });
+
+  it('inline 模式：返回 <style> 内联 CSS（默认，零请求）', () => {
+    expect(AfElement.cssTag(':host{display:block}', 'af-dialog'))
+      .toBe('<style>:host{display:block}</style>');
+  });
+
+  it('external 模式：返回 <link> 外部样式表（CSP strict，style-src self）', () => {
+    AfElement.cssMode = 'external';
+    AfElement.cssBaseUrl = '/assets/components.css';
+    const tag = AfElement.cssTag(':host{display:block}', 'af-dialog');
+    expect(tag).toBe('<link rel="stylesheet" href="/assets/components.css" data-css-id="af-dialog">');
+  });
+
+  it('external 模式：Shadow DOM 组件渲染出 <link> 而非 <style>', () => {
+    class ShadowCssEl extends AfElement {
+      static useShadow = true;
+      mounted() {
+        // eslint-disable-next-line aiflow/token-whitelist -- 测试夹具自定义 class
+        this.shadowRoot.innerHTML = `${AfElement.cssTag('.a{color:red}', 'test-css')}<div class="a"></div>`;
+      }
+    }
+    customElements.define('test-shadow-css-el', ShadowCssEl);
+    AfElement.cssMode = 'external';
+    const el = new ShadowCssEl();
+    document.body.appendChild(el);
+    expect(el.$('style')).toBeNull();
+    expect(el.$('link[data-css-id="test-css"]')).not.toBeNull();
+    expect(el.$('link').getAttribute('rel')).toBe('stylesheet');
+  });
+});
+
 describe('html 安全模板标签', () => {
   it('插值自动转义 HTML 特殊字符', () => {
     const evil = '<img src=x onerror=alert(1)>';

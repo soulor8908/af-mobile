@@ -98,6 +98,21 @@ export class AfElement extends HTMLElement {
     }
   }
 
+  // 样式注入模式：'inline'（默认，Shadow DOM 封装，零请求）| 'external'（CSP 合规，<link> 引用）
+  static cssMode = 'inline';
+
+  // 外部样式表 URL（仅 cssMode='external' 时生效）
+  static cssBaseUrl = 'dist/components.css';
+
+  // 组件样式标签生成器：返回 <style>（inline）或 <link>（external）HTML 字符串
+  // css：CSS 文本（inline 模式嵌入）；id：组件标识（external 模式用于 data-css-id）
+  static cssTag(css, id) {
+    if (this.cssMode === 'external') {
+      return `<link rel="stylesheet" href="${this.cssBaseUrl}" data-css-id="${id}">`;
+    }
+    return `<style>${css}</style>`;
+  }
+
   // 属性（attribute）与特性（property）双向同步
   // type: String / Number / Boolean / Array / Object
   // 必须在 customElements.define 之前调用（在类定义后、模块顶层调）
@@ -106,12 +121,13 @@ export class AfElement extends HTMLElement {
     const privateName = Symbol(name);
     const attrName = attr || name;
     const ctor = proto.constructor;
-    // 用 hasOwnProperty 检查，避免继承父类的静态属性
-    if (!ctor.hasOwnProperty('observedAttributes')) ctor.observedAttributes = [];
+    // 子类定义属性时继承父类已声明的 observedAttributes/_propMeta（复制避免影子覆盖，
+    // 否则父类属性在子类实例上不再触发 attributeChangedCallback）
+    if (!ctor.hasOwnProperty('observedAttributes')) ctor.observedAttributes = ctor.observedAttributes ? [...ctor.observedAttributes] : [];
     if (!ctor.observedAttributes.includes(attrName)) {
       ctor.observedAttributes.push(attrName);
     }
-    if (!ctor.hasOwnProperty('_propMeta')) ctor._propMeta = {};
+    if (!ctor.hasOwnProperty('_propMeta')) ctor._propMeta = ctor._propMeta ? { ...ctor._propMeta } : {};
     ctor._propMeta[attrName] = { symbol: privateName, parse: null };
 
     const parse = (val) => {

@@ -58,6 +58,12 @@ export function html(strings: TemplateStringsArray, ...values: Array<unknown | T
 export class AfElement extends HTMLElement {
   static useShadow?: boolean;
   static observedAttributes?: string[];
+  /** 样式注入模式：'inline'（默认，零请求）| 'external'（CSP 合规，<link> 引用） */
+  static cssMode?: 'inline' | 'external';
+  /** 外部样式表 URL（仅 cssMode='external' 时生效） */
+  static cssBaseUrl?: string;
+  /** 生成组件样式标签：inline 返回 <style>，external 返回 <link> */
+  static cssTag(css: string, id: string): string;
   /** 统一查询根：Shadow 组件返回 shadowRoot，Light 组件返回 this */
   readonly $root: ShadowRoot | HTMLElement;
   /** 在 $root 内查询首个匹配元素 */
@@ -343,6 +349,20 @@ export class AfPicker extends AfElement {
   addEventListener(type: 'af-picker:change', listener: (e: CustomEvent<PickerChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: 'af-picker:confirm', listener: (e: CustomEvent<PickerConfirmDetail>) => void, options?: boolean | AddEventListenerOptions): void;
   addEventListener(type: 'af-picker:cancel', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
+// af-cascade-picker（v1.3.0 · 级联选择器，复用 af-picker 滚轮内核）
+// ============================================================
+
+export interface CascadeNode extends PickerItem {
+  /** 子级节点（叶节点缺省） */
+  children?: CascadeNode[];
+}
+
+export class AfCascadePicker extends AfPicker {
+  /** 树形级联数据 */
+  tree: CascadeNode[];
 }
 
 // ============================================================

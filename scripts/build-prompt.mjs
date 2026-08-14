@@ -147,6 +147,7 @@ const COMPONENT_META = [
   { tag: 'af-toast', purpose: '轻提示（单例）', props: 'duration', events: 'af-toast:dismiss' },
   { tag: 'af-action-sheet', purpose: '底部操作面板', props: 'options, title, show-cancel', events: 'af-action-sheet:select, af-action-sheet:close' },
   { tag: 'af-picker', purpose: '滚轮选择器', props: 'columns, values, title', events: 'af-picker:change, af-picker:confirm' },
+  { tag: 'af-cascade-picker', purpose: '级联选择器', props: 'tree, values, title', events: 'af-picker:change, af-picker:confirm' },
   { tag: 'af-dropdown', purpose: '下拉菜单', props: 'options, value, placeholder', events: 'af-dropdown:select' },
   { tag: 'af-img', purpose: '懒加载图片', props: 'src, alt, placeholder-src, fail-src, variant', events: 'af-img:load, af-img:error' },
   { tag: 'af-backtop', purpose: '回到顶部', props: 'threshold, target, position', events: 'af-backtop:click, af-backtop:show, af-backtop:hide' },

@@ -53,7 +53,7 @@ export class AfSwiper extends withI18n(AfElement) {
 
   mounted() {
     this.shadowRoot.innerHTML = `
-      <style>${CSS}</style>
+      ${AfElement.cssTag(CSS, 'af-swiper')}
       <div class="viewport" part="viewport">
         <div class="track" part="track"><slot></slot></div>
       </div>

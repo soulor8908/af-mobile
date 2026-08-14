@@ -82,13 +82,15 @@ export class AfDialog extends withI18n(AfElement) {
     this._onKeydown = (e) => this._trapKeydown(e);
     this._dialog.addEventListener('keydown', this._onKeydown);
 
-    // 初始 open 状态
-    if (this.hasAttribute('open')) {
-      this._rafId = requestAnimationFrame(() => this.open());
+    // 初始 open 状态（属性名与方法名冲突，这里读布尔属性而非 hasAttribute）
+    if (this.open) {
+      this._rafId = requestAnimationFrame(() => this.show());
     }
   }
 
-  open() {
+  // 注意：方法名用 show()（对齐原生 <dialog>.showModal），因为 open 已定义为布尔属性，
+  // JS 中同名属性与方法不可共存，上一轮 defineProp(open) 曾覆盖此方法导致回归
+  show() {
     if (!this._dialog || this._dialog.open) return;
     this._previouslyFocused = document.activeElement;
     this._dialog.showModal();
@@ -152,7 +154,7 @@ export class AfDialog extends withI18n(AfElement) {
       // 用户显式 aria-label 变化时重新应用 i18n（skipIf 控制：有 aria-label 时跳过）
       this._applyI18n();
     } else if (name === 'open') {
-      if (newVal != null && !this._dialog.open) this.open();
+      if (newVal != null && !this._dialog.open) this.show();
       else if (newVal == null && this._dialog.open) this.close('external');
     }
   }
@@ -170,6 +172,8 @@ export class AfDialog extends withI18n(AfElement) {
 }
 
 // 属性定义（必须在 customElements.define 之前）
+// open：布尔属性（true→setAttribute / false→removeAttribute），attribute 变化驱动 onAttributeChange 开合
+AfElement.defineProp(AfDialog.prototype, 'open', { type: Boolean, default: false });
 AfElement.defineProp(AfDialog.prototype, 'title', { type: String, default: '' });
 AfElement.defineProp(AfDialog.prototype, 'closeOnEsc', { attr: 'close-on-esc', type: Boolean, default: true });
 AfElement.defineProp(AfDialog.prototype, 'closeOnBackdrop', { attr: 'close-on-backdrop', type: Boolean, default: true });

@@ -50,6 +50,8 @@ const SRC = join(ROOT, 'src');
 //   total 21.0→21.3KB：新增 af-rate 组件（22 组件 + 基类，复用 L2 .rate 纯 CSS 配方，JS 仅 0.72KB gzip）
 // v3.3 调整（Phase 3 组件补齐，用户已确认）：
 //   total 21.3→23.0KB：新增 af-calendar（Shadow DOM 日历，1.73KB gzip）+ 预留 af-cascade-picker 余量
+// v3.4 调整（Phase 3 组件补齐）：
+//   total 23.0 预算不变：新增 af-notice-bar（复用 L2 .notice 纯 CSS 配方，JS 仅 0.32KB gzip，优化实现压回 22.994KB ≤ 23KB）
 const BUDGET = {
   css: 8.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
@@ -88,6 +90,7 @@ const FILE_TO_NAME = {
   'af-navbar.js': 'AfNavbar', 'af-tabbar.js': 'AfTabbar', 'af-stepper.js': 'AfStepper',
   'af-field.js': 'AfField', 'af-pull-refresh.js': 'AfPullRefresh', 'af-swipe-cell.js': 'AfSwipeCell',
   'af-rate.js': 'AfRate',
+  'af-notice-bar.js': 'AfNoticeBar',
 };
 // 类名 → 文件名
 const NAME_TO_FILE = Object.fromEntries(

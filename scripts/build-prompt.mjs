@@ -164,6 +164,7 @@ const COMPONENT_META = [
   { tag: 'af-pull-refresh', purpose: '下拉刷新容器', props: 'refreshing', events: 'af-pull-refresh:refresh' },
   { tag: 'af-swipe-cell', purpose: '滑动单元格', props: 'disabled', events: 'af-swipe-cell:action' },
   { tag: 'af-rate', purpose: '评分', props: 'value, max, readonly, size', events: 'af-rate:change' },
+  { tag: 'af-notice-bar', purpose: '公告通知栏', props: 'text, scroll', events: '—' },
 ];
 
 // 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）

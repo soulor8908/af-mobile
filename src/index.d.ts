@@ -811,13 +811,25 @@ export class AfRate extends AfElement {
 }
 
 // ============================================================
+// af-notice-bar（v1.3.0 · 公告通知栏）
+// ============================================================
+
+export class AfNoticeBar extends AfElement {
+  static useShadow: false;
+  /** 公告文本 */
+  text: string;
+  /** 横向滚动模式（marquee）而非 ellipsis 截断 */
+  scroll: boolean;
+}
+
+// ============================================================
 // 注册接口
 // ============================================================
 
 /** 按需注册单个组件（传入标签名） */
 export function register(name: string): void;
 
-/** 全量注册 20 个组件 */
+/** 全量注册 25 个组件 */
 export function registerAll(): void;
 
 // ============================================================

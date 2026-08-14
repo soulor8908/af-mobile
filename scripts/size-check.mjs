@@ -218,7 +218,7 @@ async function main() {
   // 全量
   console.log('');
   const totalOver = totalGz > BUDGET.total * KB;
-  console.log(`全量（20 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
+  console.log(`全量（25 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
   if (totalOver) violations.push(`全量 ${fmt(totalGz)} > ${BUDGET.total}KB`);
 
   // 按需 2

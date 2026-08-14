@@ -31,7 +31,7 @@
 - **验收标准**：`npm ci` 在全新环境成功执行
 - **依赖**：无
 
-### IP-3 af-tabs 面板渲染优化（P2-4）
+### IP-3 af-tabs 面板渲染优化（P2-4）✅ 已完成
 
 - **优先级**：低
 - **所属层级**：L3 组件
@@ -41,6 +41,7 @@
   - 或在文档明确"面板内不要持有点击回调引用，应通过事件委托"
 - **验收标准**：面板内按钮的 click 监听在 tabs 渲染后仍可触发
 - **依赖**：无
+- **状态**：✅ 已采用"原地加 ARIA，不搬运节点"方案（`_buildShell` 保留 slotted 面板，`_renderPanels` slot 模式仅加 ARIA 不 move）。测试 `af-tabs.test.js` 已断言"面板仍在 el 直接子节点中（未被搬到 container）"且"面板内按钮 click 监听仍可触发"
 
 ---
 
@@ -99,7 +100,7 @@
 
 ## v1.3.0 — SSR 与可观测性
 
-### IP-8 SSR / hydration 指引（P2-6）
+### IP-8 SSR / hydration 指引（P2-6）✅ 已完成
 
 - **优先级**：中
 - **所属层级**：文档
@@ -111,6 +112,7 @@
   - 标注各组件 SSR 兼容性矩阵
 - **验收标准**：文档覆盖主流 SSR 框架（Next.js / Nuxt / Remix）
 - **依赖**：无
+- **状态**：✅ README §"SSR / Hydration 使用指南"已含核心问题表、客户端条件注册、SSR 预渲染示例（Next.js/Nuxt/Remix）、20 组件 SSR 兼容性矩阵
 
 ### IP-9 官方 demo 站 / Storybook（P2-7）
 
@@ -124,7 +126,7 @@
 - **验收标准**：10 组件均有可交互 demo
 - **依赖**：无
 
-### IP-10 slotchange 监听补齐（P2-5 剩余项）
+### IP-10 slotchange 监听补齐（P2-5 剩余项）✅ 已完成
 
 - **优先级**：低（af-swiper 已完成）
 - **所属层级**：L3 组件
@@ -134,6 +136,7 @@
   - af-picker：监听 slotchange（若需 slot 模式）
 - **验收标准**：动态增删 tab 后 ARIA + 面板同步更新
 - **依赖**：无
+- **状态**：✅ af-tabs 已用 `MutationObserver`（childList）监听 slotted 面板增删，动态重建 ARIA + 显隐（Light DOM 无 `<slot>` 元素故用 MO 而非 slotchange）；测试 `af-tabs.test.js` §"slotchange 监听（IP-10）"已覆盖。af-picker 为 `columns` 属性数组驱动（无 slot 模式），无需 slotchange
 
 ---
 

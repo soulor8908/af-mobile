@@ -112,7 +112,7 @@
 09. 禁止 `.list-item`/`.list-item-compact` 自带 border-top（分隔线由 `.list` 容器管理）
 10. 禁止 `.sheet` 手动 display 切换（显隐必须走原生 popover API `showPopover`/`hidePopover`）
 11. 禁止 `.tab-item` 用 `active` class 表达选中态（选中态单一真相源是 `aria-selected="true"`，视觉由属性选择器 `.tab-item[aria-selected="true"]` 驱动）
-12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img/af-switch/af-search-bar/af-skeleton-page/af-upload）内含 `<style>` 或 `this.style.xxx`（纯 L2 配方，自定义样式请用 Shadow 组件或 `recipes.project.css`）
+12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img/af-switch/af-search-bar/af-skeleton-page/af-navbar/af-tabbar/af-stepper/af-field/af-upload/af-pull-refresh/af-swipe-cell/af-badge/af-rate/af-notice-bar，共 20 个）内含 `<style>` 或 `this.style.xxx`（纯 L2 配方，自定义样式请用 Shadow 组件或 `recipes.project.css`）
 13. 禁止 Shadow 组件 CSS 字符串硬编码颜色/间距/字号/圆角（`dialog::backdrop` 遮罩 `rgba(0,0,0,.5)` 例外）
 14. 禁止事件名不符合 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`（Shadow 事件穿透）
 15. 禁止 af-dialog/af-action-sheet 无焦点陷阱（Tab 不逃出；关闭时还原焦点到触发元素）

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-stepper demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-stepper 步进器</h1>
+    </header>
+
+    <div class="card">
+      <div class="cell"><span class="body">数量</span><af-stepper id="s1" value="1" min="0" max="99"></af-stepper></div>
+      <div class="cell"><span class="body">步长 5</span><af-stepper value="10" min="0" max="100" step="5"></af-stepper></div>
+      <div class="cell"><span class="body">禁用</span><af-stepper value="3" disabled></af-stepper></div>
+    </div>
+
+    <p class="caption" id="log">±按钮 / 直接输入 · 边界自动禁用</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfStepper } from '../../src/components/af-stepper.js';
+    customElements.define('af-stepper', AfStepper);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const s1 = document.getElementById('s1');
+    s1.addEventListener('af-stepper:change', (e) => {
+      document.getElementById('log').textContent = `值 ${e.detail.value}`;
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'value', label: '值', type: 'number', min: 0, max: 99, step: 1 },
+      { prop: 'min', label: '最小', type: 'number', min: 0, max: 99, step: 1 },
+      { prop: 'max', label: '最大', type: 'number', min: 1, max: 999, step: 1 },
+      { prop: 'step', label: '步长', type: 'number', min: 1, max: 10, step: 1 },
+      { prop: 'disabled', label: '禁用', type: 'boolean' },
+    ], s1);
+  </script>
+</body>
+</html>

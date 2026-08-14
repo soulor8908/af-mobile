@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-field demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-field 表单字段</h1>
+    </header>
+
+    <div class="card">
+      <af-field id="f1" label="用户名" placeholder="请输入用户名" help="3-20 位字符"></af-field>
+      <af-field id="f2" label="密码" input-type="password" placeholder="请输入密码"></af-field>
+      <af-field id="f3" label="备注" type="textarea" placeholder="选填"></af-field>
+      <af-field id="f4" label="禁用" value="不可编辑" disabled></af-field>
+      <af-field id="f5" label="错误态" value="abc" error="格式不正确"></af-field>
+    </div>
+
+    <p class="caption" id="log">输入触发 af-field:input / af-field:change</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfField } from '../../src/components/af-field.js';
+    customElements.define('af-field', AfField);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const f1 = document.getElementById('f1');
+    f1.addEventListener('af-field:input', (e) => {
+      document.getElementById('log').textContent = `input: ${e.detail.value}`;
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'label', label: '标签', type: 'text' },
+      { prop: 'placeholder', label: '占位', type: 'text' },
+      { prop: 'help', label: '帮助', type: 'text' },
+      { prop: 'error', label: '错误', type: 'text' },
+      { prop: 'disabled', label: '禁用', type: 'boolean' },
+      { prop: 'readonly', label: '只读', type: 'boolean' },
+    ], f1);
+  </script>
+</body>
+</html>

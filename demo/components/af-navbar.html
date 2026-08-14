@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-navbar demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <af-navbar id="nb" title="商品详情" show-back back-text="返回">
+      <button slot="right" class="btn btn-ghost btn-sm">分享</button>
+    </af-navbar>
+
+    <div class="card">
+      <p class="body">导航栏 sticky 定位 · 顶部 safe-area 适配</p>
+    </div>
+
+    <p class="caption" id="log">点击返回按钮触发 af-navbar:back</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfNavbar } from '../../src/components/af-navbar.js';
+    customElements.define('af-navbar', AfNavbar);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const nb = document.getElementById('nb');
+    nb.addEventListener('af-navbar:back', () => {
+      document.getElementById('log').textContent = 'back 事件触发';
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'title', label: '标题', type: 'text' },
+      { prop: 'showBack', label: '显示返回', type: 'boolean' },
+      { prop: 'backText', label: '返回文字', type: 'text' },
+    ], nb);
+  </script>
+</body>
+</html>

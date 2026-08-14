@@ -131,7 +131,7 @@
   - 与 eval 飞轮的 prompts.jsonl 互为补充
 - **验收标准**：10 组件均有可交互 demo
 - **依赖**：无
-- **状态**：⚠️ 采用自建 demo 站（`demo/` 目录 + Vite dev server，`npm run demo`）。已有 15 个组件 demo 页（含 props 可调面板），超过原"10 组件"验收标准；仍缺 badge/calendar/cascade-picker/field/navbar/pull-refresh/rate/stepper/swipe-cell/tabbar 共 10 个组件的 demo 页
+- **状态**：✅ 采用自建 demo 站（`demo/` 目录 + Vite dev server，`npm run demo`）。已有 25 个组件 demo 页（含 props 可调面板），全部组件覆盖；`npm run demo:build` 构建通过
 
 ### IP-10 slotchange 监听补齐（P2-5 剩余项）✅ 已完成
 

@@ -1,0 +1,19 @@
+{
+  "name": "@aiflow-ui/mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "AIFlow UI MCP Server — generate_page / fix_code / check_compliance",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "bin": {
+    "aiflow-ui-mcp": "./index.mjs"
+  },
+  "files": [
+    "index.mjs"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "*"
+  },
+  "license": "MIT"
+}

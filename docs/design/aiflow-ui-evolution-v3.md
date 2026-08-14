@@ -933,6 +933,14 @@ connectedCallback() {
 > - Prompt 即 API：`@aiflow-ui/prompt`（`prompt/index.mjs` + `package.json` 薄包壳，re-export `buildPrompt` 等），`theme` 注入项目 Token 段；
 > - Cursor Rules：`.cursor/rules/{l4-consumer,l3-library}.mdc`；
 > - 自检：ESLint（含 eval/ prompt/）0 错、vitest 829 用例全绿、prompt:check / whitelist / types 三源同步。
+>
+> **2C 完成状态（2026-08-13）**：MCP Server + 生态验证基础设施落地。
+> - MCP Server：`@aiflow-ui/mcp`（`mcp/index.mjs` + `package.json`），stdio 传输，3 工具：
+>   - `check_compliance(code)` — 跑 ESLint 检查合规性，返回 error/warning 列表（纯本地，无 LLM）
+>   - `fix_code(code)` — ESLint 修正闭环，手动模式返回 fixPrompt + errors，自动模式调 LLM 修正
+>   - `generate_page(prompt, promptMode)` — 端到端页面生成，手动模式返回 systemPrompt，自动模式返回完整代码
+> - 生态验证：eval `--prompt full|tailored` A/B 对比 pass@k 基础设施就绪（dry-run 验证通过）；MCP stdio 协议完整验证（initialize → tools/list → tools/call）
+> - 自检：ESLint（含 mcp/）0 错、vitest 836 用例全绿（+7 MCP 测试）、prompt:check / whitelist / types 三源同步。
 
 ### Phase 3：生态扩展（v2.2.0+，持续）
 

@@ -50,6 +50,7 @@
     "prompt:build": "node scripts/build-prompt.mjs -o prompt/system-prompt.md",
     "ai-fix": "node scripts/ai-fix.mjs",
     "generate": "node scripts/generate.mjs",
+    "mcp": "node mcp/index.mjs",
     "eval": "node eval/run.mjs",
     "eval:dry": "node eval/run.mjs --dry-run",
     "eval:flywheel": "node eval/flywheel.mjs",
@@ -71,6 +72,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "@playwright/test": "^1.62.1",
     "@vitest/coverage-v8": "^1.6.0",
     "esbuild": "^0.28.2",

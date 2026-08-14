@@ -39,7 +39,7 @@ export function extractCode(filePath) {
 
 // === 2. 跑 ESLint ===
 // 临时文件必须放在 ROOT 下，让 ESLint flat config 能被找到（ESLint 从被 lint 的文件往上搜 config）
-async function runEslint(code) {
+export async function runEslint(code) {
   if (!code || !code.trim()) return { messages: [] };
   const { ESLint } = await import('eslint');
   const engine = new ESLint({ cwd: ROOT });

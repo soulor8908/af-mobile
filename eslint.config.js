@@ -44,13 +44,13 @@ export default [
   },
   // AI 生成的代码 / 测试文件 / 脚本 / prompt 构建 / ai-fix 临时文件：启用完整 AI 规则集
   {
-    files: ['**/*.test.js', 'test/**/*.js', 'scripts/**/*.js', 'prompt/**/*.js', '.cache/**/*.js'],
+    files: ['**/*.test.js', 'test/**/*.js', 'scripts/**/*.js', 'prompt/**/*.js', 'mcp/**/*.js', '.cache/**/*.js'],
     plugins: { aiflow },
     rules: { ...AI_RULES },
   },
-  // ESLint 规则测试夹具 + ai-fix 循环测试：含故意违规用例以验证规则/修复本身，关闭 AI 约束
+  // ESLint 规则测试夹具 + ai-fix 循环测试 + MCP 工具测试：含故意违规用例以验证规则/修复本身，关闭 AI 约束
   {
-    files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js'],
+    files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js', 'test/mcp.test.js'],
     plugins: { aiflow },
     rules: {
       'aiflow/token-whitelist': 'off',

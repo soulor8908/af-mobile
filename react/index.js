@@ -26,3 +26,6 @@ export { AfPullRefresh } from './components/af-pull-refresh.js';
 export { AfSwipeCell } from './components/af-swipe-cell.js';
 export { AfRate } from './components/af-rate.js';
 export { AfNoticeBar } from './components/af-notice-bar.js';
+export { AfProgress } from './components/af-progress.js';
+export { AfSteps } from './components/af-steps.js';
+export { AfCountdown } from './components/af-countdown.js';

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-steps demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-steps 步骤条</h1>
+    </header>
+
+    <div class="card">
+      <af-steps id="s1" current="2"></af-steps>
+    </div>
+
+    <p class="caption">点击按钮切换当前步骤</p>
+    <div class="card f gap-2">
+      <button class="btn btn-ghost" id="prevBtn">上一步</button>
+      <button class="btn btn-ghost" id="nextBtn">下一步</button>
+    </div>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfSteps } from '../../src/components/af-steps.js';
+    customElements.define('af-steps', AfSteps);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const s1 = document.getElementById('s1');
+    s1.steps = ['下单', '支付', '发货', '收货'];
+    document.getElementById('prevBtn').addEventListener('click', () => s1.current = Math.max(0, s1.current - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => s1.current = Math.min(s1.steps.length - 1, s1.current + 1));
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'current', label: '当前步', type: 'number', min: 0, max: 3, step: 1 },
+    ], s1);
+  </script>
+</body>
+</html>

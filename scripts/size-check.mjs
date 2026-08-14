@@ -52,11 +52,13 @@ const SRC = join(ROOT, 'src');
 //   total 21.3→23.0KB：新增 af-calendar（Shadow DOM 日历，1.73KB gzip）+ 预留 af-cascade-picker 余量
 // v3.4 调整（Phase 3 组件补齐）：
 //   total 23.0 预算不变：新增 af-notice-bar（复用 L2 .notice 纯 CSS 配方，JS 仅 0.32KB gzip，优化实现压回 22.994KB ≤ 23KB）
+// v3.5 调整（IP-7 组件补齐，用户已确认）：
+//   total 23.0→23.6KB：新增 af-progress/af-steps（复用 L2 纯 CSS 配方）+ af-countdown，全量实测 23.519KB
 const BUDGET = {
   css: 8.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 1.5,           // KB，AfElement 基类（+_applyI18n + localechange 订阅）
-  total: 23.0,         // KB，23 组件 + 基类（含 i18n 增量）
+  total: 23.6,         // KB，28 组件 + 基类（含 i18n 增量）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 5.4,    // KB，router(2.0)+state(0.9)+fetch(0.8)+i18n(1.1)+容差(0.6)，独立预算不计入 total（v3.0 state.js +Owner pattern）
 };
@@ -91,6 +93,9 @@ const FILE_TO_NAME = {
   'af-field.js': 'AfField', 'af-pull-refresh.js': 'AfPullRefresh', 'af-swipe-cell.js': 'AfSwipeCell',
   'af-rate.js': 'AfRate',
   'af-notice-bar.js': 'AfNoticeBar',
+  'af-progress.js': 'AfProgress',
+  'af-steps.js': 'AfSteps',
+  'af-countdown.js': 'AfCountdown',
 };
 // 类名 → 文件名
 const NAME_TO_FILE = Object.fromEntries(
@@ -218,7 +223,7 @@ async function main() {
   // 全量
   console.log('');
   const totalOver = totalGz > BUDGET.total * KB;
-  console.log(`全量（25 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
+  console.log(`全量（28 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
   if (totalOver) violations.push(`全量 ${fmt(totalGz)} > ${BUDGET.total}KB`);
 
   // 按需 2

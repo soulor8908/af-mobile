@@ -32,3 +32,6 @@ export declare const AfPullRefresh: (props: P<'refreshing'> & E<'Refresh'> & Att
 export declare const AfSwipeCell: (props: P<'disabled'> & E<'Action'> & Attrs) => ReactElement;
 export declare const AfRate: (props: P<'value' | 'max' | 'readonly' | 'size' | 'label'> & E<'Change'> & Attrs) => ReactElement;
 export declare const AfNoticeBar: (props: P<'text' | 'scroll'> & Attrs) => ReactElement;
+export declare const AfProgress: (props: P<'value' | 'max' | 'color'> & Attrs) => ReactElement;
+export declare const AfSteps: (props: P<'steps' | 'current'> & Attrs) => ReactElement;
+export declare const AfCountdown: (props: P<'time' | 'autostart'> & E<'Change' | 'End'> & Attrs) => ReactElement;

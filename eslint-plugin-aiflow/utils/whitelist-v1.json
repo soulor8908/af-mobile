@@ -186,7 +186,10 @@
     "af-tabbar",
     "af-tabs",
     "af-toast",
-    "af-upload"
+    "af-upload",
+    "af-progress",
+    "af-steps",
+    "af-countdown"
   ],
   "tokens": [
     "--c-bg",

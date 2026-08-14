@@ -165,6 +165,9 @@ const COMPONENT_META = [
   { tag: 'af-swipe-cell', purpose: '滑动单元格', props: 'disabled', events: 'af-swipe-cell:action' },
   { tag: 'af-rate', purpose: '评分', props: 'value, max, readonly, size', events: 'af-rate:change' },
   { tag: 'af-notice-bar', purpose: '公告通知栏', props: 'text, scroll', events: '—' },
+  { tag: 'af-progress', purpose: '进度条', props: 'value, max, color', events: '—' },
+  { tag: 'af-steps', purpose: '步骤条', props: 'steps, current', events: '—' },
+  { tag: 'af-countdown', purpose: '倒计时', props: 'time, autostart', events: 'af-countdown:change, af-countdown:end' },
 ];
 
 // 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）

@@ -64,6 +64,12 @@ export class AfElement extends HTMLElement {
   static cssBaseUrl?: string;
   /** 生成组件样式标签：inline 返回 <style>，external 返回 <link> */
   static cssTag(css: string, id: string): string;
+  /** 生成 DSD 声明式模板（<template shadowrootmode>），供 SSR/SSG 置于组件标签内；非 Shadow 或未实现 shadowHTML 时返回空串 */
+  dsdTemplate(): string;
+  /** 检测 shadow root 是否由 DSD 预填充（有子元素） */
+  _dsdPrepopulated(): boolean;
+  /** Shadow DOM 组件完整 shadow 模板（DSD 声明式封装 + mounted 动态渲染共用） */
+  protected shadowHTML?(): string;
   /** 统一查询根：Shadow 组件返回 shadowRoot，Light 组件返回 this */
   readonly $root: ShadowRoot | HTMLElement;
   /** 在 $root 内查询首个匹配元素 */

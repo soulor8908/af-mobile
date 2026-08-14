@@ -355,3 +355,60 @@ describe('withI18n _applyI18n', () => {
     expect(true).toBe(true);
   });
 });
+
+describe('DSD 声明式 Shadow DOM 支持', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  class DsdShadowEl extends AfElement {
+    static useShadow = true;
+    shadowHTML() {
+      // eslint-disable-next-line aiflow/token-whitelist -- DSD 测试夹具自定义 class
+      return '<style>.x{}</style><div class="inner"></div>';
+    }
+  }
+  customElements.define('dsd-shadow-el', DsdShadowEl);
+
+  it('非 DSD：connectedCallback 时 _ensureShadow 兜底创建 shadow root（构造函数不预创建）', () => {
+    const el = new DsdShadowEl();
+    expect(el.shadowRoot).toBeNull(); // 构造函数不 attachShadow，让位给 DSD 解析
+    document.body.appendChild(el);
+    expect(el.shadowRoot).not.toBeNull();
+    expect(el._dsdPrepopulated()).toBe(false);
+  });
+
+  it('_dsdPrepopulated：shadow root 已有子元素视为 DSD 预填充', () => {
+    const el = new DsdShadowEl();
+    el.attachShadow({ mode: 'open' }); // 模拟 DSD 解析阶段已挂载
+    el.shadowRoot.innerHTML = '<div></div>';
+    expect(el._dsdPrepopulated()).toBe(true);
+  });
+
+  it('Light DOM 组件 _dsdPrepopulated 恒为 false', () => {
+    const el = new TestEl();
+    expect(el._dsdPrepopulated()).toBe(false);
+  });
+
+  it('dsdTemplate：Shadow 组件返回 <template shadowrootmode> 包裹 shadowHTML', () => {
+    const el = new DsdShadowEl();
+    // eslint-disable-next-line aiflow/token-whitelist -- 断言夹具 shadowHTML 字符串
+    expect(el.dsdTemplate()).toBe('<template shadowrootmode="open"><style>.x{}</style><div class="inner"></div></template>');
+  });
+
+  it('dsdTemplate：Light 组件或无 shadowHTML 返回空串', () => {
+    const el = new TestEl();
+    expect(el.dsdTemplate()).toBe('');
+    const noHtml = new ShadowNoHtmlEl();
+    expect(noHtml.dsdTemplate()).toBe('');
+  });
+});
+
+// DSD 兜底用例：无 shadowHTML 的 Shadow 组件
+class ShadowNoHtmlEl extends AfElement {
+  static useShadow = true;
+  mounted() {
+    this.shadowRoot.innerHTML = '<div></div>';
+  }
+}
+customElements.define('shadow-no-html-el', ShadowNoHtmlEl);

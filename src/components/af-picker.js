@@ -64,21 +64,14 @@ export class AfPicker extends withI18n(AfElement) {
     this._previouslyFocused = null;
   }
 
+  // 完整 shadow 模板（DSD 声明式封装 + mounted 动态渲染共用同一结构）
+  shadowHTML() {
+    return `${AfElement.cssTag(CSS, 'af-picker')}<div class="picker" part="picker" popover="auto"><div class="header" part="header"><button class="btn-cancel" part="cancel" type="button"></button><div class="title"></div><button class="btn-confirm" part="confirm" type="button"></button></div><div class="columns" part="columns"><div class="mask"></div><div class="indicator"></div></div></div>`;
+  }
+
   mounted() {
-    this.shadowRoot.innerHTML = `
-      ${AfElement.cssTag(CSS, 'af-picker')}
-      <div class="picker" part="picker" popover="auto">
-        <div class="header" part="header">
-          <button class="btn-cancel" part="cancel" type="button"></button>
-          <div class="title"></div>
-          <button class="btn-confirm" part="confirm" type="button"></button>
-        </div>
-        <div class="columns" part="columns">
-          <div class="mask"></div>
-          <div class="indicator"></div>
-        </div>
-      </div>
-    `;
+    // DSD 已在解析阶段挂载 shadow root 时不再覆盖，仅接管事件（hydrate）
+    this.shadowRoot.innerHTML ||= this.shadowHTML();
     this._picker = this.$('.picker');
     this._columnsEl = this.$('.columns');
 

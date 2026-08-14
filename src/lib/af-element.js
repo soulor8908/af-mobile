@@ -24,7 +24,9 @@ export function html(strings, ...values) {
 export class AfElement extends HTMLElement {
   constructor() {
     super();
-    if (this.constructor.useShadow) this.attachShadow({ mode: 'open' });
+    // 不在构造阶段 attachShadow：DSD `<template shadowrootmode>` 在解析阶段挂载 shadow root，
+    // 若构造函数已 attachShadow（shadow root 已存在），声明式模板会被浏览器忽略。
+    // shadow root 由 _ensureShadow() 在 connectedCallback 前兜底创建。
   }
 
   // 统一查询根：Shadow 组件返回 shadowRoot，Light 组件返回 this
@@ -40,11 +42,22 @@ export class AfElement extends HTMLElement {
     return [...this.$root.querySelectorAll(selector)];
   }
 
+  // 确保 shadow root 存在：DSD 在解析阶段已挂载（浏览器自动），非 DSD 场景由本方法兜底创建
+  _ensureShadow() {
+    if (this.constructor.useShadow && !this.shadowRoot) this.attachShadow({ mode: 'open' });
+  }
+
+  // 检测是否由 DSD 预填充：shadow root 存在且已有子元素（非 DSD 创建的 shadow root 为空）
+  _dsdPrepopulated() {
+    return this.constructor.useShadow && this.shadowRoot && this.shadowRoot.children.length > 0;
+  }
+
   connectedCallback() {
     // 断开再连（SPA 条件渲染 / appendChild 重父化）需重新挂载：unmounted 已清理监听，
     // 若不重跑 mounted，组件会变「死」的（DOM 在但无交互）。复位 _mounted 让 mount 重新执行。
     if (this._mounted) return;
     this._mounted = true;
+    this._ensureShadow();
     if (this.onThemeChange) {
       this._themeHandler = (e) => this.onThemeChange(e.detail);
       document.documentElement.addEventListener('themechange', this._themeHandler);
@@ -111,6 +124,13 @@ export class AfElement extends HTMLElement {
       return `<link rel="stylesheet" href="${this.cssBaseUrl}" data-css-id="${id}">`;
     }
     return `<style>${css}</style>`;
+  }
+
+  // 生成 DSD 声明式模板：SSR/SSG 阶段把返回串置于组件标签内，浏览器解析时自动挂载 shadow root
+  // 用法：`<af-dialog title="Hi">${el.dsdTemplate()}</af-dialog>`；无 JS 时结构/样式即刻可见
+  dsdTemplate() {
+    if (!this.constructor.useShadow || typeof this.shadowHTML !== 'function') return '';
+    return `<template shadowrootmode="open">${this.shadowHTML()}</template>`;
   }
 
   // 属性（attribute）与特性（property）双向同步

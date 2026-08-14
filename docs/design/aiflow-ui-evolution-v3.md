@@ -967,6 +967,7 @@ connectedCallback() {
 > - **i18n 懒加载（2026-08-14）**：`addMessages(locale, () => import(...))` 支持函数式懒加载语言包（动态 import 或同步返回均可）；同 locale 去重常驻缓存、失败移出表可重试、加载完成前 `t()` 回退 zh-CN 不崩；`_resetLoaders()` 测试钩子。自检：ESLint 0 错、vitest 897 用例全绿、size/whitelist/types/prompt 全过。
 > - **fetch 持久化缓存（2026-08-14）**：`setCacheAdapter(adapter)` + `localStorageAdapter({ prefix })`，缓存后端与 Map 同构可替换（默认仍内存 Map）；过期条目读取时自动清理；Blob/Response/ArrayBuffer 跨 realm 判定跳过持久化，容量超限静默降级；coreRuntime 实测 4.805KB ≤ 5.4KB 预算不变。自检：ESLint 0 错、vitest 897 用例全绿、size/whitelist/types/prompt 全过。
 > - **router 路由懒加载 + meta（2026-08-14）**：`route('/heavy', () => import(...))` 支持懒加载模块（default 为渲染函数，可选 meta 并入路由）；`route(path, handler, { meta })` 元信息透出到 `current().meta` / 守卫 / afterEach / scrollBehavior 的 to/from；keep-alive 与懒加载路由兼容。自检：ESLint 0 错、vitest 903 用例全绿、size/whitelist/types/prompt 全过（coreRuntime 4.867KB ≤ 5.4KB 预算不变）。
+> - **DSD 支持（2026-08-14）**：Shadow DOM 组件声明式封装。基类 `_ensureShadow()`（构造函数不再预建 shadow root，让位给 `<template shadowrootmode>` 解析）+ `_dsdPrepopulated()` + `dsdTemplate()`（返回 `<template shadowrootmode="open">` 包裹 shadowHTML，SSR/SSG 置于组件标签内即可无 JS 渲染）；4 个 Shadow 组件（dialog/swiper/picker/calendar）提取 `shadowHTML()` 并加渲染守卫（`innerHTML ||=` / `_dsdPrepopulated()` 跳过覆盖），DSD 预填充时仅接管事件水合；JSDOM 不支持 shadowrootmode，测试用「先 attachShadow 再 populate」模拟 DSD 水合。自检：ESLint 0 错、vitest 916 用例全绿、size/whitelist/types/prompt 全过（base 1.309KB ≤ 1.5KB、全量 22.762KB ≤ 23KB 预算不变，按需 2 组件 warn 为既有项）。
 
 ---
 

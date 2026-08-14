@@ -221,3 +221,41 @@ describe('af-picker 属性变更（补充分支）', () => {
     expect(el.$('.columns').style.height).toBe('350px');
   });
 });
+
+describe('af-picker DSD 水合', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('DSD 预填充后 mounted 不覆盖 shadowRoot，columns 仍渲染', () => {
+    const el = new AfPicker();
+    el.columns = COLUMNS;
+    // 模拟 DSD：先 attach 再 populate
+    el.attachShadow({ mode: 'open' });
+    el.shadowRoot.innerHTML = el.shadowHTML();
+    expect(el._dsdPrepopulated()).toBe(true);
+    // 追加到 DOM → 水合
+    document.body.appendChild(el);
+    // shadow 内容未被覆盖
+    expect(el.shadowRoot.innerHTML).toContain('picker');
+    expect(el.$('.picker')).not.toBeNull();
+    expect(el.$$('.column').length).toBe(2);
+  });
+
+  it('DSD 水合后 open/close 与确认仍正常', () => {
+    const el = new AfPicker();
+    el.columns = COLUMNS;
+    el.attachShadow({ mode: 'open' });
+    el.shadowRoot.innerHTML = el.shadowHTML();
+    document.body.appendChild(el);
+    const picker = el.$('.picker');
+    const showSpy = vi.spyOn(picker, 'showPopover');
+    const hideSpy = vi.spyOn(picker, 'hidePopover');
+    const handler = vi.fn();
+    el.addEventListener('af-picker:confirm', handler);
+    el.open();
+    expect(showSpy).toHaveBeenCalledTimes(1);
+    el.close();
+    expect(hideSpy).toHaveBeenCalledTimes(1);
+    el.$('.btn-confirm').click();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+});

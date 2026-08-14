@@ -51,14 +51,14 @@ export class AfSwiper extends withI18n(AfElement) {
     return this.shadowRoot.querySelector('slot')?.assignedElements().length ?? 0;
   }
 
+  // 完整 shadow 模板（DSD 声明式封装 + mounted 动态渲染共用同一结构）
+  shadowHTML() {
+    return `${AfElement.cssTag(CSS, 'af-swiper')}<div class="viewport" part="viewport"><div class="track" part="track"><slot></slot></div></div><div class="dots" part="dots" role="tablist"></div>`;
+  }
+
   mounted() {
-    this.shadowRoot.innerHTML = `
-      ${AfElement.cssTag(CSS, 'af-swiper')}
-      <div class="viewport" part="viewport">
-        <div class="track" part="track"><slot></slot></div>
-      </div>
-      <div class="dots" part="dots" role="tablist"></div>
-    `;
+    // DSD 已在解析阶段挂载 shadow root 时不再覆盖，仅接管事件（hydrate）
+    this.shadowRoot.innerHTML ||= this.shadowHTML();
     this._viewport = this.$('.viewport');
     this._track = this.$('.track');
     this._dots = this.$('.dots');

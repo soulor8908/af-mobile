@@ -339,3 +339,50 @@ describe('af-swiper 属性变更与主题（补充分支）', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('af-swiper DSD 水合', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    vi.useFakeTimers();
+  });
+  afterEach(() => { vi.useRealTimers(); });
+
+  it('DSD 预填充后 mounted 不覆盖 shadowRoot，dots 仍渲染', async () => {
+    const el = new AfSwiper();
+    el.loop = true;
+    // 模拟 DSD：先 attach 再 populate
+    el.attachShadow({ mode: 'open' });
+    el.shadowRoot.innerHTML = el.shadowHTML();
+    expect(el._dsdPrepopulated()).toBe(true);
+    // 追加到 DOM → 水合
+    document.body.appendChild(el);
+    for (let i = 0; i < 3; i++) {
+      const div = document.createElement('div');
+      div.textContent = `Slide ${i}`;
+      el.appendChild(div);
+    }
+    await Promise.resolve();
+    // shadow 内容未被覆盖，dots 正常渲染
+    expect(el.shadowRoot.innerHTML).toContain('viewport');
+    expect(el.$('.track')).not.toBeNull();
+    expect(el.$$('.dot').length).toBe(3);
+  });
+
+  it('DSD 水合后 goTo / next 仍正常工作', async () => {
+    const el = new AfSwiper();
+    el.loop = true;
+    el.attachShadow({ mode: 'open' });
+    el.shadowRoot.innerHTML = el.shadowHTML();
+    document.body.appendChild(el);
+    for (let i = 0; i < 3; i++) {
+      const div = document.createElement('div');
+      div.textContent = `Slide ${i}`;
+      el.appendChild(div);
+    }
+    await Promise.resolve();
+    el.goTo(2);
+    expect(el.activeIndex).toBe(2);
+    el.next();
+    expect(el.activeIndex).toBe(0);
+  });
+});

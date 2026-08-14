@@ -254,3 +254,44 @@ describe('af-dialog title/open 属性变更（补充分支）', () => {
     expect(closeSpy).toHaveBeenCalledWith('external');
   });
 });
+
+describe('af-dialog DSD 水合', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('DSD 预填充后 mounted 不覆盖 shadowRoot，组件仍正常工作', () => {
+    const el = new AfDialog();
+    el.title = '水合测试';
+    // 模拟 DSD 解析阶段：shadowRoot 已在挂载前存在且有内容
+    el.attachShadow({ mode: 'open' });
+    el.shadowRoot.innerHTML = el.shadowHTML();
+    expect(el._dsdPrepopulated()).toBe(true);
+    // 追加到 DOM → mounted 走 DSD 路径（不覆盖 innerHTML）
+    document.body.appendChild(el);
+    // shadow 内容未被覆盖
+    expect(el.shadowRoot.innerHTML).toContain('dialog');
+    expect(el.$('dialog')).not.toBeNull();
+    expect(el.shadowRoot.querySelector('slot[name="title"]')).not.toBeNull();
+  });
+
+  it('DSD 水合后 open/close 仍可正常工作', () => {
+    const el = new AfDialog();
+    el.title = '水合测试';
+    // 模拟 DSD：先 attach 再 populate
+    el.attachShadow({ mode: 'open' });
+    el.shadowRoot.innerHTML = el.shadowHTML();
+    // 追加到 DOM 触发水合
+    document.body.appendChild(el);
+    // 追加 slot 内容
+    const body = document.createElement('div');
+    body.setAttribute('slot', 'body');
+    body.innerHTML = '<p>内容</p>';
+    el.appendChild(body);
+    // open/close 仍正常
+    el.open();
+    expect(el.isOpen).toBe(true);
+    expect(el.hasAttribute('open')).toBe(true);
+    el.close('confirm');
+    expect(el.isOpen).toBe(false);
+    expect(el.returnValue).toBe('confirm');
+  });
+});

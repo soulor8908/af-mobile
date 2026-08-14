@@ -34,7 +34,8 @@ export class AfCalendar extends AfElement {
 
   mounted() {
     this.style.setProperty('--af-day-h', '40px');
-    this._render();
+    // DSD 已在解析阶段挂载 shadow root 时不再覆盖初始渲染
+    if (!this._dsdPrepopulated()) this._render();
     this._onClick = (e) => {
       const nav = e.target.closest('[data-nav]');
       if (nav) { this._shiftMonth(Number(nav.dataset.nav)); return; }

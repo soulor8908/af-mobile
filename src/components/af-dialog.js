@@ -49,18 +49,14 @@ export class AfDialog extends withI18n(AfElement) {
 
   get isOpen() { return this._dialog ? this._dialog.open : false; }
 
+  // 完整 shadow 模板（DSD 声明式封装 + mounted 动态渲染共用同一结构）
+  shadowHTML() {
+    return `${AfElement.cssTag(CSS, 'af-dialog')}<dialog part="dialog" role="dialog"><header part="header"><h2 class="title"><slot name="title">${esc(this.title)}</slot></h2><button class="close-btn" part="close" type="button">×</button></header><div class="body" part="content"><slot name="body"></slot></div><footer part="footer"><slot name="footer"></slot></footer></dialog>`;
+  }
+
   mounted() {
-    this.shadowRoot.innerHTML = `
-      ${AfElement.cssTag(CSS, 'af-dialog')}
-      <dialog part="dialog" role="dialog">
-        <header part="header">
-          <h2 class="title"><slot name="title">${esc(this.title)}</slot></h2>
-          <button class="close-btn" part="close" type="button">×</button>
-        </header>
-        <div class="body" part="content"><slot name="body"></slot></div>
-        <footer part="footer"><slot name="footer"></slot></footer>
-      </dialog>
-    `;
+    // DSD 已在解析阶段挂载 shadow root 时不再覆盖，仅接管事件（hydrate）
+    this.shadowRoot.innerHTML ||= this.shadowHTML();
     this._dialog = this.$('dialog');
 
     // Esc 关闭

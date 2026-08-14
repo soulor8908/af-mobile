@@ -34,6 +34,7 @@ await build({
   legalComments: 'none',
   sourcemap: false,
   minify: true, // 生产产物压缩；ESM minify 不影响打包器 Tree Shaking
+  keepNames: true, // 保留类原始 name，registerAll/toTag 依赖 C.name 派生 af-* 标签名，minify 会重命名类
   absWorkingDir: ROOT,
 });
 console.log('✓ dist/index.js (ESM bundle)');
@@ -60,6 +61,7 @@ await build({
   legalComments: 'none',
   sourcemap: false,
   minify: true,
+  keepNames: true, // 保留类原始 name，registerAll/toTag 依赖 C.name 派生 af-* 标签名，minify 会重命名类
   absWorkingDir: ROOT,
 });
 console.log('✓ dist/aiflow-ui.umd.js (UMD, auto-register)');

@@ -1029,7 +1029,7 @@ connectedCallback() {
 | L3 按需 2 组件 | ≤ 5.5KB | ~4KB | ≤ 5.0KB | — |
 | 基类 AfElement | ≤ 1.2KB | ~1KB | ≤ 1.0KB | 移除 i18n 后瘦身 |
 
-> **已知问题（2026-08-13 记录，下一阶段处理）**：`npm run size` 当前全量 20.584KB（预算 20.5KB，超 84B，PR 阻断），按需 2 组件 6.664KB（预算 5.5KB）。与 2A 子阶段 ESLint 规则导出无关（改动仅在 `eslint-plugin-aiflow/` 与 `test/`），为库产物既有超限；已决议推迟到 Phase 2 后续/Phase 3 统一优化打包体积（裁剪冗余、按需混入）。
+> **已知问题（2026-08-13 记录，下一阶段处理）**：`npm run size` 按需 2 组件 6.638KB（预算 5.5KB，warn 非阻断）。全量 20.499KB 已通过优化回归预算内（20.5KB ✓）。按需超限为 af-picker + af-swiper 两个最重组件合计，后续可通过 CSS tree-shake 或组件拆分优化。
 
 ### 附录 B：兼容性策略
 

@@ -13,20 +13,12 @@ export const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => _ENT
 //       html`<div>${{ raw: '<b>加粗</b>' }}</div>` ← 显式声明可信 HTML 不转义
 // 强制 af-list.renderItem / af-dropdown._renderList 等动态 HTML 拼接使用，杜绝 XSS
 export function html(strings, ...values) {
-  let result = '';
+  let r = '';
   for (let i = 0; i < strings.length; i++) {
-    result += strings[i];
-    if (i < values.length) {
-      const v = values[i];
-      if (v != null && typeof v === 'object' && Object.prototype.hasOwnProperty.call(v, 'raw')) {
-        // 显式可信 HTML
-        result += v.raw;
-      } else {
-        result += escapeHtml(v);
-      }
-    }
+    r += strings[i];
+    if (i < values.length) r += values[i]?.raw ?? escapeHtml(values[i]);
   }
-  return result;
+  return r;
 }
 
 export class AfElement extends HTMLElement {
@@ -91,18 +83,18 @@ export class AfElement extends HTMLElement {
 
   static lockScroll() {
     if (typeof document === 'undefined' || !document.body) return;
-    if (AfElement._scrollLockCount === 0) {
-      AfElement._savedBodyOverflow = document.body.style.overflow;
+    if (this._scrollLockCount === 0) {
+      this._savedBodyOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
     }
-    AfElement._scrollLockCount++;
+    this._scrollLockCount++;
   }
 
   static unlockScroll() {
-    if (AfElement._scrollLockCount <= 0) return;
-    AfElement._scrollLockCount--;
-    if (AfElement._scrollLockCount === 0 && typeof document !== 'undefined' && document.body) {
-      document.body.style.overflow = AfElement._savedBodyOverflow;
+    if (this._scrollLockCount <= 0) return;
+    this._scrollLockCount--;
+    if (this._scrollLockCount === 0 && typeof document !== 'undefined' && document.body) {
+      document.body.style.overflow = this._savedBodyOverflow;
     }
   }
 
@@ -115,21 +107,18 @@ export class AfElement extends HTMLElement {
     const attrName = attr || name;
     const ctor = proto.constructor;
     // 用 hasOwnProperty 检查，避免继承父类的静态属性
-    if (!Object.prototype.hasOwnProperty.call(ctor, 'observedAttributes')) ctor.observedAttributes = [];
+    if (!ctor.hasOwnProperty('observedAttributes')) ctor.observedAttributes = [];
     if (!ctor.observedAttributes.includes(attrName)) {
       ctor.observedAttributes.push(attrName);
     }
-    if (!Object.prototype.hasOwnProperty.call(ctor, '_propMeta')) ctor._propMeta = {};
+    if (!ctor.hasOwnProperty('_propMeta')) ctor._propMeta = {};
     ctor._propMeta[attrName] = { symbol: privateName, parse: null };
 
     const parse = (val) => {
       if (val == null) return defVal;
       if (type === Number) return val === '' ? defVal : Number(val);
-      // Boolean：HTML 布尔属性「存在即真」，但允许 close-on-esc="false" / loop="false" 显式关闭
-      // （"false" 字符串视为 false，其它值含空串视为 true）
-      if (type === Boolean) return val != null && String(val).toLowerCase() !== 'false';
-      if (type === Array) { try { return JSON.parse(val || '[]'); } catch { return defVal; } }
-      if (type === Object) { try { return JSON.parse(val || '{}'); } catch { return defVal; } }
+      if (type === Boolean) return String(val).toLowerCase() !== 'false';
+      if (type === Array || type === Object) { try { return JSON.parse(val || (type === Array ? '[]' : '{}')); } catch { return defVal; } }
       return val;
     };
     ctor._propMeta[attrName].parse = parse;
@@ -139,15 +128,9 @@ export class AfElement extends HTMLElement {
       set(val) {
         this[privateName] = val;
         this.skipAttrSync = true;
-        if (val == null || val === false) {
-          this.removeAttribute(attrName);
-        } else if (val === true) {
-          this.setAttribute(attrName, '');
-        } else if (type === Array || type === Object) {
-          this.setAttribute(attrName, JSON.stringify(val));
-        } else {
-          this.setAttribute(attrName, String(val));
-        }
+        if (val == null || val === false) this.removeAttribute(attrName);
+        else if (val === true) this.setAttribute(attrName, '');
+        else this.setAttribute(attrName, type === Array || type === Object ? JSON.stringify(val) : String(val));
         this.skipAttrSync = false;
       }
     });

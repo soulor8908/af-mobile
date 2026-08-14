@@ -391,3 +391,51 @@ describe('router SSR 安全', () => {
     expect(() => forward()).not.toThrow();
   });
 });
+
+describe('router 路由懒加载 + meta', () => {
+  it('handler 返回懒加载模块（default 为渲染函数）', async () => {
+    const render = vi.fn((p, ctx) => { ctx.outlet.innerHTML = 'heavy page'; });
+    route('/heavy', () => Promise.resolve({ default: render }));
+    start({ outlet: '#app' });
+    await go('/heavy');
+    expect(render).toHaveBeenCalledOnce();
+    expect(document.querySelector('[data-router-view]').innerHTML).toContain('heavy page');
+  });
+
+  it('懒加载模块的 meta 并入路由并透出 current()', async () => {
+    route('/lazy-meta', () => Promise.resolve({ default: () => {}, meta: { title: 'Lazy' } }));
+    start({ outlet: '#app' });
+    await go('/lazy-meta');
+    expect(current().meta).toEqual({ title: 'Lazy' });
+  });
+
+  it('route 选项 meta 透出到 current()', async () => {
+    route('/opt-meta', () => {}, { meta: { requiresAuth: true } });
+    start({ outlet: '#app' });
+    await go('/opt-meta');
+    expect(current().meta).toEqual({ requiresAuth: true });
+  });
+
+  it('beforeEach 守卫可读取 route.meta', async () => {
+    let seen = null;
+    route('/guard-meta', () => {}, { meta: { requiresAuth: true } });
+    routerBeforeEach(r => { seen = r.meta; });
+    start({ outlet: '#app' });
+    await go('/guard-meta');
+    expect(seen).toEqual({ requiresAuth: true });
+  });
+
+  it('scrollBehavior 的 to 对象含 meta', async () => {
+    const sb = vi.fn(() => ({ x: 0, y: 0 }));
+    route('/sb-meta', () => {}, { meta: { title: 'M' } });
+    start({ outlet: '#app', scrollBehavior: sb });
+    await go('/sb-meta');
+    expect(sb.mock.calls[0][0].meta).toEqual({ title: 'M' });
+  });
+
+  it('懒加载模块失败时 go 拒绝', async () => {
+    route('/lazy-fail', () => Promise.reject(new Error('chunk load failed')));
+    start({ outlet: '#app' });
+    await expect(go('/lazy-fail')).rejects.toThrow('chunk load failed');
+  });
+});

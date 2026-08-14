@@ -43,9 +43,9 @@ function applyScroll(position) {
   }
 }
 
-// 归一化路由为 scrollBehavior 的 to/from 对象
+// 归一化路由为 scrollBehavior 的 to/from 对象（含 meta）
 function toObj(r) {
-  return { path: parsePath(r.path).path, params: r.params || {}, query: r.query || {} };
+  return { path: parsePath(r.path).path, params: r.params || {}, query: r.query || {}, meta: r.meta || {} };
 }
 
 function matchPath(pattern, path) {
@@ -149,9 +149,9 @@ async function render(path) {
       _rootOutlet.innerHTML = '';
       _rootOutlet.appendChild(cached.outlet);
     }
-    _currentRoute = { path, params: {}, query, route: cached.route, outlet: cached.outlet };
+    _currentRoute = { path, params: {}, query, route: cached.route, outlet: cached.outlet, meta: cached.route.meta || {} };
     applyScroll(_scrollBehavior
-      ? await _scrollBehavior({ path: cleanPath, params: {}, query }, from, { x: 0, y: cached.scrollTop })
+      ? await _scrollBehavior({ path: cleanPath, params: {}, query, meta: cached.route.meta || {} }, from, { x: 0, y: cached.scrollTop })
       : { x: 0, y: cached.scrollTop });
     callAfterEach(cached.route, {}, path);
     return;
@@ -183,10 +183,15 @@ async function render(path) {
   let lastParams = null;
   for (const m of matches) {
     const ctx = { outlet: currentOutlet, signal: nav.controller.signal, go };
-    const subOutletSelector = await m.route.handler(m.params, ctx);
-    if (typeof subOutletSelector === 'string') {
-      const sub = currentOutlet.querySelector(subOutletSelector);
-      if (!sub) throw new RouterError(`router 嵌套 outlet 未找到: ${subOutletSelector}`);
+    let ret = await m.route.handler(m.params, ctx);
+    // 路由懒加载：handler 返回动态 import 的模块（default 为渲染函数，可带 meta 并入路由）
+    if (ret && typeof ret === 'object' && typeof ret.default === 'function') {
+      if (ret.meta) m.route.meta = { ...m.route.meta, ...ret.meta };
+      ret = await ret.default(m.params, ctx);
+    }
+    if (typeof ret === 'string') {
+      const sub = currentOutlet.querySelector(ret);
+      if (!sub) throw new RouterError(`router 嵌套 outlet 未找到: ${ret}`);
       currentOutlet = sub;
     }
     lastRoute = m.route;
@@ -203,11 +208,11 @@ async function render(path) {
     _cache.set(path, { outlet: node, scrollTop: 0, route: lastRoute });
   }
 
-  _currentRoute = { path, params: lastParams, query, route: lastRoute, outlet: node };
+  _currentRoute = { path, params: lastParams, query, route: lastRoute, outlet: node, meta: lastRoute.meta || {} };
   callAfterEach(lastRoute, lastParams, path);
   if (lastRoute.scroll !== false) {
     applyScroll(_scrollBehavior
-      ? await _scrollBehavior({ path: cleanPath, params: lastParams, query }, from, null)
+      ? await _scrollBehavior({ path: cleanPath, params: lastParams, query, meta: lastRoute.meta || {} }, from, null)
       : { x: 0, y: 0 });
   }
 }

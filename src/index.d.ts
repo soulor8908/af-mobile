@@ -901,17 +901,25 @@ export interface RouteContext {
   go: (path: string, options?: { replace?: boolean; transition?: boolean }) => Promise<void>;
 }
 
-/** 路由 handler：可返回子 outlet 选择器（用于嵌套） */
+/** 路由懒加载模块：default 为渲染函数，可选 meta 并入路由 */
+export interface RouteModule {
+  default: RouteHandler;
+  meta?: Record<string, unknown>;
+}
+
+/** 路由 handler：可返回子 outlet 选择器（嵌套）或懒加载模块（() => import(...)） */
 export type RouteHandler = (
   params: Record<string, string>,
   ctx: RouteContext
-) => void | Promise<void | string>;
+) => void | string | RouteModule | Promise<void | string | RouteModule>;
 
 /** 路由注册选项 */
 export interface RouteOptions {
   children?: Array<{ path: string; handler: RouteHandler }>;
   keepAlive?: boolean;
   scroll?: boolean;
+  /** 路由元信息，透出到 current()/守卫/afterEach/scrollBehavior */
+  meta?: Record<string, unknown>;
 }
 
 /** 注册路由 */
@@ -939,7 +947,7 @@ export function afterEach(
 export function notFound(handler: (path: string) => void): void;
 
 /** 获取当前路由信息 */
-export function current(): { path: string; params: Record<string, string>; route: any; outlet: HTMLElement } | null;
+export function current(): { path: string; params: Record<string, string>; route: any; outlet: HTMLElement; meta: Record<string, unknown> } | null;
 
 /** 启动路由 */
 export function start(options?: {
@@ -949,8 +957,8 @@ export function start(options?: {
   base?: string;
   /** 滚动位置：{x,y} 坐标 | {el,top} 元素 | false 禁止滚动（仿 Vue Router） */
   scrollBehavior?: (
-    to: { path: string; params: Record<string, string>; query: Record<string, string> },
-    from: { path: string; params: Record<string, string>; query: Record<string, string> } | null,
+    to: { path: string; params: Record<string, string>; query: Record<string, string>; meta: Record<string, unknown> },
+    from: { path: string; params: Record<string, string>; query: Record<string, string>; meta: Record<string, unknown> } | null,
     savedPosition: { x: number; y: number } | null
   ) => ({ x?: number; y?: number } | { el: string | Element; top?: number } | false | null)
     | Promise<{ x?: number; y?: number } | { el: string | Element; top?: number } | false | null>;

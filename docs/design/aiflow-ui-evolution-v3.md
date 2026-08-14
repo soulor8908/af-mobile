@@ -966,6 +966,7 @@ connectedCallback() {
 > - **CSP 合规样式方案（2026-08-14）**：`AfElement.cssMode/cssBaseUrl/cssTag` 静态 API，默认 inline `<style>`（行为零变化），external 模式输出 `<link>`（strict CSP `style-src 'self'` 合规）；4 个 Shadow DOM 组件迁移；build.mjs 生成 `dist/components.css`；基类 + 组件 + 构建 + 类型 + 3 用例（默认/external/渲染）。自检：ESLint 0 错、vitest 882 用例全绿、size/whitelist/types/prompt 全过。
 > - **i18n 懒加载（2026-08-14）**：`addMessages(locale, () => import(...))` 支持函数式懒加载语言包（动态 import 或同步返回均可）；同 locale 去重常驻缓存、失败移出表可重试、加载完成前 `t()` 回退 zh-CN 不崩；`_resetLoaders()` 测试钩子。自检：ESLint 0 错、vitest 897 用例全绿、size/whitelist/types/prompt 全过。
 > - **fetch 持久化缓存（2026-08-14）**：`setCacheAdapter(adapter)` + `localStorageAdapter({ prefix })`，缓存后端与 Map 同构可替换（默认仍内存 Map）；过期条目读取时自动清理；Blob/Response/ArrayBuffer 跨 realm 判定跳过持久化，容量超限静默降级；coreRuntime 实测 4.805KB ≤ 5.4KB 预算不变。自检：ESLint 0 错、vitest 897 用例全绿、size/whitelist/types/prompt 全过。
+> - **router 路由懒加载 + meta（2026-08-14）**：`route('/heavy', () => import(...))` 支持懒加载模块（default 为渲染函数，可选 meta 并入路由）；`route(path, handler, { meta })` 元信息透出到 `current().meta` / 守卫 / afterEach / scrollBehavior 的 to/from；keep-alive 与懒加载路由兼容。自检：ESLint 0 错、vitest 903 用例全绿、size/whitelist/types/prompt 全过（coreRuntime 4.867KB ≤ 5.4KB 预算不变）。
 
 ---
 

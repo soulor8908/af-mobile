@@ -164,6 +164,7 @@
   "components": [
     "af-action-sheet",
     "af-backtop",
+    "af-badge",
     "af-dialog",
     "af-dropdown",
     "af-field",
@@ -172,6 +173,7 @@
     "af-navbar",
     "af-picker",
     "af-pull-refresh",
+    "af-rate",
     "af-search-bar",
     "af-skeleton-page",
     "af-stepper",

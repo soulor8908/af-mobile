@@ -11,7 +11,7 @@
 
 - **L1 Token（58 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
 - **L2 配方（102）+ 原子（52）= 154 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
-- **L3 真组件（20 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
+- **L3 真组件（22 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
@@ -50,9 +50,9 @@
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
 **文本对齐（4，补齐至 52）（4）：** `t-left` `t-center` `t-right` `ws-nowrap`
 
-## L3 真组件标签（20 个）
+## L3 真组件标签（22 个）
 
-`<af-action-sheet>` `<af-backtop>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-picker>` `<af-pull-refresh>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
+`<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-picker>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
 ## L1 Token 变量（58 个，必须用 var(--*) 引用）
 
@@ -78,6 +78,7 @@
 | `<af-dropdown>` | 下拉菜单 | options, value, placeholder | af-dropdown:select |
 | `<af-img>` | 懒加载图片 | src, alt, placeholder-src, fail-src, variant | af-img:load, af-img:error |
 | `<af-backtop>` | 回到顶部 | threshold, target, position | af-backtop:click, af-backtop:show, af-backtop:hide |
+| `<af-badge>` | 徽标角标 | content, max, dot, color | — |
 | `<af-switch>` | 开关 | checked, disabled, loading, size | af-switch:change |
 | `<af-search-bar>` | 搜索栏 | value, placeholder, clearable, debounce | af-search-bar:input, af-search-bar:search, af-search-bar:clear |
 | `<af-skeleton-page>` | 整页骨架屏 | variant | — |
@@ -88,6 +89,7 @@
 | `<af-field>` | 结构化表单字段 | label, icon, type, value, placeholder, help, error | af-field:input, af-field:change |
 | `<af-pull-refresh>` | 下拉刷新容器 | refreshing | af-pull-refresh:refresh |
 | `<af-swipe-cell>` | 滑动单元格 | disabled | af-swipe-cell:action |
+| `<af-rate>` | 评分 | value, max, readonly, size | af-rate:change |
 
 **通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`。
 

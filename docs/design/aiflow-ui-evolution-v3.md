@@ -956,6 +956,10 @@ connectedCallback() {
 | P2 | 框架适配层 | `@aiflow-ui/vue`、`@aiflow-ui/react`（仅 wrapper） |
 | P2 | 运行时性能监控钩子 | `onRender`/`onUpdate` + DevTools 集成 |
 
+> **Phase 3 完成状态**：
+> - **af-badge（2026-08-14）**：Light DOM，复用 L2 `.badge` 配方；`content/max/dot/color` 属性，数值超 `max` 显示 `max+`，包裹内容时 `data-corner` 角标定位（slot assignedNodes 检测）；新增宿主样式 + 白名单/prompt/types 三源同步；体积预算 total 20.5→21.0KB、css 8.0→8.2KB（用户确认）。自检：ESLint 0 错、vitest 848 用例全绿、size/whitelist/types/prompt 全过。
+> - **af-rate（2026-08-14）**：Light DOM，复用 L2 `.rate` 纯 CSS 配方（radio + row-reverse 实现只读/可选 + 键盘原生）；`value/max/readonly/size/label` 属性，radiogroup 语义，点击/键盘更新 value 并派发 `af-rate:change`；体积 total 21.0→21.3KB（用户确认）。自检：ESLint 0 错、vitest 859 用例全绿、size/whitelist/types/prompt 全过。
+
 ---
 
 ## 七、关键决策记录（ADR）

@@ -1,107 +1,96 @@
 ---
 name: "aiflow-migrate"
-description: "将 React/Vue 项目重构为 aiflow 原生应用（createPage + Web Components + L2 白名单 class + L4 约束）。含只读评估（--audit）与全量重写（--execute）两种模式。当用户要把一个 React 或 Vue 项目迁移/重构到 aiflow 组件库时调用。"
+description: "将 React/Vue 项目重构为 aiflow 原生应用。流程：分析技术栈与需求 → 能力覆盖核查 → 反向工程为 aiflow 详细设计/技术设计文档 → 按文档当新项目全量重写。当用户要把 React/Vue 项目迁移/重构到 aiflow 组件库时调用。"
 ---
 
-# aiflow-migrate —— React/Vue → aiflow 原生重构
+# aiflow-migrate —— React/Vue 项目 → aiflow 原生应用（当新项目重写）
 
-把一个基于 React 或 Vue 的项目，迁移到 aiflow 原生运行模型：
+核心哲学：**不当映射表翻译、不逐行迁移**。存量项目只作为「需求来源 + 参考实现」：
+先分析技术栈与需求，核查 aiflow 能力是否全覆盖，把「原需求文档 + 实际代码实现」反向工程为 aiflow 的**详细设计文档 + 详细技术设计文档**，然后**把项目当成新项目从零重写**。
 
-- **消费端 = `createPage`（state/computed/effects/actions/setup）+ `:bind` + 原生 `<af-*>` 组件 + L2 白名单 class**
-- **无框架运行时**：不保留 react/vue 依赖，组件本身是无框架 Web Component，库自带 state.js / router.js / bind.js / data-ref.js / fetch.js / i18n.js
+目标运行模型：
+- **消费端 = `createPage`（state/computed/setup/effects/actions）+ `:bind` + 原生 `<af-*>` 组件 + L2 白名单 class**
+- **无框架运行时**：不保留 react/vue 依赖，组件本身是无框架 Web Component，库自带 state.js / router.js / bind.js / data-ref.js / fetch.js / i18n.js / theme.js
 
-两种模式，通过子命令区分：
+两个阶段，通过子命令区分：
 
-| 子命令 | 行为 | 权限 |
-|---|---|---|
-| `aiflow-migrate --audit <repo>` | 只读评估：影响点盘点 + 工作量估算 + 风险 + 决策，产出《迁移评估报告》 | 只读，不改码 |
-| `aiflow-migrate --execute <repo> [--report <path>]` | 全量重写 UI 层 + 拆除框架 + 落地 L4 约束 + 自检 | 写码 |
+| 阶段 | 子命令 | 行为 | 产出 |
+|---|---|---|---|
+| 分析设计 | `aiflow-migrate --analyze <repo>` | 技术栈分析 + 需求收集 + 能力覆盖核查 + 反向工程设计 | 《能力覆盖矩阵》+《aiflow 详细设计文档》+《aiflow 详细技术设计文档》 |
+| 全量重写 | `aiflow-migrate --rewrite <repo> --design <docs> [--out <dir>]` | 按已批准设计文档当新项目从零重写 + L4 约束 + 测试 + 自检 | 可运行的原生应用 |
 
-前置：本 skill 依赖 aiflow 仓库的约束体系（`AGENTS.md` 反模式清单、`eslint-plugin-aiflow`、`src/recipes.css`/`atomic.css`/`tokens.css`、白名单 `whitelist-v1.json`）。重构对象仓库需能以 `file:` 或已发布包方式引入 aiflow 组件库与 `@af-mobile/eslint-plugin`。
-
----
-
-## 1. 铁律（重构期间不可违反）
-
-1. **业务核不动**：框架无关的 TS/JS 核心（store/engine/parser/领域逻辑）原样保留，绝不重写。
-2. **XSS 转义**：用户可控文本插入 innerHTML 前必须 `escapeHtml()` 或 `html\`...\`` 模板。
-3. **禁内联 style**：`style="..."` 与 `style={{...}}` 一律禁止，改 recipes/atomic class 或 `--css-var` 自定义属性。
-4. **白名单封闭集**：class 只能用 `whitelist-v1.json` 内 class；自定义视觉类走 `data-role` + recipes.css 宿主规则，或登记白名单三源（CSS + whitelist + prompt）。
-5. **事件命名**：`af-{组件}:{动作}`，`emit` 带 `composed: true`。
-6. **ARIA 必需**：满足 `eslint-plugin-aiflow/utils/aria-requirements.json` 声明的必需属性。
-7. **每次改完跑自检**（见 §6），不允许 `eslint-disable` 绕过（测试夹具例外）。
+前置：本 skill 依赖 aiflow 仓库的约束体系（`AGENTS.md` 反模式清单、`eslint-plugin-aiflow`、`src/recipes.css`/`atomic.css`/`tokens.css`、白名单 `whitelist-v1.json`）。目标仓库需能以 `file:` 或已发布包方式引入 aiflow 组件库与 `@af-mobile/eslint-plugin`。
 
 ---
 
-## 2. 模式一：`--audit` 只读评估
+## 1. 铁律（全流程不可违反）
 
-输入：仓库路径。输出：`<repo>/MIGRATION-REPORT.md`（或指定路径）。
-
-### 2.1 项目画像
-- 框架与版本（React 18/19、Vue 2/3）、入口（main.tsx/main.js）、构建工具（vite/webpack）、路由方案。
-- 组件库依赖现状：是否已引入 aiflow（直接 `<af-*>` 标签 / wrapper 层 / 未引入）。
-
-### 2.2 业务核判定
-- 确认核心逻辑是否框架无关（纯类/纯函数，无 react/vue import）。
-- 判定依据：`core/`、`store/`、`services/` 等目录是否 100% 无框架 import；若有耦合，标注"需先抽离"。
-
-### 2.3 影响点清单（逐 UI 文件盘点，产出表格）
-| 维度 | 盘点项 |
-|---|---|
-| 状态 | useState/useRef/useReducer/ref/reactive/watch 数量与语义（→ state/refs/computed/effects/actions） |
-| 样式 | 内联 style 数量与属性；自定义 CSS class 集合（→ 白名单 or data-role）；CSS 文件规模 |
-| 事件 | onClick/onChange/@click/v-model 等绑定方式与目标（→ `:bind`/`@event`/effects） |
-| 弹层 | createPortal / 命令式 modal/confirm/prompt（→ af-dialog / af-action-sheet） |
-| 路由 | 路由表、嵌套、守卫、keep-alive（→ router.js） |
-| 测试 | RTL/Vue Test Utils 用例数（→ 组件 DOM 测试 + playwright e2e） |
-| 依赖 | 独立包（如聊天 SDK）、UI 组件库、worker 等是否受影响 |
-
-### 2.4 工作量估算（按视图打分）
-每视图按 3 因子给分：组件数、状态复杂度、样式耦合度 → 结论 `易 / 中 / 难`。
-区分两类工作量：
-- **机械替换**：React/Vue 语法 → aiflow 语法的直接映射（可套 §4 映射表）。
-- **交互重设计**：需要重新设计的交互（虚拟滚动、手势、动画等）。
-
-### 2.5 决策矩阵
-- 汇总每视图 `易/中/难` + 风险 + 是否值得迁，输出结论：**全迁 / 部分迁 / 不迁**。
-- 列出阻塞项（如关键依赖无法在原生模型下复现）。
+1. **先文档后代码**：设计文档未批准，不进入重写。
+2. **业务核当作需求/算法来源**：框架无关的纯 TS/JS 逻辑（store/engine/parser/领域算法）保留复用，但**不照抄原 UI 结构**。
+3. **XSS 转义**：用户可控文本插入 innerHTML 前必须 `escapeHtml()` 或 `html\`...\`` 模板。
+4. **禁内联 style**：`style="..."` 与 `style={{...}}` 一律禁止，改 recipes/atomic class 或 `--css-var` 自定义属性。
+5. **白名单封闭集**：class 只能用 `whitelist-v1.json` 内 class；自定义视觉类走 `data-role` + recipes.css 宿主规则，或登记白名单三源（CSS + whitelist + prompt）。
+6. **事件命名**：`af-{组件}:{动作}`，`emit` 带 `composed: true`。
+7. **ARIA 必需**：满足 `eslint-plugin-aiflow/utils/aria-requirements.json` 声明的必需属性。
+8. **每次改完跑自检**（见 §6），不允许 `eslint-disable` 绕过（测试夹具例外）。
 
 ---
 
-## 3. 模式二：`--execute` 全量重写
+## 2. 阶段一：`--analyze` 分析设计（只读）
 
-前置：先 `--audit`；若未提供报告则自动先审计。执行流程：
+### 2.1 技术栈分析
+- 框架/版本（React 18/19、Vue 2/3）、入口（main.tsx/main.js）、构建工具（vite/webpack）、路由、状态管理、样式方案、依赖清单（UI 库/SDK/worker）。
+- 运行时能力画像：SPA？多页？SSR？PWA？本地优先/离线？加密存储？——决定 aiflow 能力核查与重写范围。
 
-### 3.1 解耦业务核
-- 把内嵌在 UI 组件里的业务逻辑抽到框架无关模块；确认 store 提供订阅能力（onChange / 事件），供 aiflow `effect` 消费。
+### 2.2 需求文档收集
+- 优先找存量需求文档：PRD / 需求文档 / 产品文档 / README / 设计稿 / 历史审计报告。
+- 若无存量文档：从实际代码实现**反向提取需求基线**——每个功能点的输入/输出/规则/边界/异常，整理成《需求基线》作为后续设计依据。
 
-### 3.2 重写 UI 层（每个视图一个页面）
-- 用 `createPage({ state, computed, setup, effects, actions })` 组织页面。
-- 手写 DOM 换成 `af-*` 组件；列表用 `af-list`（data + renderItem + 虚拟滚动），弹层用 `af-dialog`/`af-action-sheet`，表单用 `af-field`/`af-switch` 等。
-- `:bind` 只绑 `state.*` / `computed.*` / `{ref}.*`；禁裸 `addEventListener`（走 effects 或 `@event`）。
-- 样式：recipes/atomic 白名单 class 替代自定义 CSS 与内联 style。
+### 2.3 能力覆盖核查（技术栈 → aiflow）
+- 把项目所需 UI/交互/运行时能力逐项对照 aiflow：af-* 组件、L3.5 block、L2 recipes/atomic class、运行时原语（state/router/bind/data-ref/fetch/i18n/theme）、L4 约束。
+- 产出《能力覆盖矩阵》：每项能力 → 覆盖组件/原语 → 覆盖状态（完全 / 部分 / 缺口）→ 缺口对策（新增组件 / 新增 block / data-role 组合 / 降级方案）。
+- **这是"能否重写"的闸门**：存在关键能力缺口且无法低成本补足时，停下回报，不强推。
 
-### 3.3 样式接入
-- 引入 `@af-mobile/ui` 的 `recipes.css`/`atomic.css`/`tokens.css`。
-- 主题定制用 `:root { --c-*: ... }` 重映射 token（禁改 tokens.css 本身），或 `initTheme()`。
+### 2.4 反向工程 → 设计文档
+以「原需求文档 + 实际代码实现」为依据，反向产出两份文档：
 
-### 3.4 拆除框架
-- 删除 react / react-dom / vue 依赖与构建插件，移除 wrapper 层与手写 d.ts。
-- 入口改为原生引导：`import { start } from '@af-mobile/ui'; start({ outlet: '#app' });`，路由用 `route()`/`go()`。
+**《aiflow 详细设计文档》**（产品/功能视角）：
+- 页面清单与导航结构（对应 router 路由表）
+- 每页功能规格：状态、交互、数据流、事件、边界/异常条件
+- 弹层/命令式流程、加载/空/错误态、a11y 要点
 
-### 3.5 落地 L4 约束
-- 安装并注册 `@af-mobile/eslint-plugin`，UI 代码启用完整 AI 规则集。
-- 接入白名单三源检查（CSS ↔ whitelist.json ↔ prompt）与 CI 闸门（照搬 aiflow 仓库 `.github/workflows/ci.yml` 模式）。
+**《aiflow 详细技术设计文档》**（实现视角）：
+- 每页 `createPage` 结构：state / computed / setup / effects / actions 的字段与职责
+- 组件选型：哪个视图用哪个 af-* / block；列表用 `af-list`（data + renderItem）；弹层用 `af-dialog`/`af-action-sheet`；表单用 `af-field`/`af-switch` 等
+- 数据层：store 单例如何被 effect/computed 订阅；`:bind` 绑定 `state.*`
+- 路由表、i18n 文案、主题 token 重映射、样式（recipes/atomic class + data-role）
+- 独立包（如聊天 SDK）集成方式；能力缺口对策的落地设计
 
-### 3.6 测试迁移
-- RTL / Vue Test Utils 用例改为组件 DOM 测试（jsdom + 自定义元素）+ playwright e2e 覆盖主流程。
+### 2.5 评审
+- 用《能力覆盖矩阵》+ 两份设计文档与用户对齐，批准后进入重写。未批准不写码。
 
 ---
 
-## 4. 映射表（React / Vue → aiflow）
+## 3. 阶段二：`--rewrite` 当新项目全量重写（写码）
+
+前置：有已批准的设计文档（`--design`）。**重写时参考原代码的「需求语义」，不参考其 React/Vue 写法。**
+
+1. **工程初始化**：新建/重置入口（`main.js` + `start({ outlet })`）、引入 aiflow 组件库 CSS（recipes/atomic/tokens）、按技术设计文档建路由表。
+2. **数据层**：按技术设计文档组织 store（复用/抽取框架无关逻辑），确认订阅接口（onChange/事件）供 aiflow `effect` 消费。
+3. **逐页实现**：严格按《详细技术设计文档》从零实现每个页面（createPage + af-* + 白名单 class + `:bind`），五态齐全（loading/error/empty/success），弹层/命令式用 `af-dialog`/`af-action-sheet`。
+4. **能力缺口落地**：按能力覆盖矩阵的"缺口对策"实现新增组件/block（遵循 aiflow 库开发规范，见 §6 与 AGENTS.md §3/§4）。
+5. **落地 L4 约束**：安装注册 `@af-mobile/eslint-plugin`，UI 代码启用完整 AI 规则集；接入白名单三源检查（CSS ↔ whitelist.json ↔ prompt）与 CI 闸门（照搬 aiflow 仓库 `.github/workflows/ci.yml` 模式）。
+6. **测试**：核心逻辑单测 + 组件 DOM 测试（jsdom + 自定义元素）+ playwright e2e 覆盖主流程（登录/记账/查询/设置等关键路径）。
+7. **自检 + DoD**（§6）。
+
+---
+
+## 4. 语义对照参考（仅帮助理解原代码含义，**非**重写机制）
+
+> 重写一律按设计文档从零写；下表只在分析阶段用于把 React/Vue 语义翻译成 aiflow 语义，方便理解原实现意图。
 
 ### React
-| React | aiflow |
+| React | aiflow 语义 |
 |---|---|
 | `useState(x)` | `state: { x }`（读 `s.x`，写 `s.x = v`） |
 | `useEffect(fn, [deps])` | `effects.mount` / `effects.route` / `effects.unmount` |
@@ -117,7 +106,7 @@ description: "将 React/Vue 项目重构为 aiflow 原生应用（createPage + W
 | store 版本号订阅 | `effect` 订阅 store 事件 / `computed` |
 
 ### Vue
-| Vue | aiflow |
+| Vue | aiflow 语义 |
 |---|---|
 | `ref` / `reactive` | `state` |
 | `computed` | `computed` |
@@ -157,15 +146,17 @@ npm run types:check                # 若接入类型同步
 ```
 
 ### 完成定义（DoD）
-- 全部视图 `createPage` 化，仓库内无 react/vue 依赖与框架 import。
+- 已产出且批准《能力覆盖矩阵》+《aiflow 详细设计文档》+《详细技术设计文档》。
+- 全部页面按设计文档 `createPage` 化从零实现，仓库内无 react/vue 依赖与框架 import。
+- 能力覆盖矩阵中的缺口均已落地（新增组件/block 遵循库开发规范）。
 - 无内联 style、无白名单外 class、无裸 `addEventListener`。
 - aiflow ESLint 0 error；测试全绿；size/whitelist/types 通过。
-- 主流程 e2e 覆盖，功能与重构前一致（对照审计报告核对影响点）。
+- 主流程 e2e 覆盖，行为与需求基线一致。
 
 ---
 
 ## 7. 通用化说明
 
-- 本 skill 面向任意 React/Vue 仓库：`<repo>` 可以是本地路径或已克隆的仓库目录。
+- 本 skill 面向任意 React/Vue 仓库：`<repo>` 可以是本地路径或已克隆的仓库目录；`--out` 指定重写输出目录（默认原地重写）。
 - 目标仓库需能引入 aiflow 组件库（`file:` 本地路径或已发布 npm 包）；若为 `file:` 引用，先确认路径可解析。
-- 若目标仓库规模极大（>30 个视图），审计报告的决策矩阵若判为"部分迁/高阻塞"，应停止并回报，不强行全量重写。
+- 若能力覆盖核查判为"有关键缺口且无法低成本补足"，或需求基线不完整，应停下回报，不强行重写。

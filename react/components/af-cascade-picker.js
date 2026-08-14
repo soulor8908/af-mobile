@@ -1,4 +1,4 @@
-import { AfCascadePicker as CascadePicker } from 'aiflow-ui/components/af-cascade-picker.js';
+import { AfCascadePicker as CascadePicker } from '@af-mobile/ui/components/af-cascade-picker.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfCascadePicker = createWrapper('af-cascade-picker', CascadePicker, {

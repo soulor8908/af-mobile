@@ -1,4 +1,4 @@
-import { AfSwiper as Swiper } from 'aiflow-ui/components/af-swiper.js';
+import { AfSwiper as Swiper } from '@af-mobile/ui/components/af-swiper.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfSwiper = createWrapper('af-swiper', Swiper, {

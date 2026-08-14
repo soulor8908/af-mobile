@@ -483,7 +483,7 @@ const sceneDetector = {
   </af-list>
 </af-pull-refresh>
 <script type="module">
-import { router, fetchPage } from 'aiflow-ui'
+import { router, fetchPage } from '@af-mobile/ui'
 const list = document.getElementById('list')
 list.items = await fetchPage('/api/goods')  // AI 只填这一行
 </script>
@@ -510,7 +510,7 @@ list.items = await fetchPage('/api/goods')  // AI 只填这一行
   </af-list>
 </section>
 <script type="module">
-import { fetchPage } from 'aiflow-ui'
+import { fetchPage } from '@af-mobile/ui'
 const data = await fetchPage('/api/article/' + id)
 document.getElementById('content').innerHTML = data.html
 document.getElementById('comments').items = data.comments
@@ -538,7 +538,7 @@ document.getElementById('comments').items = data.comments
   </af-list>
 </div>
 <script type="module">
-import { fetchPage } from 'aiflow-ui'
+import { fetchPage } from '@af-mobile/ui'
 const data = await fetchPage('/api/dashboard')
 document.querySelector('.stats-grid').dataset.items = data.stats
 document.getElementById('todo').items = data.todos
@@ -568,7 +568,7 @@ document.getElementById('todo').items = data.todos
   <button class="btn btn-block btn-lg" onclick="submit()">确认预约</button>
 </div>
 <script type="module">
-import { fetchPage, router } from 'aiflow-ui'
+import { fetchPage, router } from '@af-mobile/ui'
 const data = await fetchPage('/api/store/' + id)
 document.getElementById('services').items = data.services
 async function submit() {
@@ -598,7 +598,7 @@ async function submit() {
     </div></div>'>
 </af-list>
 <script type="module">
-import { fetchPage } from 'aiflow-ui'
+import { fetchPage } from '@af-mobile/ui'
 document.getElementById('courses').items = await fetchPage('/api/courses')
 document.getElementById('cats').addEventListener('change', async e => {
   document.getElementById('courses').items = await fetchPage('/api/courses?cat=' + e.detail.active)
@@ -620,7 +620,7 @@ document.getElementById('cats').addEventListener('change', async e => {
   <button class="btn" onclick="send()">发送</button>
 </div>
 <script type="module">
-import { fetchPage, bus } from 'aiflow-ui'
+import { fetchPage, bus } from '@af-mobile/ui'
 const list = document.getElementById('msgs')
 list.items = await fetchPage('/api/messages/' + peerId)
 async function send() {
@@ -874,7 +874,7 @@ prefer-native-form → 删除 isValid, 加 required/pattern 属性
 <nav class="navbar navbar-fixed">{{title}}</nav>
 [模式骨架 HTML, AI 只填 {{}} 变量]
 <script type="module">
-import { fetchPage, router } from 'aiflow-ui'
+import { fetchPage, router } from '@af-mobile/ui'
 // AI 只写数据获取和事件绑定
 </script>
 ```
@@ -936,7 +936,7 @@ import { fetchPage, router } from 'aiflow-ui'
     <span class="price">¥{{price}}</span></div></div>'>
 </af-list></af-pull-refresh>
 <script type="module">
-import { fetchPage } from 'aiflow-ui'
+import { fetchPage } from '@af-mobile/ui'
 const list = document.getElementById('list')
 list.items = await fetchPage('/api/goods')
 </script>
@@ -990,7 +990,7 @@ list.items = await fetchPage('/api/goods')
   </af-list>
 </div>
 <script type="module">
-import { fetchPage } from 'aiflow-ui'
+import { fetchPage } from '@af-mobile/ui'
 const data = await fetchPage('/api/dashboard')
 document.querySelectorAll('.stat-card .num').forEach((el,i) =>
   el.textContent = data.stats[i])
@@ -1039,7 +1039,7 @@ document.getElementById('todo').items = data.todos
       <span class="price">¥{{price}}</span></div></div>'>
 </af-list>
 <script type="module">
-import { fetchPage } from 'aiflow-ui'
+import { fetchPage } from '@af-mobile/ui'
 document.getElementById('courses').items = await fetchPage('/api/courses')
 document.getElementById('cats').addEventListener('change', async e => {
   document.getElementById('courses').items =

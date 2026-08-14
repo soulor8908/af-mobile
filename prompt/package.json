@@ -1,5 +1,5 @@
 {
-  "name": "@aiflow-ui/prompt",
+  "name": "@af-mobile/prompt",
   "version": "2.0.0",
   "type": "module",
   "description": "AIFlow UI System Prompt builder — modular (role + whitelist + component API + few-shot + model)",

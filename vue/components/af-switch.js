@@ -1,4 +1,4 @@
-import { AfSwitch as Switch } from 'aiflow-ui/components/af-switch.js';
+import { AfSwitch as Switch } from '@af-mobile/ui/components/af-switch.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfSwitch = createWrapper('af-switch', Switch, {

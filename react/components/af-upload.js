@@ -1,4 +1,4 @@
-import { AfUpload as Upload } from 'aiflow-ui/components/af-upload.js';
+import { AfUpload as Upload } from '@af-mobile/ui/components/af-upload.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfUpload = createWrapper('af-upload', Upload, {

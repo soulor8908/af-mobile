@@ -1,4 +1,4 @@
-import { AfList as List } from 'aiflow-ui/components/af-list.js';
+import { AfList as List } from '@af-mobile/ui/components/af-list.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfList = createWrapper('af-list', List, {

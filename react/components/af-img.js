@@ -1,4 +1,4 @@
-import { AfImg as Img } from 'aiflow-ui/components/af-img.js';
+import { AfImg as Img } from '@af-mobile/ui/components/af-img.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfImg = createWrapper('af-img', Img, {

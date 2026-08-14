@@ -1,4 +1,4 @@
-import { AfCalendar as Calendar } from 'aiflow-ui/components/af-calendar.js';
+import { AfCalendar as Calendar } from '@af-mobile/ui/components/af-calendar.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfCalendar = createWrapper('af-calendar', Calendar, {

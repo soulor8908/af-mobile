@@ -1,5 +1,5 @@
 // AIFlow UI —— Vue 3 组件包装层汇总导出
-// 用法：import { AfList, AfSwitch } from '@aiflow-ui/vue'
+// 用法：import { AfList, AfSwitch } from '@af-mobile/vue'
 // 每个 wrapper 在 import 时自动注册对应自定义元素（Tree Shaking 友好：按需 import 即按需注册）
 export { AfList } from './components/af-list.js';
 export { AfSwiper } from './components/af-swiper.js';

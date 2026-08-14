@@ -16,7 +16,7 @@
   - 新增 `src/index.d.ts`，导出所有公开 API（10 组件类 + AfElement 基类 + escapeHtml + initTheme/setTheme/toggleTheme + register/registerAll）
   - 为每个组件的 props、events、methods 定义接口
   - 在 `package.json` 添加 `"types": "./src/index.d.ts"`
-- **验收标准**：TS 项目中 `import { AfDialog } from 'aiflow-ui'` 可获得完整类型提示
+- **验收标准**：TS 项目中 `import { AfDialog } from '@af-mobile/ui'` 可获得完整类型提示
 - **依赖**：无
 - **状态**：✅ `src/index.d.ts` 已导出 25 个组件类 + AfElement 基类 + escapeHtml + 主题 API + register/registerAll；`package.json` 已设 `"types": "./src/index.d.ts"`；CI `npm run types:check` 三源一致校验通过
 

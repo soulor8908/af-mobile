@@ -1,4 +1,4 @@
-// @aiflow-ui/prompt —— Prompt 即 API 薄入口
+// @af-mobile/prompt —— Prompt 即 API 薄入口
 // 核心实现位于 scripts/build-prompt.mjs（避免双份代码漂移）
 export {
   buildPrompt,

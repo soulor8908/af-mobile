@@ -447,7 +447,7 @@ System Prompt 需包含的规则（L0 层，第 7 节汇总）：
 ## 主题与 Token 使用规则
 1. 颜色/间距/圆角/字号/阴影必须用 var(--c-*) 等引用 token，禁止硬编码值
 2. 禁止在任何文件重定义 --c-*/--s-*/--r-* 等变量（ESLint 阻断）
-3. 主题切换用 import { toggleTheme } from 'aiflow-ui/lib/theme'，禁止手写 localStorage 操作
+3. 主题切换用 import { toggleTheme } from '@af-mobile/ui/lib/theme'，禁止手写 localStorage 操作
 4. 禁止用内联 style 设置颜色/间距（用 class 或 data-theme）
 5. dark 模式适配零代码——配方层已用 token 变量，自动跟随
 ```
@@ -1559,7 +1559,7 @@ L2 的样式解析遵循两条规则，**先比 @layer 顺序，同层比源序*
 3. 禁止用内联 style 设置颜色/间距/字号（用 class 或 data-theme）
 
 ### 主题切换
-4. 主题切换用 import { toggleTheme } from 'aiflow-ui/lib/theme'，禁止手写 localStorage 操作
+4. 主题切换用 import { toggleTheme } from '@af-mobile/ui/lib/theme'，禁止手写 localStorage 操作
 5. dark 模式适配零代码——配方层已用 token 变量，自动跟随，不写 dark 分支
 
 ### 配方使用

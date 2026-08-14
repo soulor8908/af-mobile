@@ -1,4 +1,4 @@
-import { AfStepper as Stepper } from 'aiflow-ui/components/af-stepper.js';
+import { AfStepper as Stepper } from '@af-mobile/ui/components/af-stepper.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfStepper = createWrapper('af-stepper', Stepper, {

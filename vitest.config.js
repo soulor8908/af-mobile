@@ -7,9 +7,9 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)));
 export default defineConfig({
   resolve: {
     alias: {
-      // 框架适配层以裸导入引用 aiflow-ui（与发布后消费一致），单测环境用别名指向本地源码
-      'aiflow-ui/components': resolve(ROOT, 'src/components'),
-      'aiflow-ui': resolve(ROOT, 'src/index.js'),
+      // 框架适配层以裸导入引用 @af-mobile/ui（与发布后消费一致），单测环境用别名指向本地源码
+      '@af-mobile/ui/components': resolve(ROOT, 'src/components'),
+      '@af-mobile/ui': resolve(ROOT, 'src/index.js'),
     },
   },
   test: {

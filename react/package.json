@@ -1,5 +1,5 @@
 {
-  "name": "@aiflow-ui/react",
+  "name": "@af-mobile/react",
   "version": "1.0.0",
   "description": "React wrapper for aiflow-ui Web Components",
   "type": "module",

@@ -41,7 +41,7 @@
 
 #### 1. 目标
 
-为库提供完整的 `.d.ts` 类型声明，使 TypeScript 项目中 `import { AfDialog } from 'aiflow-ui'` 可获得 props/events/methods 类型提示。
+为库提供完整的 `.d.ts` 类型声明，使 TypeScript 项目中 `import { AfDialog } from '@af-mobile/ui'` 可获得 props/events/methods 类型提示。
 
 #### 2. 文件清单
 
@@ -180,7 +180,7 @@ export function registerAll(): void;
 
 #### 5. 验收标准
 
-- [ ] TS 项目 `import { AfDialog, AfList } from 'aiflow-ui'` 有完整类型
+- [ ] TS 项目 `import { AfDialog, AfList } from '@af-mobile/ui'` 有完整类型
 - [ ] `el.addEventListener('af-list:itemclick', cb)` 中 `cb` 参数类型正确推断
 - [ ] `tsc --noEmit` 通过
 
@@ -803,7 +803,7 @@ v1.2.0 聚焦 IP-4/5/6 三个高频组件。IP-7 候选控件均可用"L2 配方
 ```js
 // 仅在浏览器环境注册组件
 if (typeof window !== 'undefined') {
-  const { registerAll } = await import('aiflow-ui');
+  const { registerAll } = await import('@af-mobile/ui');
   registerAll();
 }
 ```

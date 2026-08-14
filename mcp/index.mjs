@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// @aiflow-ui/mcp —— MCP Server，暴露 3 个工具供 AI Agent 调用
+// @af-mobile/mcp —— MCP Server，暴露 3 个工具供 AI Agent 调用
 // 工具：
 //   check_compliance — 跑 ESLint 检查代码合规性（纯本地，无 LLM）
 //   fix_code         — ESLint 修正闭环（手动模式返回修正 prompt，自动模式调 LLM 修正）

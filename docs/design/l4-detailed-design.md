@@ -509,7 +509,7 @@ btn-sm 与 btn-lg 冲突：已删除 btn-sm，保留 btn-lg。请确认修改正
 
 ```javascript
 // components/project-af-qrcode.js
-import { AfElement } from 'aiflow-ui/lib/af-element';
+import { AfElement } from '@af-mobile/ui/lib/af-element';
 
 export class AfQrcode extends AfElement {
   static useShadow = true;
@@ -673,7 +673,7 @@ L4 约束层：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正
 - 用法：
   <af-list id="l"></af-list>
   <script type="module">
-    import { AfList } from 'aiflow-ui';
+    import { AfList } from '@af-mobile/ui';
     customElements.define('af-list', AfList);
     l.data = [{title:'商品1'},{title:'商品2'}];
     l.addEventListener('af-list:itemclick', e => console.log(e.detail.index));

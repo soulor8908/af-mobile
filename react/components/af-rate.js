@@ -1,4 +1,4 @@
-import { AfRate as Rate } from 'aiflow-ui/components/af-rate.js';
+import { AfRate as Rate } from '@af-mobile/ui/components/af-rate.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfRate = createWrapper('af-rate', Rate, {

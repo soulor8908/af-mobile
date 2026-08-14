@@ -1,4 +1,4 @@
-import { AfDropdown as Dropdown } from 'aiflow-ui/components/af-dropdown.js';
+import { AfDropdown as Dropdown } from '@af-mobile/ui/components/af-dropdown.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfDropdown = createWrapper('af-dropdown', Dropdown, {

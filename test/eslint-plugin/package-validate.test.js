@@ -1,4 +1,4 @@
-// eslint-plugin-aiflow 独立包验证：@aiflow-ui/eslint-plugin 可作为独立 npm 包发布/消费
+// eslint-plugin-aiflow 独立包验证：@af-mobile/eslint-plugin 可作为独立 npm 包发布/消费
 // 验证：包元信息 / 27 规则完整性 / recommended 配置自洽 / 端到端集成（Linter 跑通）
 import { describe, it, expect } from 'vitest';
 import { Linter } from 'eslint';
@@ -9,10 +9,10 @@ import plugin from '../../eslint-plugin-aiflow/index.js';
 
 const PKG_DIR = resolve(fileURLToPath(import.meta.url), '../../../eslint-plugin-aiflow');
 
-describe('@aiflow-ui/eslint-plugin 独立包', () => {
+describe('@af-mobile/eslint-plugin 独立包', () => {
   it('package.json 元信息完整（name/version/exports/files/peerDeps）', () => {
     const pkg = JSON.parse(readFileSync(join(PKG_DIR, 'package.json'), 'utf8'));
-    expect(pkg.name).toBe('@aiflow-ui/eslint-plugin');
+    expect(pkg.name).toBe('@af-mobile/eslint-plugin');
     expect(pkg.version).toBe(plugin.meta.version);
     expect(pkg.type).toBe('module');
     expect(pkg.main).toBe('./index.js');

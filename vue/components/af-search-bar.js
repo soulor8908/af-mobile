@@ -1,4 +1,4 @@
-import { AfSearchBar as SearchBar } from 'aiflow-ui/components/af-search-bar.js';
+import { AfSearchBar as SearchBar } from '@af-mobile/ui/components/af-search-bar.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfSearchBar = createWrapper('af-search-bar', SearchBar, {

@@ -1,4 +1,4 @@
-import { AfPicker as Picker } from 'aiflow-ui/components/af-picker.js';
+import { AfPicker as Picker } from '@af-mobile/ui/components/af-picker.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfPicker = createWrapper('af-picker', Picker, {

@@ -66,7 +66,7 @@ export { fetchPage, FetchError, TimeoutError, HttpError, AbortError,
 **不侵入组件源码**——router/state/fetch 是消费端工具，组件保持纯粹。集成通过用户侧代码完成：
 
 ```javascript
-import { signal, effect, fetchPage } from 'aiflow-ui';
+import { signal, effect, fetchPage } from '@af-mobile/ui';
 
 const list = document.getElementById('list');
 const items = signal([]);
@@ -726,7 +726,7 @@ Error
 ### 4.6 用户侧错误处理
 
 ```javascript
-import { fetchPage, FetchError, TimeoutError, HttpError, AbortError } from 'aiflow-ui';
+import { fetchPage, FetchError, TimeoutError, HttpError, AbortError } from '@af-mobile/ui';
 
 try {
   const data = await fetchPage('/api/users');

@@ -10,7 +10,7 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 ## 安装
 
 ```bash
-npm install aiflow-ui
+npm install @af-mobile/ui
 ```
 
 > **消费端需有打包器**：`package.json` 的 `main`/`module` 指向 `src/index.js`（源码分发，裸 ESM + CSS import）。直接在浏览器 `<script type="module">` 引用未经打包的源码会因裸模块解析失败。用 Vite/webpack/Rollup 等打包器处理 `import 'aiflow-ui'` 即可；若需 CDN 直引，用 `dist/aiflow-ui.umd.js`（`unpkg`/`jsdelivr` 字段已指向）。
@@ -43,7 +43,7 @@ npm install aiflow-ui
   </main>
 
   <script type="module">
-    import { AfList, AfDialog, register } from 'aiflow-ui';
+    import { AfList, AfDialog, register } from '@af-mobile/ui';
     register('af-list');
     register('af-dialog');
 
@@ -124,7 +124,7 @@ aiflow-ui 是浏览器端 Custom Elements 库，`customElements` 在 Node 服务
 ```js
 // 仅在浏览器环境注册组件
 if (typeof window !== 'undefined') {
-  const { registerAll } = await import('aiflow-ui');
+  const { registerAll } = await import('@af-mobile/ui');
   registerAll();
 }
 ```
@@ -197,13 +197,13 @@ Nuxt / Remix 同理：服务端输出 Light DOM + L2 class 作首屏占位，客
 
 ## 框架适配层（Vue 3 / React）
 
-Web Components 原生可直接用于任何框架，但框架适配层提供更符合框架习惯的封装：`@aiflow-ui/vue` 与 `@aiflow-ui/react`。二者均为薄包装，不复制组件实现，仅做 prop / 事件 / v-model 桥接，import 时自动注册对应自定义元素（Tree Shaking 友好）。
+Web Components 原生可直接用于任何框架，但框架适配层提供更符合框架习惯的封装：`@af-mobile/vue` 与 `@af-mobile/react`。二者均为薄包装，不复制组件实现，仅做 prop / 事件 / v-model 桥接，import 时自动注册对应自定义元素（Tree Shaking 友好）。
 
 ### 安装
 
 ```bash
-npm install aiflow-ui @aiflow-ui/vue    # Vue 3
-npm install aiflow-ui @aiflow-ui/react  # React 18
+npm install @af-mobile/ui @af-mobile/vue    # Vue 3
+npm install @af-mobile/ui @af-mobile/react  # React 18
 ```
 
 > wrapper 以 `aiflow-ui` 为 peer 依赖，需与本体一起安装；组件实现来自 aiflow-ui。
@@ -213,7 +213,7 @@ npm install aiflow-ui @aiflow-ui/react  # React 18
 ```vue
 <script setup>
 import { ref } from 'vue';
-import { AfList, AfSwitch } from '@aiflow-ui/vue';
+import { AfList, AfSwitch } from '@af-mobile/vue';
 
 const items = ref([...]);
 const onLoadMore = (page) => { /* ... */ };
@@ -234,7 +234,7 @@ const onLoadMore = (page) => { /* ... */ };
 ### React 18
 
 ```jsx
-import { AfList, AfSwitch } from '@aiflow-ui/react';
+import { AfList, AfSwitch } from '@af-mobile/react';
 
 function App() {
   return (
@@ -256,17 +256,17 @@ function App() {
 
 ```js
 // A. 按需注册（推荐，Tree Shaking 友好）
-import { AfList, AfDialog } from 'aiflow-ui';
+import { AfList, AfDialog } from '@af-mobile/ui';
 customElements.define('af-list', AfList);
 customElements.define('af-dialog', AfDialog);
 
 // B. 单个注册辅助函数
-import { register } from 'aiflow-ui';
+import { register } from '@af-mobile/ui';
 register('af-list');
 register('af-dialog');
 
 // C. 全量注册（不推荐，会失去 Tree Shaking）
-import { registerAll } from 'aiflow-ui';
+import { registerAll } from '@af-mobile/ui';
 registerAll();
 ```
 
@@ -275,7 +275,7 @@ registerAll();
 提供 `initTheme` / `setTheme` / `toggleTheme` / `getTheme` 四个 API，通过 `data-theme` 属性控制 light/dark。
 
 ```js
-import { initTheme, toggleTheme } from 'aiflow-ui';
+import { initTheme, toggleTheme } from '@af-mobile/ui';
 initTheme();              // 从 localStorage 恢复（入口尽早调用）
 toggleTheme();            // 切换并持久化
 ```

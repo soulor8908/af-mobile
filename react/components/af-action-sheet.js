@@ -1,4 +1,4 @@
-import { AfActionSheet as ActionSheet } from 'aiflow-ui/components/af-action-sheet.js';
+import { AfActionSheet as ActionSheet } from '@af-mobile/ui/components/af-action-sheet.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfActionSheet = createWrapper('af-action-sheet', ActionSheet, {

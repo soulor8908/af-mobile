@@ -1,4 +1,4 @@
-import { AfCountdown as Countdown } from 'aiflow-ui/components/af-countdown.js';
+import { AfCountdown as Countdown } from '@af-mobile/ui/components/af-countdown.js';
 import { createWrapper } from '../lib/wrapper.js';
 
 export const AfCountdown = createWrapper('af-countdown', Countdown, {

@@ -32,7 +32,7 @@ v1.3 的 `definePage` 是全局单例（state/computed/actions 挂在模块级�
 
 ```javascript
 // v1.3：definePage（全局单例 + 闭包引用 + actions 不传 state）
-import { definePage } from 'aiflow-ui';
+import { definePage } from '@af-mobile/ui';
 definePage({
   state: { count: 0, userId: 1 },
   computed: {
@@ -46,7 +46,7 @@ definePage({
 
 ```javascript
 // v2.0：createPage（实例化 + 参数注入 + setup + 显式生命周期）
-import { createPage } from 'aiflow-ui';
+import { createPage } from '@af-mobile/ui';
 
 const page = createPage({
   state: { count: 0, userId: 1 },
@@ -92,7 +92,7 @@ page.unmount();                            // 级联清理所有 effect + comput
 `go('/list?page=2')` 现在会解析 query 并**合并进 params**：
 
 ```javascript
-import { route, go, start } from 'aiflow-ui';
+import { route, go, start } from '@af-mobile/ui';
 
 route('/list', (params, ctx) => {
   ctx.outlet.innerHTML = `<div>第 ${params.page} 页</div>`;  // params.page === '2'
@@ -106,7 +106,7 @@ go('/list?page=2');
 v1.3 嵌套路由子 outlet 选择器未命中时**静默回退**；v2.0 改为**抛出 `RouterError`**，避免页面白屏无告警：
 
 ```javascript
-import { RouterError } from 'aiflow-ui';
+import { RouterError } from '@af-mobile/ui';
 
 try {
   await go('/detail');
@@ -147,7 +147,7 @@ cancel();
 字典条目可以是复数对象 `{ zero/one/two/few/many/other }`，按 CLDR 规则选形：
 
 ```javascript
-import { addMessages, setLocale, t } from 'aiflow-ui';
+import { addMessages, setLocale, t } from '@af-mobile/ui';
 
 addMessages('en-US', {
   'cart.items': { one: '{n} item', other: '{n} items' },
@@ -166,7 +166,7 @@ t('cart.items', { n: 3 });   // "3 items"
 `initTheme()` 现在监听 `prefers-color-scheme` 变化：仅在用户**未显式设定**主题时跟随系统，并通过 `themechange` 事件通知组件：
 
 ```javascript
-import { initTheme } from 'aiflow-ui';
+import { initTheme } from '@af-mobile/ui';
 initTheme();   // 入口尽早调用（组件挂载前）
 ```
 

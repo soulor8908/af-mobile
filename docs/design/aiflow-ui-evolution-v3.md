@@ -332,7 +332,7 @@ export function batch(fn) {
 #### 3.2.2 修正后的 createPage API（9 原语）
 
 ```javascript
-import { createPage } from 'aiflow-ui';
+import { createPage } from '@af-mobile/ui';
 
 const page = createPage({
   // 1. state
@@ -875,7 +875,7 @@ connectedCallback() {
 | P0 | **审计 9 条未导出规则** | 逐条检查：是否 WIP、是否有 bug、是否与现有规则重叠。通过审计的导出，不通过的修复或废弃 |
 | P0 | **规则分级** | `meta.fixable` 三级：自动修复 / AI 重写 / 仅人工判断 |
 | P1 | **合并元数据规则** | `wc-block-props-count` 等 4 条合并为 `wc-component-meta` |
-| P1 | **独立发布 npm** | `@aiflow-ui/eslint-plugin` |
+| P1 | **独立发布 npm** | `@af-mobile/eslint-plugin` |
 
 ### 5.2 prompt/ —— Prompt 工程化
 
@@ -884,7 +884,7 @@ connectedCallback() {
 | P0 | Prompt 模块化拆分 | 角色定义（固定）+ 白名单速查（半固定）+ 组件 API（按需加载）+ 正反示例（动态检索） |
 | P0 | Prompt 版本与 A/B 测试 | `prompt/` 下按版本管理，`eval/run.mjs` 支持对比 pass@k |
 | P1 | 模型特化 Prompt | `system-prompt.claude.md` / `.gpt4.md` / `.glm.md` |
-| P1 | Prompt 即 API | `@aiflow-ui/prompt`，`buildPrompt({ components, theme, model })` |
+| P1 | Prompt 即 API | `@af-mobile/prompt`，`buildPrompt({ components, theme, model })` |
 
 ### 5.3 eval/ + scripts/ —— 质量评估闭环
 
@@ -894,7 +894,7 @@ connectedCallback() {
 | P0 | 抽象 `AiflowGenerator` 核心类 | LLM 调用 + lint + fix 闭环抽象为可复用模块 |
 | P1 | AST 级自动修复 | `atomic-duplicate` 等用 `espree` 直接修改 AST |
 | P1 | eval 基线回归 | 每次 PR 跑 eval，下降即阻断 |
-| P1 | MCP Server | `@aiflow-ui/mcp`，暴露 `generate_page`/`fix_code`/`check_compliance` |
+| P1 | MCP Server | `@af-mobile/mcp`，暴露 `generate_page`/`fix_code`/`check_compliance` |
 
 ---
 
@@ -924,20 +924,20 @@ connectedCallback() {
 
 | 子阶段 | 周期 | 任务 | 产出 |
 |--------|------|------|------|
-| 2A | W1-W2 | ESLint 规则审计 + 整合 | 审计 9 条未导出规则 → 通过的导出 + 分级 + `@aiflow-ui/eslint-plugin` |
-| 2B | W3-W4 | Prompt 工程化 | 模块化拆分 + 版本管理 + `@aiflow-ui/prompt` + Cursor Rules |
+| 2A | W1-W2 | ESLint 规则审计 + 整合 | 审计 9 条未导出规则 → 通过的导出 + 分级 + `@af-mobile/eslint-plugin` |
+| 2B | W3-W4 | Prompt 工程化 | 模块化拆分 + 版本管理 + `@af-mobile/prompt` + Cursor Rules |
 | 2C | W5-W6 | MCP + 生态验证 | MCP Server + 储备项目真实场景验证 |
 
 > **2B 完成状态（2026-08-13）**：P0 + P1 全部落地。
 > - 模块化拆分：`buildPrompt({ components, categories, userPrompt })`（角色固定 + 白名单半固定 + 组件 API 按需 + Few-shot 动态检索），无参 = 全量，与提交态 `system-prompt.md` 字节一致；
 > - 版本 A/B：`eval/run.mjs --prompt full|tailored` 对比 pass@k；
 > - 模型特化：`prompt/models/{claude,gpt4,glm}.md`，`buildPrompt({ model })` 拼特化头；
-> - Prompt 即 API：`@aiflow-ui/prompt`（`prompt/index.mjs` + `package.json` 薄包壳，re-export `buildPrompt` 等），`theme` 注入项目 Token 段；
+> - Prompt 即 API：`@af-mobile/prompt`（`prompt/index.mjs` + `package.json` 薄包壳，re-export `buildPrompt` 等），`theme` 注入项目 Token 段；
 > - Cursor Rules：`.cursor/rules/{l4-consumer,l3-library}.mdc`；
 > - 自检：ESLint（含 eval/ prompt/）0 错、vitest 829 用例全绿、prompt:check / whitelist / types 三源同步。
 >
 > **2C 完成状态（2026-08-13）**：MCP Server + 生态验证基础设施落地。
-> - MCP Server：`@aiflow-ui/mcp`（`mcp/index.mjs` + `package.json`），stdio 传输，3 工具：
+> - MCP Server：`@af-mobile/mcp`（`mcp/index.mjs` + `package.json`），stdio 传输，3 工具：
 >   - `check_compliance(code)` — 跑 ESLint 检查合规性，返回 error/warning 列表（纯本地，无 LLM）
 >   - `fix_code(code)` — ESLint 修正闭环，手动模式返回 fixPrompt + errors，自动模式调 LLM 修正
 >   - `generate_page(prompt, promptMode)` — 端到端页面生成，手动模式返回 systemPrompt，自动模式返回完整代码
@@ -947,7 +947,7 @@ connectedCallback() {
 > **2A 完成状态（2026-08-14）**：ESLint 规则审计 + 整合 + 独立发布全部落地。
 > - 审计 9 条未导出规则 → 全量通过审计后导出，现 27 条（L1(2) + L2(7) + L3(6) + L3.5(12)）；
 > - 分级：`recommended` flat config 按 L4 §3.2-3.4 的 severity 启用（error/warn 已定级）；
-> - 独立发布：`@aiflow-ui/eslint-plugin`（`eslint-plugin-aiflow/package.json` 独立包壳，`type: module` + `exports` + `peerDependencies.eslint >= 9.0.0`，`files` 承诺 index.js/rules/utils 完整）；
+> - 独立发布：`@af-mobile/eslint-plugin`（`eslint-plugin-aiflow/package.json` 独立包壳，`type: module` + `exports` + `peerDependencies.eslint >= 9.0.0`，`files` 承诺 index.js/rules/utils 完整）；
 > - 工程接入：根 `package.json` workspaces 纳入 `eslint-plugin-aiflow`；`eslint.config.js` 增加插件自身源码块（库代码不受 L4 AI 约束）；CI ESLint 范围覆盖 `eslint-plugin-aiflow/`（AGENTS.md #9）；
 > - 独立包验证：`test/eslint-plugin/package-validate.test.js` 5 用例（包元信息 / 27 规则完整 / recommended 自洽 / Linter 端到端检出违规 / 白名单内合法代码零报错）。
 > - 自检：ESLint 0 错、vitest 945 用例全绿（+5 独立包验证）、size / whitelist / types 全过。
@@ -963,7 +963,7 @@ connectedCallback() {
 | P1 | router.js 路由懒加载 + meta | `route('/heavy', () => import(...))` |
 | P2 | DSD 支持 | Shadow DOM 组件声明式封装 |
 | P2 | 设计 Token JSON 化 | W3C Design Tokens Format |
-| P2 | 框架适配层 | `@aiflow-ui/vue`、`@aiflow-ui/react`（仅 wrapper） |
+| P2 | 框架适配层 | `@af-mobile/vue`、`@af-mobile/react`（仅 wrapper） |
 | P2 | 运行时性能监控钩子 | `onRender`/`onUpdate` + DevTools 集成 |
 
 > **Phase 3 完成状态**：
@@ -977,7 +977,7 @@ connectedCallback() {
 > - **router 路由懒加载 + meta（2026-08-14）**：`route('/heavy', () => import(...))` 支持懒加载模块（default 为渲染函数，可选 meta 并入路由）；`route(path, handler, { meta })` 元信息透出到 `current().meta` / 守卫 / afterEach / scrollBehavior 的 to/from；keep-alive 与懒加载路由兼容。自检：ESLint 0 错、vitest 903 用例全绿、size/whitelist/types/prompt 全过（coreRuntime 4.867KB ≤ 5.4KB 预算不变）。
 > - **DSD 支持（2026-08-14）**：Shadow DOM 组件声明式封装。基类 `_ensureShadow()`（构造函数不再预建 shadow root，让位给 `<template shadowrootmode>` 解析）+ `_dsdPrepopulated()` + `dsdTemplate()`（返回 `<template shadowrootmode="open">` 包裹 shadowHTML，SSR/SSG 置于组件标签内即可无 JS 渲染）；4 个 Shadow 组件（dialog/swiper/picker/calendar）提取 `shadowHTML()` 并加渲染守卫（`innerHTML ||=` / `_dsdPrepopulated()` 跳过覆盖），DSD 预填充时仅接管事件水合；JSDOM 不支持 shadowrootmode，测试用「先 attachShadow 再 populate」模拟 DSD 水合。自检：ESLint 0 错、vitest 916 用例全绿、size/whitelist/types/prompt 全过（base 1.309KB ≤ 1.5KB、全量 22.762KB ≤ 23KB 预算不变，按需 2 组件 warn 为既有项）。
 > - **设计 Token JSON 化（2026-08-14）**：新增 `src/tokens.json`（W3C Design Tokens Format 1.1），`tokens.css` 保持权威源（CI 由 CODEOWNERS 保护），`gen-tokens.mjs` 解析全部 58 个 L1 token 映射为 DTCG 树：palette 为 light 基准值 + `$extensions.aiflow.theme.dark` 主题扩展、`var()` 引用转别名 `{palette.brand}`、number/cubicBezier/duration/dimension/string 类型化；新增 `tokens:check` CI 同步校验（双向 diff）+ 导出 `./tokens.json` + `DesignToken`/`DesignTokens` 类型；按需 2 组件 warn 为既有项。自检：ESLint 0 错、vitest 924 用例全绿、size/whitelist/types/prompt/tokens 全过（基类 1.309KB、全量 22.762KB 预算不变）。
-> - **框架适配层（2026-08-14）**：`@aiflow-ui/vue`、`@aiflow-ui/react`（仅 wrapper）。npm workspaces 管理 monorepo；`createWrapper(tag, Ctor, { props, events, model })` 工厂生成 24 组件薄包装，import 时自动注册自定义元素（SSR 安全跳过）：
+> - **框架适配层（2026-08-14）**：`@af-mobile/vue`、`@af-mobile/react`（仅 wrapper）。npm workspaces 管理 monorepo；`createWrapper(tag, Ctor, { props, events, model })` 工厂生成 24 组件薄包装，import 时自动注册自定义元素（SSR 安全跳过）：
 >   - **Vue 3**：props → element property 同步（`watchEffect` flush 'pre'）、`af-*:*` 事件 → 短名 `@change`（payload 为 `e.detail`）、表单类组件 `v-model` 桥接（`modelValue ↔ update:modelValue`）；修复 setup 参数遮蔽外层 props 数组的 bug。
 >   - **React 18**：props → property 同步、`af-list:itemclick` → `onItemclick` 回调（`useRef` 避免闭包过期）、非组件 prop 透传 attribute；显式映射 `className → class`（React 18 自定义元素不会自动映射，React 19 才修复）。
 >   - 测试：`test/framework/{vue,react}-wrapper.test.js` 各 5 用例（挂载/props 同步/事件转发/v-model 或 attribute 透传/卸载清理，React 用 `act` 刷新 concurrent root）；vitest alias 指向本地 `aiflow-ui` 源码（裸导入与发布后消费一致）。

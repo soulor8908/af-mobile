@@ -1,5 +1,5 @@
 {
-  "name": "@aiflow-ui/mcp",
+  "name": "@af-mobile/mcp",
   "version": "1.0.0",
   "type": "module",
   "description": "AIFlow UI MCP Server — generate_page / fix_code / check_compliance",

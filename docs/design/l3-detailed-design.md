@@ -256,12 +256,12 @@ export function registerAll() {
 
 ```javascript
 // 方式 A：按需注册（Tree Shake，推荐）
-import { AfList, AfDialog } from 'aiflow-ui';
+import { AfList, AfDialog } from '@af-mobile/ui';
 customElements.define('af-list', AfList);
 customElements.define('af-dialog', AfDialog);
 
 // 方式 B：全量注册（便利，不 Tree Shake）
-import { registerAll } from 'aiflow-ui';
+import { registerAll } from '@af-mobile/ui';
 registerAll();
 ```
 
@@ -758,7 +758,7 @@ show(message, duration = 2000) {
 **核心：ESM 命名导出 + 用户显式注册 + `sideEffects: false`。**
 
 ```
-用户：import { AfList, AfDialog } from 'aiflow-ui'
+用户：import { AfList, AfDialog } from '@af-mobile/ui'
     │
     ▼
 打包工具（Vite/Rollup）分析依赖
@@ -1115,7 +1115,7 @@ mounted() {
   </div>
 
   <script type="module">
-    import { AfList } from 'aiflow-ui';
+    import { AfList } from '@af-mobile/ui';
     customElements.define('af-list', AfList);
 
     goods.renderItem = (item, index) => `
@@ -1437,7 +1437,7 @@ onThemeChange(theme):
   </div>
 
   <script type="module">
-    import { AfSwiper } from 'aiflow-ui';
+    import { AfSwiper } from '@af-mobile/ui';
     customElements.define('af-swiper', AfSwiper);
 
     banner.addEventListener('af-swiper:change', (e) => {
@@ -1674,7 +1674,7 @@ mounted:
   </div>
 
   <script type="module">
-    import { AfTabs } from 'aiflow-ui';
+    import { AfTabs } from '@af-mobile/ui';
     customElements.define('af-tabs', AfTabs);
 
     const ordersByStatus = {
@@ -1953,7 +1953,7 @@ _trapKeydown(e):
   </af-dialog>
 
   <script type="module">
-    import { AfDialog } from 'aiflow-ui';
+    import { AfDialog } from '@af-mobile/ui';
     customElements.define('af-dialog', AfDialog);
 
     trigger.addEventListener('click', () => confirm.open());
@@ -2147,7 +2147,7 @@ unmounted() {
   <button class="btn btn-danger" onclick="toast.show('网络错误')">触发错误</button>
 
   <script type="module">
-    import { AfToast } from 'aiflow-ui';
+    import { AfToast } from '@af-mobile/ui';
     customElements.define('af-toast', AfToast);
 
     toast.addEventListener('af-toast:dismiss', (e) => {
@@ -2353,7 +2353,7 @@ render() {
   </af-action-sheet>
 
   <script type="module">
-    import { AfActionSheet } from 'aiflow-ui';
+    import { AfActionSheet } from '@af-mobile/ui';
     customElements.define('af-action-sheet', AfActionSheet);
 
     share.options = [
@@ -2653,7 +2653,7 @@ col.addEventListener('keydown', (e) => {
   <af-picker id="region" title="选择地区"></af-picker>
 
   <script type="module">
-    import { AfPicker } from 'aiflow-ui';
+    import { AfPicker } from '@af-mobile/ui';
     customElements.define('af-picker', AfPicker);
 
     region.columns = [
@@ -2865,7 +2865,7 @@ this._list.addEventListener('toggle', (e) => {
   </div>
 
   <script type="module">
-    import { AfDropdown } from 'aiflow-ui';
+    import { AfDropdown } from '@af-mobile/ui';
     customElements.define('af-dropdown', AfDropdown);
 
     sort.options = [
@@ -3079,7 +3079,7 @@ unmounted() {
   </div>
 
   <script type="module">
-    import { AfImg } from 'aiflow-ui';
+    import { AfImg } from '@af-mobile/ui';
     customElements.define('af-img', AfImg);
 
     const goods = [{id:1,title:'商品A',img:'/a.jpg'},{id:2,title:'商品B',img:'/b.jpg'}];
@@ -3293,7 +3293,7 @@ unmounted() {
   <af-backtop threshold="300"></af-backtop>
 
   <script type="module">
-    import { AfBacktop } from 'aiflow-ui';
+    import { AfBacktop } from '@af-mobile/ui';
     customElements.define('af-backtop', AfBacktop);
 
     backtop.addEventListener('af-backtop:click', () => {

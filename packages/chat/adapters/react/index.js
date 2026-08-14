@@ -9,9 +9,12 @@ import { createSession } from '../../core/session.js';
  */
 export function useChat(opts) {
   const sessionRef = useRef(null);
-  if (sessionRef.current === null) sessionRef.current = createSession(opts);
-  const [messages, setMessages] = useState([]);
-  const [isStreaming, setStreaming] = useState(false);
+  const [, force] = useState(0);
+  if (sessionRef.current === null) {
+    sessionRef.current = createSession(opts);
+    sessionRef.current.subscribe(() => force((x) => x + 1));
+  }
+  const isStreaming = sessionRef.current.state === 'streaming';
   const send = useCallback((text) => sessionRef.current.send(text), []);
-  return { messages, isStreaming, send };
+  return { messages: sessionRef.current.messages, isStreaming, send };
 }

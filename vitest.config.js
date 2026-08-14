@@ -16,7 +16,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./test/setup.js'],
-    include: ['test/**/*.test.js'],
+    include: ['test/**/*.test.js', 'packages/chat/**/*.test.js'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

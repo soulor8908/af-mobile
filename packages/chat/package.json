@@ -21,7 +21,8 @@
   },
   "files": [
     "core",
-    "adapters"
+    "adapters",
+    "!core/*.test.js"
   ],
   "scripts": {
     "test": "vitest run"

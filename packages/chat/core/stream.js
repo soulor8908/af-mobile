@@ -19,10 +19,10 @@ export async function* parseSSE(response) {
     while ((idx = buffer.indexOf('\n\n')) !== -1) {
       const frame = buffer.slice(0, idx);
       buffer = buffer.slice(idx + 2);
-      const line = frame.trim();
-      if (!line) continue;
-      if (line.startsWith('event:')) event = line.slice(6).trim();
-      else if (line.startsWith('data:')) yield { event, data: line.slice(5).trim() };
+      for (const line of frame.split('\n')) {
+        if (line.startsWith('event:')) event = line.slice(6).trim();
+        else if (line.startsWith('data:')) yield { event, data: line.slice(5).trim() };
+      }
     }
   }
 }

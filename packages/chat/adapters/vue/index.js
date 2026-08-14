@@ -9,8 +9,9 @@ import { createSession } from '../../core/session.js';
  */
 export function useChat(opts) {
   const session = createSession(opts);
-  const messages = ref([]);
-  const isStreaming = ref(false);
+  const messages = ref(session.messages);
+  const isStreaming = ref(session.state === 'streaming');
+  session.subscribe(() => { isStreaming.value = session.state === 'streaming'; });
   const send = (text) => session.send(text);
   return { messages, isStreaming, send };
 }

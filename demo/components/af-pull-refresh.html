@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-pull-refresh demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-pull-refresh 下拉刷新</h1>
+    </header>
+
+    <af-pull-refresh id="pr">
+      <div class="list">
+        <div class="list-item"><div class="body">列表项 1</div></div>
+        <div class="list-item"><div class="body">列表项 2</div></div>
+        <div class="list-item"><div class="body">列表项 3</div></div>
+      </div>
+    </af-pull-refresh>
+
+    <p class="caption" id="log">下拉触发 af-pull-refresh:refresh · 触摸设备体验</p>
+
+    <div class="card">
+      <button class="btn btn-ghost btn-block" id="endBtn">结束刷新</button>
+    </div>
+  </main>
+
+  <script type="module">
+    import { AfPullRefresh } from '../../src/components/af-pull-refresh.js';
+    customElements.define('af-pull-refresh', AfPullRefresh);
+
+    const pr = document.getElementById('pr');
+    pr.addEventListener('af-pull-refresh:refresh', () => {
+      document.getElementById('log').textContent = '刷新中...';
+      setTimeout(() => pr.endRefresh(), 1500);
+    });
+    document.getElementById('endBtn').addEventListener('click', () => pr.endRefresh());
+  </script>
+</body>
+</html>

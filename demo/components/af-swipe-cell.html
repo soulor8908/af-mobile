@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-swipe-cell demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-swipe-cell 滑动单元格</h1>
+    </header>
+
+    <div class="list">
+      <af-swipe-cell>
+        <div slot="content" class="list-item"><div class="body">左滑显示操作</div></div>
+        <div slot="right">
+          <button class="btn btn-sm btn-ghost" data-action="mark">标记</button>
+          <button class="btn btn-sm btn-danger" data-action="delete">删除</button>
+        </div>
+      </af-swipe-cell>
+      <af-swipe-cell disabled>
+        <div slot="content" class="list-item"><div class="body">禁用滑动</div></div>
+      </af-swipe-cell>
+    </div>
+
+    <p class="caption" id="log">左滑 > 50% 吸附打开 · 触发 af-swipe-cell:action</p>
+  </main>
+
+  <script type="module">
+    import { AfSwipeCell } from '../../src/components/af-swipe-cell.js';
+    customElements.define('af-swipe-cell', AfSwipeCell);
+
+    document.addEventListener('af-swipe-cell:action', (e) => {
+      document.getElementById('log').textContent = `动作 ${e.detail.action}`;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-countdown demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-countdown 倒计时</h1>
+    </header>
+
+    <div class="card">
+      <div class="cell"><span class="body">倒计时</span><af-countdown id="cd" time="90"></af-countdown></div>
+      <div class="cell"><span class="body">不自动开始</span><af-countdown time="60" autostart="false"></af-countdown></div>
+    </div>
+
+    <p class="caption" id="log">到 0 派发 af-countdown:end</p>
+    <div class="card f gap-2">
+      <button class="btn btn-ghost" id="startBtn">开始</button>
+      <button class="btn btn-ghost" id="pauseBtn">暂停</button>
+      <button class="btn btn-ghost" id="resetBtn">重置</button>
+    </div>
+  </main>
+
+  <script type="module">
+    import { AfCountdown } from '../../src/components/af-countdown.js';
+    customElements.define('af-countdown', AfCountdown);
+
+    const cd = document.getElementById('cd');
+    cd.addEventListener('af-countdown:end', () => {
+      document.getElementById('log').textContent = '倒计时结束！';
+    });
+    cd.addEventListener('af-countdown:change', (e) => {
+      document.getElementById('log').textContent = `剩余 ${e.detail.remaining}s`;
+    });
+    document.getElementById('startBtn').addEventListener('click', () => cd.start());
+    document.getElementById('pauseBtn').addEventListener('click', () => cd.pause());
+    document.getElementById('resetBtn').addEventListener('click', () => cd.reset());
+  </script>
+</body>
+</html>

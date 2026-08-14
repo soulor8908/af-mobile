@@ -29,3 +29,7 @@ export declare const AfField: DefineComponent<P<'label' | 'icon' | 'type' | 'inp
 export declare const AfPullRefresh: DefineComponent<P<'refreshing'> & E<'Refresh'>>;
 export declare const AfSwipeCell: DefineComponent<P<'disabled'> & E<'Action'>>;
 export declare const AfRate: DefineComponent<P<'value' | 'max' | 'readonly' | 'size' | 'label'> & E<'Change'>>;
+export declare const AfNoticeBar: DefineComponent<P<'text' | 'scroll'>>;
+export declare const AfProgress: DefineComponent<P<'value' | 'max' | 'color'>>;
+export declare const AfSteps: DefineComponent<P<'steps' | 'current'>>;
+export declare const AfCountdown: DefineComponent<P<'time' | 'autostart'> & E<'Change' | 'End'>>;

@@ -4,7 +4,7 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 
 - **L1 Token**：43 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
 - **L2 配方 + 原子**：154 个白名单封闭集 class（102 配方 + 52 原子，`btn`/`card`/`p-4`/...）
-- **L3 真组件**：20 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
+- **L3 真组件**：25 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 15 规则兜底 + CI 保护
 
 ## 安装
@@ -297,7 +297,7 @@ toggleTheme();            // 切换并持久化
 9. `.list-item/.list-item-compact` 自带 border-top 由 `.list` 容器管理，不要单独设
 10. `.sheet` 显隐必须走原生 popover API `showPopover/hidePopover`
 11. `.tab-item` 选中态单一真相源是 `aria-selected="true"`（视觉由属性选择器驱动，不可用 `active` class）
-12. **Light DOM 组件**（`af-list`/`af-tabs`/`af-toast`/`af-action-sheet`/`af-dropdown`/`af-backtop`/`af-img`/`af-switch`/`af-search-bar`/`af-skeleton-page`/`af-navbar`/`af-tabbar`/`af-stepper`/`af-field`/`af-upload`/`af-pull-refresh`/`af-swipe-cell` 共 17 个）不可含 `<style>` 或 `this.style.xxx=`
+12. **Light DOM 组件**（`af-list`/`af-tabs`/`af-toast`/`af-action-sheet`/`af-dropdown`/`af-backtop`/`af-img`/`af-switch`/`af-search-bar`/`af-skeleton-page`/`af-navbar`/`af-tabbar`/`af-stepper`/`af-field`/`af-upload`/`af-pull-refresh`/`af-swipe-cell`/`af-badge`/`af-rate`/`af-notice-bar` 共 20 个）不可含 `<style>` 或 `this.style.xxx=`
 13. **Shadow 组件** CSS 字符串不可硬编码颜色/间距/字号/圆角（`::backdrop` 遮罩 rgba(0,0,0,.5) 例外）
 14. 事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`
 15. `af-dialog/af-action-sheet` 必须有焦点陷阱（Tab 不逃出，关闭还原焦点）
@@ -350,7 +350,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 |---|---|---|
 | 1 | 白名单三源同步（CSS/JS ↔ whitelist.json ↔ Prompt 注入） | `npm run whitelist:check` |
 | 1b | d.ts 与源码组件数同步（防类型声明漂移） | `npm run types:check` |
-| 2 | 体积预算（L1+L2 CSS ≤ 8.0KB / 全量 20 组件+基类 ≤ 19.5KB / 按需2组件 ≤ 5.5KB / 单组件 JS ≤ 2.6KB / 基类 ≤ 1.2KB） | `npm run size` |
+| 2 | 体积预算（L1+L2 CSS ≤ 8.2KB / 全量 25 组件+基类 ≤ 23KB / 按需2组件 ≤ 5.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 1.2KB） | `npm run size` |
 | 3 | 单元测试（jsdom） | `npm test` |
 | 4 | ESLint 15 规则（10 error + 5 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
 | 5 | 发布前检查（build + Tree Shaking + sideEffects + types-sync + npm pack） | `npm run publish:check` |

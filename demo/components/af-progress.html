@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-progress demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-progress 进度条</h1>
+    </header>
+
+    <div class="card">
+      <div class="cell"><span class="body">默认</span><af-progress id="p1" value="60"></af-progress></div>
+      <div class="cell"><span class="body">成功</span><af-progress value="80" color="success"></af-progress></div>
+      <div class="cell"><span class="body">危险</span><af-progress value="35" color="danger"></af-progress></div>
+      <div class="cell"><span class="body">下载中…</span><af-progress id="p2" value="0"></af-progress></div>
+    </div>
+
+    <p class="caption">下方按钮模拟进度推进</p>
+    <div class="card">
+      <button class="btn btn-ghost btn-block" id="goBtn">推进 +10</button>
+    </div>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfProgress } from '../../src/components/af-progress.js';
+    customElements.define('af-progress', AfProgress);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const p1 = document.getElementById('p1');
+    const p2 = document.getElementById('p2');
+    document.getElementById('goBtn').addEventListener('click', () => {
+      p2.value = Math.min(100, p2.value + 10);
+      p1.value = Math.min(100, p1.value + 10);
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'value', label: '值', type: 'number', min: 0, max: 100, step: 1 },
+      { prop: 'max', label: '上限', type: 'number', min: 1, max: 1000, step: 1 },
+      { prop: 'color', label: '颜色', type: 'select', options: ['brand', 'success', 'danger'] },
+    ], p1);
+  </script>
+</body>
+</html>

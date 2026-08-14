@@ -11,7 +11,7 @@
 
 - **L1 Token（58 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
 - **L2 配方（102）+ 原子（52）= 154 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
-- **L3 真组件（25 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
+- **L3 真组件（28 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
@@ -50,9 +50,9 @@
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
 **文本对齐（4，补齐至 52）（4）：** `t-left` `t-center` `t-right` `ws-nowrap`
 
-## L3 真组件标签（25 个）
+## L3 真组件标签（28 个）
 
-`<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-calendar>` `<af-cascade-picker>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-notice-bar>` `<af-picker>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
+`<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-calendar>` `<af-cascade-picker>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-notice-bar>` `<af-picker>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>` `<af-progress>` `<af-steps>` `<af-countdown>`
 
 ## L1 Token 变量（58 个，必须用 var(--*) 引用）
 
@@ -93,6 +93,9 @@
 | `<af-swipe-cell>` | 滑动单元格 | disabled | af-swipe-cell:action |
 | `<af-rate>` | 评分 | value, max, readonly, size | af-rate:change |
 | `<af-notice-bar>` | 公告通知栏 | text, scroll | — |
+| `<af-progress>` | 进度条 | value, max, color | — |
+| `<af-steps>` | 步骤条 | steps, current | — |
+| `<af-countdown>` | 倒计时 | time, autostart | af-countdown:change, af-countdown:end |
 
 **通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`。
 
@@ -112,7 +115,7 @@
 09. 禁止 `.list-item`/`.list-item-compact` 自带 border-top（分隔线由 `.list` 容器管理）
 10. 禁止 `.sheet` 手动 display 切换（显隐必须走原生 popover API `showPopover`/`hidePopover`）
 11. 禁止 `.tab-item` 用 `active` class 表达选中态（选中态单一真相源是 `aria-selected="true"`，视觉由属性选择器 `.tab-item[aria-selected="true"]` 驱动）
-12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img/af-switch/af-search-bar/af-skeleton-page/af-upload）内含 `<style>` 或 `this.style.xxx`（纯 L2 配方，自定义样式请用 Shadow 组件或 `recipes.project.css`）
+12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img/af-switch/af-search-bar/af-skeleton-page/af-navbar/af-tabbar/af-stepper/af-field/af-upload/af-pull-refresh/af-swipe-cell/af-badge/af-rate/af-notice-bar，共 20 个）内含 `<style>` 或 `this.style.xxx`（纯 L2 配方，自定义样式请用 Shadow 组件或 `recipes.project.css`）
 13. 禁止 Shadow 组件 CSS 字符串硬编码颜色/间距/字号/圆角（`dialog::backdrop` 遮罩 `rgba(0,0,0,.5)` 例外）
 14. 禁止事件名不符合 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`（Shadow 事件穿透）
 15. 禁止 af-dialog/af-action-sheet 无焦点陷阱（Tab 不逃出；关闭时还原焦点到触发元素）

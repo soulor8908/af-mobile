@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-calendar demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-calendar 日历</h1>
+    </header>
+
+    <div class="card">
+      <af-calendar id="cal" month="2026-08" value="2026-08-14" min="2026-07-01" max="2026-09-30"></af-calendar>
+    </div>
+
+    <p class="caption" id="log">点击日期选择 · 左右切换月份 · Shadow DOM</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfCalendar } from '../../src/components/af-calendar.js';
+    customElements.define('af-calendar', AfCalendar);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const cal = document.getElementById('cal');
+    cal.addEventListener('af-calendar:select', (e) => {
+      document.getElementById('log').textContent = `选中 ${e.detail.date}`;
+    });
+    cal.addEventListener('af-calendar:monthchange', (e) => {
+      document.getElementById('log').textContent = `月份 ${e.detail.month}`;
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'value', label: '选中值', type: 'text' },
+      { prop: 'month', label: '月份', type: 'text' },
+      { prop: 'min', label: '最小', type: 'text' },
+      { prop: 'max', label: '最大', type: 'text' },
+    ], cal);
+  </script>
+</body>
+</html>

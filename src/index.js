@@ -36,10 +36,13 @@ import { AfPullRefresh } from './components/af-pull-refresh.js';
 import { AfSwipeCell } from './components/af-swipe-cell.js';
 import { AfRate } from './components/af-rate.js';
 import { AfNoticeBar } from './components/af-notice-bar.js';
+import { AfProgress } from './components/af-progress.js';
+import { AfSteps } from './components/af-steps.js';
+import { AfCountdown } from './components/af-countdown.js';
 
-export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfCascadePicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfCalendar, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate, AfNoticeBar };
+export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfCascadePicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfCalendar, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate, AfNoticeBar, AfProgress, AfSteps, AfCountdown };
 
-const ALL = [AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfCascadePicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfCalendar, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate, AfNoticeBar];
+const ALL = [AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfCascadePicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfCalendar, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate, AfNoticeBar, AfProgress, AfSteps, AfCountdown];
 // AfList → af-list, AfActionSheet → af-action-sheet
 const toTag = (C) => 'af-' + C.name.slice(2).replace(/[A-Z]/g, (c, i) => (i ? '-' : '') + c.toLowerCase());
 

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-badge demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-badge 徽标角标</h1>
+    </header>
+
+    <div class="card">
+      <div class="cell f ai-center gap-2">
+        <af-badge id="b1" content="8">消息</af-badge>
+        <af-badge id="b2" content="99" max="99">通知</af-badge>
+        <af-badge id="b3" dot>新</af-badge>
+      </div>
+      <div class="cell f gap-2">
+        <af-badge content="热" data-color="warn">推荐</af-badge>
+        <af-badge content="NEW" data-color="brand">活动</af-badge>
+      </div>
+    </div>
+
+    <p class="caption" id="log">Light DOM · 复用 L2 .badge 配方 · 可包裹内容作角标</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfBadge } from '../../src/components/af-badge.js';
+    customElements.define('af-badge', AfBadge);
+    import { createPropsPanel } from '../props-panel.js';
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'content', label: '内容', type: 'text' },
+      { prop: 'max', label: '上限', type: 'number', min: 1, max: 999, step: 1 },
+      { prop: 'dot', label: '圆点', type: 'boolean' },
+      { prop: 'color', label: '颜色', type: 'select', options: ['danger', 'warn', 'brand', 'success'] },
+    ], document.getElementById('b1'));
+  </script>
+</body>
+</html>

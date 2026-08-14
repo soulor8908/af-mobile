@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-cascade-picker demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-cascade-picker 级联选择器</h1>
+    </header>
+
+    <div class="card">
+      <div class="cell"><span class="body">省市区</span><button class="btn btn-sm btn-ghost" id="openBtn">选择</button></div>
+    </div>
+
+    <p class="caption" id="log">点击「选择」打开 · 继承 af-picker 滚轮内核</p>
+
+    <af-cascade-picker id="cp" title="选择地区"></af-cascade-picker>
+  </main>
+
+  <script type="module">
+    import { AfCascadePicker } from '../../src/components/af-cascade-picker.js';
+    customElements.define('af-cascade-picker', AfCascadePicker);
+
+    const cp = document.getElementById('cp');
+    cp.tree = [
+      { value: '广东', label: '广东', children: [
+        { value: '深圳', label: '深圳', children: [
+          { value: '南山', label: '南山' },
+          { value: '福田', label: '福田' },
+        ] },
+        { value: '广州', label: '广州', children: [
+          { value: '天河', label: '天河' },
+          { value: '越秀', label: '越秀' },
+        ] },
+      ] },
+      { value: '浙江', label: '浙江', children: [
+        { value: '杭州', label: '杭州', children: [
+          { value: '西湖', label: '西湖' },
+          { value: '滨江', label: '滨江' },
+        ] },
+      ] },
+    ];
+
+    document.getElementById('openBtn').addEventListener('click', () => cp.open());
+    cp.addEventListener('af-picker:confirm', (e) => {
+      document.getElementById('log').textContent = `选中 ${e.detail.values.join(' / ')}`;
+    });
+  </script>
+</body>
+</html>

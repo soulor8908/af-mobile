@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-notice-bar demo - aiflow-ui</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <header class="navbar navbar-fixed">
+      <a href="../index.html" class="subtitle">← 返回</a>
+      <h1 class="title">af-notice-bar 公告通知栏</h1>
+    </header>
+
+    <div class="card">
+      <af-notice-bar id="n1" text="系统将于今晚 23:00 进行维护升级，届时服务暂停 10 分钟"></af-notice-bar>
+      <af-notice-bar id="n2" text="这是一条非常长的公告文本用于演示横向滚动 marquee 效果，超出宽度时持续向左滚动" scroll></af-notice-bar>
+      <af-notice-bar id="n3" text="短公告"></af-notice-bar>
+    </div>
+
+    <p class="caption">Light DOM · 复用 L2 .notice 配方 · 无事件派发</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfNoticeBar } from '../../src/components/af-notice-bar.js';
+    customElements.define('af-notice-bar', AfNoticeBar);
+    import { createPropsPanel } from '../props-panel.js';
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'text', label: '公告文本', type: 'text' },
+      { prop: 'scroll', label: '横向滚动', type: 'boolean' },
+    ], document.getElementById('n1'));
+  </script>
+</body>
+</html>

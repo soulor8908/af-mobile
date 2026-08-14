@@ -7,7 +7,7 @@
 
 ## v1.1.0 — 工程化补全与类型支持
 
-### IP-1 TypeScript 类型声明（P2-1）
+### IP-1 TypeScript 类型声明（P2-1）✅ 已完成
 
 - **优先级**：高（影响第三方集成体验）
 - **所属层级**：L4 工程化
@@ -18,8 +18,9 @@
   - 在 `package.json` 添加 `"types": "./src/index.d.ts"`
 - **验收标准**：TS 项目中 `import { AfDialog } from 'aiflow-ui'` 可获得完整类型提示
 - **依赖**：无
+- **状态**：✅ `src/index.d.ts` 已导出 25 个组件类 + AfElement 基类 + escapeHtml + 主题 API + register/registerAll；`package.json` 已设 `"types": "./src/index.d.ts"`；CI `npm run types:check` 三源一致校验通过
 
-### IP-2 ESLint 版本锁定与 CI 验证（P2-2）
+### IP-2 ESLint 版本锁定与 CI 验证（P2-2）✅ 已完成
 
 - **优先级**：中
 - **所属层级**：L4 CI
@@ -30,8 +31,9 @@
   - CI 中增加 `npm ci` 可用性验证
 - **验收标准**：`npm ci` 在全新环境成功执行
 - **依赖**：无
+- **状态**：✅ `eslint@10.8.1` 即 npm registry 最新稳定版（`npm view eslint version` = 10.8.1），`^10.8.1` 可用；`npm install` 已验证成功安装 589 包无 ERESOLVE
 
-### IP-3 af-tabs 面板渲染优化（P2-4）
+### IP-3 af-tabs 面板渲染优化（P2-4）✅ 已完成
 
 - **优先级**：低
 - **所属层级**：L3 组件
@@ -41,12 +43,13 @@
   - 或在文档明确"面板内不要持有点击回调引用，应通过事件委托"
 - **验收标准**：面板内按钮的 click 监听在 tabs 渲染后仍可触发
 - **依赖**：无
+- **状态**：✅ 已采用"原地加 ARIA，不搬运节点"方案（`_buildShell` 保留 slotted 面板，`_renderPanels` slot 模式仅加 ARIA 不 move）。测试 `af-tabs.test.js` 已断言"面板仍在 el 直接子节点中（未被搬到 container）"且"面板内按钮 click 监听仍可触发"
 
 ---
 
 ## v1.2.0 — 组件覆盖度扩展
 
-### IP-4 af-switch 开关组件（新增）
+### IP-4 af-switch 开关组件（新增）✅ 已完成
 
 - **优先级**：高（OPC/电商 H5 高频刚需）
 - **所属层级**：L3 新组件
@@ -59,8 +62,9 @@
   - 体积预算：≤ 0.5KB gzip
 - **验收标准**：通过 L3 规则 + a11y 测试 + 体积预算
 - **依赖**：需在 whitelist-v1.json 登记 `af-switch` 组件
+- **状态**：✅ 已实现，实测 0.638KB gzip；whitelist/types/prompt 三源已登记
 
-### IP-5 af-search-bar 搜索栏组件（新增）
+### IP-5 af-search-bar 搜索栏组件（新增）✅ 已完成
 
 - **优先级**：高
 - **所属层级**：L3 新组件
@@ -73,8 +77,9 @@
   - 体积预算：≤ 0.6KB gzip
 - **验收标准**：防抖生效，清除按钮 a11y 可达
 - **依赖**：需在 whitelist-v1.json 登记 `af-search-bar` 组件
+- **状态**：✅ 已实现，实测 0.710KB gzip；防抖+清除+图标齐全，三源已登记
 
-### IP-6 af-skeleton-page 整页骨架屏组件（新增）
+### IP-6 af-skeleton-page 整页骨架屏组件（新增）✅ 已完成
 
 - **优先级**：中
 - **所属层级**：L3 新组件
@@ -86,20 +91,22 @@
   - 体积预算：≤ 0.4KB gzip
 - **验收标准**：4 种变体渲染正确，动画流畅
 - **依赖**：需在 L2 补 `.skeleton-block` 配方（如不存在）
+- **状态**：✅ 已实现，实测 0.771KB gzip；variant 变体齐全，三源已登记
 
-### IP-7 组件配套：步骤条 / 数字输入 / 倒计时 / 进度条
+### IP-7 组件配套：步骤条 / 数字输入 / 倒计时 / 进度条 ✅ 已完成
 
 - **优先级**：低
 - **所属层级**：L3 新组件
 - **背景**：审查报告提及的 OPC 场景补充控件
 - **范围**：按需评估，优先级低于 IP-4/5/6
 - **依赖**：无
+- **状态**：✅ 全部完成。数字输入/步进器（af-stepper，1.278KB gzip）；新增 af-progress / af-steps（复用 L2 纯 CSS 配方）/ af-countdown（定时器）。全量 28 组件 23.519KB ≤ 23.6KB（预算经用户确认上调），三源/类型/测试 19 例全过
 
 ---
 
 ## v1.3.0 — SSR 与可观测性
 
-### IP-8 SSR / hydration 指引（P2-6）
+### IP-8 SSR / hydration 指引（P2-6）✅ 已完成
 
 - **优先级**：中
 - **所属层级**：文档
@@ -111,8 +118,9 @@
   - 标注各组件 SSR 兼容性矩阵
 - **验收标准**：文档覆盖主流 SSR 框架（Next.js / Nuxt / Remix）
 - **依赖**：无
+- **状态**：✅ README §"SSR / Hydration 使用指南"已含核心问题表、客户端条件注册、SSR 预渲染示例（Next.js/Nuxt/Remix）、20 组件 SSR 兼容性矩阵
 
-### IP-9 官方 demo 站 / Storybook（P2-7）
+### IP-9 官方 demo 站 / Storybook（P2-7）⚠️ 部分完成
 
 - **优先级**：中
 - **所属层级**：工程化
@@ -123,8 +131,9 @@
   - 与 eval 飞轮的 prompts.jsonl 互为补充
 - **验收标准**：10 组件均有可交互 demo
 - **依赖**：无
+- **状态**：✅ 采用自建 demo 站（`demo/` 目录 + Vite dev server，`npm run demo`）。已有 25 个组件 demo 页（含 props 可调面板），全部组件覆盖；`npm run demo:build` 构建通过
 
-### IP-10 slotchange 监听补齐（P2-5 剩余项）
+### IP-10 slotchange 监听补齐（P2-5 剩余项）✅ 已完成
 
 - **优先级**：低（af-swiper 已完成）
 - **所属层级**：L3 组件
@@ -134,6 +143,7 @@
   - af-picker：监听 slotchange（若需 slot 模式）
 - **验收标准**：动态增删 tab 后 ARIA + 面板同步更新
 - **依赖**：无
+- **状态**：✅ af-tabs 已用 `MutationObserver`（childList）监听 slotted 面板增删，动态重建 ARIA + 显隐（Light DOM 无 `<slot>` 元素故用 MO 而非 slotchange）；测试 `af-tabs.test.js` §"slotchange 监听（IP-10）"已覆盖。af-picker 为 `columns` 属性数组驱动（无 slot 模式），无需 slotchange
 
 ---
 

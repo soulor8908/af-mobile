@@ -1,5 +1,5 @@
 // AIFlow UI —— TypeScript 类型声明
-// 公开 API：20 组件类 + AfElement 基类 + 主题 API + escapeHtml + register/registerAll
+// 公开 API：28 组件类 + AfElement 基类 + 主题 API + escapeHtml + register/registerAll
 // ⚠️ 手工维护：新增组件时须同步追加 class 声明，CI 的 types-sync 检查会校验一致
 
 /// <reference lib="dom" />
@@ -823,13 +823,72 @@ export class AfNoticeBar extends AfElement {
 }
 
 // ============================================================
+// af-progress（v1.3.0 · 进度条）
+// ============================================================
+
+export class AfProgress extends AfElement {
+  static useShadow: false;
+  /** 当前值 */
+  value: number;
+  /** 最大值 */
+  max: number;
+  /** 颜色变体（brand/success/danger） */
+  color: 'brand' | 'success' | 'danger';
+}
+
+// ============================================================
+// af-steps（v1.3.0 · 步骤条）
+// ============================================================
+
+export class AfSteps extends AfElement {
+  static useShadow: false;
+  /** 步骤项（字符串或 { label }） */
+  steps: Array<string | { label: string }>;
+  /** 当前步骤索引（0 起） */
+  current: number;
+}
+
+// ============================================================
+// af-countdown（v1.3.0 · 倒计时）
+// ============================================================
+
+/** af-countdown:change 事件 detail */
+export interface CountdownChangeDetail {
+  /** 剩余秒数 */
+  remaining: number;
+  /** 总秒数 */
+  total: number;
+}
+
+/** af-countdown:end 事件 detail（空） */
+export interface CountdownEndDetail {
+  [key: string]: unknown;
+}
+
+export class AfCountdown extends AfElement {
+  static useShadow: false;
+  /** 总时长（秒） */
+  time: number;
+  /** 挂载后自动开始 */
+  autostart: boolean;
+  /** 开始倒计时 */
+  start(): void;
+  /** 暂停（保留剩余时间） */
+  pause(): void;
+  /** 重置到 time 初始值 */
+  reset(): void;
+  addEventListener(type: 'af-countdown:change', listener: (e: CustomEvent<CountdownChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-countdown:end', listener: (e: CustomEvent<CountdownEndDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
 // 注册接口
 // ============================================================
 
 /** 按需注册单个组件（传入标签名） */
 export function register(name: string): void;
 
-/** 全量注册 25 个组件 */
+/** 全量注册 28 个组件 */
 export function registerAll(): void;
 
 // ============================================================

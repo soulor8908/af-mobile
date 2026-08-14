@@ -66,6 +66,22 @@ describe('af-list 虚拟滚动', () => {
     expect(handler.mock.calls[0][0].detail.index).toBe(0);
   });
 
+  it('点击项内交互元素（按钮）不触发 itemclick，避免与动作按钮冲突', () => {
+    const el = makeList({ data: makeData(5) });
+    el.renderItem = (item, idx) =>
+      // eslint-disable-next-line aiflow/token-whitelist -- 测试动作按钮场景，用任意 class
+      `<div class="list-item" data-list-index="${idx}">${item.title}<button class="custom-del">×</button></div>`;
+    const handler = vi.fn();
+    el.addEventListener('af-list:itemclick', handler);
+    // 点击项内按钮：不触发 itemclick（按钮自身是 button，closest('button') 匹配）
+    el.$('.custom-del').click();
+    expect(handler).not.toHaveBeenCalled();
+    // 点击项内非交互区域（点击 list-item 空白区）：正常触发 itemclick
+    el.$('.list-item').dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail.index).toBe(0);
+  });
+
   it('onAttributeChange：data 属性变化触发重渲染', () => {
     const el = makeList({ data: [] });
     expect(el.$('.empty')).not.toBeNull();

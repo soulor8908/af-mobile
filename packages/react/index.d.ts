@@ -5,9 +5,13 @@ import type { ReactElement, HTMLAttributes } from 'react';
 
 type P<T extends string> = Partial<Record<T, unknown>>;
 type E<T extends string> = Partial<Record<`on${T}`, (detail: unknown) => void>>;
-type Attrs = HTMLAttributes<HTMLElement> & { className?: string };
+type Attrs = HTMLAttributes<HTMLElement> & {
+  className?: string;
+  /** 每次渲染后回调组件原生元素实例（用于挂载宿主级监听） */
+  elRef?: (el: HTMLElement) => void;
+};
 
-export declare const AfList: (props: P<'data' | 'pageSize' | 'itemHeight' | 'buffer' | 'mode' | 'refresh' | 'loading' | 'emptyText' | 'height' | 'totalCount'> & E<'Loadmore' | 'Refresh' | 'Itemclick'> & Attrs) => ReactElement;
+export declare const AfList: (props: P<'data' | 'pageSize' | 'itemHeight' | 'buffer' | 'mode' | 'refresh' | 'loading' | 'emptyText' | 'height' | 'totalCount' | 'renderItem'> & E<'Loadmore' | 'Refresh' | 'Itemclick'> & Attrs) => ReactElement;
 export declare const AfSwiper: (props: P<'activeIndex' | 'autoplay' | 'loop' | 'duration' | 'showDots' | 'disabled'> & E<'Change'> & Attrs) => ReactElement;
 export declare const AfTabs: (props: P<'tabs' | 'activeIndex' | 'variant' | 'fixed'> & E<'Change'> & Attrs) => ReactElement;
 export declare const AfDialog: (props: P<'title' | 'closeOnEsc' | 'closeOnBackdrop' | 'variant'> & E<'Open' | 'Close'> & Attrs) => ReactElement;

@@ -19,6 +19,7 @@ const toPascal = (tag) => 'Af' + tag.replace(/^af-/, '').replace(/-([a-z])/g, (_
 // meta: { props, events }
 //   props  —— 组件公开属性（camelCase 名称，以 property 方式同步）
 //   events —— 组件派发的自定义事件名（af-*:*），映射为 on{Action} 回调
+// 额外 prop：elRef —— 回调，每次渲染后收到组件原生元素实例（用于挂载宿主级监听）
 export function createWrapper(tag, Ctor, { props = [], events = [] } = {}) {
   define(tag, Ctor);
   const handlerKeys = new Set(events.map(toHandler));
@@ -47,12 +48,13 @@ export function createWrapper(tag, Ctor, { props = [], events = [] } = {}) {
       for (const name of props) {
         if (rest[name] !== undefined) node[name] = rest[name];
       }
+      restRef.current.elRef?.(node); // 暴露原生元素实例
     });
 
     // 非 prop 非 handler 的 props 作为普通 attribute 透传（className/style/id/data-*/aria-* 等）
     const attrs = {};
     for (const key in rest) {
-      if (!props.includes(key) && !handlerKeys.has(key)) attrs[key] = rest[key];
+      if (key !== 'elRef' && !props.includes(key) && !handlerKeys.has(key)) attrs[key] = rest[key];
     }
     // React 18 对自定义元素不把 className 映射为 class（React 19 才修复），此处显式转换
     if (attrs.className !== undefined) {

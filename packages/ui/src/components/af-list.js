@@ -241,6 +241,8 @@ export class AfList extends withI18n(AfElement) {
 
   _bindClick() {
     this._onClick = (e) => {
+      // 项内交互元素（按钮/链接/role=button）点击不触发 itemclick，避免与动作按钮冲突
+      if (e.target.closest('button, a, [role="button"]')) return;
       const itemEl = e.target.closest('.list-item, .list-item-compact');
       if (!itemEl || !this._scroller.contains(itemEl)) return;
       const idx = Number(itemEl.dataset.listIndex);

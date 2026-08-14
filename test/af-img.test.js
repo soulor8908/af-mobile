@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfImg } from '../src/components/af-img.js';
+import { AfImg } from '../packages/ui/src/components/af-img.js';
 customElements.define('af-img', AfImg);
 
 function makeImg(props = {}) {

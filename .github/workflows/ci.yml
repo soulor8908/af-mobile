@@ -52,9 +52,9 @@ jobs:
       # Lighthouse 在共享 runner 上耗时长且结果受负载影响，不适合作为 PR 阻断闸门
 
       # Step 4: ESLint 15 规则（L1+L2+L3）—— error 级直接阻断 PR
-      # 范围覆盖全部含 JS 的目录（含 eslint-plugin-aiflow 工作区，AGENTS.md #9）
+      # 范围覆盖全部含 JS 的目录（packages/ 含 ui/vue/react/eslint-plugin/chat，AGENTS.md #9）
       - name: ESLint check
-        run: npx eslint src/ test/ scripts/ vue/ react/ eslint-plugin-aiflow/ --max-warnings 0
+        run: npx eslint packages/ test/ scripts/ --max-warnings 0
 
       # Step 5: 发布前检查（build dist + Tree Shaking + sideEffects + npm pack 内容）
       # PR 阶段跑以提前发现发布问题；正式发布由 prepublishOnly 二次保证

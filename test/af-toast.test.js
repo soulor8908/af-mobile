@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfToast } from '../src/components/af-toast.js';
+import { AfToast } from '../packages/ui/src/components/af-toast.js';
 customElements.define('af-toast', AfToast);
 
 function makeToast() {

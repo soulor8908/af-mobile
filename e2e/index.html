@@ -95,12 +95,12 @@
   </section>
 
   <script type="module">
-    import '../src/index.css';
-    import { registerAll } from '../src/index.js';
+    import '../packages/ui/src/index.css';
+    import { registerAll } from '../packages/ui/src/index.js';
     import {
       route as defineRoute, go as navTo, start as startRouter, RouterError,
-    } from '../src/index.js';
-    import { addMessages, setLocale, t as i18nT } from '../src/index.js';
+    } from '../packages/ui/src/index.js';
+    import { addMessages, setLocale, t as i18nT } from '../packages/ui/src/index.js';
     registerAll();
 
     // dialog

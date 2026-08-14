@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfField } from '../src/components/af-field.js';
+import { AfField } from '../packages/ui/src/components/af-field.js';
 customElements.define('af-field-test', AfField);
 
 function makeField(props = {}) {

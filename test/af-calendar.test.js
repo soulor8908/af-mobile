@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfCalendar } from '../src/components/af-calendar.js';
+import { AfCalendar } from '../packages/ui/src/components/af-calendar.js';
 customElements.define('af-calendar-test', AfCalendar);
 
 function makeCalendar(props = {}) {

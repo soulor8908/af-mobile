@@ -8,8 +8,8 @@ export default defineConfig({
   resolve: {
     alias: {
       // 框架适配层以裸导入引用 @af-mobile/ui（与发布后消费一致），单测环境用别名指向本地源码
-      '@af-mobile/ui/components': resolve(ROOT, 'src/components'),
-      '@af-mobile/ui': resolve(ROOT, 'src/index.js'),
+      '@af-mobile/ui/components': resolve(ROOT, 'packages/ui/src/components'),
+      '@af-mobile/ui': resolve(ROOT, 'packages/ui/src/index.js'),
     },
   },
   test: {
@@ -20,8 +20,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['src/**/*.js'],
-      exclude: ['src/index.js']
+      include: ['packages/ui/src/**/*.js'],
+      exclude: ['packages/ui/src/index.js']
     }
   }
 });

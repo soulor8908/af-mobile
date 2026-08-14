@@ -157,7 +157,7 @@ function main() {
     return i >= 0 ? args[i + 1] : null;
   };
   const srcDir = getArg('--src');
-  const cssPath = getArg('--css') || join(ROOT, 'src/index.css');
+  const cssPath = getArg('--css') || join(ROOT, 'packages/ui/src/index.css');
   const outPath = getArg('--out');
 
   if (!srcDir) {

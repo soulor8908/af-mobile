@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfDialog } from '../src/components/af-dialog.js';
+import { AfDialog } from '../packages/ui/src/components/af-dialog.js';
 customElements.define('af-dialog', AfDialog);
 
 function makeDialog(props = {}) {

@@ -1,13 +1,13 @@
 // eslint-plugin-aiflow L2 规则测试（7 条合并）
 import { describe, it } from 'vitest';
 import { RuleTester } from 'eslint';
-import tokenWhitelist from '../../eslint-plugin-aiflow/rules/token-whitelist.js';
-import noRecipeBreak from '../../eslint-plugin-aiflow/rules/no-recipe-break.js';
-import noVariantConflict from '../../eslint-plugin-aiflow/rules/no-variant-conflict.js';
-import noArbitraryValue from '../../eslint-plugin-aiflow/rules/no-arbitrary-value.js';
-import noTailwindSyntax from '../../eslint-plugin-aiflow/rules/no-tailwind-syntax.js';
-import preferComponent from '../../eslint-plugin-aiflow/rules/prefer-component.js';
-import atomicDuplicate from '../../eslint-plugin-aiflow/rules/atomic-duplicate.js';
+import tokenWhitelist from '../../packages/eslint-plugin/rules/token-whitelist.js';
+import noRecipeBreak from '../../packages/eslint-plugin/rules/no-recipe-break.js';
+import noVariantConflict from '../../packages/eslint-plugin/rules/no-variant-conflict.js';
+import noArbitraryValue from '../../packages/eslint-plugin/rules/no-arbitrary-value.js';
+import noTailwindSyntax from '../../packages/eslint-plugin/rules/no-tailwind-syntax.js';
+import preferComponent from '../../packages/eslint-plugin/rules/prefer-component.js';
+import atomicDuplicate from '../../packages/eslint-plugin/rules/atomic-duplicate.js';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },

@@ -1,7 +1,7 @@
 // eslint-plugin-aiflow 规则测试 —— no-token-modification
 import { describe, it, expect } from 'vitest';
 import { RuleTester } from 'eslint';
-import rule from '../../eslint-plugin-aiflow/rules/no-token-modification.js';
+import rule from '../../packages/eslint-plugin/rules/no-token-modification.js';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },

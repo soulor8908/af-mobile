@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { AfCountdown } from '../src/components/af-countdown.js';
+import { AfCountdown } from '../packages/ui/src/components/af-countdown.js';
 customElements.define('af-countdown-test', AfCountdown);
 
 function makeCountdown(props = {}) {

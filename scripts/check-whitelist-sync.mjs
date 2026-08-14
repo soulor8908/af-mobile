@@ -15,7 +15,7 @@ import { spawnSync } from 'node:child_process';
 import { buildWhitelistFromSources } from './gen-whitelist.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const WL_PATH = join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json');
+const WL_PATH = join(ROOT, 'packages/eslint-plugin/utils/whitelist-v1.json');
 
 // 差集：在 A 但不在 B
 export function diff(a, b) {

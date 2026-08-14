@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { initBind, registerDataRef, unregisterDataRef, _resetBind } from '../src/lib/bind.js';
-import { definePage, createPage, state, derived, _resetPage } from '../src/lib/page.js';
+import { initBind, registerDataRef, unregisterDataRef, _resetBind } from '../packages/ui/src/lib/bind.js';
+import { definePage, createPage, state, derived, _resetPage } from '../packages/ui/src/lib/page.js';
 
 beforeEach(() => {
   document.body.innerHTML = '';

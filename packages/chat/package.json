@@ -1,0 +1,49 @@
+{
+  "name": "@af-mobile/chat",
+  "version": "0.1.0",
+  "description": "Framework-agnostic chat SDK with React/Vue adapters, built on @af-mobile/ui",
+  "type": "module",
+  "main": "./core/index.js",
+  "module": "./core/index.js",
+  "exports": {
+    ".": {
+      "import": "./core/index.js",
+      "default": "./core/index.js"
+    },
+    "./react": {
+      "import": "./adapters/react/index.js",
+      "default": "./adapters/react/index.js"
+    },
+    "./vue": {
+      "import": "./adapters/vue/index.js",
+      "default": "./adapters/vue/index.js"
+    }
+  },
+  "files": [
+    "core",
+    "adapters"
+  ],
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@af-mobile/ui": "*"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "chat",
+    "llm",
+    "streaming",
+    "sse",
+    "ai",
+    "mobile"
+  ],
+  "license": "MIT"
+}

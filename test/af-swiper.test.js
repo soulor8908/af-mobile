@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { AfSwiper } from '../src/components/af-swiper.js';
+import { AfSwiper } from '../packages/ui/src/components/af-swiper.js';
 customElements.define('af-swiper', AfSwiper);
 
 function makeSwiper(slides = 3, props = {}) {

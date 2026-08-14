@@ -1,18 +1,18 @@
 // eslint-plugin-aiflow L3.5 规则测试（11 条合并）
 import { describe, it } from 'vitest';
 import { RuleTester } from 'eslint';
-import wcEffectsWhitelist from '../../eslint-plugin-aiflow/rules/wc-effects-whitelist.js';
-import wcDefinepageSingle from '../../eslint-plugin-aiflow/rules/wc-definepage-single.js';
-import wcNoAddeventlistener from '../../eslint-plugin-aiflow/rules/wc-no-addeventlistener.js';
-import wcBlockPropsCount from '../../eslint-plugin-aiflow/rules/wc-block-props-count.js';
-import wcBlockNoInternalRef from '../../eslint-plugin-aiflow/rules/wc-block-no-internal-ref.js';
-import wcStateSchema from '../../eslint-plugin-aiflow/rules/wc-state-schema.js';
-import wcTransformPure from '../../eslint-plugin-aiflow/rules/wc-transform-pure.js';
-import wcPureFunction from '../../eslint-plugin-aiflow/rules/wc-pure-function.js';
-import wcBlockStates from '../../eslint-plugin-aiflow/rules/wc-block-states.js';
-import wcBlockVariantEnum from '../../eslint-plugin-aiflow/rules/wc-block-variant-enum.js';
-import wcBindSyntax from '../../eslint-plugin-aiflow/rules/wc-bind-syntax.js';
-import noRegisterAll from '../../eslint-plugin-aiflow/rules/no-register-all.js';
+import wcEffectsWhitelist from '../../packages/eslint-plugin/rules/wc-effects-whitelist.js';
+import wcDefinepageSingle from '../../packages/eslint-plugin/rules/wc-definepage-single.js';
+import wcNoAddeventlistener from '../../packages/eslint-plugin/rules/wc-no-addeventlistener.js';
+import wcBlockPropsCount from '../../packages/eslint-plugin/rules/wc-block-props-count.js';
+import wcBlockNoInternalRef from '../../packages/eslint-plugin/rules/wc-block-no-internal-ref.js';
+import wcStateSchema from '../../packages/eslint-plugin/rules/wc-state-schema.js';
+import wcTransformPure from '../../packages/eslint-plugin/rules/wc-transform-pure.js';
+import wcPureFunction from '../../packages/eslint-plugin/rules/wc-pure-function.js';
+import wcBlockStates from '../../packages/eslint-plugin/rules/wc-block-states.js';
+import wcBlockVariantEnum from '../../packages/eslint-plugin/rules/wc-block-variant-enum.js';
+import wcBindSyntax from '../../packages/eslint-plugin/rules/wc-bind-syntax.js';
+import noRegisterAll from '../../packages/eslint-plugin/rules/no-register-all.js';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },

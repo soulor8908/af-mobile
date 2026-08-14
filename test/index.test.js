@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import * as AiflowUI from '../src/index.js';
+import * as AiflowUI from '../packages/ui/src/index.js';
 
 describe('index.js 汇总导出', () => {
   it('导出 AfElement 基类', () => {
@@ -66,7 +66,7 @@ describe('Tree Shaking 验证', () => {
     // 该测试要求 esbuild。在纯 vitest 环境下做静态分析替代：
     // 通过 import() 动态加载仅含 2 个组件的"假"模块，并断言该模块文本不引用其它组件。
     // 由于本项目无 build 步骤可直接调用 esbuild，这里验证 index.js 的导出可被具名选择性 import。
-    const mod = await import('../src/index.js');
+    const mod = await import('../packages/ui/src/index.js');
     // 仅取 AfList + AfDialog，其余不应在此次作用域被引用
     const { AfList, AfDialog } = mod;
     expect(AfList).toBeDefined();

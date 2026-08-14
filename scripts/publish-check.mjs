@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '../../');
-const SRC = join(ROOT, 'src');
+const SRC = join(ROOT, 'packages/ui/src');
 const KB = 1024;
 const fmt = (b) => (b / KB).toFixed(3) + 'KB';
 
@@ -26,7 +26,7 @@ console.log('╚═════════════════════�
 
 // 1. npm pack 内容检查
 console.log('── 1. npm pack 内容 ──');
-const packFiles = execSync('npm pack --dry-run 2>&1', { cwd: ROOT, encoding: 'utf8' })
+const packFiles = execSync('npm pack --dry-run 2>&1', { cwd: join(ROOT, 'packages/ui'), encoding: 'utf8' })
   .split('\n')
   .filter(l => l.includes('src/') || l.includes('eslint-plugin'));
 check('npm pack 包含 src/', packFiles.some(l => l.includes('src/')), `${packFiles.length} 个文件`);
@@ -65,16 +65,16 @@ async function treeShakeCheck() {
 // 3. whitelist 同步检查
 console.log('\n── 3. whitelist 同步 ──');
 function whitelistCheck() {
-  const before = readFileSync(join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json'), 'utf8');
+  const before = readFileSync(join(ROOT, 'packages/eslint-plugin/utils/whitelist-v1.json'), 'utf8');
   execSync('node scripts/gen-whitelist.mjs', { cwd: ROOT });
-  const after = readFileSync(join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json'), 'utf8');
+  const after = readFileSync(join(ROOT, 'packages/eslint-plugin/utils/whitelist-v1.json'), 'utf8');
   check('whitelist 与源码同步', before === after);
 }
 
 // 4. sideEffects 检查
 console.log('\n── 4. package.json 配置 ──');
 function pkgCheck() {
-  const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
+  const pkg = JSON.parse(readFileSync(join(ROOT, 'packages/ui/package.json'), 'utf8'));
   // sideEffects: CSS 有副作用（防 tree-shake 误删 import 'aiflow-ui/css'），JS 无副作用
   check('sideEffects 标记 CSS 有副作用', Array.isArray(pkg.sideEffects) && pkg.sideEffects.some(s => s.includes('css')));
   check('type: module', pkg.type === 'module');
@@ -88,13 +88,13 @@ console.log('\n── 5. dist 产物 ──');
 function distCheck() {
   const distFiles = ['dist/index.js', 'dist/aiflow-ui.umd.js', 'dist/index.css', 'dist/index.d.ts'];
   // 任一缺失则先构建（CI 不跑 prepublishOnly，需自包含）
-  const anyMissing = distFiles.some(f => !existsSync(join(ROOT, f)));
+  const anyMissing = distFiles.some(f => !existsSync(join(ROOT, 'packages/ui', f)));
   if (anyMissing) {
     console.log('  dist 缺失，自动执行 npm run build ...');
     execSync('npm run build', { cwd: ROOT, stdio: 'inherit' });
   }
   for (const f of distFiles) {
-    const p = join(ROOT, f);
+    const p = join(ROOT, 'packages/ui', f);
     const exists = existsSync(p);
     const size = exists ? statSync(p).size : 0;
     check(`dist/${f.split('/').pop()}`, exists, exists ? fmt(size) : '缺失');

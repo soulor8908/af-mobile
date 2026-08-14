@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfPicker } from '../src/components/af-picker.js';
+import { AfPicker } from '../packages/ui/src/components/af-picker.js';
 customElements.define('af-picker', AfPicker);
 
 const COLUMNS = [

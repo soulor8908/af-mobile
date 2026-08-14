@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfSettingGroup } from '../src/blocks/af-setting-group.js';
-import { AfSwitch } from '../src/components/af-switch.js';
+import { AfSettingGroup } from '../packages/ui/src/blocks/af-setting-group.js';
+import { AfSwitch } from '../packages/ui/src/components/af-switch.js';
 customElements.define('af-setting-group', AfSettingGroup);
 customElements.define('af-switch', AfSwitch);
 

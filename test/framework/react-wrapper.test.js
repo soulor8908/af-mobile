@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createRoot } from 'react-dom/client';
 import React, { act } from 'react';
-import { AfSwitch } from '../../react/components/af-switch.js';
+import { AfSwitch } from '../../packages/react/components/af-switch.js';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 

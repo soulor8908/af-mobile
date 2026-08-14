@@ -15,7 +15,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '../../');
-const SRC = join(ROOT, 'src');
+const SRC = join(ROOT, 'packages/ui/src');
 
 // 预算（L1+L2 来自 L4 §0.3 实测校准；L3 来自 L3 §8.5）
 // v1.0.1 调整：基类含 escapeHtml 防 XSS（P0 安全），total 含 P0 修复（定位/焦点/转义）

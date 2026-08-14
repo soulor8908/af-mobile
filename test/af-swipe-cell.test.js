@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfSwipeCell } from '../src/components/af-swipe-cell.js';
+import { AfSwipeCell } from '../packages/ui/src/components/af-swipe-cell.js';
 customElements.define('af-swipe-cell-test', AfSwipeCell);
 
 function makeSwipeCell(slots = {}) {

@@ -5,9 +5,9 @@ import { Linter } from 'eslint';
 import { readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import plugin from '../../eslint-plugin-aiflow/index.js';
+import plugin from '../../packages/eslint-plugin/index.js';
 
-const PKG_DIR = resolve(fileURLToPath(import.meta.url), '../../../eslint-plugin-aiflow');
+const PKG_DIR = resolve(fileURLToPath(import.meta.url), '../../../packages/eslint-plugin');
 
 describe('@af-mobile/eslint-plugin 独立包', () => {
   it('package.json 元信息完整（name/version/exports/files/peerDeps）', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfProductCard } from '../src/blocks/af-product-card.js';
+import { AfProductCard } from '../packages/ui/src/blocks/af-product-card.js';
 customElements.define('af-product-card', AfProductCard);
 
 function makeEl(props = {}) {

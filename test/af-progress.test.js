@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { AfProgress } from '../src/components/af-progress.js';
+import { AfProgress } from '../packages/ui/src/components/af-progress.js';
 customElements.define('af-progress-test', AfProgress);
 
 function makeProgress(props = {}) {

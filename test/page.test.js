@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { definePage, createPage, state, derived, actions, clearPageState, getTransition, getKeepAlive, _resetPage, destroyPage } from '../src/lib/page.js';
-import { route, start, go, _resetRouter } from '../src/lib/router.js';
-import { effect } from '../src/lib/state.js';
+import { definePage, createPage, state, derived, actions, clearPageState, getTransition, getKeepAlive, _resetPage, destroyPage } from '../packages/ui/src/lib/page.js';
+import { route, start, go, _resetRouter } from '../packages/ui/src/lib/router.js';
+import { effect } from '../packages/ui/src/lib/state.js';
 
 beforeEach(() => { _resetPage(); });
 

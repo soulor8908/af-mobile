@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfList } from '../src/components/af-list.js';
+import { AfList } from '../packages/ui/src/components/af-list.js';
 customElements.define('af-list', AfList);
 
 function makeList(props = {}) {

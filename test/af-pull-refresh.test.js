@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfPullRefresh } from '../src/components/af-pull-refresh.js';
+import { AfPullRefresh } from '../packages/ui/src/components/af-pull-refresh.js';
 customElements.define('af-pull-refresh-test', AfPullRefresh);
 
 function makePullRefresh(children = []) {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfNavbar } from '../src/components/af-navbar.js';
+import { AfNavbar } from '../packages/ui/src/components/af-navbar.js';
 customElements.define('af-navbar-test', AfNavbar);
 
 function makeNavbar(props = {}) {

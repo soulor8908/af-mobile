@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfTabs } from '../src/components/af-tabs.js';
+import { AfTabs } from '../packages/ui/src/components/af-tabs.js';
 customElements.define('af-tabs', AfTabs);
 
 const TABS = [

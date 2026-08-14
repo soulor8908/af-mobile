@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createApp, h, nextTick } from 'vue';
-import { AfSwitch } from '../../vue/components/af-switch.js';
+import { AfSwitch } from '../../packages/vue/components/af-switch.js';
 
 async function mountVueComponent(component, props = {}) {
   const root = document.createElement('div');

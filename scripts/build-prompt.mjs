@@ -13,9 +13,9 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TEMPLATE = join(ROOT, 'prompt/system-prompt.template.md');
-const WHITELIST = join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json');
-const RECIPES_CSS = join(ROOT, 'src/recipes.css');
-const ATOMIC_CSS = join(ROOT, 'src/atomic.css');
+const WHITELIST = join(ROOT, 'packages/eslint-plugin/utils/whitelist-v1.json');
+const RECIPES_CSS = join(ROOT, 'packages/ui/src/recipes.css');
+const ATOMIC_CSS = join(ROOT, 'packages/ui/src/atomic.css');
 const MODEL_DIR = join(ROOT, 'prompt/models');
 const DEFAULT_OUT = join(ROOT, 'prompt/system-prompt.md');
 

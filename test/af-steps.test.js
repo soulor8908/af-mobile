@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { AfSteps } from '../src/components/af-steps.js';
+import { AfSteps } from '../packages/ui/src/components/af-steps.js';
 customElements.define('af-steps-test', AfSteps);
 
 function makeSteps(props = {}) {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfCascadePicker } from '../src/components/af-cascade-picker.js';
+import { AfCascadePicker } from '../packages/ui/src/components/af-cascade-picker.js';
 customElements.define('af-cascade-picker', AfCascadePicker);
 
 const TREE = [

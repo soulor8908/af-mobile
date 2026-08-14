@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfStepper } from '../src/components/af-stepper.js';
+import { AfStepper } from '../packages/ui/src/components/af-stepper.js';
 customElements.define('af-stepper-test', AfStepper);
 
 function makeStepper(props = {}) {

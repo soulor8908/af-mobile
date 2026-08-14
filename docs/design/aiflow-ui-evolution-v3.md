@@ -974,6 +974,11 @@ connectedCallback() {
 >   - **React 18**：props → property 同步、`af-list:itemclick` → `onItemclick` 回调（`useRef` 避免闭包过期）、非组件 prop 透传 attribute；显式映射 `className → class`（React 18 自定义元素不会自动映射，React 19 才修复）。
 >   - 测试：`test/framework/{vue,react}-wrapper.test.js` 各 5 用例（挂载/props 同步/事件转发/v-model 或 attribute 透传/卸载清理，React 用 `act` 刷新 concurrent root）；vitest alias 指向本地 `aiflow-ui` 源码（裸导入与发布后消费一致）。
 >   - 交付：`vue/`、`react/` package.json（peer 依赖 vue/react + types 字段）、index.d.ts 24 组件类型声明（tsc 5.5 编译通过）、README 框架接入文档、CI ESLint 覆盖 `vue/ react/`。自检：ESLint 0 错、vitest 934 用例全绿、size/whitelist/types/prompt 全过（按需 2 组件 warn 为既有项）。
+> - **运行时性能监控钩子（2026-08-14）**：基类 `AfElement` 新增渲染监控（P2 收尾，无侵入子组件）：
+>   - 实例钩子 `onRender()`（首次挂载渲染后）/ `onUpdate(attrName)`（属性变化更新处理后），与 mounted/onAttributeChange 生命周期并列，风格一致。
+>   - 全局订阅 `AfElement.onPerf(cb)`（返回取消函数）：DevTools/性能分析消费事件流 `{ type: 'render'|'update', tagName, attr, duration }`，duration 为渲染/更新处理耗时（performance.now() 同基准）。
+>   - 默认零开销：未注册订阅者时渲染路径仅增可选链检查；订阅者存在时才埋起点/计算耗时。
+>   - 体积：基类 1.309→1.490KB（≤1.5KB 预算内，去掉 mark 埋点 + 压缩实现达成，未调预算）。自检：ESLint 0 错、vitest 940 用例全绿、size/whitelist/types/prompt 全过（按需 2 组件 warn 为既有项）。
 
 ---
 

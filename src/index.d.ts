@@ -16,6 +16,18 @@ export interface AfEventDetail {
 /** 主题名称 */
 export type ThemeName = 'light' | 'dark';
 
+/** 渲染监控事件（AfElement.onPerf 全局订阅者收到） */
+export interface PerfEvent {
+  /** 事件类型：render=首次挂载渲染，update=属性变化更新处理 */
+  type: 'render' | 'update';
+  /** 组件标签名（如 af-list） */
+  tagName: string;
+  /** 触发更新的属性名（仅 update 类型有值） */
+  attr?: string;
+  /** 渲染/更新处理耗时（ms，与 performance.now() 同一时间基准） */
+  duration: number;
+}
+
 /** DTCG token 值：字符串（含别名 {group.name}）/ 数值 / cubic-bezier 对象 */
 export type DesignTokenValue = string | number | { x1: number; y1: number; x2: number; y2: number };
 
@@ -114,6 +126,12 @@ export class AfElement extends HTMLElement {
       default?: unknown;
     }
   ): void;
+  /** 注册全局渲染事件订阅者（DevTools/性能分析），返回取消函数；默认零开销 */
+  static onPerf(cb: (event: PerfEvent) => void): () => void;
+  /** 生命周期：首次渲染后（子类重写，无监听器时不触发） */
+  protected onRender?(): void;
+  /** 生命周期：属性变化更新处理后（子类重写，无监听器时不触发） */
+  protected onUpdate?(attrname: string): void;
 }
 
 // ============================================================

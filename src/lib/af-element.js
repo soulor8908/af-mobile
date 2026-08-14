@@ -62,7 +62,9 @@ export class AfElement extends HTMLElement {
       this._themeHandler = (e) => this.onThemeChange(e.detail);
       document.documentElement.addEventListener('themechange', this._themeHandler);
     }
+    if (this.constructor._perf.size) this._perfStart = performance.now();
     this.mounted?.();
+    this._afterRender('render');
   }
 
   disconnectedCallback() {
@@ -83,11 +85,35 @@ export class AfElement extends HTMLElement {
       const meta = this.constructor._propMeta?.[name];
       if (meta) this[meta.symbol] = meta.parse(newVal);
     }
+    if (this.constructor._perf.size) this._perfStart = performance.now();
     this.onAttributeChange?.(name, oldVal, newVal);
+    this._afterRender('update', name);
   }
 
   emit(name, detail = {}) {
     this.dispatchEvent(new CustomEvent(name, { detail, bubbles: true, composed: true }));
+  }
+
+  // === 渲染监控（P2：onRender/onUpdate 钩子 + DevTools 集成） ===
+  // 实例钩子 onRender/onUpdate 在子类实现时触发；全局订阅者通过 AfElement.onPerf(cb) 注册。
+  // 默认零开销：未注册订阅者时，渲染路径仅增加可选链检查（未实现即空）。
+  static _perf = new Set();
+
+  /** 注册全局渲染事件订阅（DevTools/性能分析），返回取消函数 */
+  static onPerf(cb) {
+    this._perf.add(cb);
+    return () => this._perf.delete(cb);
+  }
+
+  _afterRender(t, a) {
+    this.onRender?.();
+    if (t === 'update') this.onUpdate?.(a);
+    const C = this.constructor;
+    if (!C._perf.size) return;
+    const now = performance.now();
+    const ev = { type: t, tagName: this.localName, attr: a, duration: now - (this._perfStart ?? now) };
+    this._perfStart = null;
+    for (const cb of C._perf) cb(ev);
   }
 
   // === 背景滚动锁（模态组件 open/close 配对调用，引用计数支持多实例嵌套） ===

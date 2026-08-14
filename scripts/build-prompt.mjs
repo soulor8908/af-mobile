@@ -162,7 +162,7 @@ const COMPONENT_META = [
   { tag: 'af-stepper', purpose: '数量选择器', props: 'value, min, max, step, disabled', events: 'af-stepper:change' },
   { tag: 'af-field', purpose: '结构化表单字段', props: 'label, icon, type, value, placeholder, help, error', events: 'af-field:input, af-field:change' },
   { tag: 'af-pull-refresh', purpose: '下拉刷新容器', props: 'refreshing', events: 'af-pull-refresh:refresh' },
-  { tag: 'af-swipe-cell', purpose: '滑动单元格', props: 'disabled', events: 'af-swipe-cell:action' },
+  { tag: 'af-swipe-cell', purpose: '滑动单元格', props: 'slot content, slot right', events: 'af-swipe-cell:action, af-swipe-cell:change' },
   { tag: 'af-rate', purpose: '评分', props: 'value, max, readonly, size', events: 'af-rate:change' },
   { tag: 'af-notice-bar', purpose: '公告通知栏', props: 'text, scroll', events: '—' },
   { tag: 'af-progress', purpose: '进度条', props: 'value, max, color', events: '—' },

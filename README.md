@@ -1,3 +1,19 @@
+# @af-mobile
+
+Mobile-first **Monorepo**（npm workspaces），包含 @af-mobile 生态的全部包：
+
+| 包 | 目录 | 说明 |
+|---|---|---|
+| `@af-mobile/ui` | `packages/ui` | Web Components 组件库（L1/L2/L3/L4 四层分层设计体系） |
+| `@af-mobile/chat` | `packages/chat` | 框架无关聊天 SDK（会话/SSE 流式/工具调用 + React/Vue 适配层） |
+| `@af-mobile/react` | `packages/react` | React 适配层 |
+| `@af-mobile/vue` | `packages/vue` | Vue 适配层 |
+| `@af-mobile/eslint-plugin` | `packages/eslint-plugin` | L4 AI 约束 ESLint 插件 |
+
+以下文档主体为 `@af-mobile/ui` 组件库使用指南；`@af-mobile/chat` 用法见 [packages/chat/README.md](packages/chat/README.md)。
+
+---
+
 # @af-mobile/ui
 
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
@@ -93,7 +109,7 @@ npm install @af-mobile/ui
 | 步进器 | `<af-stepper>` | `value` `min` `max` `step` `disabled` | `af-stepper:change` |
 | 表单字段 | `<af-field>` | `label` `icon` `type` `input-type` `value` `placeholder` `help` `error` `disabled` `readonly` | `af-field:input` `af-field:change` |
 | 下拉刷新 | `<af-pull-refresh>` | `refreshing` | `af-pull-refresh:refresh` |
-| 滑动单元格 | `<af-swipe-cell>` | `disabled` | `af-swipe-cell:action` |
+| 滑动单元格 | `<af-swipe-cell>` | `slot="content"` `slot="right"` | `af-swipe-cell:action` `af-swipe-cell:change` |
 | 级联选择器 | `<af-cascade-picker>` | `tree` `values` `title` | `af-cascade-picker:change` `af-cascade-picker:confirm` |
 | 徽章 | `<af-badge>` | `value` `max` `dot` `type` | — |
 | 日历 | `<af-calendar>` | `value` `min` `max` `first-day-of-week` | `af-calendar:change` `af-calendar:select` |

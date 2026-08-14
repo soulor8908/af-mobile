@@ -55,6 +55,12 @@ export default [
     plugins: { aiflow },
     rules: {},
   },
+  // eslint-plugin 自身源码（index.js + rules/ + utils/）：库代码，用旧式规则 API（create/context），不受 L4 AI 约束
+  {
+    files: ['eslint-plugin-aiflow/**/*.js'],
+    plugins: { aiflow },
+    rules: {},
+  },
   // ESLint 规则测试夹具 + ai-fix 循环测试 + MCP 工具测试：含故意违规用例以验证规则/修复本身，关闭 AI 约束
   {
     files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js', 'test/mcp.test.js'],

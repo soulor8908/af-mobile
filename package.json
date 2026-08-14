@@ -4,7 +4,8 @@
   "description": "Mobile-first Web Components library with L1/L2/L3 layered design system",
   "workspaces": [
     "vue",
-    "react"
+    "react",
+    "eslint-plugin-aiflow"
   ],
   "type": "module",
   "main": "./src/index.js",

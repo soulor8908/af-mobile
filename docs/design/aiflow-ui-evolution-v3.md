@@ -944,6 +944,14 @@ connectedCallback() {
 > - 生态验证：eval `--prompt full|tailored` A/B 对比 pass@k 基础设施就绪（dry-run 验证通过）；MCP stdio 协议完整验证（initialize → tools/list → tools/call）
 > - 自检：ESLint（含 mcp/）0 错、vitest 836 用例全绿（+7 MCP 测试）、prompt:check / whitelist / types 三源同步。
 
+> **2A 完成状态（2026-08-14）**：ESLint 规则审计 + 整合 + 独立发布全部落地。
+> - 审计 9 条未导出规则 → 全量通过审计后导出，现 27 条（L1(2) + L2(7) + L3(6) + L3.5(12)）；
+> - 分级：`recommended` flat config 按 L4 §3.2-3.4 的 severity 启用（error/warn 已定级）；
+> - 独立发布：`@aiflow-ui/eslint-plugin`（`eslint-plugin-aiflow/package.json` 独立包壳，`type: module` + `exports` + `peerDependencies.eslint >= 9.0.0`，`files` 承诺 index.js/rules/utils 完整）；
+> - 工程接入：根 `package.json` workspaces 纳入 `eslint-plugin-aiflow`；`eslint.config.js` 增加插件自身源码块（库代码不受 L4 AI 约束）；CI ESLint 范围覆盖 `eslint-plugin-aiflow/`（AGENTS.md #9）；
+> - 独立包验证：`test/eslint-plugin/package-validate.test.js` 5 用例（包元信息 / 27 规则完整 / recommended 自洽 / Linter 端到端检出违规 / 白名单内合法代码零报错）。
+> - 自检：ESLint 0 错、vitest 945 用例全绿（+5 独立包验证）、size / whitelist / types 全过。
+
 ### Phase 3：生态扩展（v2.2.0+，持续）
 
 | 优先级 | 任务 | 说明 |

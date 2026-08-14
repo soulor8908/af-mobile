@@ -1,5 +1,7 @@
 from playwright.sync_api import sync_playwright
-import time
+import os, time
+
+BASE = os.environ.get("SMOKE_URL", "http://localhost:5173")
 
 def log(msg):
     print(f"[SMOKE] {msg}")
@@ -12,7 +14,7 @@ with sync_playwright() as p:
     page.on("console", lambda m: errors.append(f"{m.type}: {m.text}") if m.type in ("error", "warning") else None)
     page.on("pageerror", lambda e: errors.append(f"PAGEERROR: {e}"))
 
-    page.goto("http://localhost:5173/", wait_until="networkidle")
+    page.goto(f"{BASE}/", wait_until="networkidle")
     page.wait_for_timeout(1500)
     log(f"TITLE: {page.title()}")
     log(f"Initial errors: {len(errors)}")

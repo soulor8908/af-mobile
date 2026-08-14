@@ -11,6 +11,11 @@
       "types": "./index.d.ts",
       "import": "./index.js",
       "default": "./index.js"
+    },
+    "./af-*.js": {
+      "types": "./index.d.ts",
+      "import": "./components/af-*.js",
+      "default": "./components/af-*.js"
     }
   },
   "peerDependencies": {

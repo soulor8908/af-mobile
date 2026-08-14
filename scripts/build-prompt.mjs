@@ -6,6 +6,7 @@
 //   node scripts/build-prompt.mjs                          # 输出到 stdout
 //   node scripts/build-prompt.mjs -o prompt/system-prompt.md
 //   node scripts/build-prompt.mjs --project ./aiflow-ui/recipes.project.css
+//   node scripts/build-prompt.mjs --model claude          # 拼模型特化头
 import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,6 +16,7 @@ const TEMPLATE = join(ROOT, 'prompt/system-prompt.template.md');
 const WHITELIST = join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json');
 const RECIPES_CSS = join(ROOT, 'src/recipes.css');
 const ATOMIC_CSS = join(ROOT, 'src/atomic.css');
+const MODEL_DIR = join(ROOT, 'prompt/models');
 const DEFAULT_OUT = join(ROOT, 'prompt/system-prompt.md');
 
 // 解析 CLI 参数
@@ -229,11 +231,13 @@ export function filterFewshots(tpl, categories) {
 }
 
 // ===== 2B 模块化：buildPrompt（Prompt 即 API）=====
-// 角色（固定）+ 白名单（半固定）+ 组件 API（按需）+ Few-shot（动态检索）组合
+// 角色（固定）+ 白名单（半固定）+ 组件 API（按需）+ Few-shot（动态检索）+ 模型特化 + 主题扩展 组合
 // 无参 buildPrompt() = 全量（等价旧构建，CI 快照用）
 // buildPrompt({ userPrompt }) = 按需求关键词自动裁剪 few-shot
 // buildPrompt({ components, categories }) = 显式指定组件表与 few-shot
-export function buildPrompt({ components = [], categories = null, userPrompt = '', projectRecipes = null } = {}) {
+// buildPrompt({ model }) = 拼 prompt/models/{model}.md 模型特化头
+// buildPrompt({ theme }) = 注入项目 Token 段（数组=[名字...] 或 对象={名字: 值}）
+export function buildPrompt({ components = [], categories = null, userPrompt = '', projectRecipes = null, model = '', theme = null } = {}) {
   const tpl = readFileSync(TEMPLATE, 'utf8');
   const wl = JSON.parse(readFileSync(WHITELIST, 'utf8'));
   const recipeGroups = extractGroupsFromCss(readFileSync(RECIPES_CSS, 'utf8'));
@@ -264,6 +268,22 @@ export function buildPrompt({ components = [], categories = null, userPrompt = '
     extSection = buildProjectExtensionSection(extractProjectExtensions(readFileSync(projectRecipes, 'utf8')));
   }
   out = out.replace('<!-- {{{ PROJECT_EXTENSION_INJECTION_POINT }}} -->', extSection);
+
+  // 主题扩展：项目自定义 token（数组=只列名字，对象=名字+默认值）
+  if (theme) {
+    const tokens = Array.isArray(theme) ? theme : Object.keys(theme);
+    if (tokens.length) {
+      const row = tokens.map(t => '`' + t + '`').join(' ');
+      out = out.replace('## 禁止内联 style 的属性',
+        '## 项目 Token（theme 注入，' + tokens.length + ' 个）\n\n' + row + '\n\n## 禁止内联 style 的属性');
+    }
+  }
+
+  // 模型特化头：拼在 prompt 最前
+  if (model) {
+    const modelPath = join(MODEL_DIR, model + '.md');
+    if (existsSync(modelPath)) out = readFileSync(modelPath, 'utf8') + '\n\n' + out;
+  }
   return out;
 }
 
@@ -274,19 +294,21 @@ function main() {
   let projectRecipes = null;
   let components = [];
   let categories = null;
+  let model = '';
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '-o' || args[i] === '--output') outPath = args[++i];
     else if (args[i] === '--project') projectRecipes = args[++i];
     else if (args[i] === '--stdout') outPath = null;
+    else if (args[i] === '--model') model = args[++i];
     else if (args[i] === '-h' || args[i] === '--help') {
-      console.error('Usage: build-prompt.mjs [-o OUT] [--project PATH] [--stdout] [--components a,b] [--categories a,b]');
+      console.error('Usage: build-prompt.mjs [-o OUT] [--project PATH] [--stdout] [--components a,b] [--categories a,b] [--model claude|gpt4|glm]');
       process.exit(0);
     }
     else if (args[i] === '--components') components = args[++i].split(',').filter(Boolean);
     else if (args[i] === '--categories') categories = args[++i].split(',').filter(Boolean);
   }
 
-  const output = buildPrompt({ components, categories, projectRecipes });
+  const output = buildPrompt({ components, categories, projectRecipes, model });
 
   if (outPath) {
     writeFileSync(outPath, output);

@@ -42,9 +42,9 @@ export default [
     plugins: { aiflow },
     rules: { ...COMPONENT_RULES },
   },
-  // AI 生成的代码 / 测试文件 / 脚本 / ai-fix 临时文件：启用完整 AI 规则集
+  // AI 生成的代码 / 测试文件 / 脚本 / prompt 构建 / ai-fix 临时文件：启用完整 AI 规则集
   {
-    files: ['**/*.test.js', 'test/**/*.js', 'scripts/**/*.js', '.cache/**/*.js'],
+    files: ['**/*.test.js', 'test/**/*.js', 'scripts/**/*.js', 'prompt/**/*.js', '.cache/**/*.js'],
     plugins: { aiflow },
     rules: { ...AI_RULES },
   },

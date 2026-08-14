@@ -1,0 +1,15 @@
+{
+  "name": "@aiflow-ui/prompt",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "AIFlow UI System Prompt builder — modular (role + whitelist + component API + few-shot + model)",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "models/",
+    "system-prompt.template.md"
+  ],
+  "license": "MIT"
+}

@@ -926,6 +926,14 @@ connectedCallback() {
 | 2B | W3-W4 | Prompt 工程化 | 模块化拆分 + 版本管理 + `@aiflow-ui/prompt` + Cursor Rules |
 | 2C | W5-W6 | MCP + 生态验证 | MCP Server + 储备项目真实场景验证 |
 
+> **2B 完成状态（2026-08-13）**：P0 + P1 全部落地。
+> - 模块化拆分：`buildPrompt({ components, categories, userPrompt })`（角色固定 + 白名单半固定 + 组件 API 按需 + Few-shot 动态检索），无参 = 全量，与提交态 `system-prompt.md` 字节一致；
+> - 版本 A/B：`eval/run.mjs --prompt full|tailored` 对比 pass@k；
+> - 模型特化：`prompt/models/{claude,gpt4,glm}.md`，`buildPrompt({ model })` 拼特化头；
+> - Prompt 即 API：`@aiflow-ui/prompt`（`prompt/index.mjs` + `package.json` 薄包壳，re-export `buildPrompt` 等），`theme` 注入项目 Token 段；
+> - Cursor Rules：`.cursor/rules/{l4-consumer,l3-library}.mdc`；
+> - 自检：ESLint（含 eval/ prompt/）0 错、vitest 829 用例全绿、prompt:check / whitelist / types 三源同步。
+
 ### Phase 3：生态扩展（v2.2.0+，持续）
 
 | 优先级 | 任务 | 说明 |

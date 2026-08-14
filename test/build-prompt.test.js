@@ -285,4 +285,31 @@ describe('build-prompt / buildPrompt（Prompt 即 API）', () => {
     expect(p).toContain('L3 真组件标签');
     expect(p).toContain('`<af-dialog>`');
   });
+  it('model 拼接模型特化头', () => {
+    const p = buildPrompt({ model: 'claude' });
+    expect(p.startsWith('# 模型特化：Claude')).toBe(true);
+    expect(p).toContain('XML');
+    const g = buildPrompt({ model: 'glm' });
+    expect(g.startsWith('# 模型特化：GLM')).toBe(true);
+  });
+  it('未知 model 原样返回', () => {
+    expect(buildPrompt({ model: 'nonexist' })).toBe(buildPrompt());
+  });
+  it('theme 数组注入项目 Token 段', () => {
+    const p = buildPrompt({ theme: ['--c-brand', '--c-bg'] });
+    expect(p).toContain('## 项目 Token（theme 注入，2 个）');
+    expect(p).toContain('`--c-brand`');
+    expect(p).toContain('`--c-bg`');
+  });
+  it('theme 对象按 key 注入', () => {
+    const p = buildPrompt({ theme: { '--c-brand': '#1677ff' } });
+    expect(p).toContain('## 项目 Token（theme 注入，1 个）');
+    expect(p).toContain('`--c-brand`');
+  });
+  it('model + theme + components 组合', () => {
+    const p = buildPrompt({ model: 'claude', theme: ['--c-brand'], components: ['af-list'] });
+    expect(p.startsWith('# 模型特化：Claude')).toBe(true);
+    expect(p).toContain('## 项目 Token');
+    expect(p).toContain('| `<af-list>` |');
+  });
 });

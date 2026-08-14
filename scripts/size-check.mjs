@@ -48,11 +48,13 @@ const SRC = join(ROOT, 'src');
 //   total 20.5→21.0KB：新增 af-badge 组件（21 组件 + 基类），预留 af-rate/af-calendar/af-cascade-picker 余量
 // v3.2 调整（Phase 3 组件补齐，用户已确认）：
 //   total 21.0→21.3KB：新增 af-rate 组件（22 组件 + 基类，复用 L2 .rate 纯 CSS 配方，JS 仅 0.72KB gzip）
+// v3.3 调整（Phase 3 组件补齐，用户已确认）：
+//   total 21.3→23.0KB：新增 af-calendar（Shadow DOM 日历，1.73KB gzip）+ 预留 af-cascade-picker 余量
 const BUDGET = {
   css: 8.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 1.5,           // KB，AfElement 基类（+_applyI18n + localechange 订阅）
-  total: 21.3,         // KB，22 组件 + 基类（含 i18n 增量）
+  total: 23.0,         // KB，23 组件 + 基类（含 i18n 增量）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 5.4,    // KB，router(2.0)+state(0.9)+fetch(0.8)+i18n(1.1)+容差(0.6)，独立预算不计入 total（v3.0 state.js +Owner pattern）
 };
@@ -81,7 +83,7 @@ const FILE_TO_NAME = {
   'af-list.js': 'AfList', 'af-swiper.js': 'AfSwiper', 'af-tabs.js': 'AfTabs',
   'af-dialog.js': 'AfDialog', 'af-toast.js': 'AfToast', 'af-action-sheet.js': 'AfActionSheet',
   'af-picker.js': 'AfPicker', 'af-dropdown.js': 'AfDropdown', 'af-img.js': 'AfImg',
-  'af-backtop.js': 'AfBacktop', 'af-badge.js': 'AfBadge', 'af-switch.js': 'AfSwitch', 'af-search-bar.js': 'AfSearchBar',
+  'af-backtop.js': 'AfBacktop', 'af-badge.js': 'AfBadge', 'af-calendar.js': 'AfCalendar', 'af-switch.js': 'AfSwitch', 'af-search-bar.js': 'AfSearchBar',
   'af-skeleton-page.js': 'AfSkeletonPage', 'af-upload.js': 'AfUpload',
   'af-navbar.js': 'AfNavbar', 'af-tabbar.js': 'AfTabbar', 'af-stepper.js': 'AfStepper',
   'af-field.js': 'AfField', 'af-pull-refresh.js': 'AfPullRefresh', 'af-swipe-cell.js': 'AfSwipeCell',

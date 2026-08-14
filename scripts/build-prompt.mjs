@@ -151,6 +151,7 @@ const COMPONENT_META = [
   { tag: 'af-img', purpose: '懒加载图片', props: 'src, alt, placeholder-src, fail-src, variant', events: 'af-img:load, af-img:error' },
   { tag: 'af-backtop', purpose: '回到顶部', props: 'threshold, target, position', events: 'af-backtop:click, af-backtop:show, af-backtop:hide' },
   { tag: 'af-badge', purpose: '徽标角标', props: 'content, max, dot, color', events: '—' },
+  { tag: 'af-calendar', purpose: '日历', props: 'value, month, min, max', events: 'af-calendar:select, af-calendar:monthchange' },
   { tag: 'af-switch', purpose: '开关', props: 'checked, disabled, loading, size', events: 'af-switch:change' },
   { tag: 'af-search-bar', purpose: '搜索栏', props: 'value, placeholder, clearable, debounce', events: 'af-search-bar:input, af-search-bar:search, af-search-bar:clear' },
   { tag: 'af-skeleton-page', purpose: '整页骨架屏', props: 'variant', events: '—' },

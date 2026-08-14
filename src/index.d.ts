@@ -450,6 +450,32 @@ export class AfBadge extends AfElement {
 }
 
 // ============================================================
+// af-calendar（v1.3.0 · 日历）
+// ============================================================
+
+export interface CalendarSelectDetail extends AfEventDetail {
+  date: string;
+}
+
+export interface CalendarMonthChangeDetail extends AfEventDetail {
+  month: string;
+}
+
+export class AfCalendar extends AfElement {
+  static useShadow: true;
+  /** 选中日期（YYYY-MM-DD） */
+  value: string;
+  /** 展示月份（YYYY-MM，缺省为当前月） */
+  month: string;
+  /** 可选区间下限（YYYY-MM-DD） */
+  min: string;
+  /** 可选区间上限（YYYY-MM-DD） */
+  max: string;
+  addEventListener(type: 'af-calendar:select', listener: (e: CustomEvent<CalendarSelectDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-calendar:monthchange', listener: (e: CustomEvent<CalendarMonthChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
 // af-switch（v1.2.0 · 开关切换）
 // ============================================================
 

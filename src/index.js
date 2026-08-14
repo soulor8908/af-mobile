@@ -22,6 +22,7 @@ import { AfDropdown } from './components/af-dropdown.js';
 import { AfImg } from './components/af-img.js';
 import { AfBacktop } from './components/af-backtop.js';
 import { AfBadge } from './components/af-badge.js';
+import { AfCalendar } from './components/af-calendar.js';
 import { AfSwitch } from './components/af-switch.js';
 import { AfSearchBar } from './components/af-search-bar.js';
 import { AfSkeletonPage } from './components/af-skeleton-page.js';
@@ -34,9 +35,9 @@ import { AfPullRefresh } from './components/af-pull-refresh.js';
 import { AfSwipeCell } from './components/af-swipe-cell.js';
 import { AfRate } from './components/af-rate.js';
 
-export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate };
+export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfCalendar, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate };
 
-const ALL = [AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate];
+const ALL = [AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfCalendar, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate];
 // AfList → af-list, AfActionSheet → af-action-sheet
 const toTag = (C) => 'af-' + C.name.slice(2).replace(/[A-Z]/g, (c, i) => (i ? '-' : '') + c.toLowerCase());
 

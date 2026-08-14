@@ -179,6 +179,63 @@ Nuxt / Remix 同理：服务端输出 Light DOM + L2 class 作首屏占位，客
 
 > 规则：**Light DOM + 有初始可见结构** 的组件支持 SSR 预渲染作首屏占位；Shadow DOM 与按需弹层类组件仅客户端渲染。所有 Light DOM 组件 upgrade 时均为「重建接管」而非「增量 hydrate」。
 
+## 框架适配层（Vue 3 / React）
+
+Web Components 原生可直接用于任何框架，但框架适配层提供更符合框架习惯的封装：`@aiflow-ui/vue` 与 `@aiflow-ui/react`。二者均为薄包装，不复制组件实现，仅做 prop / 事件 / v-model 桥接，import 时自动注册对应自定义元素（Tree Shaking 友好）。
+
+### 安装
+
+```bash
+npm install aiflow-ui @aiflow-ui/vue    # Vue 3
+npm install aiflow-ui @aiflow-ui/react  # React 18
+```
+
+> wrapper 以 `aiflow-ui` 为 peer 依赖，需与本体一起安装；组件实现来自 aiflow-ui。
+
+### Vue 3
+
+```vue
+<script setup>
+import { ref } from 'vue';
+import { AfList, AfSwitch } from '@aiflow-ui/vue';
+
+const items = ref([...]);
+const onLoadMore = (page) => { /* ... */ };
+</script>
+
+<template>
+  <af-list :data="items" @itemclick="(e) => console.log(e)" @loadmore="onLoadMore" />
+  <af-switch v-model="on" />
+</template>
+```
+
+映射规则：
+
+- **props**：camelCase 与组件属性同名（`checked`/`itemHeight`/`totalCount`/...），通过 property 同步，支持对象/数组
+- **事件**：`af-list:itemclick` → `@itemclick`，payload 为 `e.detail`（结构化数据）
+- **v-model**：表单类组件（`af-switch`/`af-field`/`af-stepper` 等）支持 `v-model`，内部桥接 `modelValue ↔ update:modelValue`
+
+### React 18
+
+```jsx
+import { AfList, AfSwitch } from '@aiflow-ui/react';
+
+function App() {
+  return (
+    <>
+      <AfList data={items} onItemclick={(detail) => console.log(detail)} />
+      <AfSwitch checked={on} onChange={(detail) => setOn(detail.checked)} />
+    </>
+  );
+}
+```
+
+映射规则：
+
+- **props**：camelCase 与组件属性同名，通过 property 同步（支持对象/数组）
+- **事件**：`af-list:itemclick` → `onItemclick`（`on` + 动作名首字母大写），payload 为 `e.detail`
+- **透传**：`className`/`id`/`style`/`data-*`/`aria-*` 等非组件 prop 直接透传为 attribute（`className` 自动映射为 `class`，兼容 React 18 自定义元素限制）
+
 ## 注册方式
 
 ```js

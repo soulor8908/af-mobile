@@ -16,6 +16,20 @@ export interface AfEventDetail {
 /** 主题名称 */
 export type ThemeName = 'light' | 'dark';
 
+/** DTCG token 值：字符串（含别名 {group.name}）/ 数值 / cubic-bezier 对象 */
+export type DesignTokenValue = string | number | { x1: number; y1: number; x2: number; y2: number };
+
+/** 单个 DTCG token（W3C Design Tokens Format 1.1） */
+export interface DesignToken {
+  $type: 'color' | 'dimension' | 'number' | 'duration' | 'cubicBezier' | 'shadow' | 'string' | 'other';
+  $value: DesignTokenValue;
+}
+
+/** L1 设计 Token 树（src/tokens.json，由 tokens.css 生成） */
+export type DesignTokens = {
+  [group: string]: DesignToken | DesignTokens;
+};
+
 // ============================================================
 // L1 主题 API
 // ============================================================

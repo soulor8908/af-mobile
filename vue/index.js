@@ -1,0 +1,27 @@
+// AIFlow UI —— Vue 3 组件包装层汇总导出
+// 用法：import { AfList, AfSwitch } from '@aiflow-ui/vue'
+// 每个 wrapper 在 import 时自动注册对应自定义元素（Tree Shaking 友好：按需 import 即按需注册）
+export { AfList } from './components/af-list.js';
+export { AfSwiper } from './components/af-swiper.js';
+export { AfTabs } from './components/af-tabs.js';
+export { AfDialog } from './components/af-dialog.js';
+export { AfToast } from './components/af-toast.js';
+export { AfActionSheet } from './components/af-action-sheet.js';
+export { AfPicker } from './components/af-picker.js';
+export { AfCascadePicker } from './components/af-cascade-picker.js';
+export { AfDropdown } from './components/af-dropdown.js';
+export { AfImg } from './components/af-img.js';
+export { AfBacktop } from './components/af-backtop.js';
+export { AfBadge } from './components/af-badge.js';
+export { AfCalendar } from './components/af-calendar.js';
+export { AfSwitch } from './components/af-switch.js';
+export { AfSearchBar } from './components/af-search-bar.js';
+export { AfSkeletonPage } from './components/af-skeleton-page.js';
+export { AfUpload } from './components/af-upload.js';
+export { AfNavbar } from './components/af-navbar.js';
+export { AfTabbar } from './components/af-tabbar.js';
+export { AfStepper } from './components/af-stepper.js';
+export { AfField } from './components/af-field.js';
+export { AfPullRefresh } from './components/af-pull-refresh.js';
+export { AfSwipeCell } from './components/af-swipe-cell.js';
+export { AfRate } from './components/af-rate.js';

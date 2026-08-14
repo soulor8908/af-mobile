@@ -48,6 +48,13 @@ export default [
     plugins: { aiflow },
     rules: { ...AI_RULES },
   },
+  // 框架适配层（vue/react wrapper）：库代码，非 L3 组件也非消费端，不受 L4 AI 约束
+  // （wc-no-addeventlistener / wc-event-naming 等规则面向 Web Component 组件，wrapper 用框架 API 属正常用法）
+  {
+    files: ['vue/**/*.js', 'react/**/*.js'],
+    plugins: { aiflow },
+    rules: {},
+  },
   // ESLint 规则测试夹具 + ai-fix 循环测试 + MCP 工具测试：含故意违规用例以验证规则/修复本身，关闭 AI 约束
   {
     files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js', 'test/mcp.test.js'],

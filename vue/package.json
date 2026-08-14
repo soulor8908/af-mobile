@@ -1,0 +1,20 @@
+{
+  "name": "@aiflow-ui/vue",
+  "version": "1.0.0",
+  "description": "Vue 3 wrapper for aiflow-ui Web Components",
+  "type": "module",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    }
+  },
+  "peerDependencies": {
+    "vue": "^3.4"
+  },
+  "license": "MIT"
+}

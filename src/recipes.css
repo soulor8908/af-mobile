@@ -906,4 +906,16 @@
     display: flex; align-items: stretch;
   }
   af-swipe-cell [data-role="right"] > .btn { border-radius: 0; }
+
+  /* af-badge：宿主相对定位；包裹内容时角标绝对定位（data-corner 由组件切换），color/dot 变体 */
+  af-badge { display: inline-block; position: relative; }
+  af-badge[data-corner] [data-role="badge"] {
+    position: absolute; top: 0; right: 0;
+    transform: translate(50%, -50%);
+    box-shadow: 0 0 0 2px var(--c-card);
+  }
+  af-badge[dot] [data-role="badge"] { min-width: 10px; height: 10px; padding: 0; }
+  af-badge[data-color="warn"]  [data-role="badge"] { background: var(--c-warn);    color: var(--c-onbrand); }
+  af-badge[data-color="ok"]    [data-role="badge"] { background: var(--c-success); color: var(--c-onbrand); }
+  af-badge[data-color="muted"] [data-role="badge"] { background: var(--c-muted);   color: var(--c-onbrand); }
 }

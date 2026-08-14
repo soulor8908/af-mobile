@@ -434,6 +434,22 @@ export class AfBacktop extends AfElement {
 }
 
 // ============================================================
+// af-badge（v1.3.0 · 徽标角标）
+// ============================================================
+
+export class AfBadge extends AfElement {
+  static useShadow: false;
+  /** 徽标内容（数值超过 max 显示 max+） */
+  content: string;
+  /** 数值上限，超限显示 max+ */
+  max: number;
+  /** 点状徽标（隐藏文字） */
+  dot: boolean;
+  /** 颜色变体（danger/warn/ok/muted） */
+  color: 'danger' | 'warn' | 'ok' | 'muted';
+}
+
+// ============================================================
 // af-switch（v1.2.0 · 开关切换）
 // ============================================================
 
@@ -685,6 +701,29 @@ export class AfSwipeCell extends AfElement {
   /** 关闭右侧操作区 */
   close(): void;
   addEventListener(type: 'af-swipe-cell:action', listener: (e: CustomEvent<SwipeCellActionDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
+// af-rate（v1.3.0 · 评分）
+// ============================================================
+
+export interface RateChangeDetail extends AfEventDetail {
+  value: number;
+}
+
+export class AfRate extends AfElement {
+  static useShadow: false;
+  /** 当前评分（0-max） */
+  value: number;
+  /** 星数上限 */
+  max: number;
+  /** 只读（不可交互） */
+  readonly: boolean;
+  /** 尺寸变体（sm/md/lg） */
+  size: 'sm' | 'md' | 'lg';
+  /** radiogroup 无障碍标签 */
+  label: string;
+  addEventListener(type: 'af-rate:change', listener: (e: CustomEvent<RateChangeDetail>) => void, options?: boolean | AddEventListenerOptions): void;
 }
 
 // ============================================================

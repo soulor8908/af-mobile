@@ -1,4 +1,4 @@
-# aiflow-ui
+# @af-mobile/ui
 
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
 
@@ -13,7 +13,7 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 npm install @af-mobile/ui
 ```
 
-> **消费端需有打包器**：`package.json` 的 `main`/`module` 指向 `src/index.js`（源码分发，裸 ESM + CSS import）。直接在浏览器 `<script type="module">` 引用未经打包的源码会因裸模块解析失败。用 Vite/webpack/Rollup 等打包器处理 `import 'aiflow-ui'` 即可；若需 CDN 直引，用 `dist/aiflow-ui.umd.js`（`unpkg`/`jsdelivr` 字段已指向）。
+> **消费端需有打包器**：`package.json` 的 `main`/`module` 指向 `src/index.js`（源码分发，裸 ESM + CSS import）。直接在浏览器 `<script type="module">` 引用未经打包的源码会因裸模块解析失败。用 Vite/webpack/Rollup 等打包器处理 `import '@af-mobile/ui'` 即可；若需 CDN 直引，用 `dist/aiflow-ui.umd.js`（`unpkg`/`jsdelivr` 字段已指向）。
 
 ## 快速上手
 
@@ -23,7 +23,7 @@ npm install @af-mobile/ui
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/node_modules/aiflow-ui/src/index.css">
+  <link rel="stylesheet" href="/node_modules/@af-mobile/ui/src/index.css">
 </head>
 <body>
   <main class="page">
@@ -107,7 +107,7 @@ npm install @af-mobile/ui
 
 ## SSR / Hydration 使用指南
 
-aiflow-ui 是浏览器端 Custom Elements 库，`customElements` 在 Node 服务端不存在，直接 `import` 会抛错。本节给出 SSR 框架接入方式。
+@af-mobile/ui 是浏览器端 Custom Elements 库，`customElements` 在 Node 服务端不存在，直接 `import` 会抛错。本节给出 SSR 框架接入方式。
 
 ### 核心问题
 
@@ -151,14 +151,14 @@ function ProductList({ items }) {
         </div>
       </af-list>
       {/* 客户端 lazy 加载组件库并注册 */}
-      <Script src="/aiflow-ui.js" strategy="lazyOnload"
+      <Script src="/aiflow-ui.umd.js" strategy="lazyOnload"
         onLoad={() => window.AiflowUI?.registerAll()} />
     </>
   );
 }
 ```
 
-Nuxt / Remix 同理：服务端输出 Light DOM + L2 class 作首屏占位，客户端 hydration 阶段动态 `import('aiflow-ui')` 并注册，组件 `connectedCallback` 重建内部结构并接管交互。
+Nuxt / Remix 同理：服务端输出 Light DOM + L2 class 作首屏占位，客户端 hydration 阶段动态 `import('@af-mobile/ui')` 并注册，组件 `connectedCallback` 重建内部结构并接管交互。
 
 ### 3. 组件 SSR 兼容性矩阵
 
@@ -206,7 +206,7 @@ npm install @af-mobile/ui @af-mobile/vue    # Vue 3
 npm install @af-mobile/ui @af-mobile/react  # React 18
 ```
 
-> wrapper 以 `aiflow-ui` 为 peer 依赖，需与本体一起安装；组件实现来自 aiflow-ui。
+> wrapper 以 `@af-mobile/ui` 为 peer 依赖，需与本体一起安装；组件实现来自 @af-mobile/ui。
 
 ### Vue 3
 
@@ -296,7 +296,7 @@ toggleTheme();            // 切换并持久化
 </head>
 ```
 
-> 该脚本不依赖 aiflow-ui，可独立内联；组件库的 `initTheme()` 仍可调用（幂等，重复设同值无副作用）。
+> 该脚本不依赖 @af-mobile/ui，可独立内联；组件库的 `initTheme()` 仍可调用（幂等，重复设同值无副作用）。
 
 ## L4 禁令（25 条，ESLint error 级）
 
@@ -366,13 +366,13 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 |---|---|---|
 | 1 | 白名单三源同步（CSS/JS ↔ whitelist.json ↔ Prompt 注入） | `npm run whitelist:check` |
 | 1b | d.ts 与源码组件数同步（防类型声明漂移） | `npm run types:check` |
-| 2 | 体积预算（L1+L2 CSS ≤ 8.2KB / 全量 28 组件+基类 ≤ 23.6KB / 按需2组件 ≤ 5.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 1.2KB） | `npm run size` |
+| 2 | 体积预算（L1+L2 CSS ≤ 8.2KB / 全量 28 组件+基类 ≤ 23.7KB / 按需2组件 ≤ 5.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 1.5KB） | `npm run size` |
 | 3 | 单元测试（jsdom） | `npm test` |
 | 4 | ESLint 15 规则（10 error + 5 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
 | 5 | 发布前检查（build + Tree Shaking + sideEffects + types-sync + npm pack） | `npm run publish:check` |
 | 6 | eval 集格式闸门（校验 prompts.jsonl 结构） | `npm run eval:dry` |
 
-> **测试栈已知限制**：单元测试基于 jsdom，**不覆盖** `popover`/`showModal` 真实行为、`ResizeObserver`/`IntersectionObserver`、`scroll-snap`、真实 touch 事件、`prefers-reduced-motion`。弹层/滚轮/下拉/懒加载的核心交互依赖浏览器原生 API，CI 中仅做逻辑层断言（mock 后验证派发事件/属性同步），真实浏览器 e2e 待后续引入。关键交互上线前建议手动验证。
+> **测试栈说明**：单元测试基于 jsdom，**不覆盖** `popover`/`showModal` 真实行为、`ResizeObserver`/`IntersectionObserver`、`scroll-snap`、真实 touch 事件、`prefers-reduced-motion` 等浏览器原生 API。这些由 **Playwright e2e**（`e2e/`，随 CI Step 3b 运行）覆盖：`showModal`/popover 弹层、scroll-snap 滚轮、下拉、滑动、触摸拖拽等。两者的分工是——jsdom 断言逻辑层（派发事件/属性同步），e2e 验证浏览器原生行为。关键交互线上线下均有闸门。
 
 `.github/CODEOWNERS` 把关键文件分为 3 组 Owner：
 

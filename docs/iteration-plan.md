@@ -149,13 +149,13 @@
 
 ## 迭代节奏建议
 
-| 版本 | 目标 | 包含项 |
-|---|---|---|
-| v1.1.0 | 工程化补全 | IP-1 / IP-2 / IP-3 |
-| v1.2.0 | 组件扩展 | IP-4 / IP-5 / IP-6 / IP-7 |
-| v1.3.0 | SSR + demo | IP-8 / IP-9 / IP-10 |
+| 版本 | 目标 | 包含项 | 状态 |
+|---|---|---|---|
+| v1.1.0 | 工程化补全 | IP-1 / IP-2 / IP-3 | ✅ 已发布 |
+| v1.2.0 | 组件扩展 | IP-4 / IP-5 / IP-6 / IP-7 | ✅ 已发布 |
+| v1.3.0 | SSR + demo | IP-8 / IP-9 / IP-10 | ✅ 已发布（当前 `package.json` 为 1.3.1） |
 
-> 注：每个版本发布前需通过 CI 全流程（vitest + size-check + whitelist-sync）。
+> 注：每个版本发布前需通过 CI 全流程（vitest + size-check + whitelist-sync）。本节为历史发布记录；版本号以 `package.json` 为准。
 
 ---
 

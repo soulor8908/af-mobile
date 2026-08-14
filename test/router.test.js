@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
-  route, go, current, start, notFound,
+  route, go, current, start, stop, notFound,
   beforeEach as routerBeforeEach,
   afterEach as routerAfterEach,
   back, forward, _resetRouter, RouterError,
@@ -375,6 +375,46 @@ describe('router keep-alive', () => {
     for (let i = 0; i < 7; i++) await go(`/lru${i}`);
     await go('/lru0');
     expect(handlers[0]).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('router stop() 生命周期', () => {
+  it('start() 返回 stop，stop() 移除 popstate 监听器防止累积', async () => {
+    const fn = vi.fn();
+    route('/stop1', fn);
+    const s = start({ outlet: '#app' });
+    expect(typeof s).toBe('function');
+    await go('/stop1');
+    expect(fn).toHaveBeenCalledTimes(1);
+
+    // 触发 popstate → 监听器仍生效，handler 再次执行
+    window.history.pushState({}, '', '/stop1');
+    window.dispatchEvent(new Event('popstate'));
+    await new Promise(r => setTimeout(r, 0));
+    expect(fn).toHaveBeenCalledTimes(2);
+
+    // stop() 后 popstate 不再触发
+    s();
+    window.history.pushState({}, '', '/stop1');
+    window.dispatchEvent(new Event('popstate'));
+    await new Promise(r => setTimeout(r, 0));
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+
+  it('重复 start/stop 不累积监听器', async () => {
+    const fn = vi.fn();
+    route('/stop2', fn);
+    for (let i = 0; i < 3; i++) {
+      const s = start({ outlet: '#app' });
+      await go('/stop2');
+      s();
+    }
+    // 若监听器累积，每次 popstate 会触发多次 render；stop 后应零增量
+    const before = fn.mock.calls.length;
+    window.history.pushState({}, '', '/stop2');
+    window.dispatchEvent(new Event('popstate'));
+    await new Promise(r => setTimeout(r, 0));
+    expect(fn.mock.calls.length).toBe(before);
   });
 });
 

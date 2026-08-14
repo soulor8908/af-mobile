@@ -6,7 +6,7 @@
 //   dist/index.css        全量 CSS（tokens+recipes+atomic，@import 内联）
 //   dist/index.d.ts       类型声明（复制 src/index.d.ts）
 import { build, transform } from 'esbuild';
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -50,20 +50,25 @@ if (typeof window !== 'undefined') {
 `;
 const umdEntryPath = join(DIST, '_umd-entry.js');
 writeFileSync(umdEntryPath, umdEntryCode);
-await build({
-  entryPoints: [umdEntryPath],
-  bundle: true,
-  outfile: join(DIST, 'aiflow-ui.umd.js'),
-  format: 'iife',
-  globalName: 'AiflowUI',
-  platform: 'browser',
-  target: ['es2020'],
-  legalComments: 'none',
-  sourcemap: false,
-  minify: true,
-  keepNames: true, // 保留类原始 name，registerAll/toTag 依赖 C.name 派生 af-* 标签名，minify 会重命名类
-  absWorkingDir: ROOT,
-});
+try {
+  await build({
+    entryPoints: [umdEntryPath],
+    bundle: true,
+    outfile: join(DIST, 'aiflow-ui.umd.js'),
+    format: 'iife',
+    globalName: 'AiflowUI',
+    platform: 'browser',
+    target: ['es2020'],
+    legalComments: 'none',
+    sourcemap: false,
+    minify: true,
+    keepNames: true, // 保留类原始 name，registerAll/toTag 依赖 C.name 派生 af-* 标签名，minify 会重命名类
+    absWorkingDir: ROOT,
+  });
+} finally {
+  // 同步清理临时 UMD 入口，构建失败也保证不残留
+  rmSync(umdEntryPath, { force: true });
+}
 console.log('✓ dist/aiflow-ui.umd.js (UMD, auto-register)');
 
 // ---------- 3. dist/index.css（内联 @import 的全量 CSS） ----------
@@ -97,11 +102,6 @@ console.log('✓ dist/components.css (Shadow component CSS, CSP external mode)')
 // ---------- 4. dist/index.d.ts（类型声明复制） ----------
 copyFileSync(join(SRC, 'index.d.ts'), join(DIST, 'index.d.ts'));
 console.log('✓ dist/index.d.ts (types)');
-
-// 清理临时 UMD 入口
-import('node:fs').then(({ rmSync }) => {
-  if (existsSync(umdEntryPath)) rmSync(umdEntryPath);
-});
 
 console.log('\n──────────────────────────────────────────────');
 console.log('✓ 构建完成：dist/index.js, dist/aiflow-ui.umd.js, dist/index.css, dist/index.d.ts');

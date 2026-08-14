@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // AIFlow UI —— CSS Tree Shaking 脚本（生产构建时裁剪未用规则）
 // 用法：
 //   node scripts/css-tree-shake.mjs --src <消费端源码目录> --css <aiflow-ui css 入口> [--out <输出文件>]

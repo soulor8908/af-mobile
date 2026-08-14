@@ -235,8 +235,9 @@ export function getTransition() { return _transitionCfg; }
 /** 获取当前 keepAlive 配置（router 集成用） */
 export function getKeepAlive() { return _keepAliveCfg; }
 
-/** 测试用：重置全部状态（不导出到 index.js） */
-export function _resetPage() {
+/** 全局销毁（definePage 单例 teardown）：清空 effects 订阅 + state/computed/action 字段 + 转场/缓存配置。
+ *  与 router.stop() 配套，用于热重载 / 多页应用隔离；createPage 实例请用其 unmount() */
+export function destroyPage() {
   clearPageState();
   _signals.clear();
   _computeds.clear();
@@ -245,4 +246,9 @@ export function _resetPage() {
   for (const key of Object.keys(actions)) delete actions[key];
   _transitionCfg = null;
   _keepAliveCfg = null;
+}
+
+/** 测试用：重置全部状态（不导出到 index.js） */
+export function _resetPage() {
+  destroyPage();
 }

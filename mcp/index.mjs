@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // @af-mobile/mcp —— MCP Server，暴露 3 个工具供 AI Agent 调用
 // 工具：
 //   check_compliance — 跑 ESLint 检查代码合规性（纯本地，无 LLM）

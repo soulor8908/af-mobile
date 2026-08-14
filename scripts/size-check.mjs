@@ -1,10 +1,11 @@
 // AIFlow UI —— L3 体积预算验证脚本
 // 用法：node scripts/size-check.mjs
 // 依据 docs/design/l3-detailed-design.md §8.5 CI 体积监控（数字与下方 BUDGET 一致）
-//   单组件 JS gzip ≤ 2.5KB   PR 阻断（CSS 计入 L1+L2 总预算，不单测）
-//   基类 AfElement gzip     ≤ 0.85KB  PR 阻断
-//   全部 20 组件 + 基类 gzip ≤ 19.5KB PR 阻断
-//   按需引入 2 组件 gzip    ≤ 5.0KB   warn
+//   单组件 JS gzip ≤ 2.8KB   PR 阻断（CSS 计入 L1+L2 总预算，不单测）
+//   基类 AfElement gzip     ≤ 1.5KB  PR 阻断
+//   全部 28 组件 + 基类 gzip ≤ 23.6KB PR 阻断
+//   按需引入 2 组件 gzip    ≤ 5.5KB   warn
+//   (核心运行时 state+fetch+router+i18n ≤ 5.4KB，独立预算不计入 total)
 // 实现：esbuild 打包+minify，Node zlib 测 gzip（原生，无 gzip-size 依赖）
 import { build } from 'esbuild';
 import { gzipSync } from 'node:zlib';
@@ -54,11 +55,13 @@ const SRC = join(ROOT, 'src');
 //   total 23.0 预算不变：新增 af-notice-bar（复用 L2 .notice 纯 CSS 配方，JS 仅 0.32KB gzip，优化实现压回 22.994KB ≤ 23KB）
 // v3.5 调整（IP-7 组件补齐，用户已确认）：
 //   total 23.0→23.6KB：新增 af-progress/af-steps（复用 L2 纯 CSS 配方）+ af-countdown，全量实测 23.519KB
+// v3.6 调整（destroyPage 全局销毁位点，用户已确认）：
+//   total 23.6→23.7KB：page.js 未 external（index.js 导出 createPage/destroyPage），新增 destroyPage 约 +100B gzip，实测 23.615KB
 const BUDGET = {
   css: 8.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 1.5,           // KB，AfElement 基类（+_applyI18n + localechange 订阅）
-  total: 23.6,         // KB，28 组件 + 基类（含 i18n 增量）
+  total: 23.7,         // KB，28 组件 + 基类（含 i18n 增量 + destroyPage）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 5.4,    // KB，router(2.0)+state(0.9)+fetch(0.8)+i18n(1.1)+容差(0.6)，独立预算不计入 total（v3.0 state.js +Owner pattern）
 };

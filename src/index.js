@@ -1,11 +1,11 @@
 // AIFlow UI —— L3 组件汇总导出
 // ESM 命名导出 + Tree Shaking + sideEffects:false
 // 使用方式 A：按需注册（推荐）
-//   import { AfList, AfDialog } from 'aiflow-ui';
+//   import { AfList, AfDialog } from '@af-mobile/ui';
 //   customElements.define('af-list', AfList);
 //   customElements.define('af-dialog', AfDialog);
 // 使用方式 B：全量注册
-//   import { registerAll } from 'aiflow-ui';
+//   import { registerAll } from '@af-mobile/ui';
 //   registerAll();
 
 export { AfElement, escapeHtml, html } from './lib/af-element.js';
@@ -55,7 +55,7 @@ export function registerAll() {
 
 export function register(name) {
   const Ctor = ALL.find(c => toTag(c) === name);
-  if (!Ctor) throw new Error(`[aiflow-ui] unknown component: ${name}`);
+  if (!Ctor) throw new Error(`[@af-mobile/ui] unknown component: ${name}`);
   if (!customElements.get(name)) customElements.define(name, Ctor);
 }
 
@@ -72,7 +72,7 @@ export { createResource } from './lib/resource.js';
 export {
   route, go, back, forward, beforeEach, afterEach, notFound, current, start, RouterError,
 } from './lib/router.js';
-export { createPage } from './lib/page.js';
+export { createPage, destroyPage } from './lib/page.js';
 
 // ============================================================
 // 核心运行时：i18n（国际化，按需 import，不计入组件体积预算）

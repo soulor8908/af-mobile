@@ -1,7 +1,7 @@
 // AIFlow UI —— 移动端 SPA 路由
 // route/go/back/forward + beforeEach/afterEach/notFound + router-view + keep-alive + 转场
 // W7：query string 支持（parsePath 分离）+ outlet 失败抛 RouterError + scrollBehavior 仿 Vue Router
-// 顶层无副作用，start() 显式启动（SSR 安全）
+// 顶层无副作用，start() 显式启动（SSR 安全）；stop() 显式停止（移除 popstate、释放引用）
 
 const _routes = [];
 let _rootOutlet = null;
@@ -10,7 +10,7 @@ let _currentRoute = null;
 let _beforeEachGuard = null;
 const _afterEachHooks = new Set();   // v3.0：数组化，多页面 route effect 互不干扰
 let _notFoundHandler = null;
-const _navStack = [];
+let _popHandler = null;               // popstate 监听器引用，start() 注册、stop() 移除
 const _cache = new Map();           // path → { outlet, scrollTop, route }
 let _keepAliveMax = 5;
 let _scrollBehavior = null;         // (to, from, savedPosition) => position | false
@@ -119,15 +119,24 @@ export function start(options = {}) {
   if (!_rootOutlet) throw new RouterError(`router outlet 未找到: ${outlet}`);
   _keepAliveMax = keepAliveMax;
   _scrollBehavior = scrollBehavior || null;
-  addEventListener('popstate', () => {
-    _navStack.pop();
+  _popHandler = () => {
     document.documentElement.dataset.transition = 'back';
     render(location.pathname + location.search + location.hash);
-  });
+  };
+  addEventListener('popstate', _popHandler);
   // 首次渲染：仅在当前路径匹配已注册路由时自动渲染，避免首次加载即触发 notFound
   const currentPath = location.pathname + location.search + location.hash;
   if (matchNested(currentPath).length > 0) {
     render(currentPath);
+  }
+  return stop;
+}
+
+/** 停止路由：移除 popstate 监听器，释放 outlet 引用。配合热重载 / 多实例 / 测试隔离 */
+export function stop() {
+  if (_popHandler) {
+    removeEventListener('popstate', _popHandler);
+    _popHandler = null;
   }
 }
 
@@ -220,7 +229,6 @@ async function render(path) {
 export function go(path, options = {}) {
   if (typeof history === 'undefined') return Promise.resolve();
   const { replace = false, transition = true } = options;
-  _navStack.push(path);
   document.documentElement.dataset.transition = 'forward';
   const navigate = () => {
     if (replace) history.replaceState({}, '', path);
@@ -228,8 +236,8 @@ export function go(path, options = {}) {
     return render(path);
   };
   if (transition && document.startViewTransition) {
-    return new Promise(resolve => {
-      document.startViewTransition(() => navigate().then(resolve));
+    return new Promise((resolve, reject) => {
+      document.startViewTransition(() => navigate().then(resolve, reject));
     });
   }
   return navigate();
@@ -245,13 +253,14 @@ export function forward() {
 
 // 测试用：重置路由内部状态（不导出到 index.js）
 export function _resetRouter() {
+  stop();
   _routes.length = 0;
   _beforeEachGuard = null;
   _afterEachHooks.clear();
   _notFoundHandler = null;
   _currentRoute = null;
   _currentNav = null;
-  _navStack.length = 0;
+  _rootOutlet = null;
   _cache.clear();
   _scrollBehavior = null;
 }

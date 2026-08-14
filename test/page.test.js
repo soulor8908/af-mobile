@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { definePage, createPage, state, derived, actions, clearPageState, getTransition, getKeepAlive, _resetPage } from '../src/lib/page.js';
+import { definePage, createPage, state, derived, actions, clearPageState, getTransition, getKeepAlive, _resetPage, destroyPage } from '../src/lib/page.js';
 import { route, start, go, _resetRouter } from '../src/lib/router.js';
 import { effect } from '../src/lib/state.js';
 
@@ -227,5 +227,39 @@ describe('createPage 实例化工厂', () => {
     page.unmount();
     await go('/r2');
     expect(fn).toHaveBeenCalledTimes(1);   // afterEach 订阅已取消
+  });
+});
+
+describe('destroyPage 全局销毁', () => {
+  it('清空 state/computed/action 字段并清理 effect 订阅', () => {
+    const intervalCb = vi.fn();
+    definePage({
+      state: { tab: 'x' },
+      computed: { d: () => state.tab + '!' },
+      actions: { go: () => {} },
+      effects: { interval: [10, intervalCb] },
+    });
+    expect(state.tab).toBe('x');
+    expect(derived.d).toBe('x!');
+    expect(typeof actions.go).toBe('function');
+
+    destroyPage();
+
+    expect(state.tab).toBeUndefined();
+    expect(derived.d).toBeUndefined();
+    expect(actions.go).toBeUndefined();
+    // interval 已清理，等待两个周期后不新增调用
+    const before = intervalCb.mock.calls.length;
+    return new Promise(r => setTimeout(() => {
+      expect(intervalCb.mock.calls.length).toBe(before);
+      r();
+    }, 30));
+  });
+
+  it('销毁后可重新 definePage', () => {
+    definePage({ state: { count: 1 } });
+    destroyPage();
+    definePage({ state: { count: 2 } });
+    expect(state.count).toBe(2);
   });
 });

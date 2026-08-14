@@ -959,6 +959,7 @@ connectedCallback() {
 > **Phase 3 完成状态**：
 > - **af-badge（2026-08-14）**：Light DOM，复用 L2 `.badge` 配方；`content/max/dot/color` 属性，数值超 `max` 显示 `max+`，包裹内容时 `data-corner` 角标定位（slot assignedNodes 检测）；新增宿主样式 + 白名单/prompt/types 三源同步；体积预算 total 20.5→21.0KB、css 8.0→8.2KB（用户确认）。自检：ESLint 0 错、vitest 848 用例全绿、size/whitelist/types/prompt 全过。
 > - **af-rate（2026-08-14）**：Light DOM，复用 L2 `.rate` 纯 CSS 配方（radio + row-reverse 实现只读/可选 + 键盘原生）；`value/max/readonly/size/label` 属性，radiogroup 语义，点击/键盘更新 value 并派发 `af-rate:change`；体积 total 21.0→21.3KB（用户确认）。自检：ESLint 0 错、vitest 859 用例全绿、size/whitelist/types/prompt 全过。
+> - **af-calendar（2026-08-14）**：Shadow DOM，原生 Date + Intl.DateTimeFormat（无 i18n 字典依赖）；`value/month/min/max` 属性，单日期选择 + 月份导航（跨年回退）+ min/max 禁用 + 今天高亮；`af-calendar:select` / `af-calendar:monthchange`；日高用 `--af-day-h` 自定义属性（setProperty，wc-shadow-use-token 合规），今天标记用 outline；体积 total 21.3→23.0KB（用户确认）。自检：ESLint 0 错、vitest 871 用例全绿、size/whitelist/types/prompt 全过。
 
 ---
 

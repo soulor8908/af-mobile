@@ -100,7 +100,7 @@
 - **背景**：审查报告提及的 OPC 场景补充控件
 - **范围**：按需评估，优先级低于 IP-4/5/6
 - **依赖**：无
-- **状态**：✅ 全部完成。数字输入/步进器（af-stepper，1.278KB gzip）；新增 af-progress / af-steps（复用 L2 纯 CSS 配方）/ af-countdown（定时器）。全量 28 组件 23.519KB ≤ 23.6KB（预算经用户确认上调），三源/类型/测试 19 例全过
+- **状态**：✅ 全部完成。数字输入/步进器（af-stepper，1.278KB gzip）；新增 af-progress / af-steps（复用 L2 纯 CSS 配方）/ af-countdown（定时器）。全量 28 组件 23.521KB ≤ 23.6KB（预算经用户确认上调），三源/类型/测试 19 例全过
 
 ---
 
@@ -118,9 +118,9 @@
   - 标注各组件 SSR 兼容性矩阵
 - **验收标准**：文档覆盖主流 SSR 框架（Next.js / Nuxt / Remix）
 - **依赖**：无
-- **状态**：✅ README §"SSR / Hydration 使用指南"已含核心问题表、客户端条件注册、SSR 预渲染示例（Next.js/Nuxt/Remix）、20 组件 SSR 兼容性矩阵
+- **状态**：✅ README §"SSR / Hydration 使用指南"已含核心问题表、客户端条件注册、SSR 预渲染示例（Next.js/Nuxt/Remix）、28 组件 SSR 兼容性矩阵
 
-### IP-9 官方 demo 站 / Storybook（P2-7）⚠️ 部分完成
+### IP-9 官方 demo 站 / Storybook（P2-7）✅ 已完成
 
 - **优先级**：中
 - **所属层级**：工程化
@@ -131,7 +131,7 @@
   - 与 eval 飞轮的 prompts.jsonl 互为补充
 - **验收标准**：10 组件均有可交互 demo
 - **依赖**：无
-- **状态**：✅ 采用自建 demo 站（`demo/` 目录 + Vite dev server，`npm run demo`）。已有 25 个组件 demo 页（含 props 可调面板），全部组件覆盖；`npm run demo:build` 构建通过
+- **状态**：✅ 采用自建 demo 站（`demo/` 目录 + Vite dev server，`npm run demo`）。已有 28 个组件 demo 页（含 props 可调面板），全部组件覆盖；`npm run demo:build` 构建通过；Playwright e2e 已覆盖 10 个关键路径
 
 ### IP-10 slotchange 监听补齐（P2-5 剩余项）✅ 已完成
 

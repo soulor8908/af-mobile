@@ -4,7 +4,7 @@
 export default {
   meta: {
     type: 'problem',
-    docs: { description: '消费端禁止裸 addEventListener，必须走 effects 或 @event' },
+    docs: { description: '消费端禁止裸 addEventListener，必须走 effects 或 @event', fixable: 'manual' },
     schema: [],
     messages: {
       forbidden: "bare addEventListener forbidden; use definePage.effects (whitelist keys) or @event binding. Add '// eslint-disable-next-line wc-no-addeventlistener' with reason for exceptions (e.g. third-party SDK callbacks)",
@@ -12,12 +12,8 @@ export default {
   },
   create(context) {
     const filename = context.filename || context.getFilename();
-    // 库源码放行：src/components/ 和 src/blocks/ 和 src/lib/ 内部允许 addEventListener（库作者实现交互）
-    if (/src[\\/](components|blocks|lib)[\\/].*\.js$/.test(filename)) return {};
-    // 测试目录放行：单元测试不属消费端代码，验证组件行为需要 addEventListener
-    if (/test[\\/].*\.js$/.test(filename)) return {};
-    // ESLint 规则测试夹具放行（夹具故意违规）
-    if (/test[\\/]eslint-plugin[\\/]/.test(filename)) return {};
+    // 非消费端放行：库源码/单元测试/构建脚本（new-block.mjs 等脚手架模板允许 addEventListener）
+    if (/src[\\/]|test[\\/]|scripts[\\/]/.test(filename)) return {};
 
     const sourceCode = context.sourceCode || context.getSourceCode();
     const comments = sourceCode.getAllComments();

@@ -28,11 +28,11 @@ export function extractTokens(file) {
   return [...set].sort();
 }
 
-// 从 src/index.js 的 REGISTRY 对象提取组件 tagName
+// 从 src/index.js 的 import 路径提取组件 tagName
 export function extractComponents() {
   const code = readFileSync(join(SRC, 'index.js'), 'utf8');
   const set = new Set();
-  const re = /'([a-z]+-[a-z-]+)':\s*Af[A-Z]/g;
+  const re = /from '\.\/components\/([a-z-]+)\.js'/g;
   let m;
   while ((m = re.exec(code))) set.add(m[1]);
   return [...set].sort();

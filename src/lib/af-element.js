@@ -1,8 +1,7 @@
 // AIFlow UI —— L3 基类 AfElement
-// 5 生命周期钩子 + 主题订阅 + 语言订阅 + defineProp 双向同步 + emit
+// 5 生命周期钩子 + 主题订阅 + defineProp 双向同步 + emit
 // 子类声明 static useShadow = true/false 决定是否 attachShadow
-
-import { t as _t } from './i18n.js';
+// v3.0：移除 i18n（_applyI18n/onLocaleChange/import t 迁至 withI18n mixin），基类无 i18n 依赖
 
 // HTML 转义：注入数据到 innerHTML 前必经，防 XSS
 // 使用命名实体（&lt; &gt; &amp; &quot;）+ 数值实体（&#39;）匹配浏览器 DOM 行为
@@ -14,20 +13,12 @@ export const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => _ENT
 //       html`<div>${{ raw: '<b>加粗</b>' }}</div>` ← 显式声明可信 HTML 不转义
 // 强制 af-list.renderItem / af-dropdown._renderList 等动态 HTML 拼接使用，杜绝 XSS
 export function html(strings, ...values) {
-  let result = '';
+  let r = '';
   for (let i = 0; i < strings.length; i++) {
-    result += strings[i];
-    if (i < values.length) {
-      const v = values[i];
-      if (v != null && typeof v === 'object' && Object.prototype.hasOwnProperty.call(v, 'raw')) {
-        // 显式可信 HTML
-        result += v.raw;
-      } else {
-        result += escapeHtml(v);
-      }
-    }
+    r += strings[i];
+    if (i < values.length) r += values[i]?.raw ?? escapeHtml(values[i]);
   }
-  return result;
+  return r;
 }
 
 export class AfElement extends HTMLElement {
@@ -58,23 +49,13 @@ export class AfElement extends HTMLElement {
       this._themeHandler = (e) => this.onThemeChange(e.detail);
       document.documentElement.addEventListener('themechange', this._themeHandler);
     }
-    // 语言订阅（与 themechange 对称）：localechange 时调用 onLocaleChange → _applyI18n
-    if (this.onLocaleChange) {
-      this._localeHandler = (e) => this.onLocaleChange(e.detail);
-      document.documentElement.addEventListener('localechange', this._localeHandler);
-    }
     this.mounted?.();
-    this._applyI18n();
   }
 
   disconnectedCallback() {
     if (this._themeHandler) {
       document.documentElement.removeEventListener('themechange', this._themeHandler);
       this._themeHandler = null;
-    }
-    if (this._localeHandler) {
-      document.documentElement.removeEventListener('localechange', this._localeHandler);
-      this._localeHandler = null;
     }
     this.unmounted?.();
     // 复位挂载标志：下次 connectedCallback 重新执行 mounted，重建监听与 DOM
@@ -96,62 +77,24 @@ export class AfElement extends HTMLElement {
     this.dispatchEvent(new CustomEvent(name, { detail, bubbles: true, composed: true }));
   }
 
-  /** 应用 static i18n 映射表（初次渲染 + 语言切换时调用）
-   *  映射表格式：{ selector: [attr, keyOrFn, fallbackProp?, skipIfAttr?] }
-   *  - selector '@' 指向 host 自身（querySelector 不支持 :host）
-   *  - attr 空串 '' 表示设置 textContent
-   *  - keyOrFn 为字符串时用 t(key)，为函数时调 fn(host, t, el, index)
-   *  - fallbackProp 仅静态形式：host[fallbackProp] 为 truthy 时优先用 host 属性值
-   *  - skipIfAttr 仅静态形式：host 有该属性时跳过
-   */
-  _applyI18n() {
-    const map = this.constructor.i18n;
-    if (!map) return;
-    for (const sel in map) {
-      const [attr, keyOrFn, fallback, skipIf] = map[sel];
-      // skipIf：host 有该属性时跳过（用户显式覆盖优先）
-      if (skipIf && this.hasAttribute(skipIf)) continue;
-      if (sel === '@') {
-        const val = typeof keyOrFn === 'function'
-          ? keyOrFn(this, _t, this, 0)
-          : (fallback && this[fallback] ? this[fallback] : _t(keyOrFn));
-        if (attr) this.setAttribute(attr, val);
-        else this.textContent = val;
-        continue;
-      }
-      // 普通选择器：querySelectorAll 支持循环场景（picker columns / swiper dots）
-      const els = this.$root.querySelectorAll(sel);
-      els.forEach((el, i) => {
-        const val = typeof keyOrFn === 'function'
-          ? keyOrFn(this, _t, el, i)
-          : (fallback && this[fallback] ? this[fallback] : _t(keyOrFn));
-        if (attr) el.setAttribute(attr, val);
-        else el.textContent = val;
-      });
-    }
-  }
-
-  /** 语言切换回调（默认调用 _applyI18n，子类可重写） */
-  onLocaleChange() { this._applyI18n(); }
-
   // === 背景滚动锁（模态组件 open/close 配对调用，引用计数支持多实例嵌套） ===
   static _scrollLockCount = 0;
   static _savedBodyOverflow = '';
 
   static lockScroll() {
     if (typeof document === 'undefined' || !document.body) return;
-    if (AfElement._scrollLockCount === 0) {
-      AfElement._savedBodyOverflow = document.body.style.overflow;
+    if (this._scrollLockCount === 0) {
+      this._savedBodyOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
     }
-    AfElement._scrollLockCount++;
+    this._scrollLockCount++;
   }
 
   static unlockScroll() {
-    if (AfElement._scrollLockCount <= 0) return;
-    AfElement._scrollLockCount--;
-    if (AfElement._scrollLockCount === 0 && typeof document !== 'undefined' && document.body) {
-      document.body.style.overflow = AfElement._savedBodyOverflow;
+    if (this._scrollLockCount <= 0) return;
+    this._scrollLockCount--;
+    if (this._scrollLockCount === 0 && typeof document !== 'undefined' && document.body) {
+      document.body.style.overflow = this._savedBodyOverflow;
     }
   }
 
@@ -164,21 +107,18 @@ export class AfElement extends HTMLElement {
     const attrName = attr || name;
     const ctor = proto.constructor;
     // 用 hasOwnProperty 检查，避免继承父类的静态属性
-    if (!Object.prototype.hasOwnProperty.call(ctor, 'observedAttributes')) ctor.observedAttributes = [];
+    if (!ctor.hasOwnProperty('observedAttributes')) ctor.observedAttributes = [];
     if (!ctor.observedAttributes.includes(attrName)) {
       ctor.observedAttributes.push(attrName);
     }
-    if (!Object.prototype.hasOwnProperty.call(ctor, '_propMeta')) ctor._propMeta = {};
+    if (!ctor.hasOwnProperty('_propMeta')) ctor._propMeta = {};
     ctor._propMeta[attrName] = { symbol: privateName, parse: null };
 
     const parse = (val) => {
       if (val == null) return defVal;
       if (type === Number) return val === '' ? defVal : Number(val);
-      // Boolean：HTML 布尔属性「存在即真」，但允许 close-on-esc="false" / loop="false" 显式关闭
-      // （"false" 字符串视为 false，其它值含空串视为 true）
-      if (type === Boolean) return val != null && String(val).toLowerCase() !== 'false';
-      if (type === Array) { try { return JSON.parse(val || '[]'); } catch { return defVal; } }
-      if (type === Object) { try { return JSON.parse(val || '{}'); } catch { return defVal; } }
+      if (type === Boolean) return String(val).toLowerCase() !== 'false';
+      if (type === Array || type === Object) { try { return JSON.parse(val || (type === Array ? '[]' : '{}')); } catch { return defVal; } }
       return val;
     };
     ctor._propMeta[attrName].parse = parse;
@@ -188,15 +128,9 @@ export class AfElement extends HTMLElement {
       set(val) {
         this[privateName] = val;
         this.skipAttrSync = true;
-        if (val == null || val === false) {
-          this.removeAttribute(attrName);
-        } else if (val === true) {
-          this.setAttribute(attrName, '');
-        } else if (type === Array || type === Object) {
-          this.setAttribute(attrName, JSON.stringify(val));
-        } else {
-          this.setAttribute(attrName, String(val));
-        }
+        if (val == null || val === false) this.removeAttribute(attrName);
+        else if (val === true) this.setAttribute(attrName, '');
+        else this.setAttribute(attrName, type === Array || type === Object ? JSON.stringify(val) : String(val));
         this.skipAttrSync = false;
       }
     });

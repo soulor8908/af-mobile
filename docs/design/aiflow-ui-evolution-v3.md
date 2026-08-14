@@ -926,6 +926,22 @@ connectedCallback() {
 | 2B | W3-W4 | Prompt 工程化 | 模块化拆分 + 版本管理 + `@aiflow-ui/prompt` + Cursor Rules |
 | 2C | W5-W6 | MCP + 生态验证 | MCP Server + 储备项目真实场景验证 |
 
+> **2B 完成状态（2026-08-13）**：P0 + P1 全部落地。
+> - 模块化拆分：`buildPrompt({ components, categories, userPrompt })`（角色固定 + 白名单半固定 + 组件 API 按需 + Few-shot 动态检索），无参 = 全量，与提交态 `system-prompt.md` 字节一致；
+> - 版本 A/B：`eval/run.mjs --prompt full|tailored` 对比 pass@k；
+> - 模型特化：`prompt/models/{claude,gpt4,glm}.md`，`buildPrompt({ model })` 拼特化头；
+> - Prompt 即 API：`@aiflow-ui/prompt`（`prompt/index.mjs` + `package.json` 薄包壳，re-export `buildPrompt` 等），`theme` 注入项目 Token 段；
+> - Cursor Rules：`.cursor/rules/{l4-consumer,l3-library}.mdc`；
+> - 自检：ESLint（含 eval/ prompt/）0 错、vitest 829 用例全绿、prompt:check / whitelist / types 三源同步。
+>
+> **2C 完成状态（2026-08-13）**：MCP Server + 生态验证基础设施落地。
+> - MCP Server：`@aiflow-ui/mcp`（`mcp/index.mjs` + `package.json`），stdio 传输，3 工具：
+>   - `check_compliance(code)` — 跑 ESLint 检查合规性，返回 error/warning 列表（纯本地，无 LLM）
+>   - `fix_code(code)` — ESLint 修正闭环，手动模式返回 fixPrompt + errors，自动模式调 LLM 修正
+>   - `generate_page(prompt, promptMode)` — 端到端页面生成，手动模式返回 systemPrompt，自动模式返回完整代码
+> - 生态验证：eval `--prompt full|tailored` A/B 对比 pass@k 基础设施就绪（dry-run 验证通过）；MCP stdio 协议完整验证（initialize → tools/list → tools/call）
+> - 自检：ESLint（含 mcp/）0 错、vitest 836 用例全绿（+7 MCP 测试）、prompt:check / whitelist / types 三源同步。
+
 ### Phase 3：生态扩展（v2.2.0+，持续）
 
 | 优先级 | 任务 | 说明 |
@@ -1012,6 +1028,8 @@ connectedCallback() {
 | L3 全量 20 组件 | ≤ 19.5KB | ~15KB | ≤ 18.0KB | 基类移除 i18n 后组件体积下降 |
 | L3 按需 2 组件 | ≤ 5.5KB | ~4KB | ≤ 5.0KB | — |
 | 基类 AfElement | ≤ 1.2KB | ~1KB | ≤ 1.0KB | 移除 i18n 后瘦身 |
+
+> **已知问题（2026-08-13 记录，下一阶段处理）**：`npm run size` 按需 2 组件 6.638KB（预算 5.5KB，warn 非阻断）。全量 20.499KB 已通过优化回归预算内（20.5KB ✓）。按需超限为 af-picker + af-swiper 两个最重组件合计，后续可通过 CSS tree-shake 或组件拆分优化。
 
 ### 附录 B：兼容性策略
 

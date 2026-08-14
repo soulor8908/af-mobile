@@ -32,11 +32,11 @@ function loadPrompts() {
 }
 
 // 单条 eval 运行：生成 + ai-fix 闭环
-async function runOne(item, passK = 1) {
+async function runOne(item, passK = 1, promptMode = 'tailored') {
   const attempts = [];
   for (let k = 0; k < passK; k++) {
     const outputPath = join(RESULTS_DIR, `${item.id}-k${k}.html`);
-    const result = await generate(item.prompt, { outputPath });
+    const result = await generate(item.prompt, { outputPath, promptMode });
     attempts.push({
       ok: result.ok,
       rounds: result.rounds,
@@ -60,10 +60,12 @@ async function main() {
   let category = '';
   let passK = 1;
   let dryRun = false;
+  let promptMode = 'tailored';
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--limit') limit = parseInt(args[++i]);
     else if (args[i] === '--category') category = args[++i];
     else if (args[i] === '--pass-k') passK = parseInt(args[++i]);
+    else if (args[i] === '--prompt') promptMode = args[++i] === 'full' ? 'full' : 'tailored';
     else if (args[i] === '--dry-run') dryRun = true;
   }
 
@@ -83,13 +85,13 @@ async function main() {
 
   const filtered = prompts.filter(p => !category || p.category === category);
   const target = limit > 0 ? filtered.slice(0, limit) : filtered;
-  console.error(`▶ 运行 ${target.length} 条（pass@${passK}）...`);
+  console.error(`▶ 运行 ${target.length} 条（pass@${passK}，prompt=${promptMode}）...`);
 
   mkdirSync(RESULTS_DIR, { recursive: true });
   const results = [];
   for (const item of target) {
     process.stderr.write(`  [${item.id}] ${item.category} ... `);
-    const r = await runOne(item, passK);
+    const r = await runOne(item, passK, promptMode);
     results.push(r);
     process.stderr.write(r.passed ? `✓ (${r.best.rounds} 轮)\n` : `✗ (${r.best.exitCode})\n`);
   }

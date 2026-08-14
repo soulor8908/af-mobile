@@ -2,8 +2,9 @@
 // Light DOM，复用 L2 .navbar 配方；返回按钮 + safe-area-top + 标题 slot + 左右插槽
 // 职责：返回按钮派发事件 + sticky 定位 + 顶部安全区适配
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
+import { withI18n } from '../lib/with-i18n.js';
 
-export class AfNavbar extends AfElement {
+export class AfNavbar extends withI18n(AfElement) {
   static useShadow = false;
   // i18n 映射表：返回按钮 aria-label 优先用 backAriaLabel，否则字典兜底
   static i18n = {

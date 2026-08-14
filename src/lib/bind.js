@@ -2,9 +2,10 @@
 // 语法：:attr="state.field" / :attr="derived.field" / :attr="refName.field"
 // 扫描 [attr^=":"] 元素，用 effect 订阅 signal 变化时自动 setAttribute
 // MutationObserver 监听 DOM 新增（router 渲染新页面时自动绑定）
+// v3.0：initBind(root, ctx) 支持多实例（ctx.state/ctx.derived），未传 ctx 时回退全局；MutationObserver 空闲扫描合并批量变更
 
 import { effect } from './state.js';
-import { state, derived } from './page.js';
+import { state as _globalState, derived as _globalDerived } from './page.js';
 import { getDataRef, _resetDataRefs } from './data-ref.js';
 
 const _bindings = new WeakMap();   // element → cleanup
@@ -13,23 +14,35 @@ const _bindings = new WeakMap();   // element → cleanup
 // 此 re-export 仅为旧测试和潜在消费端代码保留）
 export { registerDataRef, unregisterDataRef } from './data-ref.js';
 
-/** 初始化 :bind 扫描（应用启动时调用一次） */
-export function initBind(root = document) {
+/** 初始化 :bind 扫描（应用启动时调用一次；传入 ctx 绑定到指定实例的 state/derived） */
+export function initBind(root = document, ctx = null) {
   if (typeof root.querySelectorAll !== 'function') return () => {};
-  scan(root);
+  const stateObj = ctx?.state ?? _globalState;
+  const derivedObj = ctx?.derived ?? _globalDerived;
+  scan(root, stateObj, derivedObj);
   if (typeof MutationObserver === 'undefined') return () => {};
-  const observer = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const node of m.addedNodes) {
-        if (node.nodeType === 1) scan(node);
-      }
+
+  // MutationObserver 默认开启（v2.1-Final 默认关闭会导致动态 DOM 不绑定）：
+  // 用空闲扫描合并批量变更，降低回调频率而非关闭
+  let pending = null;
+  const cancelIdle = () => {
+    if (pending) {
+      if (typeof requestIdleCallback === 'function') cancelIdleCallback(pending);
+      else clearTimeout(pending);
+      pending = null;
     }
+  };
+  const observer = new MutationObserver(() => {
+    if (pending) return;
+    pending = typeof requestIdleCallback === 'function'
+      ? requestIdleCallback(() => { scan(root, stateObj, derivedObj); pending = null; })
+      : setTimeout(() => { scan(root, stateObj, derivedObj); pending = null; }, 0);
   });
   observer.observe(root, { childList: true, subtree: true });
-  return () => observer.disconnect();
+  return () => { observer.disconnect(); cancelIdle(); };
 }
 
-function scan(root) {
+function scan(root, stateObj, derivedObj) {
   // root 自身可能带 :attr，子节点也可能带
   const candidates = root.attributes && [...root.attributes].some(a => a.name.startsWith(':'))
     ? [root, ...root.querySelectorAll('*')]
@@ -41,7 +54,7 @@ function scan(root) {
     const cleanups = [];
     for (const attr of bindAttrs) {
       const attrName = attr.name.slice(1);
-      const cleanup = bindOne(el, attrName, attr.value);
+      const cleanup = bindOne(el, attrName, attr.value, stateObj, derivedObj);
       if (cleanup) cleanups.push(cleanup);
       el.removeAttribute(attr.name);
     }
@@ -49,8 +62,8 @@ function scan(root) {
   }
 }
 
-function bindOne(el, attrName, expr) {
-  const parsed = parseExpr(expr);
+function bindOne(el, attrName, expr, stateObj, derivedObj) {
+  const parsed = parseExpr(expr, stateObj, derivedObj);
   if (!parsed) return null;
   return effect(() => {
     const val = parsed.get();
@@ -58,14 +71,14 @@ function bindOne(el, attrName, expr) {
   });
 }
 
-function parseExpr(expr) {
+function parseExpr(expr, stateObj, derivedObj) {
   // state.xxx[.yyy]
   if (/^state\./.test(expr)) {
-    return { get: () => getPath(state, expr.slice(6)) };
+    return { get: () => getPath(stateObj, expr.slice(6)) };
   }
   // derived.xxx
   if (/^derived\./.test(expr)) {
-    return { get: () => getPath(derived, expr.slice(8)) };
+    return { get: () => getPath(derivedObj, expr.slice(8)) };
   }
   // refName.xxx（af-data ref）
   if (/^[a-zA-Z_$][\w$]*\.[a-zA-Z_$][\w$]*$/.test(expr)) {

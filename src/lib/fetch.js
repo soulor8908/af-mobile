@@ -17,7 +17,7 @@ export class AbortError extends FetchError {}
 
 const _inflight = new Map();      // url → Promise（GET 去重）
 const _cache = new Map();         // url → { data, expiry }
-const _interceptors = [];         // 拦截器数组
+const _interceptors = { request: [], response: [], error: [] };  // 拦截器按阶段分组
 
 export async function fetchPage(url, opts = {}) {
   const {
@@ -68,10 +68,11 @@ async function _doFetch(url, { method, headers, body, timeout, retries, retryDel
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
+      // request 阶段：拦截器返回新 opts 继续，或返回 Response 短路
       let finalOpts = { method, headers, body, signal: ctrl.signal };
-      for (const interceptor of _interceptors) {
+      for (const interceptor of _interceptors.request) {
         const result = await interceptor(url, finalOpts);
-        if (result instanceof Response) return _parseResponse(result, responseType);
+        if (result instanceof Response) return _runResponsePhase(url, await _parseResponse(result, responseType));
         finalOpts = result;
       }
       const res = await fetch(url, finalOpts);
@@ -80,8 +81,11 @@ async function _doFetch(url, { method, headers, body, timeout, retries, retryDel
         throw new HttpError(res.status, url, errBody);
       }
       if (timeoutId) clearTimeout(timeoutId);
-      return await _parseResponse(res, responseType);
+      return await _runResponsePhase(url, await _parseResponse(res, responseType));
     } catch (err) {
+      // error 阶段：拦截器返回数据即恢复错误（短路），未恢复则走原重试/抛出逻辑
+      const recovered = await _runErrorPhase(url, err);
+      if (recovered !== undefined) return recovered;
       if (err instanceof HttpError) throw err;
       if (err instanceof AbortError) throw err;
       lastErr = err;
@@ -95,6 +99,22 @@ async function _doFetch(url, { method, headers, body, timeout, retries, retryDel
     }
   }
   throw lastErr;
+}
+
+// response 阶段：拦截器依次变换数据
+async function _runResponsePhase(url, data) {
+  let out = data;
+  for (const fn of _interceptors.response) out = await fn(url, out);
+  return out;
+}
+
+// error 阶段：拦截器返回非 undefined 即恢复错误（短路），否则继续
+async function _runErrorPhase(url, err) {
+  for (const fn of _interceptors.error) {
+    const recovered = await fn(url, err);
+    if (recovered !== undefined) return recovered;
+  }
+  return undefined;
 }
 
 async function _parseResponse(res, responseType) {
@@ -111,13 +131,17 @@ async function _parseResponse(res, responseType) {
   }
 }
 
-export function addInterceptor(fn) {
-  _interceptors.push(fn);
+// 分阶段拦截器：addInterceptor(fn) 兼容旧式（= request）；addInterceptor('response'|'error', fn)
+export function addInterceptor(fnOrPhase, fn) {
+  if (typeof fnOrPhase === 'function') _interceptors.request.push(fnOrPhase);  // 向后兼容
+  else if (_interceptors[fnOrPhase]) _interceptors[fnOrPhase].push(fn);
 }
 
 export function removeInterceptor(fn) {
-  const i = _interceptors.indexOf(fn);
-  if (i >= 0) _interceptors.splice(i, 1);
+  for (const list of Object.values(_interceptors)) {
+    const i = list.indexOf(fn);
+    if (i >= 0) list.splice(i, 1);
+  }
 }
 
 export function invalidateCache(url) {
@@ -130,5 +154,7 @@ export function clearCache() {
 
 // 测试用：重置拦截器（不导出到 index.js）
 export function _resetInterceptors() {
-  _interceptors.length = 0;
+  _interceptors.request.length = 0;
+  _interceptors.response.length = 0;
+  _interceptors.error.length = 0;
 }

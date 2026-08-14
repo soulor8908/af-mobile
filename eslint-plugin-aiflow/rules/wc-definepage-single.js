@@ -3,13 +3,16 @@
 export default {
   meta: {
     type: 'problem',
-    docs: { description: '每页只允许一个 definePage 调用' },
+    docs: { description: '每页只允许一个 definePage 调用', fixable: 'manual' },
     schema: [],
     messages: {
       multiple: 'multiple definePage() calls in one file; only one page definition allowed',
     },
   },
   create(context) {
+    const filename = context.filename || context.getFilename();
+    // 非消费端放行：库源码/单元测试（page.test.js 需多 definePage 隔离）/构建脚本
+    if (/src[\\/]|test[\\/]|scripts[\\/]/.test(filename)) return {};
     const calls = [];
     return {
       CallExpression(node) {

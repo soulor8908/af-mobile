@@ -2,6 +2,7 @@
 // Shadow DOM（useShadow=true），基于原生 <dialog> + showModal()
 // 职责：模态遮罩 + 焦点陷阱（原生 + 兜底）+ Esc/backdrop 关闭 + 焦点还原
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
+import { withI18n } from '../lib/with-i18n.js';
 
 const CSS = `
   :host { display: contents; }
@@ -30,7 +31,7 @@ const CSS = `
   :host([variant="center"]) dialog { max-width: 70vw; }
 `;
 
-export class AfDialog extends AfElement {
+export class AfDialog extends withI18n(AfElement) {
   static useShadow = true;
   // i18n 映射表：close-btn 关闭按钮 aria-label；dialog aria-label 优先用 title，否则字典兜底
   // aria-label 由 _applyI18n 在 connectedCallback 末尾统一应用（mounted 之后）

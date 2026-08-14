@@ -34,52 +34,36 @@ import { AfSwipeCell } from './components/af-swipe-cell.js';
 
 export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell };
 
-const REGISTRY = {
-  'af-list': AfList,
-  'af-swiper': AfSwiper,
-  'af-tabs': AfTabs,
-  'af-dialog': AfDialog,
-  'af-toast': AfToast,
-  'af-action-sheet': AfActionSheet,
-  'af-picker': AfPicker,
-  'af-dropdown': AfDropdown,
-  'af-img': AfImg,
-  'af-backtop': AfBacktop,
-  'af-switch': AfSwitch,
-  'af-search-bar': AfSearchBar,
-  'af-skeleton-page': AfSkeletonPage,
-  'af-upload': AfUpload,
-  'af-navbar': AfNavbar,
-  'af-tabbar': AfTabbar,
-  'af-stepper': AfStepper,
-  'af-field': AfField,
-  'af-pull-refresh': AfPullRefresh,
-  'af-swipe-cell': AfSwipeCell,
-};
+const ALL = [AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfDropdown, AfImg, AfBacktop, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell];
+// AfList → af-list, AfActionSheet → af-action-sheet
+const toTag = (C) => 'af-' + C.name.slice(2).replace(/[A-Z]/g, (c, i) => (i ? '-' : '') + c.toLowerCase());
 
 export function registerAll() {
-  for (const [name, ctor] of Object.entries(REGISTRY)) {
-    if (!customElements.get(name)) customElements.define(name, ctor);
+  for (const Ctor of ALL) {
+    const name = toTag(Ctor);
+    if (!customElements.get(name)) customElements.define(name, Ctor);
   }
 }
 
 export function register(name) {
-  const ctor = REGISTRY[name];
-  if (!ctor) throw new Error(`[aiflow-ui] unknown component: ${name}`);
-  if (!customElements.get(name)) customElements.define(name, ctor);
+  const Ctor = ALL.find(c => toTag(c) === name);
+  if (!Ctor) throw new Error(`[aiflow-ui] unknown component: ${name}`);
+  if (!customElements.get(name)) customElements.define(name, Ctor);
 }
 
 // ============================================================
 // 核心运行时（按需 import，不计入组件体积预算）
 // ============================================================
-export { signal, computed, effect, batch, bus } from './lib/state.js';
+export { signal, computed, effect, batch, createRoot, getOwner, untrack } from './lib/state.js';
 export {
   fetchPage, FetchError, TimeoutError, HttpError, AbortError,
   addInterceptor, removeInterceptor, invalidateCache, clearCache,
 } from './lib/fetch.js';
+export { createResource } from './lib/resource.js';
 export {
-  route, go, back, forward, beforeEach, afterEach, notFound, current, start,
+  route, go, back, forward, beforeEach, afterEach, notFound, current, start, RouterError,
 } from './lib/router.js';
+export { createPage } from './lib/page.js';
 
 // ============================================================
 // 核心运行时：i18n（国际化，按需 import，不计入组件体积预算）

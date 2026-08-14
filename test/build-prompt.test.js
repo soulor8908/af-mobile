@@ -9,6 +9,10 @@ import {
   extractProjectExtensions,
   buildWhitelistSection,
   buildProjectExtensionSection,
+  buildComponentTableSection,
+  pickCategories,
+  filterFewshots,
+  buildPrompt,
 } from '../scripts/build-prompt.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -188,5 +192,124 @@ describe('build-prompt / 端到端：生成 Prompt 与三源同步', () => {
 
   it('Prompt 含 25 条禁令节', () => {
     expect(prompt).toContain('# 25 条禁令');
+  });
+});
+
+// ===== 2B 模块化：buildPrompt 按需组合 =====
+
+describe('build-prompt / pickCategories（Few-shot 动态检索）', () => {
+  it('关键词命中返回对应 page 类型', () => {
+    expect(pickCategories('登录页：手机号验证码')).toContain('page-login');
+    expect(pickCategories('商品列表页')).toContain('page-list');
+    expect(pickCategories('商品详情页')).toContain('page-detail');
+    expect(pickCategories('反馈表单')).toContain('page-form');
+    expect(pickCategories('搜索页')).toContain('page-search');
+    expect(pickCategories('个人中心')).toContain('page-profile');
+    expect(pickCategories('404 空态')).toContain('page-empty');
+  });
+  it('空输入返回 null（不缩小提示）', () => {
+    expect(pickCategories('')).toBeNull();
+    expect(pickCategories('随便聊聊')).toBeNull();
+  });
+  it('多关键词命中返回多个', () => {
+    const c = pickCategories('列表页支持搜索筛选');
+    expect(c).toContain('page-list');
+    expect(c).toContain('page-search');
+  });
+});
+
+describe('build-prompt / filterFewshots', () => {
+  const tpl = [
+    '# Few-shot 示例',
+    '',
+    '## 示例 1：page-list（消息列表）',
+    '输入：消息列表',
+    '',
+    '## 示例 2：page-login（登录）',
+    '输入：登录',
+    '',
+    '# 错误恢复',
+    'xxx',
+  ].join('\n');
+  it('按类别过滤示例块', () => {
+    const out = filterFewshots(tpl, ['page-login']);
+    expect(out).toContain('## 示例 2：page-login');
+    expect(out).not.toContain('## 示例 1：page-list');
+    expect(out).toContain('# 错误恢复');
+  });
+  it('空 categories 原样返回', () => {
+    expect(filterFewshots(tpl, [])).toBe(tpl);
+    expect(filterFewshots(tpl, null)).toBe(tpl);
+  });
+  it('无 Few-shot 章节原样返回', () => {
+    expect(filterFewshots('只有角色', ['page-list'])).toBe('只有角色');
+  });
+});
+
+describe('build-prompt / buildComponentTableSection（组件 API 按需加载）', () => {
+  it('components 为空输出全部组件', () => {
+    const s = buildComponentTableSection();
+    expect(s).toContain('<af-list>');
+    expect(s).toContain('<af-dialog>');
+  });
+  it('components 指定后只输出指定组件', () => {
+    const s = buildComponentTableSection(undefined, ['af-list', 'af-swiper']);
+    expect(s).toContain('<af-list>');
+    expect(s).toContain('<af-swiper>');
+    expect(s).not.toContain('<af-dialog>');
+  });
+});
+
+describe('build-prompt / buildPrompt（Prompt 即 API）', () => {
+  it('无参 = 全量（与提交态快照一致）', () => {
+    const full = buildPrompt();
+    const committed = readFileSync(join(ROOT, 'prompt/system-prompt.md'), 'utf8');
+    expect(full).toBe(committed);
+  });
+  it('userPrompt 自动裁剪 few-shot（登录需求不含列表示例）', () => {
+    const p = buildPrompt({ userPrompt: '登录页：手机号验证码' });
+    expect(p).toContain('## 示例 2：page-login');
+    expect(p).not.toContain('## 示例 1：page-list');
+  });
+  it('显式 categories 只保留指定 few-shot', () => {
+    const p = buildPrompt({ categories: ['page-list'] });
+    expect(p).toContain('## 示例 1：page-list');
+    expect(p).not.toContain('## 示例 2：page-login');
+  });
+  it('components 按需裁剪组件简表（白名单标签列表保留）', () => {
+    const p = buildPrompt({ components: ['af-list'] });
+    // 组件简表只含 af-list 行
+    expect(p).toContain('| `<af-list>` |');
+    expect(p).not.toContain('| `<af-dialog>` |');
+    // 白名单半固定保留全部标签
+    expect(p).toContain('L3 真组件标签');
+    expect(p).toContain('`<af-dialog>`');
+  });
+  it('model 拼接模型特化头', () => {
+    const p = buildPrompt({ model: 'claude' });
+    expect(p.startsWith('# 模型特化：Claude')).toBe(true);
+    expect(p).toContain('XML');
+    const g = buildPrompt({ model: 'glm' });
+    expect(g.startsWith('# 模型特化：GLM')).toBe(true);
+  });
+  it('未知 model 原样返回', () => {
+    expect(buildPrompt({ model: 'nonexist' })).toBe(buildPrompt());
+  });
+  it('theme 数组注入项目 Token 段', () => {
+    const p = buildPrompt({ theme: ['--c-brand', '--c-bg'] });
+    expect(p).toContain('## 项目 Token（theme 注入，2 个）');
+    expect(p).toContain('`--c-brand`');
+    expect(p).toContain('`--c-bg`');
+  });
+  it('theme 对象按 key 注入', () => {
+    const p = buildPrompt({ theme: { '--c-brand': '#1677ff' } });
+    expect(p).toContain('## 项目 Token（theme 注入，1 个）');
+    expect(p).toContain('`--c-brand`');
+  });
+  it('model + theme + components 组合', () => {
+    const p = buildPrompt({ model: 'claude', theme: ['--c-brand'], components: ['af-list'] });
+    expect(p.startsWith('# 模型特化：Claude')).toBe(true);
+    expect(p).toContain('## 项目 Token');
+    expect(p).toContain('| `<af-list>` |');
   });
 });

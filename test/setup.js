@@ -95,8 +95,8 @@ global.requestAnimationFrame = (cb) => {
 global.cancelAnimationFrame = (id) => { _rafPending.delete(id); };
 
 // === 滚动行为：jsdom 不模拟实际滚动，scrollTop 设值即生效（这正是测试需要的） ===
-// window.scrollTo jsdom 未实现（af-backtop 依赖），补一个空实现避免 Not implemented 噪音
-if (!window.scrollTo) window.scrollTo = () => {};
+// jsdom 的 window.scrollTo 是 not-implemented 桩（调用会打 jsdomError 噪音），统一替换为静默 no-op
+window.scrollTo = () => {};
 
 // === HTMLSlotElement.assignedElements（jsdom 未实现 slot 分配，af-swiper 依赖） ===
 // jsdom 不模拟 shadow slot 分配，返回 host children 作为 assigned 节点（够测试用）

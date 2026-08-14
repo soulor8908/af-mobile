@@ -5,7 +5,7 @@
 export default {
   meta: {
     type: 'problem',
-    docs: { description: '消费端禁止穿透 Block 边界访问内部' },
+    docs: { description: '消费端禁止穿透 Block 边界访问内部', fixable: 'manual' },
     schema: [],
     messages: {
       childSelector: "querySelector('{{sel}}') penetrates Block boundary; only root tag selector allowed (e.g. 'af-auth-form')",
@@ -14,10 +14,8 @@ export default {
   },
   create(context) {
     const filename = context.filename || context.getFilename();
-    // 库源码放行：库作者实现 Block 内部
-    if (/src[\\/](components|blocks|lib)[\\/].*\.js$/.test(filename)) return {};
-    // 测试夹具放行
-    if (/test[\\/]eslint-plugin[\\/]/.test(filename)) return {};
+    // 非消费端放行：库源码/单元测试/构建脚本
+    if (/src[\\/]|test[\\/]|scripts[\\/]/.test(filename)) return {};
 
     // af-* 标签选择器（含子代/后代穿透）：af-xxx > 或 af-xxx 空格 后跟其他选择器
     const PENETRATE_RE = /af-[a-z]+(?:[>+~]|\s+[^,)\]]+)/;

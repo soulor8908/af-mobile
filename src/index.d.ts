@@ -720,8 +720,14 @@ export function effect(fn: () => void): () => void;
 /** 批量更新：合并多次 signal.set 的通知 */
 export function batch(fn: () => void): void;
 
-/** 跨组件事件总线（原生 EventTarget） */
-export const bus: EventTarget;
+/** Owner 作用域：fn 内创建的 effect/computed 自动注册到 owner，dispose 时级联清理 */
+export function createRoot<T>(fn: (dispose: () => void) => T): T;
+
+/** 获取当前 owner（createRoot 内部用，外部调试用） */
+export function getOwner(): { disposers: Array<() => void>; parent: object | null } | null;
+
+/** 在 fn 内读取 signal 不建立依赖（写入仍生效） */
+export function untrack<T>(fn: () => T): T;
 
 // ============================================================
 // 核心运行时：fetch（数据获取）
@@ -758,14 +764,32 @@ export interface FetchPageOptions {
 /** 数据获取主入口 */
 export function fetchPage<T = unknown>(url: string, options?: FetchPageOptions): Promise<T>;
 
-/** 添加全局拦截器：返回 opts 继续，返回 Response 短路 */
-export function addInterceptor(fn: (url: string, opts: any) => Promise<any> | any): void;
+/** 添加全局拦截器：request 返回 opts 继续 / Response 短路；response 变换数据；error 返回数据恢复 / undefined 继续 */
+export function addInterceptor(
+  fnOrPhase: ((url: string, opts: any) => Promise<any> | any) | 'request' | 'response' | 'error',
+  fn?: (url: string, arg: any) => Promise<any> | any
+): void;
 /** 移除拦截器 */
 export function removeInterceptor(fn: (url: string, opts: any) => any): void;
 /** 失效指定 URL 的缓存 */
 export function invalidateCache(url: string): void;
 /** 清空所有缓存 */
 export function clearCache(): void;
+
+/** createResource 返回的资源句柄（signal，函数式读取） */
+export interface Resource<T = unknown> {
+  data: () => T;
+  isLoading: () => boolean;
+  error: () => Error | null;
+  isError: () => boolean;
+}
+
+/** 创建响应式资源：source 变化自动重新拉取，effect 注册到当前 owner（在 createPage.setup 中调用） */
+export function createResource<T = unknown>(
+  source: (() => unknown) | unknown,
+  fetcher: (key: unknown) => Promise<T>,
+  options?: { initialValue?: T }
+): Resource<T>;
 
 // ============================================================
 // 核心运行时：router（SPA 路由）
@@ -807,10 +831,10 @@ export function beforeEach(
   guard: (route: any, params: Record<string, string>, path: string) => Promise<boolean | string | void> | boolean | string | void
 ): void;
 
-/** 全局后置钩子 */
+/** 全局后置钩子：返回取消函数，可注册到 owner 在页面卸载时清理 */
 export function afterEach(
   hook: (route: any, params: Record<string, string>, path: string) => void
-): void;
+): () => void;
 
 /** 404 处理 */
 export function notFound(handler: (path: string) => void): void;
@@ -824,7 +848,53 @@ export function start(options?: {
   scrollRestoration?: boolean;
   keepAliveMax?: number;
   base?: string;
+  /** 滚动位置：{x,y} 坐标 | {el,top} 元素 | false 禁止滚动（仿 Vue Router） */
+  scrollBehavior?: (
+    to: { path: string; params: Record<string, string>; query: Record<string, string> },
+    from: { path: string; params: Record<string, string>; query: Record<string, string> } | null,
+    savedPosition: { x: number; y: number } | null
+  ) => ({ x?: number; y?: number } | { el: string | Element; top?: number } | false | null)
+    | Promise<{ x?: number; y?: number } | { el: string | Element; top?: number } | false | null>;
 }): void;
+
+/** 路由错误：outlet 选择器未命中时抛出 */
+export class RouterError extends Error {}
+
+// ============================================================
+// 核心运行时：page（页面运行时工厂）
+// ============================================================
+
+/** createPage 页面配置 */
+export interface PageConfig {
+  state?: Record<string, unknown>;
+  computed?: Record<string, (s: Record<string, unknown>) => unknown>;
+  /** 命令式初始化（createResource 等），在 state/computed 之后、effects 之前调用；返回值挂 refs */
+  setup?: (s: Record<string, unknown>) => Record<string, unknown>;
+  effects?: Record<string, unknown>;
+  transform?: (data: unknown) => unknown;
+  actions?: Record<string, (s: Record<string, unknown>, ...args: unknown[]) => void>;
+  onError?: (err: unknown) => void;
+  transition?: unknown;
+  keepAlive?: boolean;
+}
+
+/** createPage 返回的页面实例 */
+export interface PageInstance {
+  state: Record<string, unknown>;
+  derived: Record<string, unknown>;
+  actions: Record<string, (...args: unknown[]) => void>;
+  /** setup 返回值 */
+  refs: Record<string, unknown>;
+  transform: ((data: unknown) => unknown) | null;
+  transition: unknown;
+  keepAlive: boolean;
+  mount(root: HTMLElement): void;
+  /** 级联清理所有 effect/computed/上游订阅 */
+  unmount(): void;
+}
+
+/** 页面运行时工厂（实例化，参数注入 state） */
+export function createPage(config?: PageConfig): PageInstance;
 
 // ============================================================
 // 核心运行时：i18n（国际化）

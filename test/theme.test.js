@@ -53,6 +53,45 @@ describe('theme.js', () => {
     expect(document.documentElement.dataset.theme).toBe('');
   });
 
+  it('initTheme：系统主题变化且未显式设定时派发 themechange', () => {
+    let changeCb = null;
+    const origMM = window.matchMedia;
+    window.matchMedia = (query) => ({
+      matches: false, media: query,
+      addEventListener: (type, cb) => { if (type === 'change') changeCb = cb; },
+    });
+    const received = [];
+    document.documentElement.addEventListener('themechange', (e) => received.push(e.detail));
+    try {
+      initTheme();
+      changeCb({ matches: true });   // 系统切到 dark
+      changeCb({ matches: false });  // 系统切回 light
+      expect(received).toEqual(['dark', 'light']);
+    } finally {
+      window.matchMedia = origMM;
+    }
+  });
+
+  it('initTheme：显式设定主题后系统变化不派发', () => {
+    let changeCb = null;
+    const origMM = window.matchMedia;
+    window.matchMedia = (query) => ({
+      matches: false, media: query,
+      addEventListener: (type, cb) => { if (type === 'change') changeCb = cb; },
+    });
+    localStorage.setItem('theme', 'dark');
+    document.documentElement.dataset.theme = 'dark';
+    const received = [];
+    document.documentElement.addEventListener('themechange', (e) => received.push(e.detail));
+    try {
+      initTheme();
+      changeCb({ matches: true });
+      expect(received).toEqual([]);
+    } finally {
+      window.matchMedia = origMM;
+    }
+  });
+
   it('SSR 守卫：无 document/localStorage 时不抛错', () => {
     // 临时移除全局对象模拟 SSR/Node 环境
     const origDoc = globalThis.document;

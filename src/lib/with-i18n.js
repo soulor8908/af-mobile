@@ -44,22 +44,12 @@ export function withI18n(Base) {
       for (const sel in map) {
         const [attr, keyOrFn, fallback, skipIf] = map[sel];
         if (skipIf && this.hasAttribute(skipIf)) continue;
-        if (sel === '@') {
-          const val = typeof keyOrFn === 'function'
-            ? keyOrFn(this, _t, this, 0)
-            : (fallback && this[fallback] ? this[fallback] : _t(keyOrFn));
-          if (attr) this.setAttribute(attr, val);
-          else this.textContent = val;
-          continue;
-        }
-        const els = this.$root.querySelectorAll(sel);
-        els.forEach((el, i) => {
-          const val = typeof keyOrFn === 'function'
-            ? keyOrFn(this, _t, el, i)
-            : (fallback && this[fallback] ? this[fallback] : _t(keyOrFn));
-          if (attr) el.setAttribute(attr, val);
-          else el.textContent = val;
-        });
+        const cv = (el, i) => typeof keyOrFn === 'function'
+          ? keyOrFn(this, _t, el, i)
+          : (fallback && this[fallback] ? this[fallback] : _t(keyOrFn));
+        const apply = (el, i) => attr ? el.setAttribute(attr, cv(el, i)) : (el.textContent = cv(el, i));
+        if (sel === '@') { apply(this, 0); continue; }
+        this.$root.querySelectorAll(sel).forEach(apply);
       }
     }
   };

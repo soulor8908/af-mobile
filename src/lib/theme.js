@@ -30,10 +30,18 @@ export function toggleTheme() {
   setTheme(getTheme() === 'dark' ? 'light' : 'dark');
 }
 
-// 从 localStorage 恢复主题（应在入口尽早调用，先于组件挂载）
+// 从 localStorage 恢复主题（应在入口尽早调用，先于组件挂载）+ 监听系统主题变化
 export function initTheme() {
   const root = getRoot();
   if (!root || typeof localStorage === 'undefined') return;
   const saved = localStorage.getItem('theme');
   if (saved === 'light' || saved === 'dark') root.dataset.theme = saved;
+  // 系统主题监听：仅未显式设定主题时跟随系统变化（CSS 用 @media 自动跟随，JS 需事件通知组件）
+  if (typeof matchMedia === 'function') {
+    matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        root.dispatchEvent(new CustomEvent('themechange', { detail: e.matches ? 'dark' : 'light' }));
+      }
+    });
+  }
 }

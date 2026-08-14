@@ -38,16 +38,20 @@ function stripCodeFence(text) {
 }
 
 // 端到端生成闭环
-// 输入：需求描述字符串
+// 输入：需求描述字符串 + { outputPath, promptMode }
+// promptMode: 'full'（全量，读 system-prompt.md 快照）| 'tailored'（buildPrompt 按需求裁剪，默认）
 // 输出：{ ok, code, rounds, exitCode, lastErrors, outputPath }
 export async function generate(userPrompt, opts = {}) {
   const outputPath = opts.outputPath || join(CACHE_DIR, `gen-${Date.now()}.html`);
   mkdirSync(dirname(outputPath), { recursive: true });
 
-  const systemPromptPath = join(ROOT, 'prompt/system-prompt.md');
-  const systemPrompt = existsSync(systemPromptPath)
-    ? readFileSync(systemPromptPath, 'utf8')
-    : '(System Prompt 未构建，请先运行 npm run prompt)';
+  // 按需构建 system prompt：tailored 用 buildPrompt({ userPrompt }) 自动检索 few-shot + 组件 API
+  const { buildPrompt } = await import('./build-prompt.mjs');
+  const systemPrompt = opts.promptMode === 'full'
+    ? (existsSync(join(ROOT, 'prompt/system-prompt.md'))
+        ? readFileSync(join(ROOT, 'prompt/system-prompt.md'), 'utf8')
+        : '(System Prompt 未构建，请先运行 npm run prompt)')
+    : buildPrompt({ userPrompt });
 
   // Step 1: 调 LLM 生成首版
   let firstCode;
@@ -71,7 +75,7 @@ export async function generate(userPrompt, opts = {}) {
   writeFileSync(outputPath, firstCode);
 
   // Step 2-4: 复用 ai-fix 闭环（lint → 修正 → 再生，最多 3 轮）
-  const fixResult = await runAiFixLoop(outputPath, callLLM);
+  const fixResult = await runAiFixLoop(outputPath, callLLM, systemPrompt);
   const finalCode = readFileSync(outputPath, 'utf8');
 
   return {

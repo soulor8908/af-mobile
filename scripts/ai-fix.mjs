@@ -39,7 +39,7 @@ export function extractCode(filePath) {
 
 // === 2. 跑 ESLint ===
 // 临时文件必须放在 ROOT 下，让 ESLint flat config 能被找到（ESLint 从被 lint 的文件往上搜 config）
-async function runEslint(code) {
+export async function runEslint(code) {
   if (!code || !code.trim()) return { messages: [] };
   const { ESLint } = await import('eslint');
   const engine = new ESLint({ cwd: ROOT });
@@ -132,13 +132,14 @@ async function callLLM(systemPrompt, userPrompt) {
 }
 
 // === 5. 主循环（最多 3 轮）===
-// 输入：待修文件绝对路径 + 可选 LLM 调用器（不传则用手动模式）
+// 输入：待修文件绝对路径 + 可选 LLM 调用器（不传则用手动模式）+ 可选 systemPrompt 覆盖
 // 返回：{ ok: Boolean, rounds: Number, lastErrors: Array, exitCode: Number }
-export async function runAiFixLoop(absFile, llmCaller) {
+export async function runAiFixLoop(absFile, llmCaller, systemPromptOverride = null) {
   const systemPromptPath = join(ROOT, 'prompt/system-prompt.md');
-  const systemPrompt = existsSync(systemPromptPath)
-    ? readFileSync(systemPromptPath, 'utf8')
-    : '(System Prompt 未构建，请先运行 npm run prompt)';
+  const systemPrompt = systemPromptOverride
+    ?? (existsSync(systemPromptPath)
+      ? readFileSync(systemPromptPath, 'utf8')
+      : '(System Prompt 未构建，请先运行 npm run prompt)');
 
   let originalCode = readFileSync(absFile, 'utf8');
   let extract = extractCode(absFile);

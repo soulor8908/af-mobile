@@ -4,11 +4,12 @@
 // 用法：<af-pull-refresh><div class="list">...</div></af-pull-refresh>
 import { AfElement } from '../lib/af-element.js';
 import { t } from '../lib/i18n.js';
+import { withI18n } from '../lib/with-i18n.js';
 
 const THRESHOLD = 60;
 const MAX_PULL = 100;
 
-export class AfPullRefresh extends AfElement {
+export class AfPullRefresh extends withI18n(AfElement) {
   static useShadow = false;
   static i18n = {
     '[data-role="indicator"]': ['aria-label', (host, t) => {

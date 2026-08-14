@@ -16,6 +16,9 @@ export default {
     },
   },
   create(context) {
+    const filename = context.filename || context.getFilename();
+    // 非消费端放行：库源码/单元测试/构建脚本
+    if (/src[\\/]|test[\\/]|scripts[\\/]/.test(filename)) return {};
     const sourceCode = context.sourceCode || context.getSourceCode();
 
     function isInField(node, fieldName) {

@@ -1,7 +1,7 @@
 // AIFlow UI —— i18n 国际化 API
 // 与 theme.js 对称：函数式 API + CustomEvent('localechange') 通知
 // SSR/Node 安全：所有 DOM/localStorage/navigator 访问惰性执行 + typeof 守卫
-// 字典扁平 key（{组件2字母缩写}.{后缀}），不支持嵌套/复数/ICU 格式（YAGNI）
+// 字典扁平 key（{组件2字母缩写}.{后缀}）；复数条目用 { zero/one/two/few/many/other } 对象 + CLDR 规则（W7）
 
 let _locale = 'zh-CN';
 
@@ -40,6 +40,11 @@ export const messages = {
     'up.btn': '+ 选择文件',
     'up.al': '上传文件',
     'im.fail': '图片加载失败',
+    'sg.al': '设置',
+    'sg.em': '暂无设置项',
+    'sg.ld': '加载中…',
+    'sg.er': '加载失败',
+    'sg.rt': '重试',
   },
   'en-US': {
     'bt.al': 'Back to top',
@@ -75,14 +80,49 @@ export const messages = {
     'up.btn': '+ Select file',
     'up.al': 'Upload file',
     'im.fail': 'Image load failed',
+    'sg.al': 'Settings',
+    'sg.em': 'No settings',
+    'sg.ld': 'Loading...',
+    'sg.er': 'Load failed',
+    'sg.rt': 'Retry',
   },
 };
 
-/** 翻译：回退链 当前→zh-CN→key 自身 */
+// CLDR plural rules（轻量 ICU 子集；按 '-' 前的主语言匹配，未知语言回退 en）
+// 注：仅计算可数整数 n 的语法复数类别；中文/日语恒为 'other'
+const _twoForm = n => (n === 0 || n === 1) ? 'one' : 'other';   // fr/es/pt/it 等
+const _slavicForm = n => {                                      // ru/uk/pl 等
+  const m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return 'one';
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'few';
+  return 'many';
+};
+const PLURAL_RULES = {
+  en: n => n === 1 ? 'one' : 'other',
+  zh: () => 'other',
+  ja: () => 'other',
+  ar: n => {
+    if (n === 0) return 'zero';
+    if (n === 1) return 'one';
+    if (n === 2) return 'two';
+    if (n % 100 >= 3 && n % 100 <= 10) return 'few';
+    if (n % 100 >= 11 && n % 100 <= 99) return 'many';
+    return 'other';
+  },
+  fr: _twoForm, es: _twoForm, pt: _twoForm,
+  ru: _slavicForm, uk: _slavicForm,
+};
+
+/** 翻译：回退链 当前→zh-CN→key 自身；复数条目按 CLDR 规则选形（无 n 时用 other） */
 export function t(key, vars) {
   const dict = messages[_locale] || messages['zh-CN'];
   let s = dict[key];
   if (s == null) s = messages['zh-CN'][key] ?? key;
+  if (s && typeof s === 'object') {
+    const rule = (PLURAL_RULES[_locale.split('-')[0]] || PLURAL_RULES.en)(vars && vars.n);
+    s = s[rule] ?? s.other;
+    if (s == null) s = key;
+  }
   if (!vars) return s;
   return s.replace(/\{(\w+)\}/g, (_, k) => (k in vars ? String(vars[k]) : `{${k}}`));
 }

@@ -12,6 +12,7 @@ import wcPureFunction from '../../eslint-plugin-aiflow/rules/wc-pure-function.js
 import wcBlockStates from '../../eslint-plugin-aiflow/rules/wc-block-states.js';
 import wcBlockVariantEnum from '../../eslint-plugin-aiflow/rules/wc-block-variant-enum.js';
 import wcBindSyntax from '../../eslint-plugin-aiflow/rules/wc-bind-syntax.js';
+import noRegisterAll from '../../eslint-plugin-aiflow/rules/no-register-all.js';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
@@ -542,6 +543,51 @@ describe('L3.5-11 aiflow/wc-bind-syntax', () => {
       valid: [{
         filename: 'src/blocks/af-foo.js',
         code: `el.innerHTML = '<div :items="window.x">';`,
+      }],
+      invalid: [],
+    });
+  });
+});
+
+describe('L3.5-12 aiflow/no-register-all', () => {
+  it('无 registerAll 放行', () => {
+    ruleTester.run('no-register-all', noRegisterAll, {
+      valid: [{ code: `register('af-list', 'af-dialog');` }],
+      invalid: [],
+    });
+  });
+  it('registerAll() 报错', () => {
+    ruleTester.run('no-register-all', noRegisterAll, {
+      valid: [],
+      invalid: [{
+        code: `registerAll();`,
+        errors: [{ messageId: 'registerAll' }],
+      }],
+    });
+  });
+  it('消费端方法链中的 registerAll 报错', () => {
+    ruleTester.run('no-register-all', noRegisterAll, {
+      valid: [],
+      invalid: [{
+        code: `aiflow.registerAll();`,
+        errors: [{ messageId: 'registerAll' }],
+      }],
+    });
+  });
+  it('库源码放行（index.js 导出入口）', () => {
+    ruleTester.run('no-register-all', noRegisterAll, {
+      valid: [{
+        filename: 'src/index.js',
+        code: `export { registerAll } from './register.js';`,
+      }],
+      invalid: [],
+    });
+  });
+  it('构建脚本放行', () => {
+    ruleTester.run('no-register-all', noRegisterAll, {
+      valid: [{
+        filename: 'scripts/build.mjs',
+        code: `registerAll();`,
       }],
       invalid: [],
     });

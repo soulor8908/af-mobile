@@ -203,26 +203,181 @@ describe('batch 批量更新', () => {
   });
 });
 
-import { bus } from '../src/lib/state.js';
+import { createRoot, getOwner, untrack } from '../src/lib/state.js';
 
-describe('bus 事件总线', () => {
-  it('bus 是 EventTarget 实例', () => {
-    expect(bus).toBeInstanceOf(EventTarget);
+// === v3.0 Owner pattern ===
+
+describe('createRoot 所有权树', () => {
+  it('返回 fn 的返回值', () => {
+    const result = createRoot(() => 42);
+    expect(result).toBe(42);
   });
 
-  it('dispatchEvent 触发 addEventListener 回调', () => {
-    const fn = vi.fn();
-    bus.addEventListener('test:event', fn);
-    bus.dispatchEvent(new CustomEvent('test:event', { detail: { x: 1 } }));
+  it('返回的 dispose 是函数', () => {
+    const dispose = createRoot((d) => d);
+    expect(typeof dispose).toBe('function');
+  });
+
+  it('effect 在 createRoot 内自动注册，dispose 后不再响应 signal 变化', () => {
+    const s = signal(0);
+    const fn = vi.fn(() => { s(); });
+    const dispose = createRoot((d) => {
+      effect(fn);
+      return d;
+    });
     expect(fn).toHaveBeenCalledTimes(1);
-    expect(fn.mock.calls[0][0].detail).toEqual({ x: 1 });
+    s.set(1);
+    expect(fn).toHaveBeenCalledTimes(2);
+    dispose();
+    s.set(2);
+    expect(fn).toHaveBeenCalledTimes(2);  // dispose 后不再触发
   });
 
-  it('removeEventListener 后不再触发', () => {
+  it('嵌套 effect 全部被父 owner dispose 清理', () => {
+    const a = signal(0);
+    const b = signal(0);
+    const fnA = vi.fn(() => { a(); });
+    const fnB = vi.fn(() => { b(); });
+    const dispose = createRoot((d) => {
+      effect(fnA);
+      effect(fnB);
+      return d;
+    });
+    expect(fnA).toHaveBeenCalledTimes(1);
+    expect(fnB).toHaveBeenCalledTimes(1);
+    dispose();
+    a.set(1);
+    b.set(1);
+    expect(fnA).toHaveBeenCalledTimes(1);
+    expect(fnB).toHaveBeenCalledTimes(1);
+  });
+
+  it('子 createRoot 的 dispose 不影响父 owner', () => {
+    const a = signal(0);
+    const b = signal(0);
+    const fnA = vi.fn(() => { a(); });
+    const fnB = vi.fn(() => { b(); });
+    let disposeChild;
+    const disposeParent = createRoot((dParent) => {
+      effect(fnA);
+      disposeChild = createRoot((dChild) => {
+        effect(fnB);
+        return dChild;
+      });
+      return dParent;
+    });
+    disposeChild();
+    b.set(1);
+    expect(fnB).toHaveBeenCalledTimes(1);  // 子已 dispose
+    a.set(1);
+    expect(fnA).toHaveBeenCalledTimes(2);  // 父仍存活
+    disposeParent();
+    a.set(2);
+    expect(fnA).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('computed 上游订阅清理（v3.0 tempEffect 修复）', () => {
+  it('computed 在 createRoot 内，dispose 后上游 signal 不再持有订阅', () => {
+    const a = signal(1);
+    const fn = vi.fn(() => a() * 2);
+    const dispose = createRoot((d) => {
+      const c = computed(fn);
+      c();  // 触发首次求值，建立上游订阅
+      return d;
+    });
+    expect(fn).toHaveBeenCalledTimes(1);
+    dispose();
+    a.set(10);
+    expect(fn).toHaveBeenCalledTimes(1);  // dispose 后上游变更不再触发 computed 重算
+  });
+
+  it('computed 依赖切换时旧上游订阅被清理', () => {
+    const a = signal(1);
+    const b = signal(100);
+    const fn = vi.fn(() => a() > 0 ? b() : -1);
+    const c = computed(fn);
+    expect(c()).toBe(100);
+    a.set(-1);
+    expect(c()).toBe(-1);
+    const beforeCalls = fn.mock.calls.length;
+    b.set(200);  // 已不依赖 b，不应触发重算
+    expect(fn.mock.calls.length).toBe(beforeCalls);
+  });
+
+  it('computed.on 订阅在 owner dispose 后清理', () => {
+    const a = signal(1);
+    const c = computed(() => a() * 2);
     const fn = vi.fn();
-    bus.addEventListener('test:remove', fn);
-    bus.removeEventListener('test:remove', fn);
-    bus.dispatchEvent(new Event('test:remove'));
-    expect(fn).not.toHaveBeenCalled();
+    const dispose = createRoot((d) => {
+      c.on(fn);  // effect 立即执行 → fn 首次调用
+      return d;
+    });
+    a.set(2);   // computed 重算 → fn 第二次调用
+    dispose();
+    a.set(3);   // owner 已 dispose，effect 已清理，fn 不应再被调用
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('getOwner', () => {
+  it('createRoot 外返回 null', () => {
+    expect(getOwner()).toBeNull();
+  });
+
+  it('createRoot 内返回当前 owner', () => {
+    let captured;
+    createRoot(() => {
+      captured = getOwner();
+    });
+    expect(captured).toBeDefined();
+    expect(Array.isArray(captured.disposers)).toBe(true);
+  });
+
+  it('createRoot 退出后 owner 恢复 null', () => {
+    createRoot(() => {});
+    expect(getOwner()).toBeNull();
+  });
+});
+
+describe('untrack 阻断依赖追踪', () => {
+  it('untrack 内读取 signal 不建立依赖', () => {
+    const a = signal(1);
+    const b = signal(10);
+    const fn = vi.fn(() => {
+      a();
+      untrack(() => b());
+    });
+    effect(fn);
+    expect(fn).toHaveBeenCalledTimes(1);
+    a.set(2);
+    expect(fn).toHaveBeenCalledTimes(2);   // a 变化触发
+    b.set(20);
+    expect(fn).toHaveBeenCalledTimes(2);   // b 在 untrack 内，不触发
+  });
+
+  it('untrack 内写入 signal 仍生效', () => {
+    const a = signal(0);
+    const b = signal(0);
+    effect(() => {
+      const cur = a();
+      untrack(() => b.set(cur * 10));  // 写 b 不建立依赖
+    });
+    expect(b()).toBe(0);
+    a.set(5);
+    expect(b()).toBe(50);
+  });
+
+  it('untrack 返回 fn 的返回值', () => {
+    expect(untrack(() => 'ok')).toBe('ok');
+  });
+
+  it('untrack 嵌套：外层 untrack 后内层仍不追踪', () => {
+    const s = signal(1);
+    const fn = vi.fn(() => untrack(() => untrack(() => s())));
+    effect(fn);
+    expect(fn).toHaveBeenCalledTimes(1);
+    s.set(2);
+    expect(fn).toHaveBeenCalledTimes(1);
   });
 });

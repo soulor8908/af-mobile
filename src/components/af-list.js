@@ -3,12 +3,13 @@
 // 职责：虚拟滚动 + 下拉刷新 + 上拉加载 + itemclick 事件委托
 import { AfElement, escapeHtml as esc, html } from '../lib/af-element.js';
 import { t } from '../lib/i18n.js';
+import { withI18n } from '../lib/with-i18n.js';
 
 const LOADINGMORE_DISTANCE = 2; // 距底 N 项触发
 const REFRESH_THRESHOLD = 40;
 const REFRESH_MAX = 60;
 
-export class AfList extends AfElement {
+export class AfList extends withI18n(AfElement) {
   static useShadow = false;
   static i18n = {
     '[data-role="refresh-indicator"]': ['aria-label', 'ls.rf'],

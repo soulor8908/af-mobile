@@ -132,13 +132,14 @@ async function callLLM(systemPrompt, userPrompt) {
 }
 
 // === 5. 主循环（最多 3 轮）===
-// 输入：待修文件绝对路径 + 可选 LLM 调用器（不传则用手动模式）
+// 输入：待修文件绝对路径 + 可选 LLM 调用器（不传则用手动模式）+ 可选 systemPrompt 覆盖
 // 返回：{ ok: Boolean, rounds: Number, lastErrors: Array, exitCode: Number }
-export async function runAiFixLoop(absFile, llmCaller) {
+export async function runAiFixLoop(absFile, llmCaller, systemPromptOverride = null) {
   const systemPromptPath = join(ROOT, 'prompt/system-prompt.md');
-  const systemPrompt = existsSync(systemPromptPath)
-    ? readFileSync(systemPromptPath, 'utf8')
-    : '(System Prompt 未构建，请先运行 npm run prompt)';
+  const systemPrompt = systemPromptOverride
+    ?? (existsSync(systemPromptPath)
+      ? readFileSync(systemPromptPath, 'utf8')
+      : '(System Prompt 未构建，请先运行 npm run prompt)');
 
   let originalCode = readFileSync(absFile, 'utf8');
   let extract = extractCode(absFile);

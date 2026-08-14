@@ -161,12 +161,16 @@ const COMPONENT_META = [
 ];
 
 // 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）
-export function buildComponentTableSection(meta = COMPONENT_META) {
+// components 非空时按需只生成指定组件行（组件 API 按需加载）
+export function buildComponentTableSection(meta = COMPONENT_META, components = []) {
+  const rows = components.length
+    ? COMPONENT_META.filter(c => components.includes(c.tag))
+    : COMPONENT_META;
   const lines = [
     '| 组件 | 用途 | 核心属性 | 核心事件 |',
     '|---|---|---|---|',
   ];
-  for (const c of meta) {
+  for (const c of rows) {
     lines.push(`| \`<${c.tag}>\` | ${c.purpose} | ${c.props} | ${c.events} |`);
   }
   return lines.join('\n');
@@ -183,18 +187,71 @@ export function buildProjectExtensionSection(items) {
   return lines.join('\n');
 }
 
-// 主流程
-function main() {
+// ===== 2B 模块化：Few-shot 动态检索 =====
+// 需求关键词 → page 模式（与模板「模式选择决策树」同源）
+const FEWSHOT_KEYWORDS = {
+  'page-login': ['登录', '注册', '验证码', '找回密码'],
+  'page-list': ['列表', '浏览', '商品列表', '订单列表', '消息列表'],
+  'page-detail': ['详情', '展示', '文章详情', '商品详情'],
+  'page-form': ['表单', '报名', '反馈', '地址', '录入'],
+  'page-search': ['搜索', '筛选'],
+  'page-profile': ['个人中心', '设置', '我的'],
+  'page-empty': ['空态', '无权限', '网络错误', '404'],
+};
+
+// 从需求描述检索应注入的 few-shot 类别；无命中返回 null（不缩小，回退全量）
+export function pickCategories(userPrompt) {
+  if (!userPrompt) return null;
+  const found = new Set();
+  for (const [cat, kws] of Object.entries(FEWSHOT_KEYWORDS)) {
+    if (kws.some(k => userPrompt.includes(k))) found.add(cat);
+  }
+  return found.size ? [...found] : null;
+}
+
+// 从模板按类别过滤 Few-shot 示例块（动态检索）；categories 为空则原样返回
+export function filterFewshots(tpl, categories) {
+  if (!categories || !categories.length) return tpl;
+  const need = new Set(categories);
+  const start = tpl.indexOf('# Few-shot 示例');
+  if (start === -1) return tpl;
+  const nextH = tpl.indexOf('\n# ', start + 1);
+  const end = nextH === -1 ? tpl.length : nextH;
+  const section = tpl.slice(start, end);
+  // 按 '## 示例 N：page-xxx' 切块，保留未命中的前缀（章节标题行）
+  const parts = section.split(/(?=## 示例 \d+：)/);
+  const kept = [parts[0]];
+  for (let i = 1; i < parts.length; i++) {
+    const m = /## 示例 \d+：(page-[a-z-]+)/.exec(parts[i]);
+    if (m && need.has(m[1])) kept.push(parts[i]);
+  }
+  return tpl.slice(0, start) + kept.join('') + tpl.slice(end);
+}
+
+// ===== 2B 模块化：buildPrompt（Prompt 即 API）=====
+// 角色（固定）+ 白名单（半固定）+ 组件 API（按需）+ Few-shot（动态检索）组合
+// 无参 buildPrompt() = 全量（等价旧构建，CI 快照用）
+// buildPrompt({ userPrompt }) = 按需求关键词自动裁剪 few-shot
+// buildPrompt({ components, categories }) = 显式指定组件表与 few-shot
+export function buildPrompt({ components = [], categories = null, userPrompt = '', projectRecipes = null } = {}) {
   const tpl = readFileSync(TEMPLATE, 'utf8');
   const wl = JSON.parse(readFileSync(WHITELIST, 'utf8'));
   const recipeGroups = extractGroupsFromCss(readFileSync(RECIPES_CSS, 'utf8'));
   const atomicGroups = extractGroupsFromCss(readFileSync(ATOMIC_CSS, 'utf8'));
 
   const wlSection = buildWhitelistSection(wl, recipeGroups, atomicGroups);
-  const compTableSection = buildComponentTableSection();
-  let output = tpl
+  const compSection = buildComponentTableSection(COMPONENT_META, components);
+
+  let out = tpl
     .replaceAll('<!-- {{{ WHITELIST_INJECTION_POINT }}} -->', wlSection)
-    .replaceAll('<!-- {{{ COMPONENT_TABLE_INJECTION_POINT }}} -->', compTableSection)
+    .replaceAll('<!-- {{{ COMPONENT_TABLE_INJECTION_POINT }}} -->', compSection);
+
+  // 动态检索 few-shot：显式 categories 优先，否则按 userPrompt 关键词自动选
+  const cats = categories || (userPrompt ? pickCategories(userPrompt) : null);
+  if (cats && cats.length) out = filterFewshots(out, cats);
+
+  // 计数占位符
+  out = out
     .replaceAll('{{{ TOKEN_COUNT }}}', String(wl.tokens.length))
     .replaceAll('{{{ RECIPE_COUNT }}}', String(wl.classes.recipe.length))
     .replaceAll('{{{ ATOMIC_COUNT }}}', String(wl.classes.atomic.length))
@@ -204,10 +261,32 @@ function main() {
   // 项目级扩展（可选）
   let extSection = '';
   if (projectRecipes && existsSync(projectRecipes)) {
-    const items = extractProjectExtensions(readFileSync(projectRecipes, 'utf8'));
-    extSection = buildProjectExtensionSection(items);
+    extSection = buildProjectExtensionSection(extractProjectExtensions(readFileSync(projectRecipes, 'utf8')));
   }
-  output = output.replace('<!-- {{{ PROJECT_EXTENSION_INJECTION_POINT }}} -->', extSection);
+  out = out.replace('<!-- {{{ PROJECT_EXTENSION_INJECTION_POINT }}} -->', extSection);
+  return out;
+}
+
+// 主流程
+function main() {
+  const args = process.argv.slice(2);
+  let outPath = null;
+  let projectRecipes = null;
+  let components = [];
+  let categories = null;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '-o' || args[i] === '--output') outPath = args[++i];
+    else if (args[i] === '--project') projectRecipes = args[++i];
+    else if (args[i] === '--stdout') outPath = null;
+    else if (args[i] === '-h' || args[i] === '--help') {
+      console.error('Usage: build-prompt.mjs [-o OUT] [--project PATH] [--stdout] [--components a,b] [--categories a,b]');
+      process.exit(0);
+    }
+    else if (args[i] === '--components') components = args[++i].split(',').filter(Boolean);
+    else if (args[i] === '--categories') categories = args[++i].split(',').filter(Boolean);
+  }
+
+  const output = buildPrompt({ components, categories, projectRecipes });
 
   if (outPath) {
     writeFileSync(outPath, output);

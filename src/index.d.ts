@@ -1112,10 +1112,6 @@ export interface PageInstance {
 /** 页面运行时工厂（实例化，参数注入 state） */
 export function createPage(config?: PageConfig): PageInstance;
 
-/** 全局销毁 definePage 单例（清空 effects + state/computed/action + 转场/缓存配置）。
- *  与 router.stop() 配套，用于热重载 / 多页应用隔离 */
-export function destroyPage(): void;
-
 // ============================================================
 // 核心运行时：i18n（国际化）
 // ============================================================

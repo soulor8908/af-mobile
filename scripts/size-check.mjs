@@ -57,6 +57,8 @@ const SRC = join(ROOT, 'src');
 //   total 23.0→23.6KB：新增 af-progress/af-steps（复用 L2 纯 CSS 配方）+ af-countdown，全量实测 23.519KB
 // v3.6 调整（destroyPage 全局销毁位点，用户已确认）：
 //   total 23.6→23.7KB：page.js 未 external（index.js 导出 createPage/destroyPage），新增 destroyPage 约 +100B gzip，实测 23.615KB
+// v3.7 调整（definePage 全局单例移除，用户已确认）：
+//   删除 definePage/destroyPage/clearPageState/getTransition/getKeepAlive，index.js 仅导出 createPage，total 实测回落
 const BUDGET = {
   css: 8.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）

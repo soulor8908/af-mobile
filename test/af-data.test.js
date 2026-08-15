@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { AfData } from '../src/components/af-data.js';
 import { initBind, _resetBind } from '../src/lib/bind.js';
-import { _resetPage } from '../src/lib/page.js';
+import { createPage } from '../src/lib/page.js';
 
 customElements.define('af-data', AfData);
 
@@ -17,11 +17,18 @@ function makeData(props = {}) {
   return el;
 }
 
+// :bind 需绑定到 createPage 实例（definePage 全局单例已移除）
+let _stopBind = null;
+
 beforeEach(() => {
   document.body.innerHTML = '';
   _resetBind();
-  _resetPage();
   vi.clearAllMocks();
+});
+
+afterEach(() => {
+  _stopBind?.();
+  _stopBind = null;
 });
 
 describe('af-data 基础', () => {
@@ -71,7 +78,7 @@ describe('af-data ref 集成 :bind', () => {
       <af-data src="/api/list" ref="ds"></af-data>
       <div :data-len="ds.data"></div>
     `;
-    initBind();
+    _stopBind = initBind(document.body, createPage({ state: {} }));
     const afData = document.querySelector('af-data');
     await vi.waitFor(() => expect(afData.getData()).toEqual([1, 2, 3]));
     // af-data signal 变化触发 bind effect
@@ -87,7 +94,7 @@ describe('af-data ref 集成 :bind', () => {
       <af-data src="/api/x" ref="ds"></af-data>
       <div :data-loading="ds.loading"></div>
     `;
-    initBind();
+    _stopBind = initBind(document.body, createPage({ state: {} }));
     // fetch 完成后 loading=false，bind 移除 loading 属性
     await vi.waitFor(() => {
       expect(document.querySelector('div').hasAttribute('data-loading')).toBe(false);

@@ -2,10 +2,9 @@
 // 语法：:attr="state.field" / :attr="derived.field" / :attr="refName.field"
 // 扫描 [attr^=":"] 元素，用 effect 订阅 signal 变化时自动 setAttribute
 // MutationObserver 监听 DOM 新增（router 渲染新页面时自动绑定）
-// v3.0：initBind(root, ctx) 支持多实例（ctx.state/ctx.derived），未传 ctx 时回退全局；MutationObserver 空闲扫描合并批量变更
+// ctx 必传：createPage() 实例（definePage 全局单例已移除）；MutationObserver 空闲扫描合并批量变更
 
 import { effect } from './state.js';
-import { state as _globalState, derived as _globalDerived } from './page.js';
 import { getDataRef, _resetDataRefs } from './data-ref.js';
 
 const _bindings = new WeakMap();   // element → cleanup
@@ -14,11 +13,14 @@ const _bindings = new WeakMap();   // element → cleanup
 // 此 re-export 仅为旧测试和潜在消费端代码保留）
 export { registerDataRef, unregisterDataRef } from './data-ref.js';
 
-/** 初始化 :bind 扫描（应用启动时调用一次；传入 ctx 绑定到指定实例的 state/derived） */
+/** 初始化 :bind 扫描（传入 createPage() 实例，绑定到该实例的 state/derived） */
 export function initBind(root = document, ctx = null) {
   if (typeof root.querySelectorAll !== 'function') return () => {};
-  const stateObj = ctx?.state ?? _globalState;
-  const derivedObj = ctx?.derived ?? _globalDerived;
+  if (!ctx?.state) {
+    throw new Error('[aiflow] initBind(root, ctx) 需传入 createPage() 实例（definePage 全局单例已移除）');
+  }
+  const stateObj = ctx.state;
+  const derivedObj = ctx.derived ?? {};
   scan(root, stateObj, derivedObj);
   if (typeof MutationObserver === 'undefined') return () => {};
 

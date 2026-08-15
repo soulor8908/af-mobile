@@ -108,15 +108,35 @@ export async function renderCapture(htmlPath, expects, { port, outDir }) {
     }).catch(() => {});
     await page.waitForTimeout(300);
     // 真实 DOM 断言：expects 是否都存在于渲染后 DOM
+    // L1-L2 DOM 断言：expects 支持 string（仅存在性）或 { sel, count?, visible?, text? }
+    const asserts = (Array.isArray(expects) ? expects : []).map((a) => (typeof a === 'string' ? { sel: a } : a));
     const missing = [];
-    for (const sel of expects) {
-      const found = await page.locator(sel).count().catch(() => 0);
-      if (found === 0) missing.push(sel);
+    const fails = [];
+    for (const a of asserts) {
+      const n = await page.locator(a.sel).count().catch(() => 0);
+      if (n === 0) {
+        missing.push(a.sel);
+        fails.push(`缺少 ${a.sel}`);
+        continue;
+      }
+      if (a.count && n !== a.count) fails.push(`${a.sel} 数量 ${n} != ${a.count}`);
+      if (a.visible) {
+        const visibleN = await page
+          .locator(a.sel)
+          .evaluateAll((es) => es.filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; }).length)
+          .catch(() => 0);
+        if (visibleN === 0) fails.push(`${a.sel} 不可见`);
+      }
+      if (a.text) {
+        const txt = (await page.locator(a.sel).first().textContent().catch(() => '')) || '';
+        const ok = a.text instanceof RegExp ? a.text.test(txt) : txt.includes(a.text);
+        if (!ok) fails.push(`${a.sel} 文本不含 ${a.text}`);
+      }
     }
     const base = htmlPath.split(/[\\/]/).pop().replace(/\.html$/, '');
     const screenshotPath = join(outDir, `${base}.png`);
     await page.screenshot({ path: screenshotPath, fullPage: true }).catch(() => {});
-    return { ok: missing.length === 0, missing, screenshotPath, errors };
+    return { ok: fails.length === 0, missing, fails, screenshotPath, errors };
   } finally {
     await browser.close();
   }

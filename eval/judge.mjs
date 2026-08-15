@@ -85,9 +85,9 @@ export async function judgeVisual(results, opts = {}) {
   try {
     for (const r of samples) {
       const dom = await renderCapture(r.best.codePath, r.expects, { port, outDir: shotsDir });
-      // LLM 视觉评审：以截图为准（避免 DOM class 名不匹配误判）
+      // LLM 视觉评审：默认关闭（省 token），仅 --visual-llm 显式开启时用截图评审
       let llm = null;
-      if (opts.llm !== false) {
+      if (opts.llm === true) {
         try {
           llm = await visualReferee(dom.screenshotPath, promptMap[r.id] || '', r.expects);
         } catch (e) {
@@ -137,8 +137,9 @@ if (isMain) {
   }
   const results = JSON.parse(readFileSync(file, 'utf8'));
   const useVisual = args.includes('--visual');
+  const useLlm = args.includes('--visual-llm');
   if (useVisual) {
-    fullJudge(results, { llm: process.env.AIFLOW_AI_API_URL ? undefined : false }).then(r => {
+    fullJudge(results, { llm: useLlm }).then(r => {
       console.log(JSON.stringify({ ...r, visualResults: r.visualResults }, null, 2));
     });
   } else {

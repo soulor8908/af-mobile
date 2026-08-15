@@ -56,11 +56,24 @@ jobs:
       - name: ESLint check
         run: npx eslint src/ test/ scripts/ eval/ mcp/ eslint-plugin-aiflow/ --max-warnings 0
 
-      # Step 4b: 数据飞轮采集（不阻断；lint 闸门已由上一步保证）
-      # 违规写入遥测并输出分析报告——谁生成的代码都行，lint 即喂数据
-      - name: Flywheel harvest (telemetry + report)
+      # Step 4b: 数据飞轮采集 + 分析 + 报告 artifact（不阻断；lint 闸门已由上一步保证）
+      # demo/ 不在 ESLint 闸门范围内，是真实违规信号来源；闸门目录贡献干净运行记录。
+      # 遥测在 runner 本地生成（消息已脱敏，无代码内容），分析报告上传 artifact 供人工 review。
+      - name: Flywheel harvest (lint + telemetry)
         continue-on-error: true
-        run: node scripts/lint-flywheel.mjs src/ test/ scripts/ eval/ mcp/ --record-clean || true
+        run: node scripts/lint-flywheel.mjs demo/ src/ test/ scripts/ eval/ mcp/ --record-clean || true
+      - name: Flywheel analyze (report)
+        if: always()
+        continue-on-error: true
+        run: node eval/flywheel.mjs --out flywheel-report.md || true
+      - name: Upload flywheel report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flywheel-report
+          path: flywheel-report.md
+          if-no-files-found: ignore
+          retention-days: 30
 
       # Step 5: 发布前检查（build dist + Tree Shaking + sideEffects + npm pack 内容）
       # PR 阶段跑以提前发现发布问题；正式发布由 prepublishOnly 二次保证

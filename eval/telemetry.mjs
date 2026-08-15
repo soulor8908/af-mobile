@@ -29,6 +29,25 @@ export function detectTool() {
   return 'unknown';
 }
 
+// ===== 消息脱敏（隐私红线：遥测不落任何代码内容）=====
+// 已知会嵌入代码片段的规则消息 → 落盘前剥离引号内内容，只保留语义前缀。
+// 保留 class/组件/属性名等标识符（白名单候选与档位挖掘依赖它们）。
+const RULE_MESSAGE_REDACT = new Map([
+  // "Inline style 'color:red;url(x)' is forbidden..." → 整个 style 属性值剥离
+  ['aiflow/no-inline-style', m => m.replace(/'[^']*'/g, "'[style]'")],
+  // "'color: #fff' in Shadow CSS must use var(--*)..." → 整条 CSS 声明剥离
+  ['aiflow/wc-shadow-use-token', m => m.replace(/'[^']*'/g, "'[css]'")],
+]);
+
+const MAX_MESSAGE_LEN = 200;
+
+// 单条违规消息脱敏：规则定向剥离 + 超长截断兜底（防未来规则意外嵌入大段代码）
+export function sanitizeMessage(rule, message) {
+  const redact = RULE_MESSAGE_REDACT.get(rule);
+  const msg = redact ? redact(String(message)) : String(message);
+  return msg.length > MAX_MESSAGE_LEN ? msg.slice(0, MAX_MESSAGE_LEN) + '…' : msg;
+}
+
 // 记录一次 lint 运行（违规或干净均可；violations 空数组 + passed=true 表示干净运行）
 // violations: [{ rule, severity, line, message }]
 export function recordRun({ source, tool, file, passed, violations }) {
@@ -43,7 +62,7 @@ export function recordRun({ source, tool, file, passed, violations }) {
       rule: v.rule,
       severity: v.severity || 'error',
       line: v.line || 0,
-      message: v.message || '',
+      message: sanitizeMessage(v.rule, v.message || ''),
     })),
   };
   const dir = telemetryDir();

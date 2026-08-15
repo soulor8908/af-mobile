@@ -42,7 +42,7 @@ describe('MCP / check_compliance', () => {
     expect(r.passed).toBe(true);
   });
 
-  it('每次检查写入飞轮遥测（含干净运行）', async () => {
+  it('每次检查写入飞轮遥测（含干净运行），落盘消息已脱敏', async () => {
     await checkCompliance({ code: '<div class="my-btn" style="color:red">x</div>', filename: 'a.html' });
     await checkCompliance({ code: '<div class="card p-4">x</div>', filename: 'b.html' });
     const events = readTelemetry();
@@ -51,6 +51,10 @@ describe('MCP / check_compliance', () => {
     expect(events[0].source).toBe('mcp');
     expect(events[0].violations.length).toBeGreaterThan(0);
     expect(events[1].passed).toBe(true);
+    // 隐私红线：style 值不得落盘
+    const persisted = JSON.stringify(events);
+    expect(persisted).not.toContain('color:red');
+    expect(persisted).toContain('[style]');
   });
 });
 

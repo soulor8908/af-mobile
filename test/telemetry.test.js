@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, rmSync, existsSync, appendFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { recordRun, readTelemetry, detectTool, SOURCE_WEIGHTS, telemetryDir } from '../eval/telemetry.mjs';
+import { recordRun, readTelemetry, detectTool, SOURCE_WEIGHTS, telemetryDir, sanitizeMessage } from '../eval/telemetry.mjs';
 
 let tmpDir;
 const ENV_KEYS = ['AIFLOW_TOOL', 'CLAUDECODE', 'CURSOR_AGENT', 'CI'];
@@ -58,6 +58,41 @@ describe('telemetry / recordRun + readTelemetry', () => {
   it('无遥测文件时返回空数组', () => {
     expect(readTelemetry()).toEqual([]);
     expect(existsSync(join(tmpDir, 'telemetry.jsonl'))).toBe(false);
+  });
+});
+
+describe('telemetry / sanitizeMessage（隐私红线）', () => {
+  it('no-inline-style：整个 style 属性值剥离，语义前缀保留', () => {
+    const out = sanitizeMessage('aiflow/no-inline-style', "Inline style 'color:red;background:url(secrets)' is forbidden. Use class instead");
+    expect(out).toBe("Inline style '[style]' is forbidden. Use class instead");
+    expect(out).not.toContain('color:red');
+    expect(out).not.toContain('secrets');
+  });
+
+  it('wc-shadow-use-token：整条 CSS 声明剥离', () => {
+    const out = sanitizeMessage('aiflow/wc-shadow-use-token', "'color: #fff' in Shadow CSS must use var(--*). Use token variables for cross-theme visual consistency");
+    expect(out).toBe("'[css]' in Shadow CSS must use var(--*). Use token variables for cross-theme visual consistency");
+  });
+
+  it('class/组件名等标识符保留（挖掘器依赖）', () => {
+    const out = sanitizeMessage('aiflow/token-whitelist', "Class 'card-wrap' not in whitelist. Use recipe/atomic or register");
+    expect(out).toContain("'card-wrap'");
+  });
+
+  it('未知规则超长消息截断 200 兜底（防未来规则嵌入大段代码）', () => {
+    const long = 'x'.repeat(500);
+    const out = sanitizeMessage('aiflow/future-rule', long);
+    expect(out.length).toBe(201); // 200 + 省略号
+    expect(out.endsWith('…')).toBe(true);
+  });
+
+  it('recordRun 落盘的是脱敏后消息', () => {
+    recordRun({
+      source: 'mcp', file: 'a.html', passed: false,
+      violations: [{ rule: 'aiflow/no-inline-style', severity: 'error', line: 1, message: "Inline style 'color:red' is forbidden. Use class instead" }],
+    });
+    const events = readTelemetry();
+    expect(events[0].violations[0].message).toBe("Inline style '[style]' is forbidden. Use class instead");
   });
 });
 

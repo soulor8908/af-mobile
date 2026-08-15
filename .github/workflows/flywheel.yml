@@ -1,0 +1,52 @@
+name: Flywheel weekly
+
+# 数据飞轮定时任务：每周一 03:00（UTC）采集 + 分析，报告以 issue 评论形式持久化
+# 解决"分析结果永远不主动到达人眼前"的断链：issue 评论累积即为跨周趋势轨迹
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      # 采集：demo/（真实违规信号）+ 闸门目录（干净运行）；遥测消息已脱敏，无代码内容
+      - name: Harvest (lint + telemetry)
+        run: node scripts/lint-flywheel.mjs demo/ src/ test/ scripts/ eval/ mcp/ --record-clean || true
+
+      # 分析：合并本地遥测 + eval/results/raw-*.json（合成数据，权重最低）
+      - name: Analyze (report)
+        run: node eval/flywheel.mjs --out flywheel-report.md
+
+      # 持久化：issue 标题固定，首次创建、之后追加评论（评论流 = 周度趋势）
+      - name: Publish to issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="数据飞轮周报"
+          NUMBER=$(gh issue list --title "$TITLE" --state open --json number --jq '.[0].number' 2>/dev/null || true)
+          STAMP=$(date -u +%Y-%m-%d)
+          {
+            echo "### 采集时间：$STAMP"
+            echo
+            cat flywheel-report.md
+          } > body.md
+          if [ -n "$NUMBER" ]; then
+            gh issue comment "$NUMBER" --body-file body.md
+          else
+            gh issue create --title "$TITLE" --body-file body.md --label ""
+          fi

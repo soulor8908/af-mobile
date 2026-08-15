@@ -130,17 +130,20 @@ AIFLOW_AI_API_URL（自有 LLM）→ generate → ai-fix → raw-*.json → flyw
 | `mcp/index.mjs` | 5 工具：get_prompt / check_compliance / fix_code / generate_page / flywheel_report，全部零 LLM 可用 |
 | `scripts/ai-fix.mjs` | 导出 `RULE_HINTS` 供缺口分析 |
 | `eslint.config.js` | AI 规则覆盖 `scripts/eval/mcp` 的 `.mjs`（补 AGENTS #9 缺口） |
-| `.github/workflows/ci.yml` | 新增飞轮采集步骤（ESLint 闸门之后，不阻断） |
+| `.github/workflows/ci.yml` | 飞轮步骤：采集（含 demo/）→ 分析 → 报告 artifact 上传（不阻断） |
+| `.github/workflows/flywheel.yml` | 定时周报：每周采集+分析，报告以 issue 评论持久化（主动到达人眼前） |
 | `AGENTS.md` §5 | Agent 接入指引（MCP 工具优先，零 LLM） |
 | `.gitignore` | `.aiflow/` |
 
 ## 7. 隐私与边界
 
-- 遥测只含：时间戳、来源、工具名、文件路径、规则名、ESLint 消息文本。**不含代码内容**。
-- 数据不出本机；CI 上的遥测随 runner 销毁（CI 步骤的价值是当场报告与趋势告警，不是持久化）。
+- 遥测只含：时间戳、来源、工具名、文件路径、规则名、行号、**脱敏后**的 ESLint 消息。
+- **消息脱敏（v2.1）**：`eval/telemetry.mjs` 的 `sanitizeMessage` 在落盘前剥离嵌入代码片段的消息内容——`no-inline-style` 的 style 属性值、`wc-shadow-use-token` 的 CSS 声明替换为 `[style]` / `[css]` 占位；超长消息截断 200 字符兜底。class/组件/属性名等标识符保留（挖掘器依赖）。**新增 ESLint 规则若消息嵌入代码片段，必须同步登记 `RULE_MESSAGE_REDACT`**。
+- 数据不出本机；本地 `.aiflow/` gitignore，CI 遥测随 runner 销毁。CI 的产出是分析报告 artifact（保留 30 天），跨周趋势由 `flywheel.yml` 周报 issue 的评论流承载。
+- **零 LLM ≠ 零接入**：无需任何 LLM 环境变量，但 MCP 工具需将 `node mcp/index.mjs` 注册进 MCP 客户端；纯 CLI 用法零注册。
 
 ## 8. Roadmap（未实施，按需启动）
 
-- CI 飞轮报告作为 artifact 上传 / 定时任务周报（复用 perf.yml 模式）；
+- ~~CI 飞轮报告 artifact 上传 / 定时周报~~（v2.1 已实施：ci.yml artifact + flywheel.yml 周报 issue）；
 - 遥测文件轮转与 `--prune`（当前本地 JSONL 体量增长可接受）;
 - `prompt/` 反例区自动补丁（当前输出建议，人工落笔，防 prompt 漂移失控）。

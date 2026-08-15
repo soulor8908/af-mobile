@@ -1,4 +1,4 @@
-{"id":"001","category":"list","prompt":"商品列表页：竖向商品卡片列表，每张卡片含商品图（左）、标题、副标题、价格、删除线原价，底部有加入购物车按钮","expects":[".card",".title",".price",".price-del",".btn"]}
+{"id":"001","category":"list","prompt":"商品列表页：竖向商品卡片列表，每张卡片含商品图（左）、标题、副标题、价格、删除线原价，底部有加入购物车按钮","expects":[".card",".title",".price",".price-del",".btn"],"asserts":[{"sel":".price","text":"¥"}]}
 {"id":"002","category":"list","prompt":"订单列表页：每个订单项含订单号、下单时间、状态标签（待付款/已发货/已完成）、金额，底部有查看详情按钮","expects":[".list-item",".tag",".price",".btn"]}
 {"id":"003","category":"list","prompt":"消息列表页：每条消息含头像、昵称、消息预览、时间，未读消息用品牌色标记，支持点击进入聊天","expects":[".avatar",".title",".meta",".list-item"]}
 {"id":"004","category":"list","prompt":"搜索结果页：顶部搜索框，下方为商品列表，支持紧凑模式（小图+标题+价格），空结果用 empty 组件","expects":[".search-input",".list",".empty"]}
@@ -18,7 +18,7 @@
 {"id":"018","category":"form","prompt":"个人信息编辑：头像、昵称、性别选择、生日、地区","expects":[".avatar",".input",".form-row",".btn"]}
 {"id":"019","category":"form","prompt":"实名认证表单：姓名、身份证号、上传身份证正反面、提交","expects":[".input",".form-row",".btn"]}
 {"id":"020","category":"form","prompt":"配送地址选择：地址列表+新增地址按钮，每项可选中和编辑","expects":[".list-item",".btn"]}
-{"id":"021","category":"detail","prompt":"商品详情页：顶部轮播图、标题、价格、促销标签、规格选择、详情图、底部购买栏（客服+购物车+立即购买）","expects":["af-swiper",".title",".price",".tag",".input-bar"]}
+{"id":"021","category":"detail","prompt":"商品详情页：顶部轮播图、标题、价格、促销标签、规格选择、详情图、底部购买栏（客服+购物车+立即购买）","expects":["af-swiper",".title",".price",".tag",".input-bar"],"asserts":[{"sel":".price","text":"¥"}]}
 {"id":"022","category":"detail","prompt":"订单详情页：订单状态、收货地址、商品列表、金额明细、订单信息、底部操作按钮","expects":[".tag",".card",".list",".btn"]}
 {"id":"023","category":"detail","prompt":"个人中心页：头像+昵称、订单状态入口（待付款/待发货/待收货/退款）、功能列表（收藏/地址/优惠券/客服）","expects":[".avatar",".title",".list",".list-item"]}
 {"id":"024","category":"detail","prompt":"店铺详情页：店铺头部信息、tab 切换（全部商品/新品/活动）、商品列表","expects":["af-tabs",".list",".list-item"]}
@@ -35,7 +35,7 @@
 {"id":"035","category":"feedback","prompt":"404 页面：大号 404、提示文案、返回首页按钮","expects":[".title",".btn"]}
 {"id":"036","category":"feedback","prompt":"支付结果页：成功状态、金额、订单号、支付方式、查看订单+完成按钮","expects":[".title",".price",".btn"]}
 {"id":"037","category":"feedback","prompt":"下拉刷新提示：列表页顶部加载条+文案","expects":[".list"]}
-{"id":"038","category":"feedback","prompt":"操作确认弹窗：删除确认对话框，含标题、正文、取消/确认按钮","expects":["af-dialog",".btn"]}
+{"id":"038","category":"feedback","prompt":"操作确认弹窗：删除确认对话框，含标题、正文、取消/确认按钮","expects":["af-dialog",".btn"],"asserts":[{"sel":"af-dialog","visible":true}]}
 {"id":"039","category":"feedback","prompt":"分享面板：底部弹出分享选项（微信/朋友圈/复制链接/生成海报）+取消按钮","expects":["af-action-sheet",".btn"]}
 {"id":"040","category":"feedback","prompt":"筛选排序面板：底部弹出排序选项（综合/销量/价格升/降）+筛选","expects":["af-action-sheet"]}
 {"id":"041","category":"nav","prompt":"首页导航：顶部 navbar+搜索框、轮播 banner、icon 网格入口、推荐商品列表、底部 tabbar","expects":[".navbar",".search-input","af-swiper",".list",".tabbar"]}

@@ -108,7 +108,7 @@ export async function renderCapture(htmlPath, expects, { port, outDir }) {
     }).catch(() => {});
     await page.waitForTimeout(300);
     // 真实 DOM 断言：expects 是否都存在于渲染后 DOM
-    // L1-L2 DOM 断言：expects 支持 string（仅存在性）或 { sel, count?, visible?, text? }
+    // L1-L2 DOM 断言：expects 支持 string（仅存在性）或 { sel, count?, visible?, text?, style? }
     const asserts = (Array.isArray(expects) ? expects : []).map((a) => (typeof a === 'string' ? { sel: a } : a));
     const missing = [];
     const fails = [];
@@ -131,6 +131,13 @@ export async function renderCapture(htmlPath, expects, { port, outDir }) {
         const txt = (await page.locator(a.sel).first().textContent().catch(() => '')) || '';
         const ok = a.text instanceof RegExp ? a.text.test(txt) : txt.includes(a.text);
         if (!ok) fails.push(`${a.sel} 文本不含 ${a.text}`);
+      }
+      if (a.style) {
+        for (const { prop, eq, regex } of a.style) {
+          const val = await page.locator(a.sel).first().evaluate((e, p) => getComputedStyle(e)[p], prop).catch(() => null);
+          if (eq != null && val !== eq) fails.push(`${a.sel} ${prop}=${val} 期望 ${eq}`);
+          if (regex && !(regex instanceof RegExp ? regex.test(val) : String(val).match(regex))) fails.push(`${a.sel} ${prop} 不匹配 ${regex}`);
+        }
       }
     }
     const base = htmlPath.split(/[\\/]/).pop().replace(/\.html$/, '');

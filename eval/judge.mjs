@@ -61,7 +61,7 @@ function loadPromptMap() {
     for (const line of readFileSync(path, 'utf8').split('\n')) {
       if (!line.trim()) continue;
       const o = JSON.parse(line);
-      if (o.id) map[o.id] = o.prompt || '';
+      if (o.id) map[o.id] = { prompt: o.prompt || '', expects: o.expects || [], asserts: o.asserts || [] };
     }
   } catch { /* prompts.jsonl 不存在时忽略 */ }
   return map;
@@ -84,12 +84,14 @@ export async function judgeVisual(results, opts = {}) {
 
   try {
     for (const r of samples) {
-      const dom = await renderCapture(r.best.codePath, r.expects, { port, outDir: shotsDir });
+      const p = promptMap[r.id] || {};
+      const semantic = (p.asserts || []).map((a) => (typeof a === 'string' ? { sel: a } : a));
+      const dom = await renderCapture(r.best.codePath, [...(r.expects || []), ...semantic], { port, outDir: shotsDir });
       // LLM 视觉评审：默认关闭（省 token），仅 --visual-llm 显式开启时用截图评审
       let llm = null;
       if (opts.llm === true) {
         try {
-          llm = await visualReferee(dom.screenshotPath, promptMap[r.id] || '', r.expects);
+          llm = await visualReferee(dom.screenshotPath, promptMap[r.id]?.prompt || '', r.expects);
         } catch (e) {
           llm = { pass: false, reason: 'LLM 评审失败: ' + e.message };
         }
@@ -98,7 +100,7 @@ export async function judgeVisual(results, opts = {}) {
       if (passed) visualPassed++;
       visualResults.push({
         id: r.id, category: r.category,
-        domPass: dom.ok, missing: dom.missing,
+        domPass: dom.ok, missing: dom.missing, fails: dom.fails,
         llmPass: llm ? llm.pass : null, llmReason: llm ? llm.reason : null,
         passed, screenshotPath: dom.screenshotPath, errors: dom.errors,
       });

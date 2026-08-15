@@ -21,10 +21,17 @@ function isPipelineFailure(v) {
   return false;
 }
 
+// 资源阻塞判定：LLM 上游余额不足（Insufficient Balance），非生成缺陷也非评审器问题
+function isBalanceBlocker(v) {
+  return (v.llmReason || '').toLowerCase().includes('insufficient balance');
+}
+
 export function generateReport(rawResults, report, opts = {}) {
   const visualFailures = report.visualFailures || [];
-  const pipe = visualFailures.filter(isPipelineFailure);
-  const real = visualFailures.filter(v => !isPipelineFailure(v));
+  const balance = visualFailures.filter(isBalanceBlocker);
+  const rest = visualFailures.filter(v => !isBalanceBlocker(v));
+  const pipe = rest.filter(isPipelineFailure);
+  const real = rest.filter(v => !isPipelineFailure(v));
   const lintFails = report.lintFailures || [];
 
   const lines = [];
@@ -50,6 +57,7 @@ export function generateReport(rawResults, report, opts = {}) {
   lines.push(`- **管道问题**（评审器/网络，非生成缺陷）：${pipe.length} 条`);
   lines.push(`- **真实视觉缺陷**：${real.length} 条`);
   lines.push(`- **lint 失败**（多为瞬时网络错误）：${lintFails.length} 条`);
+  if (balance.length) lines.push(`- **LLM 余额不足阻塞**（非代码问题，需充值后重跑）：${balance.length} 条`);
   lines.push('');
 
   if (pipe.length) {
@@ -70,6 +78,15 @@ export function generateReport(rawResults, report, opts = {}) {
     lines.push('');
   }
 
+  if (balance.length) {
+    lines.push('### LLM 余额不足（需充值 AIFLOW_AI_API_KEY 账户后重跑）');
+    lines.push('');
+    for (const v of balance) {
+      lines.push(`- **[${v.id}] ${v.category}** ${v.llmReason || ''}`);
+    }
+    lines.push('');
+  }
+
   if (lintFails.length) {
     lines.push('### lint 失败（exitCode 分析）');
     lines.push('');
@@ -82,6 +99,9 @@ export function generateReport(rawResults, report, opts = {}) {
   // 改进建议
   lines.push('## 建议的修改清单');
   lines.push('');
+  if (balance.length) {
+    lines.push('- [ ] 为 AIFLOW_AI_API_KEY 账户充值（Insufficient Balance），重跑完整视觉评审拿干净基线');
+  }
   if (pipe.length) {
     lines.push('- [ ] 修复视觉评审器：弹层类组件（af-dialog/af-action-sheet）默认关闭，评审时应先触发打开或豁免');
     lines.push('- [ ] 增强评审容错：LLM 返回非 JSON 时重试一次；网络错误自动重试');
@@ -94,8 +114,8 @@ export function generateReport(rawResults, report, opts = {}) {
   lines.push('');
 
   return {
-    hasFindings: pipe.length + real.length + lintFails.length > 0,
-    pipeline: pipe, real, lintFails,
+    hasFindings: pipe.length + real.length + lintFails.length + balance.length > 0,
+    pipeline: pipe, real, lintFails, balance,
     prDraft: lines.join('\n'),
   };
 }

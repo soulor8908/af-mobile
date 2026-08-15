@@ -37,23 +37,33 @@ export async function visualReferee(screenshotPath, prompt, expects, { url, key,
 pass 为 true 表示实现正确，false 表示有缺失或错误。`;
 
   const body = { model: m || 'deepseek-v4-flash', temperature: 0, messages: [{ role: 'user', content: userMsg }] };
-  const res = await fetch(u, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(k ? { Authorization: `Bearer ${k}` } : {}) },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error(`视觉评审 API ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  const text = data.content || data.choices?.[0]?.message?.content || data.text || '';
-  // 提取 JSON
-  const m2 = text.match(/\{[\s\S]*?"pass"[\s\S]*?\}/);
-  if (m2) {
+  // 容错重试：网络错误 / 非 JSON 各重试一次
+  let lastErr = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const j = JSON.parse(m2[0]);
-      return { pass: !!j.pass, reason: j.reason || '', raw: text };
-    } catch { /* fallthrough */ }
+      const res = await fetch(u, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(k ? { Authorization: `Bearer ${k}` } : {}) },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(`视觉评审 API ${res.status}: ${await res.text()}`);
+      const data = await res.json();
+      const text = data.content || data.choices?.[0]?.message?.content || data.text || '';
+      // 提取 JSON
+      const m2 = text.match(/\{[\s\S]*?"pass"[\s\S]*?\}/);
+      if (m2) {
+        try {
+          const j = JSON.parse(m2[0]);
+          return { pass: !!j.pass, reason: j.reason || '', raw: text };
+        } catch { lastErr = '无法解析评审结果'; }
+      } else {
+        lastErr = '无法解析评审结果';
+      }
+    } catch (e) {
+      lastErr = 'LLM 评审失败: ' + e.message;
+    }
   }
-  return { pass: false, reason: '无法解析评审结果', raw: text };
+  return { pass: false, reason: lastErr, raw: '' };
 }
 
 // CLI

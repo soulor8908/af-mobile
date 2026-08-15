@@ -101,6 +101,12 @@ export async function renderCapture(htmlPath, expects, { port, outDir }) {
     });
     // 等待渲染（af-list 虚拟滚动等）
     await page.waitForTimeout(1500);
+    // 强制打开弹层类组件（af-dialog/af-action-sheet 默认关闭，评审前触发打开）
+    await page.evaluate(() => {
+      document.querySelectorAll('af-dialog').forEach((el) => { try { el.open && el.open(); } catch {} });
+      document.querySelectorAll('af-action-sheet').forEach((el) => { try { el.showPopover && el.showPopover(); } catch {} });
+    }).catch(() => {});
+    await page.waitForTimeout(300);
     // 真实 DOM 断言：expects 是否都存在于渲染后 DOM
     const missing = [];
     for (const sel of expects) {

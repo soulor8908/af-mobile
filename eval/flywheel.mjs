@@ -69,6 +69,14 @@ const RULE_SUGGESTIONS = {
       '该规则可自动修复，确认 ai-fix 的 --fix 是否生效',
     ],
   },
+  'aiflow/semantic-visual': {
+    diagnosis: 'AI 生成的页面通过 lint 但未满足需求语义（DOM 断言失败）',
+    actions: [
+      '在 Prompt 中补充该需求类别的关键结构要求（如价格需含 ¥、弹层需可见）',
+      '检查对应组件默认隐藏/默认状态是否导致断言误判',
+      '评估断言是否过严（如积分场景不应套用金额语义断言）',
+    ],
+  },
 };
 
 // 默认 fallback 建议

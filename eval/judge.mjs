@@ -9,7 +9,7 @@
 // 用法（独立调用）：
 //   node eval/judge.mjs eval/results/raw-*.json              # 仅 lint 聚合
 //   node eval/judge.mjs eval/results/raw-*.json --visual     # 附加截图 + LLM 视觉评审
-import { readFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -113,6 +113,23 @@ export async function judgeVisual(results, opts = {}) {
   const visualPassRate = total > 0 ? (visualPassed / total * 100).toFixed(1) + '%' : '0%';
   const visualFailures = visualResults.filter(v => !v.passed);
 
+  // 语义断言失败回写：并入 flywheel 的 errorsByRule（aiflow/semantic-visual 规则）
+  if (opts.writeBack) {
+    const byId = new Map(visualResults.map(v => [v.id, v]));
+    for (const r of results) {
+      const v = byId.get(r.id);
+      r.attempts = (r.attempts || []).filter(a => !((a.lastErrors || []).length && (a.lastErrors || []).every(e => e.rule === 'aiflow/semantic-visual')));
+      if (v && !v.domPass && (v.fails || []).length) {
+        r.attempts.push({
+          ok: false, rounds: r.best?.rounds || 1,
+          lastErrors: v.fails.map(f => ({ rule: 'aiflow/semantic-visual', message: f })),
+          codePath: r.best?.codePath || null,
+        });
+      }
+    }
+    writeFileSync(opts.writeBack, JSON.stringify(results, null, 2));
+  }
+
   return { visualResults, visualPassed, visualPassRate, visualFailures, shotsDir, total };
 }
 
@@ -141,7 +158,7 @@ if (isMain) {
   const useVisual = args.includes('--visual');
   const useLlm = args.includes('--visual-llm');
   if (useVisual) {
-    fullJudge(results, { llm: useLlm }).then(r => {
+    fullJudge(results, { llm: useLlm, writeBack: file }).then(r => {
       console.log(JSON.stringify({ ...r, visualResults: r.visualResults }, null, 2));
     });
   } else {

@@ -2,7 +2,7 @@
   "name": "@af-mobile/mcp",
   "version": "1.0.0",
   "type": "module",
-  "description": "AIFlow UI MCP Server — generate_page / fix_code / check_compliance",
+  "description": "AIFlow UI MCP Server — get_prompt / check_compliance / fix_code / generate_page / flywheel_report（零 LLM 配置可用）",
   "exports": {
     ".": "./index.mjs"
   },

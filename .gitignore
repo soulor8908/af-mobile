@@ -31,6 +31,9 @@ demo-dist/
 # Logs
 *.log
 
+# 数据飞轮本地遥测（只含时间戳/来源/工具/文件/规则/ESLint 消息，不含代码；不入库）
+.aiflow/
+
 # Eval 产物：raw/report/HTML 是基线资产，必须入库防丢失；截图可再生成，忽略
 eval/results/shots/
 

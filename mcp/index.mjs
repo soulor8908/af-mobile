@@ -1,22 +1,39 @@
-// @af-mobile/mcp —— MCP Server，暴露 3 个工具供 AI Agent 调用
+// @af-mobile/mcp —— MCP Server，暴露 5 个工具供 AI Agent 调用（全部零 LLM 配置可用）
+// 核心原则：调用方即 LLM——TRAE / Claude / Cursor 等 Agent 用自己的模型生成与修正，
+// 本 Server 只提供确定性的 prompt 构建、lint 验证、修正建议与飞轮分析。
 // 工具：
-//   check_compliance — 跑 ESLint 检查代码合规性（纯本地，无 LLM）
-//   fix_code         — ESLint 修正闭环（手动模式返回修正 prompt，自动模式调 LLM 修正）
-//   generate_page    — 端到端页面生成（手动模式返回 system prompt，自动模式调 LLM 生成）
+//   get_prompt        — 按需求裁剪 System Prompt（Agent 用自己的模型生成页面）
+//   check_compliance  — 跑 ESLint 检查合规性，违规自动写入飞轮遥测（不调 LLM）
+//   fix_code          — 返回修正 prompt + 逐条修正建议（Agent 自行修正，不调 LLM）
+//   generate_page     — 端到端生成（手动模式返回 prompt；配了 AIFLOW_AI_API_URL 才走自动模式）
+//   flywheel_report   — 数据飞轮分析：Top 违规规则 + 白名单候选 + 收敛度（不调 LLM）
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { writeFileSync, readFileSync, mkdirSync, rmSync } from 'node:fs';
+import { writeFileSync, readFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { recordRun, detectTool } from '../eval/telemetry.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TMP_DIR = join(ROOT, '.cache/mcp');
 
 const TOOLS = [
   {
+    name: 'get_prompt',
+    description: '获取本项目专用的 AIFlow UI 页面生成 System Prompt（按需求自动裁剪 few-shot 与组件 API）。用你自己的模型生成代码，无需配置任何 LLM。',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        prompt: { type: 'string', description: '需求描述（如"商品列表页带图"），用于裁剪最相关的 few-shot' },
+        promptMode: { type: 'string', enum: ['full', 'tailored'], description: 'full=全量，tailored=按需裁剪（默认）' },
+      },
+      required: ['prompt'],
+    },
+  },
+  {
     name: 'check_compliance',
-    description: '检查代码是否符合 AIFlow UI 白名单与 ESLint 规则。返回违规列表（error/warn），不调用 LLM。',
+    description: '检查代码是否符合 AIFlow UI 白名单与 ESLint 规则。返回违规列表 + 逐条修正建议，并自动写入数据飞轮（下次生成更准）。不调用 LLM。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -28,7 +45,7 @@ const TOOLS = [
   },
   {
     name: 'fix_code',
-    description: '对已有代码跑 ESLint 修正闭环（最多 3 轮）。手动模式（未配 AIFLOW_AI_API_URL）返回修正 prompt + 违规列表；自动模式调 LLM 修正后返回最终代码。',
+    description: '对已有代码构造修正 prompt（含逐条 ESLint 错误 + 具体修正建议）。你用自己的模型按 prompt 修正后，再调 check_compliance 验证。不调用 LLM。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -40,7 +57,7 @@ const TOOLS = [
   },
   {
     name: 'generate_page',
-    description: '根据需求描述端到端生成页面（system prompt → LLM 生成 → ESLint 修正闭环）。手动模式返回 system prompt + user prompt；自动模式返回生成+修正后的完整代码。',
+    description: '端到端页面生成。未配置 AIFLOW_AI_API_URL 时返回 system prompt + user prompt（推荐：改用 get_prompt + 自有模型）。配置后才走自动生成。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -50,9 +67,44 @@ const TOOLS = [
       required: ['prompt'],
     },
   },
+  {
+    name: 'flywheel_report',
+    description: '数据飞轮分析报告：Top 违规规则（按来源/工具分解）、白名单候选、RULE_HINTS 缺口、收敛度。帮你了解常见错误模式，一次写对。不调用 LLM。',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        since: { type: 'string', description: '时间窗口（如 "30d"），默认全部' },
+        topN: { type: 'number', description: '返回 Top N 条规则（默认 10）' },
+      },
+    },
+  },
 ];
 
 // ===== 工具实现（导出供测试直接调用）=====
+
+// 遥测：MCP 每次检查都记录（含干净运行——收敛度数据）
+function recordMcpRun(file, passed, messages) {
+  recordRun({
+    source: 'mcp',
+    tool: detectTool(),
+    file,
+    passed,
+    violations: messages.map(m => ({ rule: m.rule, severity: m.severity, line: m.line, message: m.message })),
+  });
+}
+
+export async function getPrompt({ prompt, promptMode = 'tailored' }) {
+  if (promptMode === 'full') {
+    const p = join(ROOT, 'prompt/system-prompt.md');
+    const systemPrompt = existsSync(p)
+      ? readFileSync(p, 'utf8')
+      : '(System Prompt 未构建，请先运行 npm run prompt；或改用 tailored 模式)';
+    return { promptMode, systemPrompt };
+  }
+  const { buildPrompt } = await import('../scripts/build-prompt.mjs');
+  return { promptMode, systemPrompt: buildPrompt({ userPrompt: prompt }) };
+}
+
 export async function checkCompliance({ code, filename = 'snippet.html' }) {
   const { extractCode, runEslint } = await import('../scripts/ai-fix.mjs');
   const tmpPath = join(TMP_DIR, filename);
@@ -63,6 +115,7 @@ export async function checkCompliance({ code, filename = 'snippet.html' }) {
   const { messages } = await runEslint(js);
   const errors = messages.filter(m => m.severity === 'error');
   const warnings = messages.filter(m => m.severity === 'warn');
+  recordMcpRun(filename, errors.length === 0, [...errors, ...warnings]);
   return {
     passed: errors.length === 0,
     errorCount: errors.length,
@@ -79,8 +132,12 @@ export async function fixCode({ code, filename = 'snippet.html' }) {
   writeFileSync(tmpPath, code);
   const result = await runAiFixLoop(tmpPath, null);
   rmSync(TMP_DIR, { recursive: true, force: true });
-  if (result.ok) return { passed: true, rounds: result.rounds, message: 'ESLint 通过' };
-  // 手动模式：返回修正 prompt 供调用方（AI Agent）自行修正
+  if (result.ok) {
+    recordMcpRun(filename, true, []);
+    return { passed: true, rounds: result.rounds, message: 'ESLint 通过' };
+  }
+  recordMcpRun(filename, false, result.lastErrors || []);
+  // 手动模式：返回修正 prompt 供调用方（AI Agent，用自己的模型）自行修正
   return {
     passed: false,
     rounds: result.rounds,
@@ -95,14 +152,35 @@ export async function generatePage({ prompt, promptMode = 'tailored' }) {
   const outputPath = join(TMP_DIR, `gen-${Date.now()}.html`);
   const result = await generate(prompt, { outputPath, promptMode });
   if (result.ok) return { passed: true, code: result.code, rounds: result.rounds };
-  // 手动模式：返回 system prompt 供调用方自行生成
+  // 手动模式：返回 system prompt 供调用方自行生成（推荐改用 get_prompt）
   if (result.exitCode === 2) return { passed: false, mode: 'manual', systemPrompt: result.systemPrompt, userPrompt: result.userPrompt };
   return { passed: false, error: result.error || '生成失败', lastErrors: result.lastErrors || [] };
 }
 
+export async function flywheelReport({ since, topN = 10 } = {}) {
+  const { readTelemetry } = await import('../eval/telemetry.mjs');
+  const { analyze } = await import('../eval/flywheel.mjs');
+  const events = readTelemetry();
+  if (events.length === 0) {
+    return { total: 0, message: '飞轮暂无数据。调 check_compliance / fix_code 或跑 npm run lint:flywheel 喂数据。' };
+  }
+  const a = await analyze(events, { since });
+  return {
+    total: a.total,
+    topRules: a.perRule.slice(0, topN),
+    whitelistCandidates: {
+      classes: a.whitelistCandidates.classes.slice(0, topN),
+      components: a.whitelistCandidates.components.slice(0, topN),
+    },
+    arbitraryValues: a.arbitraryValues.slice(0, topN),
+    hintsGap: a.hintsGap,
+    convergence: a.convergence,
+  };
+}
+
 // ===== MCP Server =====
 const server = new Server(
-  { name: 'aiflow-ui-mcp', version: '1.0.0' },
+  { name: 'aiflow-ui-mcp', version: '2.0.0' },
   { capabilities: { tools: {} } },
 );
 
@@ -112,9 +190,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
   try {
     let result;
-    if (name === 'check_compliance') result = await checkCompliance(args);
+    if (name === 'get_prompt') result = await getPrompt(args);
+    else if (name === 'check_compliance') result = await checkCompliance(args);
     else if (name === 'fix_code') result = await fixCode(args);
     else if (name === 'generate_page') result = await generatePage(args);
+    else if (name === 'flywheel_report') result = await flywheelReport(args);
     else throw new Error(`Unknown tool: ${name}`);
     return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
   } catch (e) {
@@ -125,5 +205,5 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 // 启动
 const transport = new StdioServerTransport();
 server.connect(transport).then(() => {
-  console.error('✓ aiflow-ui-mcp server running via stdio');
+  console.error('✓ aiflow-ui-mcp server running via stdio (5 tools, zero-LLM ready)');
 });

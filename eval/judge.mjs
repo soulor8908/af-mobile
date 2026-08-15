@@ -151,7 +151,7 @@ if (isMain) {
   const args = process.argv.slice(2);
   const file = args.find(a => !a.startsWith('--'));
   if (!file) {
-    console.error('Usage: judge.mjs <raw-results.json> [--visual]');
+    console.error('Usage: judge.mjs RAW_RESULTS_JSON [--visual]');
     process.exit(2);
   }
   const results = JSON.parse(readFileSync(file, 'utf8'));

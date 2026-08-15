@@ -55,6 +55,7 @@
     "prompt": "bash scripts/build-prompt.sh",
     "prompt:build": "node scripts/build-prompt.mjs -o prompt/system-prompt.md",
     "ai-fix": "node scripts/ai-fix.mjs",
+    "lint:flywheel": "node scripts/lint-flywheel.mjs",
     "generate": "node scripts/generate.mjs",
     "mcp": "node mcp/index.mjs",
     "eval": "node eval/run.mjs",

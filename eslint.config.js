@@ -43,8 +43,9 @@ export default [
     rules: { ...COMPONENT_RULES },
   },
   // AI 生成的代码 / 测试文件 / 脚本 / prompt 构建 / ai-fix 临时文件：启用完整 AI 规则集
+  // .mjs 一并覆盖（AGENTS #9：ESLint 范围必须覆盖所有含 JS 的目录）
   {
-    files: ['**/*.test.js', 'test/**/*.js', 'scripts/**/*.js', 'prompt/**/*.js', 'mcp/**/*.js', '.cache/**/*.js'],
+    files: ['**/*.test.js', 'test/**/*.js', 'scripts/**/*.js', 'scripts/**/*.mjs', 'prompt/**/*.js', 'mcp/**/*.js', 'mcp/**/*.mjs', 'eval/**/*.mjs', '.cache/**/*.js'],
     plugins: { aiflow },
     rules: { ...AI_RULES },
   },
@@ -54,9 +55,9 @@ export default [
     plugins: { aiflow },
     rules: {},
   },
-  // ESLint 规则测试夹具 + ai-fix 循环测试 + MCP 工具测试：含故意违规用例以验证规则/修复本身，关闭 AI 约束
+  // ESLint 规则测试夹具 + ai-fix 循环测试 + MCP 工具测试 + lint 采集测试：含故意违规用例以验证规则/修复/采集本身，关闭 AI 约束
   {
-    files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js', 'test/mcp.test.js'],
+    files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js', 'test/mcp.test.js', 'test/lint-flywheel.test.js'],
     plugins: { aiflow },
     rules: {
       'aiflow/token-whitelist': 'off',

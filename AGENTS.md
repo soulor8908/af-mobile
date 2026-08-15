@@ -265,3 +265,29 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 - [ ] ESLint 范围覆盖所有含 JS 的目录
 - [ ] 新增脚本：在 `package.json` 注册 npm script
 - [ ] 跑 §2 自检命令
+
+---
+
+## 5. AI 开发工具接入（数据飞轮 v2，零 LLM 配置）
+
+> 本节面向**任何**进入本仓的 AI Agent（TRAE Work / TRAE Code / Claude Code / Cursor / CLI 工具）。
+> 核心原则：**调用方即 LLM**——你用自己的模型写代码，库侧只提供确定性的 prompt / lint / 修正建议。不需要配置 `AIFLOW_AI_API_URL`。
+
+### 5.1 写 AIFlow UI 页面（推荐工作流）
+
+1. 调 MCP `get_prompt`（或 CLI `node scripts/generate.mjs "需求"` 手动模式）拿按需求裁剪的 System Prompt；
+2. 按该 prompt 用你自己的模型生成页面；
+3. 调 MCP `check_compliance` 验证；有违规就按返回的修正建议改，或调 `fix_code` 拿完整修正 prompt；
+4. 重复 3 直到 `passed: true`。每次检查自动写入飞轮遥测（`.aiflow/`，本地，不含代码内容）——你的错误模式会变成白名单/prompt 的改进输入。
+
+### 5.2 命令行等价物
+
+```bash
+node scripts/lint-flywheel.mjs <任意路径>   # lint 即喂数据（HTML/JS/MJS 都行）
+npm run eval:flywheel                      # 输出飞轮分析报告（Top 规则/白名单候选/收敛度）
+```
+
+### 5.3 边界
+
+- 遥测只记 时间戳/来源/工具/文件/规则/ESLint 消息，**不记代码内容**，不出本机；
+- 合成 eval（`AIFLOW_AI_API_URL`）是可选数据源之一，不是必需品。

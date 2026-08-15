@@ -65,7 +65,7 @@ export async function runEslint(code) {
 }
 
 // === 3. 构造修正 prompt（D4：给每条错误具体建议）===
-const RULE_HINTS = {
+export const RULE_HINTS = {
   'aiflow/no-token-modification': '不要重定义 L1 token 变量。如需新 token，写在 tokens.css 或 tokens.project.css',
   'aiflow/no-inline-style': '改用对应的 atomic class：padding:16px → p-4；color:var(--c-brand) → text-brand；border-radius:8px → r-m',
   'aiflow/token-whitelist': '该 class 不在 115 白名单内。改用最接近的 L2 配方/原子，或在 .eslintrc 的 extraClass 登记',
@@ -201,7 +201,7 @@ const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(imp
 if (isMain) {
   const file = process.argv[2];
   if (!file || file === '-h' || file === '--help') {
-    console.error('Usage: ai-fix.mjs <html-or-js-file>');
+    console.error('Usage: ai-fix.mjs FILE（html 或 js）');
     console.error('Env: AIFLOW_AI_API_URL (LLM endpoint, optional)');
     console.error('     AIFLOW_AI_API_KEY (LLM auth, optional)');
     console.error('     AIFLOW_AI_MODEL (model name, optional)');

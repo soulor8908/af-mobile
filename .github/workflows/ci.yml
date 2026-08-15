@@ -52,9 +52,15 @@ jobs:
       # Lighthouse 在共享 runner 上耗时长且结果受负载影响，不适合作为 PR 阻断闸门
 
       # Step 4: ESLint 15 规则（L1+L2+L3）—— error 级直接阻断 PR
-      # 范围覆盖全部含 JS 的目录（含 eslint-plugin-aiflow 工作区，AGENTS.md #9）
+      # 范围覆盖全部含 JS 的目录（含 eslint-plugin-aiflow 工作区与 .mjs，AGENTS.md #9）
       - name: ESLint check
-        run: npx eslint src/ test/ scripts/ eslint-plugin-aiflow/ --max-warnings 0
+        run: npx eslint src/ test/ scripts/ eval/ mcp/ eslint-plugin-aiflow/ --max-warnings 0
+
+      # Step 4b: 数据飞轮采集（不阻断；lint 闸门已由上一步保证）
+      # 违规写入遥测并输出分析报告——谁生成的代码都行，lint 即喂数据
+      - name: Flywheel harvest (telemetry + report)
+        continue-on-error: true
+        run: node scripts/lint-flywheel.mjs src/ test/ scripts/ eval/ mcp/ --record-clean || true
 
       # Step 5: 发布前检查（build dist + Tree Shaking + sideEffects + npm pack 内容）
       # PR 阶段跑以提前发现发布问题；正式发布由 prepublishOnly 二次保证

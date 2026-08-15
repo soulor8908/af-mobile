@@ -4,7 +4,7 @@ import {
   beforeEach as routerBeforeEach,
   afterEach as routerAfterEach,
   back, forward, _resetRouter, RouterError,
-} from '../packages/ui/src/lib/router.js';
+} from '../src/lib/router.js';
 
 beforeEach(() => {
   _resetRouter();

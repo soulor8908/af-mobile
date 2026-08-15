@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { AfElement, escapeHtml, html } from '../packages/ui/src/lib/af-element.js';
-import { setLocale } from '../packages/ui/src/lib/i18n.js';
-import { withI18n } from '../packages/ui/src/lib/with-i18n.js';
+import { AfElement, escapeHtml, html } from '../src/lib/af-element.js';
+import { setLocale } from '../src/lib/i18n.js';
+import { withI18n } from '../src/lib/with-i18n.js';
 
 class TestEl extends AfElement {
   static useShadow = false;

@@ -95,17 +95,17 @@
   </section>
 
   <script type="module">
-    import '../packages/ui/src/index.css';
-    import { registerAll } from '../packages/ui/src/index.js';
+    import '../src/index.css';
+    import { registerAll } from '../src/index.js';
     import {
       route as defineRoute, go as navTo, start as startRouter, RouterError,
-    } from '../packages/ui/src/index.js';
-    import { addMessages, setLocale, t as i18nT } from '../packages/ui/src/index.js';
+    } from '../src/index.js';
+    import { addMessages, setLocale, t as i18nT } from '../src/index.js';
     registerAll();
 
     // dialog
     const dlg = document.getElementById('dlg');
-    document.getElementById('open-dialog').addEventListener('click', () => dlg.show());
+    document.getElementById('open-dialog').addEventListener('click', () => dlg.open());
     document.getElementById('dlg-cancel').addEventListener('click', () => dlg.close('cancel'));
     document.getElementById('dlg-ok').addEventListener('click', () => dlg.close('ok'));
 

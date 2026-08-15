@@ -4,17 +4,17 @@
 #         → 勾选 "Require review from Code Owners"
 
 # === L1 核心 Token（影响全部主题/配色/间距） ===
-packages/ui/src/tokens.css                            @aiflow-ui/l1-owners
+src/tokens.css                            @aiflow-ui/l1-owners
 
 # === L3 基类（影响全部组件生命周期/属性同步） ===
-packages/ui/src/lib/af-element.js                     @aiflow-ui/l3-owners
+src/lib/af-element.js                     @aiflow-ui/l3-owners
 
 # === L4 白名单 + Prompt + ESLint 规则（约束 AI 代码生成） ===
-packages/eslint-plugin/utils/whitelist-v*.json @aiflow-ui/l4-owners
+eslint-plugin-aiflow/utils/whitelist-v*.json @aiflow-ui/l4-owners
 prompt/system-prompt.template.md          @aiflow-ui/l4-owners
 prompt/system-prompt.md                   @aiflow-ui/l4-owners
-packages/eslint-plugin/rules/**             @aiflow-ui/l4-owners
-packages/eslint-plugin/utils/aria-requirements.json @aiflow-ui/l4-owners
+eslint-plugin-aiflow/rules/**             @aiflow-ui/l4-owners
+eslint-plugin-aiflow/utils/aria-requirements.json @aiflow-ui/l4-owners
 eslint.config.js                          @aiflow-ui/l4-owners
 
 # === 设计文档（约束整套体系的源 spec） ===

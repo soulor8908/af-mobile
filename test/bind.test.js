@@ -1,56 +1,64 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { initBind, registerDataRef, unregisterDataRef, _resetBind } from '../packages/ui/src/lib/bind.js';
-import { definePage, createPage, state, derived, _resetPage } from '../packages/ui/src/lib/page.js';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { initBind, registerDataRef, _resetBind } from '../src/lib/bind.js';
+import { createPage } from '../src/lib/page.js';
+
+// 每个测试的 initBind 都要断开 observer：未断开的旧 observer 会用旧 stateObj
+// 抢先绑定新 DOM（WeakMap first-wins），污染后续用例
+const _stops = [];
+const bind = (root, page) => { _stops.push(initBind(root, page)); };
 
 beforeEach(() => {
   document.body.innerHTML = '';
   _resetBind();
-  _resetPage();
+});
+
+afterEach(() => {
+  _stops.splice(0).forEach(stop => stop());
 });
 
 describe(':bind state.field 绑定', () => {
   it('初始值同步到 attribute', () => {
-    definePage({ state: { title: 'Hello' } });
+    const page = createPage({ state: { title: 'Hello' } });
     document.body.innerHTML = `<div :title="state.title"></div>`;
-    initBind();
+    bind(document.body, page);
     expect(document.querySelector('div').getAttribute('title')).toBe('Hello');
   });
 
   it('state 变化时 attribute 自动更新', () => {
-    definePage({ state: { count: 1 } });
+    const page = createPage({ state: { count: 1 } });
     document.body.innerHTML = `<div :data-count="state.count"></div>`;
-    initBind();
-    state.count = 99;
+    bind(document.body, page);
+    page.state.count = 99;
     expect(document.querySelector('div').getAttribute('data-count')).toBe('99');
   });
 
   it('false / null / undefined 移除 attribute', () => {
-    definePage({ state: { flag: true } });
+    const page = createPage({ state: { flag: true } });
     document.body.innerHTML = `<div :disabled="state.flag"></div>`;
-    initBind();
+    bind(document.body, page);
     expect(document.querySelector('div').hasAttribute('disabled')).toBe(true);
-    state.flag = false;
+    page.state.flag = false;
     expect(document.querySelector('div').hasAttribute('disabled')).toBe(false);
   });
 
   it('对象值 JSON 序列化', () => {
-    definePage({ state: { items: [1, 2, 3] } });
+    const page = createPage({ state: { items: [1, 2, 3] } });
     document.body.innerHTML = `<div :data-items="state.items"></div>`;
-    initBind();
+    bind(document.body, page);
     expect(document.querySelector('div').getAttribute('data-items')).toBe('[1,2,3]');
   });
 });
 
 describe(':bind derived.field 绑定', () => {
   it('computed 变化时 attribute 更新', () => {
-    definePage({
+    const page = createPage({
       state: { count: 1 },
-      computed: { doubled: () => state.count * 2 },
+      computed: { doubled: (s) => s.count * 2 },
     });
     document.body.innerHTML = `<div :data-d="derived.doubled"></div>`;
-    initBind();
+    bind(document.body, page);
     expect(document.querySelector('div').getAttribute('data-d')).toBe('2');
-    state.count = 5;
+    page.state.count = 5;
     expect(document.querySelector('div').getAttribute('data-d')).toBe('10');
   });
 });
@@ -59,27 +67,30 @@ describe(':bind refName.field（af-data ref）绑定', () => {
   it('注册 ref 后可绑定', () => {
     registerDataRef('ds', () => ({ data: [1, 2, 3], loading: false }));
     document.body.innerHTML = `<div :data-len="ds.data"></div>`;
-    initBind();
+    const page = createPage({ state: {} });
+    bind(document.body, page);
     expect(document.querySelector('div').getAttribute('data-len')).toBe('[1,2,3]');
   });
 
   it('ref 读取实时值', () => {
     let data = [1];
     registerDataRef('ds', () => ({ data }));
+    const page = createPage({ state: {} });
     document.body.innerHTML = `<div :data-len="ds.data"></div>`;
-    initBind();
+    bind(document.body, page);
     expect(document.querySelector('div').getAttribute('data-len')).toBe('[1]');
     // ref 是普通函数，数据变化后需 effect 重新触发（af-data 内部用 signal 驱动）
     data = [1, 2, 3];
     // 重新初始化绑定模拟 effect 重跑
     document.body.innerHTML = `<div :data-len="ds.data"></div>`;
-    initBind();
+    bind(document.body, page);
     expect(document.querySelector('div').getAttribute('data-len')).toBe('[1,2,3]');
   });
 
   it('非法表达式不绑定', () => {
+    const page = createPage({ state: {} });
     document.body.innerHTML = `<div :title="a + b"></div>`;
-    initBind();
+    bind(document.body, page);
     expect(document.querySelector('div').hasAttribute('title')).toBe(false);
     expect(document.querySelector('div').hasAttribute(':title')).toBe(false);
   });
@@ -87,12 +98,13 @@ describe(':bind refName.field（af-data ref）绑定', () => {
 
 describe('initBind MutationObserver', () => {
   it('新增 DOM 节点自动绑定', async () => {
-    definePage({ state: { x: 'foo' } });
-    initBind();
+    const page = createPage({ state: { x: 'foo' } });
+    bind(document.body, page);
     const div = document.createElement('div');
     div.setAttribute(':title', 'state.x');
     document.body.appendChild(div);
-    // MutationObserver 异步触发
+    // MutationObserver 回调在微任务检查点投递，scan 再经 setTimeout 执行：两段 flush 保证确定性
+    await new Promise(r => queueMicrotask(r));
     await new Promise(r => setTimeout(r, 0));
     expect(div.getAttribute('title')).toBe('foo');
   });
@@ -102,23 +114,28 @@ describe('initBind 多实例（ctx）', () => {
   it('ctx.state 绑定到独立实例', () => {
     const page = createPage({ state: { title: 'Instance A' } });
     document.body.innerHTML = `<div :title="state.title"></div>`;
-    initBind(document.body, page);
+    bind(document.body, page);
     const div = document.querySelector('div');
     expect(div.getAttribute('title')).toBe('Instance A');
     page.state.title = 'Updated';
     expect(div.getAttribute('title')).toBe('Updated');
   });
 
-  it('ctx 实例与全局隔离', () => {
-    definePage({ state: { title: 'Global' } });
-    const page = createPage({ state: { title: 'Instance' } });
+  it('两个实例各自绑定互不干扰', () => {
+    const a = createPage({ state: { title: 'A' } });
+    const b = createPage({ state: { title: 'B' } });
     document.body.innerHTML = `<div :title="state.title"></div>`;
-    initBind(document.body, page);
-    const div = document.querySelector('div');
-    expect(div.getAttribute('title')).toBe('Instance');
-    state.title = 'Global2';   // 全局变化不影响 ctx 实例绑定
-    expect(div.getAttribute('title')).toBe('Instance');
-    page.state.title = 'Instance2';
-    expect(div.getAttribute('title')).toBe('Instance2');
+    bind(document.body, a);
+    expect(document.querySelector('div').getAttribute('title')).toBe('A');
+    document.body.innerHTML = `<div :title="state.title"></div>`;
+    bind(document.body, b);
+    expect(document.querySelector('div').getAttribute('title')).toBe('B');
+    a.state.title = 'A2';   // a 实例变化不影响 b 绑定的元素
+    expect(document.querySelector('div').getAttribute('title')).toBe('B');
+  });
+
+  it('未传 ctx 抛错（definePage 全局单例已移除）', () => {
+    document.body.innerHTML = `<div :title="state.x"></div>`;
+    expect(() => initBind()).toThrow(/createPage/);
   });
 });

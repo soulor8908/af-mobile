@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { buildTokensFromSources } from './gen-tokens.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const TOKENS_PATH = join(ROOT, 'packages/ui/src/tokens.json');
+const TOKENS_PATH = join(ROOT, 'src/tokens.json');
 
 function main() {
   const generated = JSON.stringify(buildTokensFromSources(), null, 2) + '\n';

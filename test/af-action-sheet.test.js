@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfActionSheet } from '../packages/ui/src/components/af-action-sheet.js';
+import { AfActionSheet } from '../src/components/af-action-sheet.js';
 customElements.define('af-action-sheet', AfActionSheet);
 
 function makeSheet(props = {}) {

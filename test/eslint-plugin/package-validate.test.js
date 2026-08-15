@@ -1,13 +1,13 @@
 // eslint-plugin-aiflow 独立包验证：@af-mobile/eslint-plugin 可作为独立 npm 包发布/消费
-// 验证：包元信息 / 27 规则完整性 / recommended 配置自洽 / 端到端集成（Linter 跑通）
+// 验证：包元信息 / 20 规则完整性 / recommended 配置自洽 / 端到端集成（Linter 跑通）
 import { describe, it, expect } from 'vitest';
 import { Linter } from 'eslint';
 import { readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import plugin from '../../packages/eslint-plugin/index.js';
+import plugin from '../../eslint-plugin-aiflow/index.js';
 
-const PKG_DIR = resolve(fileURLToPath(import.meta.url), '../../../packages/eslint-plugin');
+const PKG_DIR = resolve(fileURLToPath(import.meta.url), '../../../eslint-plugin-aiflow');
 
 describe('@af-mobile/eslint-plugin 独立包', () => {
   it('package.json 元信息完整（name/version/exports/files/peerDeps）', () => {
@@ -24,13 +24,13 @@ describe('@af-mobile/eslint-plugin 独立包', () => {
     expect(pkg.peerDependencies.eslint).toBe('>=9.0.0');
   });
 
-  it('导出完整 27 条规则（L1(2)+L2(7)+L3(6)+L3.5(12)）', () => {
+  it('导出完整 20 条规则（L1(2)+L2(7)+L3(6)+L3.5(5)）', () => {
     const names = Object.keys(plugin.rules);
-    expect(names).toHaveLength(27);
+    expect(names).toHaveLength(20);
     // 抽查三层代表规则
     expect(plugin.rules['no-token-modification']).toBeDefined();
     expect(plugin.rules['wc-light-no-style']).toBeDefined();
-    expect(plugin.rules['wc-bind-syntax']).toBeDefined();
+    expect(plugin.rules['wc-block-states']).toBeDefined();
   });
 
   it('recommended 配置自洽：所有 aiflow/* 规则都已在 plugin.rules 中声明', () => {

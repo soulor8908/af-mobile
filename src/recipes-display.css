@@ -1,0 +1,190 @@
+/* AIFlow UI —— L2 配方层 · display 子集
+   折叠面板 / 评分 / 步骤条 / 分段控制器
+   展示类按需引：import 'aiflow-ui/css/display'; */
+@layer components {
+  /* === 折叠面板（3） === */
+  /* 纯 CSS：<details>/<summary> 原生，零 JS
+     用法：<details class="collapse"><summary class="collapse-summary">标题</summary><div class="collapse-content">内容</div></details> */
+  .collapse {
+    background: var(--c-card);
+    border-radius: var(--r-m);
+    overflow: hidden;
+  }
+  .collapse + .collapse { margin-top: var(--s-2); }
+  .collapse-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--s-3) var(--s-4);
+    cursor: pointer;
+    list-style: none;
+    font-size: var(--t-md);
+    font-weight: var(--fw-medium);
+    color: var(--c-text);
+    min-height: 48px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .collapse-summary::-webkit-details-marker { display: none; }
+  .collapse-summary::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border: solid var(--c-muted);
+    border-width: 0 2px 2px 0;
+    transform: rotate(-45deg);
+    transition: transform var(--dur-fast) var(--ease-out);
+    flex-shrink: 0;
+  }
+  .collapse[open] .collapse-summary::after { transform: rotate(45deg); }
+  .collapse-content {
+    padding: 0 var(--s-4) var(--s-3);
+    font-size: var(--t-sm);
+    color: var(--c-muted);
+    line-height: var(--lh-normal);
+  }
+
+  /* === 评分（5） === */
+  /* 纯 CSS：radio + :checked + flex-direction:row-reverse 实现只读+可选
+     用法（可选）：
+       <div class="rate">
+         <input type="radio" name="r" id="r5" value="5"><label for="r5" class="rate-star">★</label>
+         <input type="radio" name="r" id="r4" value="4"><label for="r4" class="rate-star">★</label>
+         ...（5→1 逆序排列，row-reverse 后视觉为 1→5）
+       </div>
+     用法（只读）：<div class="rate rate-readonly">...同上，input 加 checked ...</div> */
+  .rate {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 2px;
+    font-size: var(--t-lg);
+    line-height: 1;
+  }
+  .rate input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    margin: 0;
+  }
+  .rate-star {
+    color: var(--c-border);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .rate input:checked ~ .rate-star { color: var(--c-warn); }
+  .rate input:focus-visible ~ .rate-star { color: var(--c-warn); }
+  .rate-star:hover,
+  .rate-star:hover ~ .rate-star { color: var(--c-warn); }
+  .rate-readonly { cursor: default; pointer-events: none; }
+  .rate-sm { font-size: var(--t-md); }
+  .rate-lg { font-size: var(--t-xl); }
+
+  /* === 步骤条（6） === */
+  /* 纯 CSS：flex + ::before 连线
+     用法：
+       <div class="steps">
+         <div class="step step-done"><div class="step-circle">1</div><div class="step-label">完成</div></div>
+         <div class="step step-active"><div class="step-circle">2</div><div class="step-label">进行中</div></div>
+         <div class="step"><div class="step-circle">3</div><div class="step-label">待办</div></div>
+       </div> */
+  .steps {
+    display: flex;
+    align-items: flex-start;
+  }
+  .step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 0 var(--s-2);
+  }
+  .step:not(:first-child)::before {
+    content: '';
+    position: absolute;
+    top: 11px;
+    left: calc(-50% + var(--s-2));
+    width: calc(100% - var(--s-4));
+    height: 2px;
+    background: var(--step-line, var(--c-border));
+  }
+  .step-done { --step-line: var(--c-brand); }
+  .step-active { --step-line: var(--c-brand); }
+  .step-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--c-muted-bg);
+    color: var(--c-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--t-xs);
+    font-weight: var(--fw-bold);
+    position: relative;
+    z-index: 1;
+  }
+  .step-done .step-circle {
+    background: var(--c-brand);
+    color: var(--c-onbrand);
+  }
+  .step-active .step-circle {
+    background: var(--c-card);
+    color: var(--c-brand);
+    border: 2px solid var(--c-brand);
+  }
+  .step-label {
+    margin-top: var(--s-1);
+    font-size: var(--t-xs);
+    color: var(--c-muted);
+    text-align: center;
+    line-height: var(--lh-tight);
+  }
+  .step-done .step-label,
+  .step-active .step-label { color: var(--c-text); }
+
+  /* === 分段控制器（3） === */
+  /* 纯 CSS：iOS 风格分段器，af-tabs 的轻量替代
+     用法：
+       <div class="segmented">
+         <button class="segmented-item" aria-selected="true">日</button>
+         <button class="segmented-item">周</button>
+         <button class="segmented-item">月</button>
+       </div> */
+  .segmented {
+    display: inline-flex;
+    background: var(--c-muted-bg);
+    border-radius: var(--r-m);
+    padding: 2px;
+    gap: 2px;
+  }
+  .segmented-item {
+    flex: 1;
+    min-width: 0;
+    padding: var(--s-1) var(--s-3);
+    border: none;
+    background: none;
+    border-radius: var(--r-s);
+    font-size: var(--t-sm);
+    color: var(--c-muted);
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-tap-highlight-color: transparent;
+    transition: background var(--dur-fast) var(--ease-out),
+                color var(--dur-fast) var(--ease-out);
+  }
+  .segmented-item[aria-selected="true"] {
+    background: var(--c-card);
+    color: var(--c-text);
+    font-weight: var(--fw-medium);
+    box-shadow: var(--shadow-sm);
+  }
+  .segmented-item:active:not([aria-selected="true"]) { background: var(--c-border); }
+  .segmented-block { display: flex; width: 100%; }
+}

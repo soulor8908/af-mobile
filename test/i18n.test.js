@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { t, getLocale, setLocale, initLocale, addMessages, messages, _resetLoaders } from '../packages/ui/src/lib/i18n.js';
+import { t, getLocale, setLocale, initLocale, addMessages, messages, _resetLoaders } from '../src/lib/i18n.js';
 
 describe('i18n', () => {
   beforeEach(() => {

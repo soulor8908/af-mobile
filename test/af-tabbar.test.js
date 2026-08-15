@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfTabbar } from '../packages/ui/src/components/af-tabbar.js';
+import { AfTabbar } from '../src/components/af-tabbar.js';
 customElements.define('af-tabbar-test', AfTabbar);
 
 function makeTabbar(props = {}) {

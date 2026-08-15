@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfUpload } from '../packages/ui/src/components/af-upload.js';
+import { AfUpload } from '../src/components/af-upload.js';
 customElements.define('af-upload', AfUpload);
 
 function makeUpload(props = {}) {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { signal, effect, computed } from '../packages/ui/src/lib/state.js';
+import { signal, effect, computed } from '../src/lib/state.js';
 
 describe('signal 基础', () => {
   it('读取初始值', () => {
@@ -152,7 +152,7 @@ describe('computed 派生信号', () => {
   });
 });
 
-import { batch } from '../packages/ui/src/lib/state.js';
+import { batch } from '../src/lib/state.js';
 
 describe('batch 批量更新', () => {
   it('batch 内多次 set 只触发一次 effect', () => {
@@ -203,7 +203,7 @@ describe('batch 批量更新', () => {
   });
 });
 
-import { createRoot, getOwner, untrack } from '../packages/ui/src/lib/state.js';
+import { createRoot, getOwner, untrack } from '../src/lib/state.js';
 
 // === v3.0 Owner pattern ===
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfDropdown } from '../packages/ui/src/components/af-dropdown.js';
+import { AfDropdown } from '../src/components/af-dropdown.js';
 customElements.define('af-dropdown', AfDropdown);
 
 const OPTIONS = [

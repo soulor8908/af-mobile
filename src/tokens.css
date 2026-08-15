@@ -1,0 +1,116 @@
+/* AIFlow UI —— L1 Token 层：43 变量 + reset + base + 主题切换
+   本文件由库维护者管理，CI 通过 CODEOWNERS 保护。AI 不可改。 */
+
+@layer reset, base, tokens, components, utilities;
+
+@layer reset {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+}
+
+@layer base {
+  html { color-scheme: light; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC',
+                 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif;
+    background: var(--c-bg);
+    color: var(--c-text);
+    font-size: var(--t-md);
+    line-height: var(--lh-normal);
+    -webkit-font-smoothing: antialiased;
+  }
+  [popover] { border: none; background: none; padding: 0; }
+  [popover]::backdrop { background: rgba(0,0,0,.5); backdrop-filter: blur(4px); }
+  dialog::backdrop { background: rgba(0,0,0,.5); }
+}
+
+/* === 无障碍：prefers-reduced-motion 降级（骨架 shimmer / 过渡动画归零） === */
+@media (prefers-reduced-motion: reduce) {
+  @layer base {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer tokens {
+  /* === 主题调色板（二次抽象：单处定义，light/dark 共享） === */
+  :root {
+    --palette-brand: #2563eb;  --palette-onbrand: #fff;
+    --palette-text: #1a2332;   --palette-muted: #5a6b7e;
+    --palette-card: #fff;      --palette-bg: #fafbfc;   --palette-muted-bg: #f1f4f8;
+    --palette-border: #dde3eb;
+    --palette-danger: #dc2626; --palette-success: #16a34a; --palette-warn: #d97706;
+    --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+    --palette-shadow-md: 0 4px 12px rgba(0,0,0,.08);
+    --palette-shadow-lg: 0 8px 24px rgba(0,0,0,.12);
+    --palette-color-scheme: light;
+  }
+
+  /* === 系统暗黑自动跟随：仅当未显式设 light 时生效 === */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --palette-brand: #3b82f6;  --palette-onbrand: #fff;
+      --palette-text: #e2e8f0;   --palette-muted: #94a3b8;
+      --palette-card: #1e293b;   --palette-bg: #0f172a;   --palette-muted-bg: #1e293b;
+      --palette-border: #334155;
+      --palette-danger: #ef4444; --palette-success: #22c55e; --palette-warn: #f59e0b;
+      --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+      --palette-shadow-md: 0 4px 12px rgba(0,0,0,.4);
+      --palette-shadow-lg: 0 8px 24px rgba(0,0,0,.5);
+      --palette-color-scheme: dark;
+    }
+  }
+
+  /* === 手动切换 dark：覆盖系统 light（无需 :root[data-theme="light"]，:root 默认即 light） === */
+  :root[data-theme="dark"] {
+    --palette-brand: #3b82f6;  --palette-onbrand: #fff;
+    --palette-text: #e2e8f0;   --palette-muted: #94a3b8;
+    --palette-card: #1e293b;   --palette-bg: #0f172a;   --palette-muted-bg: #1e293b;
+    --palette-border: #334155;
+    --palette-danger: #ef4444; --palette-success: #22c55e; --palette-warn: #f59e0b;
+    --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+    --palette-shadow-md: 0 4px 12px rgba(0,0,0,.4);
+    --palette-shadow-lg: 0 8px 24px rgba(0,0,0,.5);
+    --palette-color-scheme: dark;
+  }
+
+  /* === 对外 Token：从调色板派生（单处映射，三处主题不再重复） === */
+  :root {
+    --c-brand: var(--palette-brand);  --c-onbrand: var(--palette-onbrand);
+    --c-text: var(--palette-text);    --c-muted: var(--palette-muted);
+    --c-card: var(--palette-card);    --c-bg: var(--palette-bg);    --c-muted-bg: var(--palette-muted-bg);
+    --c-border: var(--palette-border);
+    --c-danger: var(--palette-danger); --c-success: var(--palette-success); --c-warn: var(--palette-warn);
+
+    /* === 间距 === */
+    --s-1: 4px;  --s-2: 8px;  --s-3: 12px;
+    --s-4: 16px; --s-5: 24px; --s-6: 32px;
+
+    /* === 字号 / 行高 / 字重 === */
+    --t-xs: 12px; --t-sm: 14px; --t-md: 16px; --t-lg: 18px; --t-xl: 22px;
+    --lh-tight: 1.25;  --lh-normal: 1.7;
+    --fw-normal: 400;  --fw-medium: 500;  --fw-bold: 700;
+
+    /* === 圆角 === */
+    --r-s: 4px; --r-m: 8px; --r-l: 12px; --r-f: 9999px;
+
+    /* === 阴影（从调色板派生） === */
+    --shadow-sm: var(--palette-shadow-sm);
+    --shadow-md: var(--palette-shadow-md);
+    --shadow-lg: var(--palette-shadow-lg);
+
+    /* === z-index === */
+    --z-base: 0; --z-sticky: 200; --z-dropdown: 1000; --z-modal: 1100;
+
+    /* === 动效 === */
+    --ease-out: cubic-bezier(.16,1,.3,1);
+    --ease-in-out: cubic-bezier(.65,0,.35,1);
+    --dur-fast: 150ms; --dur-base: 250ms; --dur-slow: 400ms;
+
+    color-scheme: var(--palette-color-scheme);
+  }
+}

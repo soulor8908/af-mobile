@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { AfBadge } from '../packages/ui/src/components/af-badge.js';
+import { AfBadge } from '../src/components/af-badge.js';
 customElements.define('af-badge-test', AfBadge);
 
 function makeBadge(props = {}, children = '') {

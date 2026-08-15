@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { signal } from '../packages/ui/src/lib/state.js';
-import { createResource } from '../packages/ui/src/lib/resource.js';
-import { createPage } from '../packages/ui/src/lib/page.js';
+import { signal } from '../src/lib/state.js';
+import { createResource } from '../src/lib/resource.js';
+import { createPage } from '../src/lib/page.js';
 
 const tick = () => new Promise(r => setTimeout(r, 0));
 

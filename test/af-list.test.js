@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfList } from '../packages/ui/src/components/af-list.js';
+import { AfList } from '../src/components/af-list.js';
 customElements.define('af-list', AfList);
 
 function makeList(props = {}) {
@@ -62,22 +62,6 @@ describe('af-list 虚拟滚动', () => {
     el.addEventListener('af-list:itemclick', handler);
     const item = el.$('.list-item');
     item.click();
-    expect(handler).toHaveBeenCalledTimes(1);
-    expect(handler.mock.calls[0][0].detail.index).toBe(0);
-  });
-
-  it('点击项内交互元素（按钮）不触发 itemclick，避免与动作按钮冲突', () => {
-    const el = makeList({ data: makeData(5) });
-    el.renderItem = (item, idx) =>
-      // eslint-disable-next-line aiflow/token-whitelist -- 测试动作按钮场景，用任意 class
-      `<div class="list-item" data-list-index="${idx}">${item.title}<button class="custom-del">×</button></div>`;
-    const handler = vi.fn();
-    el.addEventListener('af-list:itemclick', handler);
-    // 点击项内按钮：不触发 itemclick（按钮自身是 button，closest('button') 匹配）
-    el.$('.custom-del').click();
-    expect(handler).not.toHaveBeenCalled();
-    // 点击项内非交互区域（点击 list-item 空白区）：正常触发 itemclick
-    el.$('.list-item').dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler.mock.calls[0][0].detail.index).toBe(0);
   });

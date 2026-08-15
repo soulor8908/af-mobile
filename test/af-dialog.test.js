@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfDialog } from '../packages/ui/src/components/af-dialog.js';
+import { AfDialog } from '../src/components/af-dialog.js';
 customElements.define('af-dialog', AfDialog);
 
 function makeDialog(props = {}) {
@@ -54,11 +54,11 @@ describe('af-dialog Shadow DOM', () => {
     expect(el.$('dialog').getAttribute('aria-label')).toBe('重要提示');
   });
 
-  it('show() 调用 showModal + 派发 af-dialog:open', () => {
+  it('open() 调用 showModal + 派发 af-dialog:open', () => {
     const el = makeDialog();
     const handler = vi.fn();
     el.addEventListener('af-dialog:open', handler);
-    el.show();
+    el.open();
     expect(el.isOpen).toBe(true);
     expect(el.hasAttribute('open')).toBe(true);
     expect(handler).toHaveBeenCalledTimes(1);
@@ -66,7 +66,7 @@ describe('af-dialog Shadow DOM', () => {
 
   it('close(action) 调用原生 close + 派发 af-dialog:close 含 action', () => {
     const el = makeDialog();
-    el.show();
+    el.open();
     const handler = vi.fn();
     el.addEventListener('af-dialog:close', handler);
     el.close('confirm');
@@ -78,7 +78,7 @@ describe('af-dialog Shadow DOM', () => {
 
   it('close-on-esc=false 时 Esc 不关闭', () => {
     const el = makeDialog({ closeOnEsc: false });
-    el.show();
+    el.open();
     const dialog = el.$('dialog');
     // 模拟 Esc 键的 cancel 事件
     const event = new Event('cancel', { bubbles: true, cancelable: true });
@@ -89,7 +89,7 @@ describe('af-dialog Shadow DOM', () => {
 
   it('close-on-esc=true 时 Esc 触发 close("esc")', () => {
     const el = makeDialog({ closeOnEsc: true });
-    el.show();
+    el.open();
     const handler = vi.fn();
     el.addEventListener('af-dialog:close', handler);
     const dialog = el.$('dialog');
@@ -100,7 +100,7 @@ describe('af-dialog Shadow DOM', () => {
 
   it('点击 backdrop 触发 close("backdrop")', () => {
     const el = makeDialog({ closeOnBackdrop: true });
-    el.show();
+    el.open();
     const handler = vi.fn();
     el.addEventListener('af-dialog:close', handler);
     const dialog = el.$('dialog');
@@ -111,7 +111,7 @@ describe('af-dialog Shadow DOM', () => {
 
   it('close-on-backdrop=false 时点击 dialog 不关闭', () => {
     const el = makeDialog({ closeOnBackdrop: false });
-    el.show();
+    el.open();
     const dialog = el.$('dialog');
     dialog.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     expect(el.isOpen).toBe(true);
@@ -119,7 +119,7 @@ describe('af-dialog Shadow DOM', () => {
 
   it('关闭按钮触发 close("close")', () => {
     const el = makeDialog();
-    el.show();
+    el.open();
     const handler = vi.fn();
     el.addEventListener('af-dialog:close', handler);
     el.$('.close-btn').click();
@@ -147,7 +147,7 @@ describe('af-dialog Shadow DOM', () => {
 
   it('unmounted：若 dialog 仍打开则关闭', () => {
     const el = makeDialog();
-    el.show();
+    el.open();
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
@@ -243,9 +243,10 @@ describe('af-dialog title/open 属性变更（补充分支）', () => {
   });
 
   it('onAttributeChange：open 属性变化触发 open/close', () => {
-    // 注：'open' 已通过 defineProp 声明为布尔属性；此处直接调用 onAttributeChange 覆盖分支（show()/close('external')）。
+    // 注：'open' 非受观测属性（无 defineProp），attribute 变更不会自动触发；
+    // 此处直接调用 onAttributeChange 覆盖 153-156 分支（open()/close('external')）。
     const el = makeDialog({ title: '确认' });
-    const openSpy = vi.spyOn(el, 'show');
+    const openSpy = vi.spyOn(el, 'open');
     el.onAttributeChange('open', null, '');
     expect(openSpy).toHaveBeenCalled();
     const closeSpy = vi.spyOn(el, 'close');
@@ -286,7 +287,7 @@ describe('af-dialog DSD 水合', () => {
     body.innerHTML = '<p>内容</p>';
     el.appendChild(body);
     // open/close 仍正常
-    el.show();
+    el.open();
     expect(el.isOpen).toBe(true);
     expect(el.hasAttribute('open')).toBe(true);
     el.close('confirm');

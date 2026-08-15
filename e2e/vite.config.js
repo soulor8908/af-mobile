@@ -1,4 +1,4 @@
-// e2e 测试页 Vite 配置：root 指向 e2e/，允许从 ../packages/ui/src 引入组件源码
+// e2e 测试页 Vite 配置：root 指向 e2e/，允许从 ../src 引入组件源码
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { getTheme, setTheme, toggleTheme, initTheme } from '../packages/ui/src/lib/theme.js';
+import { getTheme, setTheme, toggleTheme, initTheme } from '../src/lib/theme.js';
 
 describe('theme.js', () => {
   beforeEach(() => {

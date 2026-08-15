@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfSwipeCell } from '../packages/ui/src/components/af-swipe-cell.js';
+import { AfSwipeCell } from '../src/components/af-swipe-cell.js';
 customElements.define('af-swipe-cell-test', AfSwipeCell);
 
 function makeSwipeCell(slots = {}) {
@@ -92,25 +92,6 @@ describe('af-swipe-cell', () => {
     el.close();
     const x = el.$('[data-role="track"]').style.getPropertyValue('--af-swipe-x');
     expect(x).toBe('0px');
-  });
-
-  it('open()/close() 派发 af-swipe-cell:change（排他用）', () => {
-    const el = makeSwipeCell({ content: '内容', right: '<button>删除</button>' });
-    Object.defineProperty(el.$('[data-role="right"]'), 'offsetWidth', { value: 80, configurable: true });
-    const handler = vi.fn();
-    el.addEventListener('af-swipe-cell:change', handler);
-    el.open();
-    expect(handler).toHaveBeenLastCalledWith(expect.objectContaining({ detail: { open: true } }));
-    el.close();
-    expect(handler).toHaveBeenLastCalledWith(expect.objectContaining({ detail: { open: false } }));
-  });
-
-  it('close() 已收起时不重复派发 change', () => {
-    const el = makeSwipeCell({ content: '内容', right: '<button>删除</button>' });
-    const handler = vi.fn();
-    el.addEventListener('af-swipe-cell:change', handler);
-    el.close();
-    expect(handler).not.toHaveBeenCalled();
   });
 
   it('点击 data-action 按钮派发 af-swipe-cell:action', () => {

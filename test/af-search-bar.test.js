@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfSearchBar } from '../packages/ui/src/components/af-search-bar.js';
+import { AfSearchBar } from '../src/components/af-search-bar.js';
 customElements.define('af-search-bar', AfSearchBar);
 
 function makeSearchBar(props = {}) {

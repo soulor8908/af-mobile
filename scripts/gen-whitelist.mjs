@@ -6,7 +6,7 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SRC = join(ROOT, 'packages/ui/src');
+const SRC = join(ROOT, 'src');
 
 // 从 CSS 文件提取所有 .class 名
 export function extractClasses(file) {
@@ -71,7 +71,7 @@ export function buildWhitelistFromSources() {
 const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   const whitelist = buildWhitelistFromSources();
-  const outPath = join(ROOT, 'packages/eslint-plugin/utils/whitelist-v1.json');
+  const outPath = join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json');
   writeFileSync(outPath, JSON.stringify(whitelist, null, 2) + '\n');
   console.log(`✓ ${outPath}`);
   console.log(`  recipe: ${whitelist.classes.recipe.length}, atomic: ${whitelist.classes.atomic.length}`);

@@ -15,7 +15,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '../../');
-const SRC = join(ROOT, 'packages/ui/src');
+const SRC = join(ROOT, 'src');
 
 // 预算（L1+L2 来自 L4 §0.3 实测校准；L3 来自 L3 §8.5）
 // v1.0.1 调整：基类含 escapeHtml 防 XSS（P0 安全），total 含 P0 修复（定位/焦点/转义）
@@ -57,6 +57,8 @@ const SRC = join(ROOT, 'packages/ui/src');
 //   total 23.0→23.6KB：新增 af-progress/af-steps（复用 L2 纯 CSS 配方）+ af-countdown，全量实测 23.519KB
 // v3.6 调整（destroyPage 全局销毁位点，用户已确认）：
 //   total 23.6→23.7KB：page.js 未 external（index.js 导出 createPage/destroyPage），新增 destroyPage 约 +100B gzip，实测 23.615KB
+// v3.7 调整（definePage 全局单例移除，用户已确认）：
+//   删除 definePage/destroyPage/clearPageState/getTransition/getKeepAlive，index.js 仅导出 createPage，total 实测回落
 const BUDGET = {
   css: 8.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）

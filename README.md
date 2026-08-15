@@ -1,19 +1,3 @@
-# @af-mobile
-
-Mobile-first **Monorepo**（npm workspaces），包含 @af-mobile 生态的全部包：
-
-| 包 | 目录 | 说明 |
-|---|---|---|
-| `@af-mobile/ui` | `packages/ui` | Web Components 组件库（L1/L2/L3/L4 四层分层设计体系） |
-| `@af-mobile/chat` | `packages/chat` | 框架无关聊天 SDK（会话/SSE 流式/工具调用 + React/Vue 适配层） |
-| `@af-mobile/react` | `packages/react` | React 适配层 |
-| `@af-mobile/vue` | `packages/vue` | Vue 适配层 |
-| `@af-mobile/eslint-plugin` | `packages/eslint-plugin` | L4 AI 约束 ESLint 插件 |
-
-以下文档主体为 `@af-mobile/ui` 组件库使用指南；`@af-mobile/chat` 用法见 [packages/chat/README.md](packages/chat/README.md)。
-
----
-
 # @af-mobile/ui
 
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
@@ -109,7 +93,7 @@ npm install @af-mobile/ui
 | 步进器 | `<af-stepper>` | `value` `min` `max` `step` `disabled` | `af-stepper:change` |
 | 表单字段 | `<af-field>` | `label` `icon` `type` `input-type` `value` `placeholder` `help` `error` `disabled` `readonly` | `af-field:input` `af-field:change` |
 | 下拉刷新 | `<af-pull-refresh>` | `refreshing` | `af-pull-refresh:refresh` |
-| 滑动单元格 | `<af-swipe-cell>` | `slot="content"` `slot="right"` | `af-swipe-cell:action` `af-swipe-cell:change` |
+| 滑动单元格 | `<af-swipe-cell>` | `disabled` | `af-swipe-cell:action` |
 | 级联选择器 | `<af-cascade-picker>` | `tree` `values` `title` | `af-cascade-picker:change` `af-cascade-picker:confirm` |
 | 徽章 | `<af-badge>` | `value` `max` `dot` `type` | — |
 | 日历 | `<af-calendar>` | `value` `min` `max` `first-day-of-week` | `af-calendar:change` `af-calendar:select` |
@@ -211,62 +195,63 @@ Nuxt / Remix 同理：服务端输出 Light DOM + L2 class 作首屏占位，客
 
 > 规则：**Light DOM + 有初始可见结构** 的组件支持 SSR 预渲染作首屏占位；Shadow DOM 与按需弹层类组件仅客户端渲染。所有 Light DOM 组件 upgrade 时均为「重建接管」而非「增量 hydrate」。
 
-## 框架适配层（Vue 3 / React）
+## 框架集成（Vue 3 / React 原生直用）
 
-Web Components 原生可直接用于任何框架，但框架适配层提供更符合框架习惯的封装：`@af-mobile/vue` 与 `@af-mobile/react`。二者均为薄包装，不复制组件实现，仅做 prop / 事件 / v-model 桥接，import 时自动注册对应自定义元素（Tree Shaking 友好）。
-
-### 安装
-
-```bash
-npm install @af-mobile/ui @af-mobile/vue    # Vue 3
-npm install @af-mobile/ui @af-mobile/react  # React 18
-```
-
-> wrapper 以 `@af-mobile/ui` 为 peer 依赖，需与本体一起安装；组件实现来自 @af-mobile/ui。
+`@af-mobile/ui` 是标准 Web Components，框架无关，可直接在 Vue/React 中作为原生自定义元素使用，无需适配器包。
 
 ### Vue 3
 
+Vite 配置告知编译器哪些标签是自定义元素（避免当作原生元素解析），然后原生使用：
+
+```ts
+// vite.config.ts
+export default {
+  plugins: [vue()],
+  template: { compilerOptions: { isCustomElement: (tag) => tag.startsWith('af-') } },
+};
+```
+
 ```vue
 <script setup>
-import { ref } from 'vue';
-import { AfList, AfSwitch } from '@af-mobile/vue';
+import { ref, onMounted } from 'vue';
+import { register } from '@af-mobile/ui';
+register('af-list');   // 按需注册（组件实现来自 @af-mobile/ui）
 
-const items = ref([...]);
+const items = ref([]);
 const onLoadMore = (page) => { /* ... */ };
 </script>
 
 <template>
-  <af-list :data="items" @itemclick="(e) => console.log(e)" @loadmore="onLoadMore" />
-  <af-switch v-model="on" />
+  <af-list :data="items" @itemclick="(e) => console.log(e.detail)" @loadmore="onLoadMore" />
 </template>
 ```
 
-映射规则：
+- 自定义事件 `af-list:itemclick` → Vue 用 `@itemclick`，payload 在 `e.detail`
+- 复杂属性（对象/数组）通过 property 传：`<af-list :data="items">` 即可
 
-- **props**：camelCase 与组件属性同名（`checked`/`itemHeight`/`totalCount`/...），通过 property 同步，支持对象/数组
-- **事件**：`af-list:itemclick` → `@itemclick`，payload 为 `e.detail`（结构化数据）
-- **v-model**：表单类组件（`af-switch`/`af-field`/`af-stepper` 等）支持 `v-model`，内部桥接 `modelValue ↔ update:modelValue`
+### React（19 完整支持自定义元素）
 
-### React 18
+React 19（2024-12）已原生支持 Web Components：属性经 property 同步、无 `className→class` 手动映射问题，可直接使用。
 
 ```jsx
-import { AfList, AfSwitch } from '@af-mobile/react';
+import { register } from '@af-mobile/ui';
+register('af-list');   // 按需注册（组件实现来自 @af-mobile/ui）
 
 function App() {
   return (
-    <>
-      <AfList data={items} onItemclick={(detail) => console.log(detail)} />
-      <AfSwitch checked={on} onChange={(detail) => setOn(detail.checked)} />
-    </>
+    <af-list
+      data={items}
+      onLoadmore={(e) => console.log(e.detail.page)}
+      onItemclick={(e) => console.log(e.detail.index)}
+    />
   );
 }
 ```
 
-映射规则：
+- 自定义事件 `af-list:itemclick` → React 用 `onItemclick`（`on` + 动作名首字母大写），payload 在 `e.detail`
+- props 通过 property 同步，支持对象/数组
 
-- **props**：camelCase 与组件属性同名，通过 property 同步（支持对象/数组）
-- **事件**：`af-list:itemclick` → `onItemclick`（`on` + 动作名首字母大写），payload 为 `e.detail`
-- **透传**：`className`/`id`/`style`/`data-*`/`aria-*` 等非组件 prop 直接透传为 attribute（`className` 自动映射为 `class`，兼容 React 18 自定义元素限制）
+> 曾有的 `@af-mobile/vue` / `@af-mobile/react` 适配器包已移除：它们从未发布、无外部消费者，且 React 19 / Vue 3 已原生支持 Web Components，薄包装失去价值。
 
 ## 注册方式
 

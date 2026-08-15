@@ -90,7 +90,7 @@
 | `<af-stepper>` | 数量选择器 | value, min, max, step, disabled | af-stepper:change |
 | `<af-field>` | 结构化表单字段 | label, icon, type, value, placeholder, help, error | af-field:input, af-field:change |
 | `<af-pull-refresh>` | 下拉刷新容器 | refreshing | af-pull-refresh:refresh |
-| `<af-swipe-cell>` | 滑动单元格 | slot content, slot right | af-swipe-cell:action, af-swipe-cell:change |
+| `<af-swipe-cell>` | 滑动单元格 | disabled | af-swipe-cell:action |
 | `<af-rate>` | 评分 | value, max, readonly, size | af-rate:change |
 | `<af-notice-bar>` | 公告通知栏 | text, scroll | — |
 | `<af-progress>` | 进度条 | value, max, color | — |

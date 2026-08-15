@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfElement } from '../packages/ui/src/lib/af-element.js';
+import { AfElement } from '../src/lib/af-element.js';
 
 class PerfTestEl extends AfElement {
   static useShadow = false;

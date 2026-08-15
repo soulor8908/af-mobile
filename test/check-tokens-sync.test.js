@@ -85,7 +85,7 @@ describe('tokens / 真实仓库基线', () => {
   const generated = buildTokensFromSources();
 
   it('tokens.css 生成树与已提交 src/tokens.json 完全一致', () => {
-    const committed = readFileSync(join(ROOT, 'packages/ui/src/tokens.json'), 'utf8');
+    const committed = readFileSync(join(ROOT, 'src/tokens.json'), 'utf8');
     expect(JSON.stringify(generated, null, 2) + '\n').toBe(committed);
   });
 

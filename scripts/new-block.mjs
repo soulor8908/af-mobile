@@ -19,12 +19,12 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const BLOCKS_DIR = join(ROOT, 'packages/ui/src/blocks');
+const BLOCKS_DIR = join(ROOT, 'src/blocks');
 const TEST_DIR = join(ROOT, 'test');
-const INDEX_JS = join(ROOT, 'packages/ui/src/index.js');
-const INDEX_DTS = join(ROOT, 'packages/ui/src/index.d.ts');
+const INDEX_JS = join(ROOT, 'src/index.js');
+const INDEX_DTS = join(ROOT, 'src/index.d.ts');
 const BUILD_PROMPT_MJS = join(ROOT, 'scripts/build-prompt.mjs');
-const I18N_JS = join(ROOT, 'packages/ui/src/lib/i18n.js');
+const I18N_JS = join(ROOT, 'src/lib/i18n.js');
 
 // ─── 参数解析 ──────────────────────────────────────────────
 const args = process.argv.slice(2);
@@ -232,7 +232,7 @@ ${propDecls}
 function genTestSource() {
   const mainEventName = `${tag}:${mainEvent}`;
   return `import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ${cls} } from '../packages/ui/src/blocks/${tag}.js';
+import { ${cls} } from '../src/blocks/${tag}.js';
 customElements.define('${tag}', ${cls});
 
 function makeEl(props = {}) {

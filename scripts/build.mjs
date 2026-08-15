@@ -11,8 +11,8 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../');
-const SRC = join(ROOT, 'packages/ui/src');
-const DIST = join(ROOT, 'packages/ui/dist');
+const SRC = join(ROOT, 'src');
+const DIST = join(ROOT, 'dist');
 
 // 确保 dist 目录存在
 mkdirSync(DIST, { recursive: true });

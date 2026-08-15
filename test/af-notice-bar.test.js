@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { AfNoticeBar } from '../packages/ui/src/components/af-notice-bar.js';
+import { AfNoticeBar } from '../src/components/af-notice-bar.js';
 customElements.define('af-notice-bar-test', AfNoticeBar);
 
 function makeNotice(props = {}) {

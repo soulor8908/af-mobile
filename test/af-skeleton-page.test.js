@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { AfSkeletonPage } from '../packages/ui/src/components/af-skeleton-page.js';
+import { AfSkeletonPage } from '../src/components/af-skeleton-page.js';
 customElements.define('af-skeleton-page', AfSkeletonPage);
 
 function makeSkeleton(props = {}) {

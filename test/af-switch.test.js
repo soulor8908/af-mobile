@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfSwitch } from '../packages/ui/src/components/af-switch.js';
+import { AfSwitch } from '../src/components/af-switch.js';
 customElements.define('af-switch', AfSwitch);
 
 function makeSwitch(props = {}) {

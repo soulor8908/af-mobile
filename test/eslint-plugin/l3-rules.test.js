@@ -1,12 +1,12 @@
 // eslint-plugin-aiflow L3 规则测试（6 条合并）
 import { describe, it } from 'vitest';
 import { RuleTester } from 'eslint';
-import wcLightNoStyle from '../../packages/eslint-plugin/rules/wc-light-no-style.js';
-import wcShadowUseToken from '../../packages/eslint-plugin/rules/wc-shadow-use-token.js';
-import wcPartNaming from '../../packages/eslint-plugin/rules/wc-part-naming.js';
-import wcEventNaming from '../../packages/eslint-plugin/rules/wc-event-naming.js';
-import wcAriaRequired from '../../packages/eslint-plugin/rules/wc-aria-required.js';
-import wcCleanup from '../../packages/eslint-plugin/rules/wc-cleanup.js';
+import wcLightNoStyle from '../../eslint-plugin-aiflow/rules/wc-light-no-style.js';
+import wcShadowUseToken from '../../eslint-plugin-aiflow/rules/wc-shadow-use-token.js';
+import wcPartNaming from '../../eslint-plugin-aiflow/rules/wc-part-naming.js';
+import wcEventNaming from '../../eslint-plugin-aiflow/rules/wc-event-naming.js';
+import wcAriaRequired from '../../eslint-plugin-aiflow/rules/wc-aria-required.js';
+import wcCleanup from '../../eslint-plugin-aiflow/rules/wc-cleanup.js';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },

@@ -4,7 +4,7 @@ import {
   invalidateCache, clearCache,
   addInterceptor, removeInterceptor, _resetInterceptors,
   localStorageAdapter, setCacheAdapter, _resetCacheAdapter,
-} from '../packages/ui/src/lib/fetch.js';
+} from '../src/lib/fetch.js';
 
 // 全局 fetch mock
 const _fetch = vi.fn();

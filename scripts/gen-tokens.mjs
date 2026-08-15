@@ -7,7 +7,7 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SRC = join(ROOT, 'packages/ui/src');
+const SRC = join(ROOT, 'src');
 const OUT = join(SRC, 'tokens.json');
 
 const DESC = 'AIFlow UI L1 设计 Token（W3C Design Tokens Format 1.1）。由 src/tokens.css 自动生成，勿手改，运行 `npm run tokens` 重新生成。palette 为 light 基准值，dark 值见 palette.$extensions.aiflow.theme.dark。阴影因源为 CSS 简写字符串，采用 string 类型保证 W3C 校验兼容。';

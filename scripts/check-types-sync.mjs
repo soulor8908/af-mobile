@@ -10,7 +10,7 @@ const problems = [];
 // A. 源码组件文件
 // 排除 af-data.js：L3.5 Block 层数据源元素（见 l3.5-block-detailed-design.md），
 // 非 L3 的 20 个注册组件之一，不参与 index.js/index.d.ts 三源对齐（由 aiflow-ui/page 子包生态独立消费）
-const srcFiles = readdirSync(join(root, 'packages/ui/src/components'))
+const srcFiles = readdirSync(join(root, 'src/components'))
   .filter(f => /^af-.*\.js$/.test(f) && f !== 'af-data.js');
 const srcClasses = srcFiles.map(f => {
   const base = f.replace(/\.js$/, '');           // af-list
@@ -19,12 +19,12 @@ const srcClasses = srcFiles.map(f => {
 });
 
 // B. src/index.js import 的组件类名
-const indexJs = readFileSync(join(root, 'packages/ui/src/index.js'), 'utf8');
+const indexJs = readFileSync(join(root, 'src/index.js'), 'utf8');
 const indexImports = [...indexJs.matchAll(/^import\s+\{\s*(Af[A-Za-z]+)\s*\}\s+from/gm)]
   .map(m => m[1]);
 
 // C. src/index.d.ts export class 的组件类名
-const dts = readFileSync(join(root, 'packages/ui/src/index.d.ts'), 'utf8');
+const dts = readFileSync(join(root, 'src/index.d.ts'), 'utf8');
 const dtsClasses = [...dts.matchAll(/^export\s+class\s+(Af[A-Za-z]+)\s+extends/gm)]
   .map(m => m[1]);
 

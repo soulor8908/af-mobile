@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfRate } from '../packages/ui/src/components/af-rate.js';
+import { AfRate } from '../src/components/af-rate.js';
 customElements.define('af-rate-test', AfRate);
 
 function makeRate(props = {}) {

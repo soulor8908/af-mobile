@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { AfBacktop } from '../packages/ui/src/components/af-backtop.js';
+import { AfBacktop } from '../src/components/af-backtop.js';
 customElements.define('af-backtop', AfBacktop);
 
 function makeBacktop(props = {}) {

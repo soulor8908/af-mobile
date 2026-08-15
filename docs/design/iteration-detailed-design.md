@@ -35,6 +35,14 @@
 
 ---
 
+> ## 🧊 已冻结（2026-08-15）
+>
+> **v1.4.0 / v1.5.0 / v1.6.0 的 L3.5 Block 层 + usechat 计划整体冻结**（含 IP-11 ~ IP-15）。
+> 见 [l3.5-block-detailed-design.md](./l3.5-block-detailed-design.md) 顶部"已冻结"标记与复活触发条件。
+> definePage 已于本版本移除（改为 createPage），IP-11 基础已不在；IP-14"补齐 42 个"、IP-15"usechat"随路线冻结一并搁置。
+
+---
+
 ## v1.1.0 工程化补全
 
 ### IP-1 TypeScript 类型声明

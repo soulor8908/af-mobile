@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/aiflow-ui.css">
+</head>
+<body>
+  <div class="page">
+    <af-toast id="okToast"></af-toast>
+    <button class="btn btn-block" type="button" id="submitBtn">提交</button>
+  </div>
+  <script type="module">
+    document.getElementById('submitBtn').addEventListener('click', () => {
+      document.getElementById('okToast').show('提交成功');
+    });
+  </script>
+</body>
+</html>

@@ -101,7 +101,7 @@ export function generatePrDraft(results, opts = {}) {
   const findings = [];
   for (const [rule, count] of Object.entries(ruleFails)) {
     const rate = count / total;
-    if (rate > threshold) {
+    if (rate >= threshold) {
       const sug = RULE_SUGGESTIONS[rule] || DEFAULT_SUGGESTION;
       findings.push({
         rule,

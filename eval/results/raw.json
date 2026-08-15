@@ -2,87 +2,1770 @@
   {
     "id": "001",
     "category": "list",
-    "expects": [".card",".title",".price",".price-del",".btn"],
+    "expects": [
+      ".card",
+      ".title",
+      ".price",
+      ".price-del",
+      ".btn"
+    ],
     "passed": true,
     "attempts": [
-      {"ok": false,"rounds": 1,"exitCode": 2,"lastErrors":[{"line":2,"rule":"aiflow/token-whitelist","severity":"error","message":"Class 'aib' not in whitelist. Use recipe/atomic or register in 'aiflow/token-whitelist' rule's extraClass"}],"error":null,"codePath":null},
-      {"ok": true,"rounds": 2,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/001-k0.html"}
+      {
+        "ok": false,
+        "rounds": 1,
+        "exitCode": 2,
+        "lastErrors": [
+          {
+            "line": 2,
+            "rule": "aiflow/token-whitelist",
+            "severity": "error",
+            "message": "Class 'aib' not in whitelist. Use recipe/atomic or register in 'aiflow/token-whitelist' rule's extraClass"
+          }
+        ],
+        "error": null,
+        "codePath": null
+      },
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/001-k0.html"
+      }
     ],
-    "best": {"ok": true,"rounds": 2,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/001-k0.html"}
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/001-k0.html"
+    }
   },
   {
     "id": "002",
     "category": "list",
-    "expects": [".list-item",".tag",".price",".btn"],
+    "expects": [
+      ".list-item",
+      ".tag",
+      ".price",
+      ".btn"
+    ],
     "passed": true,
-    "attempts": [{"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/002-k0.html"}],
-    "best": {"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/002-k0.html"}
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/002-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/002-k0.html"
+    }
   },
   {
     "id": "003",
     "category": "list",
-    "expects": [".avatar",".title",".meta",".list-item"],
+    "expects": [
+      ".avatar",
+      ".title",
+      ".meta",
+      ".list-item"
+    ],
     "passed": true,
-    "attempts": [{"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/003-k0.html"}],
-    "best": {"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/003-k0.html"}
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/003-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/003-k0.html"
+    }
   },
   {
     "id": "004",
     "category": "list",
-    "expects": [".search-input",".list",".empty"],
+    "expects": [
+      ".search-input",
+      ".list",
+      ".empty"
+    ],
     "passed": true,
-    "attempts": [{"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/004-k0.html"}],
-    "best": {"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/004-k0.html"}
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/004-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/004-k0.html"
+    }
   },
   {
     "id": "005",
     "category": "list",
-    "expects": [".list-item",".tag",".btn"],
+    "expects": [
+      ".list-item",
+      ".tag",
+      ".btn"
+    ],
     "passed": true,
     "attempts": [
-      {"ok": false,"rounds": 1,"exitCode": 2,"lastErrors":[{"line":2,"rule":"aiflow/token-whitelist","severity":"error","message":"Class 'mt-1' not in whitelist. Use recipe/atomic or register in 'aiflow/token-whitelist' rule's extraClass"}],"error":null,"codePath":null},
-      {"ok": true,"rounds": 2,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/005-k0.html"}
+      {
+        "ok": false,
+        "rounds": 1,
+        "exitCode": 2,
+        "lastErrors": [
+          {
+            "line": 2,
+            "rule": "aiflow/token-whitelist",
+            "severity": "error",
+            "message": "Class 'mt-1' not in whitelist. Use recipe/atomic or register in 'aiflow/token-whitelist' rule's extraClass"
+          }
+        ],
+        "error": null,
+        "codePath": null
+      },
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/005-k0.html"
+      }
     ],
-    "best": {"ok": true,"rounds": 2,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/005-k0.html"}
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/005-k0.html"
+    }
   },
   {
     "id": "006",
     "category": "list",
-    "expects": [".card",".title",".price"],
+    "expects": [
+      ".card",
+      ".title",
+      ".price"
+    ],
     "passed": true,
-    "attempts": [{"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/006-k0.html"}],
-    "best": {"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/006-k0.html"}
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/006-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/006-k0.html"
+    }
   },
   {
     "id": "007",
     "category": "list",
-    "expects": [".tabbar",".tab-item",".list-item",".price"],
+    "expects": [
+      ".tabbar",
+      ".tab-item",
+      ".list-item",
+      ".price"
+    ],
     "passed": true,
-    "attempts": [{"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/007-k0.html"}],
-    "best": {"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/007-k0.html"}
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/007-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/007-k0.html"
+    }
   },
   {
     "id": "008",
     "category": "list",
-    "expects": [".avatar",".title",".tag",".body",".thumb"],
+    "expects": [
+      ".avatar",
+      ".title",
+      ".tag",
+      ".body",
+      ".thumb"
+    ],
     "passed": true,
-    "attempts": [{"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/008-k0.html"}],
-    "best": {"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/008-k0.html"}
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/008-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/008-k0.html"
+    }
   },
   {
     "id": "009",
     "category": "list",
-    "expects": [".card",".price",".tag",".btn"],
+    "expects": [
+      ".card",
+      ".price",
+      ".tag",
+      ".btn"
+    ],
     "passed": true,
-    "attempts": [{"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/009-k0.html"}],
-    "best": {"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/009-k0.html"}
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/009-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/009-k0.html"
+    }
   },
   {
     "id": "010",
     "category": "list",
-    "expects": [".list-item",".thumb",".title",".price",".checkout-bar"],
+    "expects": [
+      ".list-item",
+      ".thumb",
+      ".title",
+      ".price",
+      ".checkout-bar"
+    ],
     "passed": true,
-    "attempts": [{"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/010-k0.html"}],
-    "best": {"ok": true,"rounds": 1,"exitCode": 0,"lastErrors":[],"error":null,"codePath":"/workspace/eval/results/010-k0.html"}
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/010-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/010-k0.html"
+    }
+  },
+  {
+    "id": "011",
+    "category": "form",
+    "expects": [
+      ".input",
+      ".btn",
+      ".title",
+      ".subtitle"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/011-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/011-k0.html"
+    }
+  },
+  {
+    "id": "012",
+    "category": "form",
+    "expects": [
+      ".input",
+      ".btn",
+      ".form-row",
+      ".form-err"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/012-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/012-k0.html"
+    }
+  },
+  {
+    "id": "013",
+    "category": "form",
+    "expects": [
+      ".input",
+      ".textarea",
+      ".btn",
+      ".label"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/013-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/013-k0.html"
+    }
+  },
+  {
+    "id": "014",
+    "category": "form",
+    "expects": [
+      ".search-input",
+      ".navbar",
+      ".tag"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/014-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/014-k0.html"
+    }
+  },
+  {
+    "id": "015",
+    "category": "form",
+    "expects": [
+      ".card",
+      ".list",
+      ".checkout-bar",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/015-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/015-k0.html"
+    }
+  },
+  {
+    "id": "016",
+    "category": "form",
+    "expects": [
+      ".form-row",
+      ".textarea",
+      ".input",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/016-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/016-k0.html"
+    }
+  },
+  {
+    "id": "017",
+    "category": "form",
+    "expects": [
+      ".input",
+      ".form-row",
+      ".btn",
+      ".caption"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/017-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/017-k0.html"
+    }
+  },
+  {
+    "id": "018",
+    "category": "form",
+    "expects": [
+      ".avatar",
+      ".input",
+      ".form-row",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/018-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/018-k0.html"
+    }
+  },
+  {
+    "id": "019",
+    "category": "form",
+    "expects": [
+      ".input",
+      ".form-row",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/019-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/019-k0.html"
+    }
+  },
+  {
+    "id": "020",
+    "category": "form",
+    "expects": [
+      ".list-item",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/020-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/020-k0.html"
+    }
+  },
+  {
+    "id": "021",
+    "category": "detail",
+    "expects": [
+      "af-swiper",
+      ".title",
+      ".price",
+      ".tag",
+      ".input-bar"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/021-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/021-k0.html"
+    }
+  },
+  {
+    "id": "022",
+    "category": "detail",
+    "expects": [
+      ".tag",
+      ".card",
+      ".list",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/022-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/022-k0.html"
+    }
+  },
+  {
+    "id": "023",
+    "category": "detail",
+    "expects": [
+      ".avatar",
+      ".title",
+      ".list",
+      ".list-item"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/023-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/023-k0.html"
+    }
+  },
+  {
+    "id": "024",
+    "category": "detail",
+    "expects": [
+      "af-tabs",
+      ".list",
+      ".list-item"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/024-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/024-k0.html"
+    }
+  },
+  {
+    "id": "025",
+    "category": "detail",
+    "expects": [
+      ".title",
+      ".body",
+      ".list",
+      ".input-bar"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/025-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/025-k0.html"
+    }
+  },
+  {
+    "id": "026",
+    "category": "detail",
+    "expects": [
+      ".card",
+      ".thumb",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/026-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/026-k0.html"
+    }
+  },
+  {
+    "id": "027",
+    "category": "detail",
+    "expects": [
+      ".card",
+      ".list",
+      ".list-item",
+      ".price"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/027-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/027-k0.html"
+    }
+  },
+  {
+    "id": "028",
+    "category": "detail",
+    "expects": [
+      ".card",
+      ".list",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/028-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/028-k0.html"
+    }
+  },
+  {
+    "id": "029",
+    "category": "detail",
+    "expects": [
+      ".search-input",
+      ".list-item",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/029-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/029-k0.html"
+    }
+  },
+  {
+    "id": "030",
+    "category": "detail",
+    "expects": [
+      ".title",
+      ".list-item",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/030-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/030-k0.html"
+    }
+  },
+  {
+    "id": "031",
+    "category": "feedback",
+    "expects": [
+      ".title",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/031-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/031-k0.html"
+    }
+  },
+  {
+    "id": "032",
+    "category": "feedback",
+    "expects": [
+      ".empty",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/032-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/032-k0.html"
+    }
+  },
+  {
+    "id": "033",
+    "category": "feedback",
+    "expects": [
+      ".skeleton",
+      ".skeleton-line"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/033-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/033-k0.html"
+    }
+  },
+  {
+    "id": "034",
+    "category": "feedback",
+    "expects": [
+      ".title",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/034-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/034-k0.html"
+    }
+  },
+  {
+    "id": "035",
+    "category": "feedback",
+    "expects": [
+      ".title",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/035-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/035-k0.html"
+    }
+  },
+  {
+    "id": "036",
+    "category": "feedback",
+    "expects": [
+      ".title",
+      ".price",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/036-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/036-k0.html"
+    }
+  },
+  {
+    "id": "037",
+    "category": "feedback",
+    "expects": [
+      ".list"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/037-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/037-k0.html"
+    }
+  },
+  {
+    "id": "038",
+    "category": "feedback",
+    "expects": [
+      "af-dialog",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/038-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/038-k0.html"
+    }
+  },
+  {
+    "id": "039",
+    "category": "feedback",
+    "expects": [
+      "af-action-sheet",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/039-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/039-k0.html"
+    }
+  },
+  {
+    "id": "040",
+    "category": "feedback",
+    "expects": [
+      "af-action-sheet"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/040-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/040-k0.html"
+    }
+  },
+  {
+    "id": "041",
+    "category": "nav",
+    "expects": [
+      ".navbar",
+      ".search-input",
+      "af-swiper",
+      ".list",
+      ".tabbar"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/041-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/041-k0.html"
+    }
+  },
+  {
+    "id": "042",
+    "category": "nav",
+    "expects": [
+      ".search-input",
+      ".list",
+      ".list-item"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/042-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/042-k0.html"
+    }
+  },
+  {
+    "id": "043",
+    "category": "nav",
+    "expects": [
+      ".tabbar",
+      ".tab-item"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/043-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/043-k0.html"
+    }
+  },
+  {
+    "id": "044",
+    "category": "nav",
+    "expects": [
+      ".navbar",
+      ".btn",
+      ".title"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/044-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/044-k0.html"
+    }
+  },
+  {
+    "id": "045",
+    "category": "nav",
+    "expects": [
+      ".list-item",
+      ".tag"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/045-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/045-k0.html"
+    }
+  },
+  {
+    "id": "046",
+    "category": "nav",
+    "expects": [
+      ".caption"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/046-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/046-k0.html"
+    }
+  },
+  {
+    "id": "047",
+    "category": "nav",
+    "expects": [
+      "af-tabs"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/047-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/047-k0.html"
+    }
+  },
+  {
+    "id": "048",
+    "category": "nav",
+    "expects": [
+      ".sheet",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/048-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/048-k0.html"
+    }
+  },
+  {
+    "id": "049",
+    "category": "nav",
+    "expects": [
+      "af-backtop"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/049-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/049-k0.html"
+    }
+  },
+  {
+    "id": "050",
+    "category": "nav",
+    "expects": [
+      "af-swiper"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/050-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/050-k0.html"
+    }
+  },
+  {
+    "id": "051",
+    "category": "complex",
+    "expects": [
+      ".navbar",
+      ".search-input",
+      "af-swiper",
+      ".tabbar",
+      ".list",
+      ".card"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/051-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/051-k0.html"
+    }
+  },
+  {
+    "id": "052",
+    "category": "complex",
+    "expects": [
+      ".card",
+      ".price",
+      ".checkout-bar",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/052-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/052-k0.html"
+    }
+  },
+  {
+    "id": "053",
+    "category": "complex",
+    "expects": [
+      ".card",
+      ".list",
+      ".tabbar"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/053-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/053-k0.html"
+    }
+  },
+  {
+    "id": "054",
+    "category": "complex",
+    "expects": [
+      "af-tabs",
+      ".list",
+      ".empty"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/054-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/054-k0.html"
+    }
+  },
+  {
+    "id": "055",
+    "category": "complex",
+    "expects": [
+      ".search-input",
+      ".tag",
+      ".list",
+      ".list-item"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/055-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/055-k0.html"
+    }
+  },
+  {
+    "id": "056",
+    "category": "form",
+    "expects": [
+      "af-switch",
+      ".switch",
+      ".cell",
+      ".title"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/056-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/056-k0.html"
+    }
+  },
+  {
+    "id": "057",
+    "category": "form",
+    "expects": [
+      "af-search-bar",
+      ".search-bar-wrap",
+      ".search-input",
+      ".tag"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/057-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/057-k0.html"
+    }
+  },
+  {
+    "id": "058",
+    "category": "feedback",
+    "expects": [
+      "af-skeleton-page",
+      ".skeleton-line"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/058-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/058-k0.html"
+    }
+  },
+  {
+    "id": "059",
+    "category": "feedback",
+    "expects": [
+      "af-toast",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/059-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/059-k0.html"
+    }
+  },
+  {
+    "id": "060",
+    "category": "form",
+    "expects": [
+      "af-picker",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/060-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/060-k0.html"
+    }
+  },
+  {
+    "id": "061",
+    "category": "form",
+    "expects": [
+      "af-dropdown",
+      ".list"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/061-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/061-k0.html"
+    }
+  },
+  {
+    "id": "062",
+    "category": "detail",
+    "expects": [
+      "af-img"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "/workspace/eval/results/062-k0.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "/workspace/eval/results/062-k0.html"
+    }
   }
 ]

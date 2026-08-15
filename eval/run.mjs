@@ -102,9 +102,9 @@ async function main() {
   writeFileSync(rawPath, JSON.stringify(results, null, 2));
   console.error(`\n✓ 原始结果 → ${rawPath}`);
 
-  // 调 judge 聚合
-  const { judge } = await import('./judge.mjs');
-  const report = judge(results, { passK });
+  // 调 judge 聚合（lint + 视觉：渲染截图 + LLM 评审）
+  const { fullJudge } = await import('./judge.mjs');
+  const report = await fullJudge(results, { passK });
   const reportPath = join(RESULTS_DIR, `report-${ts}.json`);
   writeFileSync(reportPath, JSON.stringify(report, null, 2));
   console.error(`✓ 聚合报告 → ${reportPath}`);
@@ -123,6 +123,10 @@ async function main() {
     const lp = s.total > 0 ? (s.lintPassed / s.total * 100).toFixed(1) : '0';
     const vp = s.total > 0 ? (s.visualPassed / s.total * 100).toFixed(1) : '0';
     console.error(`  ${cat}: lint ${s.lintPassed}/${s.total} (${lp}%) / 视觉 ${s.visualPassed}/${s.total} (${vp}%)`);
+  }
+  console.error('\n视觉失败明细:');
+  for (const v of report.visualFailures.slice(0, 15)) {
+    console.error(`  [${v.id}] ${v.category}: ${v.llmReason || ('DOM缺 ' + (v.missing || []).join(','))}`);
   }
   console.error('════════════════════════════════════════════');
 }

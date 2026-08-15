@@ -1,0 +1,12 @@
+import { startServer } from './visual.mjs';
+import { chromium } from 'playwright';
+const { server, port } = await startServer();
+const browser = await chromium.launch({ executablePath: '/root/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome', args: ['--no-sandbox'] });
+const page = await browser.newPage();
+page.on('requestfailed', r => console.log('REQFAIL', r.url(), r.failure()?.errorText));
+page.on('response', r => { if (r.status() >= 400) console.log('HTTP', r.status(), r.url()); });
+page.on('console', m => console.log('CONSOLE', m.type(), m.text().slice(0,150)));
+await page.goto(`http://127.0.0.1:${port}/001-k0.html`, { waitUntil: 'networkidle' });
+await page.waitForTimeout(1500);
+console.log('has af-list data:', await page.evaluate(() => document.getElementById('list')?.data?.length));
+await browser.close(); server.close();

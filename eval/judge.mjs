@@ -1,56 +1,26 @@
 // AIFlow UI —— 生成 Eval 评估器（judge）
 // 输入：run.mjs 收集的 results 数组（每条含 expects + best.codePath）
-// 输出：lint pass@k + 视觉 pass@k（DOM 断言）+ 按规则聚合失败率 + 按类别 pass 率
-// export judge 函数供 run.mjs 复用，也可独立调用
-//
-// 视觉 pass（轻量路径）：用 jsdom 渲染生成 HTML，对 expects 中的 selector 做 querySelector 断言
-// 把"lint pass"与"视觉 pass"分开报告，避免把合规当正确
+// 输出：
+//   - lint pass@k：生成代码通过 ESLint
+//   - DOM pass@k：Playwright 渲染后 expects 选择器存在于真实 DOM
+//   - 视觉 pass@k：LLM 对截图的视觉评审（权威，避免 DOM class 名不匹配误判）
+//   - 按规则聚合失败率 + 按类别 pass 率
 //
 // 用法（独立调用）：
-//   node eval/judge.mjs eval/results/raw-*.json
-import { readFileSync, existsSync } from 'node:fs';
-import { JSDOM } from 'jsdom';
+//   node eval/judge.mjs eval/results/raw-*.json              # 仅 lint 聚合
+//   node eval/judge.mjs eval/results/raw-*.json --visual     # 附加截图 + LLM 视觉评审
+import { readFileSync, existsSync, mkdirSync } from 'node:fs';
+import { join, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-// DOM 断言：渲染 HTML，检查 expects 中的 selector 是否都存在
-// 返回 { passed, missing }
-function domAssert(html, expects) {
-  if (!html || !expects || !expects.length) return { passed: false, missing: ['(无 expects 或无 HTML)'] };
-  try {
-    const dom = new JSDOM(html, { runScripts: 'outside-only' });
-    const doc = dom.window.document;
-    const missing = expects.filter(sel => !doc.querySelector(sel));
-    return { passed: missing.length === 0, missing };
-  } catch (e) {
-    return { passed: false, missing: [`(渲染失败: ${e.message})`] };
-  }
-}
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
+// ===== 纯函数：lint 聚合（同步，不依赖浏览器）=====
 export function judge(results, opts = {}) {
   const passK = opts.passK || 1;
   const total = results.length;
   const lintPassed = results.filter(r => r.passed).length;
   const lintPassRate = total > 0 ? (lintPassed / total * 100).toFixed(1) + '%' : '0%';
-
-  // 视觉 pass：对成功样本（lint 通过）做 DOM 断言
-  let visualPassed = 0;
-  const visualFailures = [];
-  const categoryVisual = {}; // 临时记录每类视觉 pass 数
-  for (const r of results) {
-    if (!r.passed) continue; // lint 没过的样本不评估视觉
-    const best = r.best;
-    let html = '';
-    if (best && best.codePath && existsSync(best.codePath)) {
-      html = readFileSync(best.codePath, 'utf8');
-    }
-    const dom = domAssert(html, r.expects);
-    if (dom.passed) {
-      visualPassed++;
-      categoryVisual[r.category] = (categoryVisual[r.category] || 0) + 1;
-    } else {
-      visualFailures.push({ id: r.id, category: r.category, missing: dom.missing });
-    }
-  }
-  const visualPassRate = total > 0 ? (visualPassed / total * 100).toFixed(1) + '%' : '0%';
 
   // 平均轮数（成功样本的轮数，失败样本算 3 轮上限）
   const roundsSum = results.reduce((s, r) => s + (r.best.rounds || 3), 0);
@@ -66,46 +36,112 @@ export function judge(results, opts = {}) {
     }
   }
 
-  // 按类别聚合（lint + 视觉）
+  // 按类别聚合 lint
   const byCategory = {};
   for (const r of results) {
     if (!byCategory[r.category]) byCategory[r.category] = { total: 0, lintPassed: 0, visualPassed: 0 };
     byCategory[r.category].total++;
     if (r.passed) byCategory[r.category].lintPassed++;
   }
-  for (const [cat, n] of Object.entries(categoryVisual)) {
-    if (byCategory[cat]) byCategory[cat].visualPassed = n;
-  }
 
-  // 失败样本（lint 失败 + 视觉失败，便于排查）
   const lintFailures = results.filter(r => !r.passed).map(r => ({
     id: r.id, category: r.category, exitCode: r.best.exitCode, errors: r.best.lastErrors || [],
   }));
 
   return {
-    passK,
-    total,
-    lintPassed,
-    lintPassRate,
-    visualPassed,
-    visualPassRate,
-    avgRounds,
-    errorsByRule,
-    byCategory,
-    lintFailures,
-    visualFailures,
+    passK, total, lintPassed, lintPassRate, avgRounds, errorsByRule, byCategory, lintFailures,
   };
+}
+
+// 从 prompts.jsonl 读取 id → prompt 映射（raw 结果不含 prompt 字段）
+function loadPromptMap() {
+  const path = join(ROOT, 'eval/prompts.jsonl');
+  const map = {};
+  try {
+    for (const line of readFileSync(path, 'utf8').split('\n')) {
+      if (!line.trim()) continue;
+      const o = JSON.parse(line);
+      if (o.id) map[o.id] = o.prompt || '';
+    }
+  } catch { /* prompts.jsonl 不存在时忽略 */ }
+  return map;
+}
+
+// ===== 视觉评审（异步：Playwright 渲染截图 + LLM 评审）=====
+// 对 lint 通过样本做截图 + LLM 视觉评审，返回 visual 明细
+// 返回 { visualResults, visualPassed, visualPassRate, visualFailures, shotsDir }
+export async function judgeVisual(results, opts = {}) {
+  const { startServer, renderCapture } = await import('./visual.mjs');
+  const { visualReferee } = await import('./visual-judge.mjs');
+  const shotsDir = opts.shotsDir || join(ROOT, 'eval/results/shots');
+  mkdirSync(shotsDir, { recursive: true });
+  const promptMap = opts.promptMap || loadPromptMap();
+
+  const samples = results.filter(r => r.passed && r.best?.codePath && existsSync(r.best.codePath));
+  const { server, port } = await startServer(opts.serverPort || 0);
+  const visualResults = [];
+  let visualPassed = 0;
+
+  try {
+    for (const r of samples) {
+      const dom = await renderCapture(r.best.codePath, r.expects, { port, outDir: shotsDir });
+      // LLM 视觉评审：以截图为准（避免 DOM class 名不匹配误判）
+      let llm = null;
+      if (opts.llm !== false) {
+        try {
+          llm = await visualReferee(dom.screenshotPath, promptMap[r.id] || '', r.expects);
+        } catch (e) {
+          llm = { pass: false, reason: 'LLM 评审失败: ' + e.message };
+        }
+      }
+      const passed = llm ? llm.pass : dom.ok;
+      if (passed) visualPassed++;
+      visualResults.push({
+        id: r.id, category: r.category,
+        domPass: dom.ok, missing: dom.missing,
+        llmPass: llm ? llm.pass : null, llmReason: llm ? llm.reason : null,
+        passed, screenshotPath: dom.screenshotPath, errors: dom.errors,
+      });
+    }
+  } finally {
+    server.close();
+  }
+
+  const total = results.length;
+  const visualPassRate = total > 0 ? (visualPassed / total * 100).toFixed(1) + '%' : '0%';
+  const visualFailures = visualResults.filter(v => !v.passed);
+
+  return { visualResults, visualPassed, visualPassRate, visualFailures, shotsDir, total };
+}
+
+// ===== 完整报告（lint + 视觉）=====
+export async function fullJudge(results, opts = {}) {
+  const lint = judge(results, opts);
+  const visual = await judgeVisual(results, opts);
+  const byCategory = { ...lint.byCategory };
+  for (const v of visual.visualResults) {
+    const item = results.find(x => x.id === v.id);
+    if (item && byCategory[item.category] && v.passed) byCategory[item.category].visualPassed++;
+  }
+  return { ...lint, ...visual, byCategory };
 }
 
 // CLI 独立调用
 const isMain = process.argv[1] && import.meta.url === `file://${process.argv[1]}`;
 if (isMain) {
-  const file = process.argv[2];
+  const args = process.argv.slice(2);
+  const file = args.find(a => !a.startsWith('--'));
   if (!file) {
-    console.error('Usage: judge.mjs <raw-results.json>');
+    console.error('Usage: judge.mjs <raw-results.json> [--visual]');
     process.exit(2);
   }
   const results = JSON.parse(readFileSync(file, 'utf8'));
-  const report = judge(results);
-  console.log(JSON.stringify(report, null, 2));
+  const useVisual = args.includes('--visual');
+  if (useVisual) {
+    fullJudge(results, { llm: process.env.AIFLOW_AI_API_URL ? undefined : false }).then(r => {
+      console.log(JSON.stringify({ ...r, visualResults: r.visualResults }, null, 2));
+    });
+  } else {
+    console.log(JSON.stringify(judge(results), null, 2));
+  }
 }

@@ -1,8 +1,0 @@
-import { AfSwiper as Swiper } from '@af-mobile/ui/components/af-swiper.js';
-import { createWrapper } from '../lib/wrapper.js';
-
-export const AfSwiper = createWrapper('af-swiper', Swiper, {
-  props: ['activeIndex', 'autoplay', 'loop', 'duration', 'showDots', 'disabled'],
-  events: ['af-swiper:change'],
-  model: { event: 'af-swiper:change', key: 'index', target: 'activeIndex' },
-});

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/aiflow-ui.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">评论</nav>
+  <af-list id="list" item-height="140" refresh></af-list>
+</div>
+<script type="module">
+import { signal, effect } from '/aiflow-ui.js';
+
+const list = document.getElementById('list');
+const items = signal([]);
+
+const mockData = [
+  {
+    id: 1,
+    avatar: 'https://i.pravatar.cc/48?img=1',
+    name: '张小明',
+    rate: 5,
+    content: '产品很好，做工精致，性价比高，物流也很快，非常满意！',
+    time: '2025-01-12 10:30',
+    images: [
+      'https://picsum.photos/seed/a/200',
+      'https://picsum.photos/seed/b/200',
+      'https://picsum.photos/seed/c/200'
+    ]
+  },
+  {
+    id: 2,
+    avatar: 'https://i.pravatar.cc/48?img=2',
+    name: '李华',
+    rate: 4,
+    content: '整体不错，就是包装稍微有点简陋，其他都挺好。',
+    time: '2025-01-11 22:14',
+    images: [
+      'https://picsum.photos/seed/d/200',
+      'https://picsum.photos/seed/e/200'
+    ]
+  },
+  {
+    id: 3,
+    avatar: 'https://i.pravatar.cc/48?img=3',
+    name: '王强',
+    rate: 2,
+    content: '使用体验一般，没有达到预期，客服态度也一般。',
+    time: '2025-01-10 16:45',
+    images: []
+  }
+];
+
+items.set(mockData);
+
+effect(() => {
+  list.data = items();
+});
+
+list.renderItem = (item) => {
+  const rateTag =
+    item.rate >= 4
+      ? '<span class="tag tag-ok">好评</span>'
+      : item.rate >= 3
+        ? '<span class="tag tag-warn">中评</span>'
+        : '<span class="tag tag-danger">差评</span>';
+
+  const images = (item.images || [])
+    .map((src) => `<img class="thumb" src="${src}" alt="评论图片">`)
+    .join('');
+
+  return `
+    <div class="list-item">
+      <div class="flex-1 fc">
+        <div class="f jcsb aic g-2">
+          <div class="f aic g-2">
+            <img class="avatar" src="${item.avatar}" alt="${item.name}">
+            <span class="body t-b">${item.name}</span>
+          </div>
+          <span class="caption text-muted">${item.time}</span>
+        </div>
+        <div class="f aic g-1">
+          <af-rate value="${item.rate}" readonly size="sm"></af-rate>
+          ${rateTag}
+        </div>
+        <div class="body">${item.content}</div>
+        ${images ? `<div class="f g-2" style="flex-wrap:wrap">${images}</div>` : ''}
+      </div>
+    </div>
+  `;
+};
+</script>
+</body>
+</html>

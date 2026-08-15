@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/aiflow-ui.css">
+</head>
+<body>
+  <div class="page">
+    <nav class="navbar">地址管理</nav>
+    <af-list id="addressList" item-height="152" refresh></af-list>
+  </div>
+
+  <af-dialog id="editDialog" title="编辑地址" close-on-backdrop>
+    <form id="editForm" class="fc g-3 p-3">
+      <input class="input" name="name" placeholder="收货人" required>
+      <input class="input" name="phone" type="tel" pattern="1[3-9][0-9]{9}" placeholder="手机号" required>
+      <textarea class="input" name="address" rows="2" placeholder="详细地址" required></textarea>
+      <label class="f aic g-2">
+        <input class="checkbox-sm" type="checkbox" name="isDefault">
+        <span class="body">设为默认地址</span>
+      </label>
+      <div class="actions">
+        <button class="btn btn-ghost" type="button" id="cancelEdit">取消</button>
+        <button class="btn" type="submit">保存</button>
+      </div>
+    </form>
+  </af-dialog>
+
+  <af-dialog id="deleteDialog" title="删除地址" close-on-backdrop>
+    <div class="fc g-3 p-3">
+      <p class="body">确定要删除该地址吗？</p>
+      <div class="actions">
+        <button class="btn btn-ghost" type="button" id="cancelDelete">取消</button>
+        <button class="btn btn-danger" type="button" id="confirmDelete">删除</button>
+      </div>
+    </div>
+  </af-dialog>
+
+  <script type="module">
+    import { signal, effect } from '/aiflow-ui.js';
+
+    const list = document.getElementById('addressList');
+    const editDialog = document.getElementById('editDialog');
+    const deleteDialog = document.getElementById('deleteDialog');
+    const editForm = document.getElementById('editForm');
+
+    const items = signal([]);
+    const initialAddresses = [
+      {
+        id: 1,
+        name: '张三',
+        phone: '13800138000',
+        address: '北京市朝阳区望京 SOHO T1 大厦 15 层',
+        isDefault: true
+      },
+      {
+        id: 2,
+        name: '李四',
+        phone: '13900139000',
+        address: '上海市浦东新区张江高科园区博云路 2 号',
+        isDefault: false
+      },
+      {
+        id: 3,
+        name: '王五',
+        phone: '13700137000',
+        address: '广东省深圳市南山区科技园南区深南大道 9988 号',
+        isDefault: false
+      }
+    ];
+
+    list.renderItem = (item) => `
+      <div class="card p-3 fc g-2">
+        <div class="jcsb aic">
+          <div class="f aic g-2">
+            <span class="body t-b">${item.name}</span>
+            <span class="caption text-muted">${item.phone}</span>
+          </div>
+          ${item.isDefault ? '<span class="tag tag-ok">默认</span>' : ''}
+        </div>
+        <div class="caption text-muted">${item.address}</div>
+        <div class="actions jce">
+          <button type="button" class="btn btn-sm btn-ghost" data-action="edit" data-id="${item.id}">编辑</button>
+          <button type="button" class="btn btn-sm btn-ghost" data-action="delete" data-id="${item.id}">删除</button>
+        </div>
+      </div>
+    `;
+
+    effect(() => {
+      list.data = items();
+    });
+
+    list.addEventListener('af-list:refresh', () => {
+      items.set([...initialAddresses]);
+      list.endRefresh();
+    });
+
+    items.set(initialAddresses);
+
+    let editId = null;
+    let deleteId = null;
+
+    function openDialog(dialog) {
+      if (typeof dialog.showModal === 'function') {
+        dialog.showModal();
+      } else if (typeof dialog.show === 'function') {
+        dialog.show();
+      } else {
+        dialog.open = true;
+      }
+    }
+
+    function closeDialog(dialog) {
+      if (typeof dialog.close === 'function') {
+        dialog.close();
+      } else {
+        dialog.open = false;
+      }
+    }
+
+    function findItem(id) {
+      return items().find(item => item.id === id);
+    }
+
+    list.addEventListener('click', (event) => {
+      const editButton = event.target.closest('[data-action="edit"]');
+      if (editButton) {
+        editId = Number(editButton.dataset.id);
+        const item = findItem(editId);
+        if (!item) return;
+
+        editForm.elements.name.value = item.name;
+        editForm.elements.phone.value = item.phone;
+        editForm.elements.address.value = item.address;
+        editForm.elements.isDefault.checked = Boolean(item.isDefault);
+        openDialog(editDialog);
+        return;
+      }
+
+      const deleteButton = event.target.closest('[data-action="delete"]');
+      if (deleteButton) {
+        deleteId = Number(deleteButton.dataset.id);
+        openDialog(deleteDialog);
+      }
+    });
+
+    document.getElementById('cancelEdit').addEventListener('click', () => {
+      closeDialog(editDialog);
+    });
+
+    document.getElementById('cancelDelete').addEventListener('click', () => {
+      closeDialog(deleteDialog);
+    });
+
+    editForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      if (!editForm.checkValidity()) {
+        editForm.reportValidity();
+        return;
+      }
+
+      const form = new FormData(editForm);
+      const isDefault = form.get('isDefault') === 'on';
+
+      items.set(items().map(item => {
+        if (item.id === editId) {
+          return {
+            ...item,
+            name: form.get('name'),
+            phone: form.get('phone'),
+            address: form.get('address'),
+            isDefault
+          };
+        }
+        return isDefault ? { ...item, isDefault: false } : item;
+      }));
+
+      closeDialog(editDialog);
+    });
+
+    document.getElementById('confirmDelete').addEventListener('click', () => {
+      items.set(items().filter(item => item.id !== deleteId));
+      closeDialog(deleteDialog);
+    });
+  </script>
+</body>
+</html>

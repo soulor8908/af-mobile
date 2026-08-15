@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/aiflow-ui.css">
+<style>
+#container .card > img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--r-s);
+  background: var(--c-muted-bg);
+}
+#container .ws-nowrap {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <af-navbar id="navbar" title="我的收藏" show-back></af-navbar>
+  <div class="skeleton-page" id="skeleton"></div>
+  <div id="container" class="p-3 fc g-3"></div>
+</div>
+<af-toast id="toast"></af-toast>
+
+<script type="module">
+import { fetchPage } from '/aiflow-ui.js';
+
+const navbar = document.getElementById('navbar');
+const container = document.getElementById('container');
+const skeleton = document.getElementById('skeleton');
+const toast = document.getElementById('toast');
+
+let favoriteList = [];
+
+function esc(str) {
+  return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[c]));
+}
+
+function cardHtml(item) {
+  return `
+    <div class="card flex-1 p-2 fc g-2">
+      <img src="${esc(item.image)}" alt="${esc(item.title)}" loading="lazy">
+      <div class="body t-sm t-m ws-nowrap">${esc(item.title)}</div>
+      <div class="jcsb aic w-full">
+        <span class="price">￥${Number(item.price || 0).toFixed(2)}</span>
+        <button class="btn btn-ghost btn-sm" type="button" data-action="unfav" data-id="${esc(item.id)}">取消</button>
+      </div>
+    </div>
+  `;
+}
+
+function render() {
+  if (!favoriteList.length) {
+    container.innerHTML = `
+      <div class="empty fc aic jcc g-2 p-6">
+        <span class="body text-muted">还没有收藏商品</span>
+        <button class="btn" id="goShopping" type="button">去逛逛</button>
+      </div>
+    `;
+    document.getElementById('goShopping').addEventListener('click', () => history.back());
+    return;
+  }
+
+  let html = '';
+  for (let i = 0; i < favoriteList.length; i += 2) {
+    const rowItems = favoriteList.slice(i, i + 2);
+    html += `<div class="f g-3">${rowItems.map(cardHtml).join('')}${rowItems.length === 1 ? '<div class="flex-1"></div>' : ''}</div>`;
+  }
+  container.innerHTML = html;
+}
+
+async function load() {
+  try {
+    const data = await fetchPage('/api/favorites');
+    favoriteList = data.list ?? data;
+  } catch {
+    toast.show({ type: 'danger', text: '加载失败，请重试' });
+  } finally {
+    skeleton.remove();
+    render();
+  }
+}
+
+container.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-action="unfav"]');
+  if (!btn) return;
+
+  btn.disabled = true;
+  const id = btn.dataset.id;
+
+  try {
+    await fetchPage(`/api/favorites/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    favoriteList = favoriteList.filter((g) => String(g.id) !== String(id));
+    const y = window.scrollY;
+    render();
+    window.scrollTo(0, y);
+    toast.show({ type: 'success', text: '已取消收藏' });
+  } catch {
+    btn.disabled = false;
+    toast.show({ type: 'danger', text: '操作失败，请重试' });
+  }
+});
+
+navbar.addEventListener('af-navbar:back', () => history.back());
+
+load();
+</script>
+</body>
+</html>

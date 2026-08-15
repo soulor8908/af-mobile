@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/aiflow-ui.css">
+<style>
+  .page {
+    height: 100vh;
+    overflow: hidden;
+  }
+  #catList {
+    width: 100px;
+    flex: 0 0 100px;
+    height: 100%;
+    display: block;
+    background: var(--c-muted-bg);
+  }
+  #prodList {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    display: block;
+  }
+  .list-item[aria-selected="true"] {
+    background: var(--c-brand);
+    color: var(--c-onbrand);
+  }
+</style>
+</head>
+<body>
+<div class="page f fc">
+  <nav class="navbar">商品分类</nav>
+  <div class="f flex-1" style="min-height:0;">
+    <af-list id="catList" item-height="48" aria-label="商品分类"></af-list>
+    <af-list id="prodList" item-height="104" aria-label="商品列表"></af-list>
+  </div>
+</div>
+<script type="module">
+const catList = document.getElementById('catList');
+const prodList = document.getElementById('prodList');
+
+const categories = [
+  { id: 'fruit', name: '水果' },
+  { id: 'snack', name: '零食' },
+  { id: 'drink', name: '饮料' },
+  { id: 'daily', name: '日用' }
+];
+
+const products = {
+  fruit: [
+    { id: 1, img: 'https://picsum.photos/seed/apple/200', name: '红富士苹果', price: 5.50 },
+    { id: 2, img: 'https://picsum.photos/seed/banana/200', name: '海南香蕉', price: 3.80 },
+    { id: 3, img: 'https://picsum.photos/seed/orange/200', name: '赣南脐橙', price: 6.20 }
+  ],
+  snack: [
+    { id: 4, img: 'https://picsum.photos/seed/chips/200', name: '原味薯片', price: 8.90 },
+    { id: 5, img: 'https://picsum.photos/seed/cookie/200', name: '曲奇饼干', price: 12.50 }
+  ],
+  drink: [
+    { id: 6, img: 'https://picsum.photos/seed/cola/200', name: '可乐 330ml', price: 2.50 }
+  ],
+  daily: [
+    { id: 7, img: 'https://picsum.photos/seed/tissue/200', name: '抽纸', price: 19.90 }
+  ]
+};
+
+let currentCat = categories[0];
+
+catList.renderItem = (item) => `
+  <div class="list-item jcc" aria-selected="${item.id === currentCat.id ? 'true' : 'false'}">
+    ${item.name}
+  </div>
+`;
+
+prodList.renderItem = (item) => `
+  <div class="list-item g-3 aic">
+    <img class="thumb r-m" src="${item.img}" alt="${item.name}" style="width:64px;height:64px;object-fit:cover;">
+    <div class="flex-1 fc g-1">
+      <span class="body t-b ws-nowrap">${item.name}</span>
+      <span class="price t-md">¥${item.price.toFixed(2)}</span>
+    </div>
+  </div>
+`;
+
+catList.addEventListener('af-list:itemclick', (e) => {
+  currentCat = e.detail?.item || e.detail;
+  catList.data = categories;
+  prodList.data = products[currentCat.id] || [];
+});
+
+catList.data = categories;
+prodList.data = products[currentCat.id] || [];
+</script>
+</body>
+</html>

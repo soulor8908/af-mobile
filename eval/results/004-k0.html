@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/aiflow-ui.css">
+</head>
+<body>
+<div class="page">
+  <af-search-bar id="search" placeholder="搜索商品" clearable></af-search-bar>
+
+  <div class="empty" id="empty">
+    <div class="title" id="emptyTitle">搜索商品</div>
+    <div class="caption text-muted" id="emptyCaption">输入关键词，查找心仪好物</div>
+  </div>
+
+  <af-list id="results" item-height="64" hidden></af-list>
+</div>
+
+<script type="module">
+import { signal, effect, fetchPage } from '/aiflow-ui.js';
+
+const searchBar = document.getElementById('search');
+const resultsList = document.getElementById('results');
+const empty = document.getElementById('empty');
+const emptyTitle = document.getElementById('emptyTitle');
+const emptyCaption = document.getElementById('emptyCaption');
+
+const items = signal([]);
+let searchSeq = 0;
+
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => (
+  { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+));
+
+const resetEmpty = () => {
+  emptyTitle.textContent = '搜索商品';
+  emptyCaption.textContent = '输入关键词，查找心仪好物';
+};
+
+const showNoResult = () => {
+  emptyTitle.textContent = '未找到相关商品';
+  emptyCaption.textContent = '换个关键词试试';
+};
+
+resultsList.renderItem = (item) => {
+  const image = item.image || item.img || item.pic || '';
+  return `
+    <div class="list-item-compact g-3 aic">
+      <img class="thumb" src="${esc(image)}" alt="${esc(item.name)}" loading="lazy" />
+      <div class="flex-1 fc g-1">
+        <span class="title ws-nowrap">${esc(item.name)}</span>
+        <span class="price">¥${esc(item.price)}</span>
+      </div>
+    </div>
+  `;
+};
+
+effect(() => {
+  const data = items();
+  resultsList.data = data;
+  resultsList.hidden = data.length === 0;
+  empty.hidden = data.length > 0;
+});
+
+searchBar.addEventListener('af-search-bar:search', async (e) => {
+  const q = (e.detail.value || '').trim();
+
+  if (!q) {
+    ++searchSeq;
+    items.set([]);
+    resetEmpty();
+    return;
+  }
+
+  const seq = ++searchSeq;
+  const res = await fetchPage('/api/search?q=' + encodeURIComponent(q));
+  if (seq !== searchSeq) return;
+
+  const list = Array.isArray(res) ? res : (res?.list || []);
+  items.set(list);
+
+  if (list.length === 0) {
+    showNoResult();
+  } else {
+    resetEmpty();
+  }
+});
+
+searchBar.addEventListener('af-search-bar:clear', () => {
+  ++searchSeq;
+  items.set([]);
+  resetEmpty();
+});
+</script>
+</body>
+</html>

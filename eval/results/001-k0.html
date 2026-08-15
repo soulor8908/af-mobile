@@ -1,77 +1,31 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/aiflow-ui.css">
 </head>
 <body>
-<div class="page">
-  <nav class="navbar">商品列表</nav>
-  <af-list id="list" page-size="10" item-height="168"></af-list>
-  <af-toast id="toast"></af-toast>
-</div>
-
-<script type="module">
-import '/aiflow-ui.js';
-
-const products = [
-  { id: 1, cover: 'https://picsum.photos/seed/mug-01/120/120', title: '北欧风陶瓷马克杯', subtitle: '简约设计 · 350ml', price: '49.00', oldPrice: '69.00' },
-  { id: 2, cover: 'https://picsum.photos/seed/bag-02/120/120', title: '城市通勤双肩包', subtitle: '防泼水 · 15.6英寸', price: '199.00', oldPrice: '259.00' },
-  { id: 3, cover: 'https://picsum.photos/seed/desk-03/120/120', title: '实木桌面收纳盒', subtitle: '胡桃木色 · 多功能分区', price: '89.00', oldPrice: '119.00' },
-  { id: 4, cover: 'https://picsum.photos/seed/lamp-04/120/120', title: '护眼阅读台灯', subtitle: '三档色温 · 无频闪', price: '159.00', oldPrice: '199.00' },
-  { id: 5, cover: 'https://picsum.photos/seed/tea-05/120/120', title: '冷泡水果茶礼盒', subtitle: '蜜桃乌龙 · 12袋装', price: '79.00', oldPrice: '109.00' },
-  { id: 6, cover: 'https://picsum.photos/seed/chair-06/120/120', title: '人体工学办公椅', subtitle: '腰背支撑 · 可躺可坐', price: '699.00', oldPrice: '899.00' }
-];
-
-const escapeHtml = (value) => String(value)
-  .replaceAll('&', '&amp;')
-  .replaceAll('<', '&lt;')
-  .replaceAll('>', '&gt;')
-  .replaceAll('"', '&quot;')
-  .replaceAll("'", '&#39;');
-
-const list = document.getElementById('list');
-const toast = document.getElementById('toast');
-
-list.renderItem = (item) => {
-  const cover = escapeHtml(item.cover);
-  const title = escapeHtml(item.title);
-  const subtitle = escapeHtml(item.subtitle);
-  const price = escapeHtml(item.price);
-  const oldPrice = escapeHtml(item.oldPrice);
-
-  return `
-    <div class="card m-3">
-      <div class="f aic g-3">
-        <img class="thumb" src="${cover}" alt="${title}">
-        <div class="flex-1 fc g-1">
-          <div class="title m-0">${title}</div>
-          <div class="caption text-muted m-0">${subtitle}</div>
-          <div class="f aic g-2">
-            <span class="price">¥${price}</span>
-            <span class="price-del">¥${oldPrice}</span>
+  <div class="page">
+    <nav class="navbar">商品列表</nav>
+    <div class="card" data-id="p1">
+      <div class="f g-2">
+        <img class="avatar" src="" alt="商品图" width="80" height="80">
+        <div class="fc flex-1 g-1">
+          <span class="body t-b">经典款纯棉T恤</span>
+          <span class="caption text-muted">100% 纯棉，透气亲肤</span>
+          <div class="f jcsb aic g-2">
+            <div class="f aic g-1">
+              <span class="price">¥129.00</span>
+              <span class="caption text-muted">¥199.00</span>
+            </div>
           </div>
         </div>
       </div>
-      <div class="actions jce">
-        <button class="btn btn-sm" data-add-cart="${item.id}">加入购物车</button>
+      <div class="actions">
+        <button class="btn btn-block" type="button">加入购物车</button>
       </div>
     </div>
-  `;
-};
-
-list.data = products;
-
-document.addEventListener('click', (event) => {
-  const button = event.target.closest('[data-add-cart]');
-  if (!button) return;
-
-  const product = products.find((item) => String(item.id) === button.dataset.addCart);
-  if (!product) return;
-
-  if (toast) toast.show(`已加入购物车：${product.title}`);
-});
-</script>
+  </div>
 </body>
 </html>

@@ -7,6 +7,7 @@
 //   AIFLOW_AI_API_URL=... node eval/run.mjs --category list    # 只跑某类
 //   AIFLOW_AI_API_URL=... node eval/run.mjs --pass-k 3         # pass@k（每条跑 k 次取最优）
 //   node eval/run.mjs --dry-run                                # 不调 LLM，只验证 prompts.jsonl 格式
+//   node eval/run.mjs --resume                                  # 断点续跑：加载 raw.json 已完成的，只补缺失项
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,6 +16,7 @@ import { generate } from '../scripts/generate.mjs';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PROMPTS_PATH = join(ROOT, 'eval/prompts.jsonl');
 const RESULTS_DIR = join(ROOT, 'eval/results');
+const CACHE_PATH = join(RESULTS_DIR, 'raw.json'); // 固定名增量缓存，断点续跑用
 
 // 读 prompts.jsonl
 function loadPrompts() {
@@ -61,12 +63,14 @@ async function main() {
   let passK = 1;
   let dryRun = false;
   let promptMode = 'tailored';
+  let resume = false;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--limit') limit = parseInt(args[++i]);
     else if (args[i] === '--category') category = args[++i];
     else if (args[i] === '--pass-k') passK = parseInt(args[++i]);
     else if (args[i] === '--prompt') promptMode = args[++i] === 'full' ? 'full' : 'tailored';
     else if (args[i] === '--dry-run') dryRun = true;
+    else if (args[i] === '--resume') resume = true;
   }
 
   const prompts = loadPrompts();
@@ -85,26 +89,41 @@ async function main() {
 
   const filtered = prompts.filter(p => !category || p.category === category);
   const target = limit > 0 ? filtered.slice(0, limit) : filtered;
-  console.error(`▶ 运行 ${target.length} 条（pass@${passK}，prompt=${promptMode}）...`);
 
   mkdirSync(RESULTS_DIR, { recursive: true });
+
+  // 断点续跑：加载已完成的缓存，跳过已完成项
+  let done = new Map();
+  if (resume && existsSync(CACHE_PATH)) {
+    try {
+      for (const r of JSON.parse(readFileSync(CACHE_PATH, 'utf8'))) done.set(r.id, r);
+    } catch { console.error('⚠ 缓存 raw.json 解析失败，忽略'); }
+    console.error(`✓ 续跑：已缓存 ${done.size} 条，跳过已完成的`);
+  }
+  const remaining = target.filter(item => !done.has(item.id));
+  console.error(`▶ 运行 ${remaining.length} 条（pass@${passK}，prompt=${promptMode}）...`);
+
   const results = [];
-  for (const item of target) {
+  for (const item of remaining) {
     process.stderr.write(`  [${item.id}] ${item.category} ... `);
     const r = await runOne(item, passK, promptMode);
+    // 每条即落盘到增量缓存，中断不丢已完成的
+    done.set(item.id, r);
+    writeFileSync(CACHE_PATH, JSON.stringify([...done.values()], null, 2));
     results.push(r);
     process.stderr.write(r.passed ? `✓ (${r.best.rounds} 轮)\n` : `✗ (${r.best.exitCode})\n`);
   }
+  const allResults = [...done.values()];
 
   // 写原始结果
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const rawPath = join(RESULTS_DIR, `raw-${ts}.json`);
-  writeFileSync(rawPath, JSON.stringify(results, null, 2));
+  writeFileSync(rawPath, JSON.stringify(allResults, null, 2));
   console.error(`\n✓ 原始结果 → ${rawPath}`);
 
   // 调 judge 聚合（lint + 视觉：渲染截图 + LLM 评审）
   const { fullJudge } = await import('./judge.mjs');
-  const report = await fullJudge(results, { passK });
+  const report = await fullJudge(allResults, { passK });
   const reportPath = join(RESULTS_DIR, `report-${ts}.json`);
   writeFileSync(reportPath, JSON.stringify(report, null, 2));
   console.error(`✓ 聚合报告 → ${reportPath}`);

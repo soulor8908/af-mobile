@@ -31,8 +31,8 @@ demo-dist/
 # Logs
 *.log
 
-# Eval 产物（每次跑 eval/run.mjs 生成，不应入库）
-eval/results/
+# Eval 产物：raw/report/HTML 是基线资产，必须入库防丢失；截图可再生成，忽略
+eval/results/shots/
 
 # Playwright e2e 产物
 test-results/

@@ -1,0 +1,14 @@
+<af-dialog id="confirmDialog" title="删除确认" close-on-backdrop>
+  <p class="body">确定要删除这条消息吗？</p>
+  <div slot="footer" class="actions">
+    <button class="btn btn-ghost" id="cancelBtn">取消</button>
+    <button class="btn btn-danger" id="deleteBtn">删除</button>
+  </div>
+</af-dialog>
+
+<script>
+  const dialog = document.getElementById('confirmDialog');
+  dialog.open();
+
+  document.getElementById('cancelBtn').addEventListener('click', () => dialog.close());
+</script>

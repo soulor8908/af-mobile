@@ -13,6 +13,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join, resolve, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveAsset } from './resolve-asset.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const MAX_ROUNDS = 3;
@@ -39,11 +40,15 @@ export function extractCode(filePath) {
 
 // === 2. 跑 ESLint ===
 // 临时文件必须放在 ROOT 下，让 ESLint flat config 能被找到（ESLint 从被 lint 的文件往上搜 config）
-export async function runEslint(code) {
+// opts（pkg-publish 设计 §3.3）：configFile=内嵌配置（发布端，绕过仓库 config 发现）；
+//   cwd=ESLint 匹配基准（flat config 的 files 按 cwd 相对路径匹配，snippet 目录须在 cwd 之下）；tmpDir=snippet 落盘目录
+export async function runEslint(code, opts = {}) {
   if (!code || !code.trim()) return { messages: [] };
   const { ESLint } = await import('eslint');
-  const engine = new ESLint({ cwd: ROOT });
-  const dir = join(ROOT, '.cache/ai-fix');
+  const engine = new ESLint(opts.configFile
+    ? { overrideConfigFile: opts.configFile, cwd: opts.cwd || ROOT }
+    : { cwd: ROOT });
+  const dir = opts.tmpDir || join(ROOT, '.cache/ai-fix');
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
   const jsPath = join(dir, 'snippet.js');
@@ -132,10 +137,10 @@ async function callLLM(systemPrompt, userPrompt) {
 }
 
 // === 5. 主循环（最多 3 轮）===
-// 输入：待修文件绝对路径 + 可选 LLM 调用器（不传则用手动模式）+ 可选 systemPrompt 覆盖
+// 输入：待修文件绝对路径 + 可选 LLM 调用器（不传则用手动模式）+ 可选 systemPrompt 覆盖 + 可选 ESLint 环境注入
 // 返回：{ ok: Boolean, rounds: Number, lastErrors: Array, exitCode: Number }
-export async function runAiFixLoop(absFile, llmCaller, systemPromptOverride = null) {
-  const systemPromptPath = join(ROOT, 'prompt/system-prompt.md');
+export async function runAiFixLoop(absFile, llmCaller, systemPromptOverride = null, eslintOpts = {}) {
+  const systemPromptPath = resolveAsset('prompt/system-prompt.md');
   const systemPrompt = systemPromptOverride
     ?? (existsSync(systemPromptPath)
       ? readFileSync(systemPromptPath, 'utf8')
@@ -146,7 +151,7 @@ export async function runAiFixLoop(absFile, llmCaller, systemPromptOverride = nu
   let lastMessages = [];
 
   for (let round = 1; round <= MAX_ROUNDS; round++) {
-    const { messages } = await runEslint(extract.js);
+    const { messages } = await runEslint(extract.js, eslintOpts);
     lastMessages = messages;
     const errors = messages.filter(m => m.severity === 'error');
     if (errors.length === 0) {
@@ -182,7 +187,7 @@ export async function runAiFixLoop(absFile, llmCaller, systemPromptOverride = nu
   }
 
   // 最后一轮 LLM 修正后必须再 ESLint 验证一次（设计 §4.1：3 轮 = 3 次 LLM 修正 + 4 次 ESLint）
-  const { messages: finalMsgs } = await runEslint(extract.js);
+  const { messages: finalMsgs } = await runEslint(extract.js, eslintOpts);
   lastMessages = finalMsgs;
   const finalErrors = finalMsgs.filter(m => m.severity === 'error');
   if (finalErrors.length === 0) {

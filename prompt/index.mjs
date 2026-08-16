@@ -1,5 +1,6 @@
 // @af-mobile/prompt —— Prompt 即 API 薄入口
-// 核心实现位于 scripts/build-prompt.mjs（避免双份代码漂移）
+// 实现打包自 scripts/build-prompt.mjs（单一真相源，esbuild bundle → dist/index.mjs，pkg-publish 设计 §3.6）
+// 资产（whitelist/css/template/models）经双候选解析读包内 assets/ 快照
 export {
   buildPrompt,
   pickCategories,
@@ -9,4 +10,4 @@ export {
   buildProjectExtensionSection,
   extractGroupsFromCss,
   extractProjectExtensions,
-} from '../scripts/build-prompt.mjs';
+} from './dist/index.mjs';

@@ -4,16 +4,23 @@
   "type": "module",
   "description": "AIFlow UI MCP Server — get_prompt / check_compliance / fix_code / generate_page / flywheel_report（零 LLM 配置可用）",
   "exports": {
-    ".": "./index.mjs"
+    ".": "./dist/index.mjs"
   },
   "bin": {
-    "aiflow-ui-mcp": "./index.mjs"
+    "aiflow-ui-mcp": "./dist/index.mjs"
   },
   "files": [
-    "index.mjs"
+    "dist/index.mjs",
+    "eslint.config.mjs",
+    "assets/"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "*"
+    "@modelcontextprotocol/sdk": "*",
+    "@af-mobile/eslint-plugin": "^2.0.0"
   },
-  "license": "MIT"
+  "peerDependencies": {
+    "eslint": ">=9.0.0"
+  },
+  "license": "MIT",
+  "prepublishOnly": "node ../scripts/sync-pkg-assets.mjs && node ../scripts/build-mcp.mjs"
 }

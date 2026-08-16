@@ -293,7 +293,7 @@ npm run eval:flywheel                      # 输出飞轮分析报告（Top 规�
 
 ### 5.3 边界与隐私
 
-- **零 LLM ≠ 零接入**：不需要任何 LLM 环境变量，但 MCP 工具需先把 `node mcp/index.mjs` 注册进你的 MCP 客户端（TRAE / Claude Code / Cursor 等）；纯 CLI 用法无任何注册。
+- **零 LLM ≠ 零接入**：不需要任何 LLM 环境变量，但 MCP 工具需注册进你的 MCP 客户端（TRAE / Claude Code / Cursor 等）：已安装端用 `npx @af-mobile/mcp`（bin `aiflow-ui-mcp`），仓库开发态用 `node mcp/index.mjs`；纯 CLI 用法无任何注册。
 - 遥测只记 时间戳/来源/工具/文件路径/规则名/行号/脱敏后消息，**不记代码内容**（style 值与 CSS 声明在落盘前剥离，见 `eval/telemetry.mjs` 的 `sanitizeMessage`；新增 ESLint 规则若消息嵌入代码片段，必须同步登记 `RULE_MESSAGE_REDACT`），不出本机；
 - CI 上的遥测随 runner 销毁（本地 `.aiflow/` 均被 gitignore）；CI 的产出是分析报告 artifact，跨周趋势由 `flywheel.yml` 定时周报 issue 承载；
 - 合成 eval（`AIFLOW_AI_API_URL`）是可选数据源之一，不是必需品。

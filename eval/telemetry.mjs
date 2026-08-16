@@ -3,17 +3,15 @@
 // 分析层（eval/flywheel.mjs）通过 readTelemetry 读取。
 // 存储：.aiflow/telemetry.jsonl（gitignore），可用 AIFLOW_TELEMETRY_DIR 覆盖（测试隔离）。
 import { appendFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+import { join } from 'node:path';
 
 // 来源权重：真实使用 > 合成 eval（分析层加权求和用）
 export const SOURCE_WEIGHTS = { mcp: 3, cli: 2, ci: 2, eval: 1 };
 
 // 遥测目录（env 可覆盖，测试隔离用）
+// cwd 基准（pkg-publish 设计 §3.4）：开发态 cwd=仓库根（行为不变）；发布态 cwd=用户项目根（遥测属项目级数据，不落包目录）
 export function telemetryDir() {
-  return process.env.AIFLOW_TELEMETRY_DIR || join(ROOT, '.aiflow');
+  return process.env.AIFLOW_TELEMETRY_DIR || join(process.cwd(), '.aiflow');
 }
 
 function telemetryPath() {

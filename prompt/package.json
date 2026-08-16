@@ -8,8 +8,9 @@
   },
   "files": [
     "index.mjs",
-    "models/",
-    "system-prompt.template.md"
+    "dist/",
+    "assets/"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "prepublishOnly": "node ../scripts/sync-pkg-assets.mjs && node ../scripts/build-prompt-pkg.mjs"
 }

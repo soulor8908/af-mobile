@@ -47,9 +47,11 @@ export async function generate(userPrompt, opts = {}) {
 
   // 按需构建 system prompt：tailored 用 buildPrompt({ userPrompt }) 自动检索 few-shot + 组件 API
   const { buildPrompt } = await import('./build-prompt.mjs');
+  const { resolveAsset } = await import('./resolve-asset.mjs');
+  const snapshot = resolveAsset('prompt/system-prompt.md');
   const systemPrompt = opts.promptMode === 'full'
-    ? (existsSync(join(ROOT, 'prompt/system-prompt.md'))
-        ? readFileSync(join(ROOT, 'prompt/system-prompt.md'), 'utf8')
+    ? (existsSync(snapshot)
+        ? readFileSync(snapshot, 'utf8')
         : '(System Prompt 未构建，请先运行 npm run prompt)')
     : buildPrompt({ userPrompt });
 
@@ -75,7 +77,7 @@ export async function generate(userPrompt, opts = {}) {
   writeFileSync(outputPath, firstCode);
 
   // Step 2-4: 复用 ai-fix 闭环（lint → 修正 → 再生，最多 3 轮）
-  const fixResult = await runAiFixLoop(outputPath, callLLM, systemPrompt);
+  const fixResult = await runAiFixLoop(outputPath, callLLM, systemPrompt, opts.eslintOpts || {});
   const finalCode = readFileSync(outputPath, 'utf8');
 
   return {

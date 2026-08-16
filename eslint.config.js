@@ -34,6 +34,7 @@ export default [
     ignores: [
       'node_modules/**', 'dist/**', 'docs/**',
       'starter/node_modules/**', 'starter/dist/**',
+      'mcp/dist/**', 'prompt/dist/**',
       'src/**/*.css', 'eslint-plugin-aiflow/**/*.css',
     ],
   },
@@ -70,7 +71,7 @@ export default [
   },
   // ESLint 规则测试夹具 + ai-fix 循环测试 + MCP 工具测试 + lint 采集测试：含故意违规用例以验证规则/修复/采集本身，关闭 AI 约束
   {
-    files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js', 'test/mcp.test.js', 'test/lint-flywheel.test.js'],
+    files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js', 'test/mcp.test.js', 'test/mcp-bundle.test.js', 'test/lint-flywheel.test.js'],
     plugins: { aiflow },
     rules: {
       'aiflow/token-whitelist': 'off',

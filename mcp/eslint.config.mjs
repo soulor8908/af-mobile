@@ -1,0 +1,15 @@
+// @af-mobile/mcp 内嵌 ESLint 配置（pkg-publish 设计 §3.5）
+// check_compliance 检测的是用户/AI 生成的页面代码 → 消费端 AI_RULES
+// （与仓库根配置对 .cache/** 的规则集一致，开发态/发布态行为等价）
+import aiflow from '@af-mobile/eslint-plugin';
+
+export default [
+  {
+    ignores: ['node_modules/**'],
+  },
+  {
+    files: ['**/*.js', '**/*.mjs'],
+    plugins: { aiflow },
+    rules: { ...aiflow.configs.recommended.rules },
+  },
+];

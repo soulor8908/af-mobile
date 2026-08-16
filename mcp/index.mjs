@@ -11,12 +11,26 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { writeFileSync, readFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
+import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { tmpdir } from 'node:os';
 import { recordRun, detectTool } from '../eval/telemetry.mjs';
+import { resolveAsset } from '../scripts/resolve-asset.mjs';
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const TMP_DIR = join(ROOT, '.cache/mcp');
+const PKG_DIR = dirname(fileURLToPath(import.meta.url));
+const TMP_DIR = join(tmpdir(), 'aiflow-mcp');
+// 内嵌消费端 ESLint 配置：发布端不依赖仓库 flat config（pkg-publish 设计 §3.5）
+// 双候选：源码态 <mcp>/eslint.config.mjs；打包态 <mcp>/dist/../eslint.config.mjs
+const CONFIG_FILE = [
+  join(PKG_DIR, 'eslint.config.mjs'),
+  join(PKG_DIR, '..', 'eslint.config.mjs'),
+].find(c => existsSync(c));
+const ESLINT_OPTS = {
+  configFile: CONFIG_FILE,
+  // flat config 的 files 按 cwd 相对路径匹配 → cwd 必须覆盖 snippet 落盘目录
+  cwd: TMP_DIR,
+  tmpDir: TMP_DIR,
+};
 
 const TOOLS = [
   {
@@ -95,7 +109,7 @@ function recordMcpRun(file, passed, messages) {
 
 export async function getPrompt({ prompt, promptMode = 'tailored' }) {
   if (promptMode === 'full') {
-    const p = join(ROOT, 'prompt/system-prompt.md');
+    const p = resolveAsset('prompt/system-prompt.md');
     const systemPrompt = existsSync(p)
       ? readFileSync(p, 'utf8')
       : '(System Prompt 未构建，请先运行 npm run prompt；或改用 tailored 模式)';
@@ -112,7 +126,7 @@ export async function checkCompliance({ code, filename = 'snippet.html' }) {
   writeFileSync(tmpPath, code);
   const { js } = extractCode(tmpPath);
   rmSync(TMP_DIR, { recursive: true, force: true });
-  const { messages } = await runEslint(js);
+  const { messages } = await runEslint(js, ESLINT_OPTS);
   const errors = messages.filter(m => m.severity === 'error');
   const warnings = messages.filter(m => m.severity === 'warn');
   recordMcpRun(filename, errors.length === 0, [...errors, ...warnings]);
@@ -130,7 +144,7 @@ export async function fixCode({ code, filename = 'snippet.html' }) {
   mkdirSync(TMP_DIR, { recursive: true });
   const tmpPath = join(TMP_DIR, filename);
   writeFileSync(tmpPath, code);
-  const result = await runAiFixLoop(tmpPath, null);
+  const result = await runAiFixLoop(tmpPath, null, null, ESLINT_OPTS);
   rmSync(TMP_DIR, { recursive: true, force: true });
   if (result.ok) {
     recordMcpRun(filename, true, []);
@@ -150,7 +164,7 @@ export async function fixCode({ code, filename = 'snippet.html' }) {
 export async function generatePage({ prompt, promptMode = 'tailored' }) {
   const { generate } = await import('../scripts/generate.mjs');
   const outputPath = join(TMP_DIR, `gen-${Date.now()}.html`);
-  const result = await generate(prompt, { outputPath, promptMode });
+  const result = await generate(prompt, { outputPath, promptMode, eslintOpts: ESLINT_OPTS });
   if (result.ok) return { passed: true, code: result.code, rounds: result.rounds };
   // 手动模式：返回 system prompt 供调用方自行生成（推荐改用 get_prompt）
   if (result.exitCode === 2) return { passed: false, mode: 'manual', systemPrompt: result.systemPrompt, userPrompt: result.userPrompt };

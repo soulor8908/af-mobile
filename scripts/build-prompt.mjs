@@ -10,13 +10,15 @@
 import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveAsset } from './resolve-asset.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const TEMPLATE = join(ROOT, 'prompt/system-prompt.template.md');
-const WHITELIST = join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json');
-const RECIPES_CSS = join(ROOT, 'src/recipes.css');
-const ATOMIC_CSS = join(ROOT, 'src/atomic.css');
-const MODEL_DIR = join(ROOT, 'prompt/models');
+// 资产经双候选解析：开发态读仓库源，打包发布态读包内 assets 快照（pkg-publish 设计 §3.2）
+const TEMPLATE = resolveAsset('prompt/system-prompt.template.md');
+const WHITELIST = resolveAsset('eslint-plugin-aiflow/utils/whitelist-v1.json');
+const RECIPES_CSS = resolveAsset('src/recipes.css');
+const ATOMIC_CSS = resolveAsset('src/atomic.css');
+const MODEL_DIR = resolveAsset('prompt/models');
 const DEFAULT_OUT = join(ROOT, 'prompt/system-prompt.md');
 
 // 解析 CLI 参数

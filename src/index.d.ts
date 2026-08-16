@@ -1064,6 +1064,8 @@ export function start(options?: {
   scrollRestoration?: boolean;
   keepAliveMax?: number;
   base?: string;
+  /** hash 路由模式：路径取自 location.hash（#/path），零服务端配置；默认 false 走 History 模式 */
+  hash?: boolean;
   /** 滚动位置：{x,y} 坐标 | {el,top} 元素 | false 禁止滚动（仿 Vue Router） */
   scrollBehavior?: (
     to: { path: string; params: Record<string, string>; query: Record<string, string>; meta: Record<string, unknown> },

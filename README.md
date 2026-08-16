@@ -271,6 +271,60 @@ import { registerAll } from '@af-mobile/ui';
 registerAll();
 ```
 
+## 路由与部署
+
+路由器默认使用 **History 模式**（URL 形如 `/goods/123`，SEO 友好）。History 模式下用户刷新或直接访问子路径时，请求会先到达服务器——静态托管需要把所有路径 rewrite 回 `index.html`，否则刷新即 404。
+
+不想配服务器？用 **hash 模式**（URL 形如 `/#/goods/123`），任意静态托管零配置直跑：
+
+```js
+import { route, start } from '@af-mobile/ui';
+route('/', homeHandler);
+start('#app', { hash: true });
+```
+
+| | History 模式（默认） | hash 模式 |
+|---|---|---|
+| URL 形态 | `/goods/123` | `/#/goods/123` |
+| 服务端配置 | 需要 fallback（见下） | **零配置** |
+| SEO | 好 | 差（`#` 后段不进索引） |
+| 页内锚点 | 可用（`#top`） | 不可用（`#` 段被路由占用） |
+
+### History 模式部署配置速查
+
+```nginx
+# nginx
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+```json
+// Vercel — vercel.json
+{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+```
+
+```
+# Netlify — _redirects（放 public/ 根目录）
+/*  /index.html  200
+```
+
+```js
+// Express / Node
+app.use(express.static('public'));
+app.get('*', (req, res) => res.sendFile(path.resolve('public/index.html')));
+```
+
+```caddy
+# Caddy
+try_files {path} /index.html
+```
+
+注意事项：
+
+- **静态资源不能被吞**：以上配置均先尝试真实文件（`try_files $uri` / Express `express.static` 前置），确保 `/assets/*.js`、CSS 返回文件本体而非 HTML，否则页面白屏且控制台报「MIME type 不匹配」。
+- **无需 fallback 的场景**：纯 MPA（页面间用原生 `<a>` 跳转）、hash 模式、登录后才用的内嵌 WebView 应用（用 hash 模式最省事）。
+
 ## 主题切换
 
 提供 `initTheme` / `setTheme` / `toggleTheme` / `getTheme` 四个 API，通过 `data-theme` 属性控制 light/dark。

@@ -489,6 +489,48 @@ describe('router SSR 安全', () => {
   });
 });
 
+describe('router hash 模式', () => {
+  it('hash 模式：go 提交 URL 带 # 前缀', async () => {
+    route('/h1', () => {});
+    start({ outlet: '#app', hash: true });
+    await go('/h1');
+    expect(window.location.hash).toBe('#/h1');
+  });
+
+  it('hash 模式：query 随 # 路径提交', async () => {
+    route('/hq', () => {});
+    start({ outlet: '#app', hash: true });
+    await go('/hq?tab=1');
+    expect(window.location.hash).toBe('#/hq?tab=1');
+  });
+
+  it('hash 模式：start 从 location.hash 读初始路径并渲染', () => {
+    window.location.hash = '#/h2';
+    const fn = vi.fn();
+    route('/h2', fn);
+    start({ outlet: '#app', hash: true });
+    expect(fn).toHaveBeenCalledOnce();
+  });
+
+  it('hash 模式：无 hash 时回退 /，不触发 notFound', () => {
+    const notFoundFn = vi.fn();
+    notFound(notFoundFn);
+    route('/', () => {});
+    start({ outlet: '#app', hash: true });
+    expect(notFoundFn).not.toHaveBeenCalled();
+  });
+
+  it('stop() 重置模式：后续 start 默认走 History 提交', async () => {
+    route('/h3', () => {});
+    start({ outlet: '#app', hash: true });
+    stop();
+    start({ outlet: '#app' });
+    await go('/h3');
+    expect(window.location.hash).toBe('');
+    expect(window.location.pathname).toBe('/h3');
+  });
+});
+
 describe('router 路由懒加载 + meta', () => {
   it('handler 返回懒加载模块（default 为渲染函数）', async () => {
     const render = vi.fn((p, ctx) => { ctx.outlet.innerHTML = 'heavy page'; });

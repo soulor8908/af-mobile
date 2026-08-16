@@ -14,6 +14,7 @@ let _popHandler = null;               // popstate 监听器引用，start() 注�
 const _cache = new Map();           // path → { outlet, scrollTop, route }
 let _keepAliveMax = 5;
 let _scrollBehavior = null;         // (to, from, savedPosition) => position | false
+let _hashMode = false;              // hash 模式：路由路径取自 location.hash（零服务端配置）
 
 /** 路由错误：outlet 选择器未命中时抛出 */
 export class RouterError extends Error {
@@ -109,9 +110,15 @@ export function current() {
   return _currentRoute ? { ..._currentRoute } : null;
 }
 
+// 当前完整路由路径：history 模式取 pathname+search+hash；hash 模式取 # 后段（无则 '/'）
+function getFullPath() {
+  if (_hashMode) return location.hash.slice(1) || '/';
+  return location.pathname + location.search + location.hash;
+}
+
 export function start(options = {}) {
   if (typeof history === 'undefined') return;
-  const { scrollRestoration = true, outlet = '#app', keepAliveMax = 5, scrollBehavior } = options;
+  const { scrollRestoration = true, outlet = '#app', keepAliveMax = 5, scrollBehavior, hash = false } = options;
   if (scrollRestoration && 'scrollRestoration' in history) {
     history.scrollRestoration = 'manual';
   }
@@ -119,13 +126,14 @@ export function start(options = {}) {
   if (!_rootOutlet) throw new RouterError(`router outlet 未找到: ${outlet}`);
   _keepAliveMax = keepAliveMax;
   _scrollBehavior = scrollBehavior || null;
+  _hashMode = hash;
   _popHandler = () => {
     document.documentElement.dataset.transition = 'back';
-    render(location.pathname + location.search + location.hash);
+    render(getFullPath());
   };
   addEventListener('popstate', _popHandler);
   // 首次渲染：仅在当前路径匹配已注册路由时自动渲染，避免首次加载即触发 notFound
-  const currentPath = location.pathname + location.search + location.hash;
+  const currentPath = getFullPath();
   if (matchNested(currentPath).length > 0) {
     render(currentPath);
   }
@@ -138,6 +146,7 @@ export function stop() {
     removeEventListener('popstate', _popHandler);
     _popHandler = null;
   }
+  _hashMode = false;
 }
 
 // 替换当前 outlet 内容前：若当前路由是 keep-alive 且已入缓存，摘除节点保留实例并记录滚动位置；
@@ -252,8 +261,8 @@ export async function go(path, options = {}) {
   const navigate = async () => {
     const ok = await render(path);
     if (!ok) return false;   // 守卫阻止：不提交 URL（避免 URL 与视图不一致）
-    if (replace) history.replaceState({}, '', path);
-    else history.pushState({}, '', path);
+    if (replace) history.replaceState({}, '', _hashMode ? '#' + path : path);
+    else history.pushState({}, '', _hashMode ? '#' + path : path);
     return true;
   };
   if (transition && document.startViewTransition) {
@@ -284,4 +293,5 @@ export function _resetRouter() {
   _rootOutlet = null;
   _cache.clear();
   _scrollBehavior = null;
+  _hashMode = false;
 }

@@ -965,6 +965,13 @@ export function addInterceptor(
 ): void;
 /** 移除拦截器 */
 export function removeInterceptor(fn: (url: string, opts: any) => any): void;
+
+/** 后端 scheme 适配器：fetchPage 遇到 `scheme://...` URL 时分发给它（如 @af-mobile/adapters 的 supabaseAdapter） */
+export type BackendAdapter = (url: string, opts: any) => Promise<{ data: any; total?: number }>;
+/** 注册后端 scheme 适配器（主包仅分发机制，零具体实现） */
+export function registerBackend(scheme: string, adapter: BackendAdapter): void;
+/** 注销后端 scheme 适配器 */
+export function unregisterBackend(scheme: string): void;
 /** 失效指定 URL 的缓存 */
 export function invalidateCache(url: string): void;
 /** 清空所有缓存 */

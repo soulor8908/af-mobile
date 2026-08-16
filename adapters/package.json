@@ -1,0 +1,13 @@
+{
+  "name": "@af-mobile/adapters",
+  "version": "0.1.0",
+  "description": "AIFlow UI 后端 scheme 适配器（supabase:// 等），peer 依赖 @af-mobile/ui，零 BaaS SDK 强依赖",
+  "type": "module",
+  "exports": {
+    "./supabase": "./supabase.js"
+  },
+  "files": ["supabase.js"],
+  "peerDependencies": {
+    "@af-mobile/ui": "^1.3.2"
+  }
+}

@@ -33,6 +33,7 @@ export default [
   {
     ignores: [
       'node_modules/**', 'dist/**', 'docs/**',
+      'starter/node_modules/**', 'starter/dist/**',
       'src/**/*.css', 'eslint-plugin-aiflow/**/*.css',
     ],
   },
@@ -54,6 +55,18 @@ export default [
     files: ['eslint-plugin-aiflow/**/*.js'],
     plugins: { aiflow },
     rules: {},
+  },
+  // adapters 包源码（supabase:// 等 scheme 适配器）：库代码，无 DOM/CSS，不受 AI 白名单约束
+  {
+    files: ['adapters/**/*.js'],
+    plugins: { aiflow },
+    rules: {},
+  },
+  // Starter 模板页面代码：消费端代码，启用完整 AI 规则集（模板自身必须过自己的约束闸门）
+  {
+    files: ['starter/src/**/*.js'],
+    plugins: { aiflow },
+    rules: { ...AI_RULES },
   },
   // ESLint 规则测试夹具 + ai-fix 循环测试 + MCP 工具测试 + lint 采集测试：含故意违规用例以验证规则/修复/采集本身，关闭 AI 约束
   {

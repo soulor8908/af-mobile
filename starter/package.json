@@ -1,0 +1,23 @@
+{
+  "name": "aiflow-starter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src/",
+    "db:push": "node scripts/db-push.mjs"
+  },
+  "dependencies": {
+    "@af-mobile/ui": "file:../..",
+    "@af-mobile/adapters": "file:../adapters",
+    "@supabase/supabase-js": "^2.45.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "eslint": "^9.0.0",
+    "@af-mobile/eslint-plugin": "file:../../eslint-plugin-aiflow"
+  }
+}

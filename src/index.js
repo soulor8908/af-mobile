@@ -66,6 +66,7 @@ export { signal, computed, effect, batch, createRoot, getOwner, untrack } from '
 export {
   fetchPage, FetchError, TimeoutError, HttpError, AbortError,
   addInterceptor, removeInterceptor, invalidateCache, clearCache,
+  registerBackend, unregisterBackend,
   setCacheAdapter, localStorageAdapter,
 } from './lib/fetch.js';
 export { createResource } from './lib/resource.js';

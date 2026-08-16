@@ -18,6 +18,30 @@ export class AbortError extends FetchError {}
 const _inflight = new Map();      // url → Promise（GET 去重）
 let _cache = new Map();           // url → { data, expiry }（默认内存；setCacheAdapter 可换持久化后端）
 const _interceptors = { request: [], response: [], error: [] };  // 拦截器按阶段分组
+const _backendAdapters = new Map();  // scheme → adapter（supabase:// 等，由独立 adapter 包注册）
+
+/**
+ * 注册后端 scheme 适配器：fetchPage 遇到 `scheme://...` 形式的 URL 时分发给 adapter。
+ * 主包只提供分发机制，不携带任何具体 adapter（零依赖红线）。
+ * @param {string} scheme - URL scheme，如 'supabase'
+ * @param {(url: string, opts: object) => Promise<{data: any, total?: number}>} adapter
+ */
+export function registerBackend(scheme, adapter) {
+  if (typeof scheme !== 'string' || !scheme) throw new TypeError('scheme must be a non-empty string');
+  if (typeof adapter !== 'function') throw new TypeError('adapter must be a function');
+  _backendAdapters.set(scheme, adapter);
+}
+
+export function unregisterBackend(scheme) {
+  _backendAdapters.delete(scheme);
+}
+
+// 提取 URL scheme：'supabase://x' → 'supabase'；'/api/x'、'https://x' 未注册时返回 null
+function _lookupBackend(url) {
+  const m = /^[a-z][a-z0-9+.-]*:\/\//i.exec(url);
+  if (!m) return null;
+  return _backendAdapters.get(m[0].slice(0, -3).toLowerCase()) || null;
+}
 
 export async function fetchPage(url, opts = {}) {
   const {
@@ -26,6 +50,18 @@ export async function fetchPage(url, opts = {}) {
     dedupe = true, cache = false, cacheTTL = 5000,
     responseType = 'json', signal = null,
   } = opts;
+
+  // 0. 后端 scheme 分发（supabase:// 等）：request 拦截器先执行（与原生路径同契约：返回 opts / Response 短路）
+  const backend = _lookupBackend(url);
+  if (backend) {
+    let finalOpts = opts;
+    for (const fn of _interceptors.request) {
+      const r = await fn(url, finalOpts);
+      if (r instanceof Response) return _runResponsePhase(url, await _parseResponse(r, responseType));
+      finalOpts = r;
+    }
+    return backend(url, { ...finalOpts, signal });
+  }
 
   // 1. 缓存命中
   if (cache && method === 'GET') {

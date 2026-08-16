@@ -4,6 +4,7 @@ import {
   invalidateCache, clearCache,
   addInterceptor, removeInterceptor, _resetInterceptors,
   localStorageAdapter, setCacheAdapter, _resetCacheAdapter,
+  registerBackend, unregisterBackend,
 } from '../src/lib/fetch.js';
 
 // 全局 fetch mock
@@ -370,5 +371,60 @@ describe('fetchPage 持久化缓存（localStorageAdapter）', () => {
     _fetch.mockResolvedValue(mockResponse({ v: 1 }));
     await fetchPage('/api/p9', { cache: true, cacheTTL: 10000 });
     expect(localStorage.getItem('my-cache:/api/p9')).toContain('"v":1');
+  });
+});
+
+describe('registerBackend scheme 分发', () => {
+  afterEach(() => unregisterBackend('test'));
+
+  it('已注册 scheme 的 URL 全量转发给 adapter，不走原生 fetch', async () => {
+    const adapter = vi.fn().mockResolvedValue({ data: [1], total: 5 });
+    registerBackend('test', adapter);
+    const res = await fetchPage('test://items?page=2');
+    expect(adapter).toHaveBeenCalledOnce();
+    expect(adapter.mock.calls[0][0]).toBe('test://items?page=2');
+    expect(res).toEqual({ data: [1], total: 5 });
+    expect(_fetch).not.toHaveBeenCalled();
+  });
+
+  it('scheme 匹配大小写不敏感', async () => {
+    const adapter = vi.fn().mockResolvedValue({ data: [] });
+    registerBackend('test', adapter);
+    await fetchPage('TEST://items');
+    expect(adapter).toHaveBeenCalledOnce();
+  });
+
+  it('未注册的 scheme（http/https/相对路径）行为零变化：走原生 fetch', async () => {
+    _fetch.mockResolvedValueOnce(mockResponse({ ok: 1 }));
+    const data = await fetchPage('/api/normal');
+    expect(data).toEqual({ ok: 1 });
+    _fetch.mockResolvedValueOnce(mockResponse({ ok: 1 }));
+    const data2 = await fetchPage('https://example.com/x');
+    expect(data2).toEqual({ ok: 1 });
+  });
+
+  it('request 拦截器在 adapter 分发前执行（同原生契约：返回 opts）', async () => {
+    const adapter = vi.fn().mockResolvedValue({ data: [] });
+    registerBackend('test', adapter);
+    const fn = vi.fn((u, o) => ({ ...o, page: 9 }));
+    addInterceptor('request', fn);
+    await fetchPage('test://items?page=1');
+    expect(adapter.mock.calls[0][1].page).toBe(9);
+    removeInterceptor(fn);
+  });
+
+  it('unregisterBackend 后回落原生 fetch', async () => {
+    const adapter = vi.fn().mockResolvedValue({ data: [] });
+    registerBackend('test', adapter);
+    unregisterBackend('test');
+    _fetch.mockResolvedValue(mockResponse({ via: 'native' }));
+    const data = await fetchPage('test://items');
+    expect(data).toEqual({ via: 'native' });
+    expect(adapter).not.toHaveBeenCalled();
+  });
+
+  it('registerBackend 参数校验', () => {
+    expect(() => registerBackend('', vi.fn())).toThrow(TypeError);
+    expect(() => registerBackend('test', 'not-fn')).toThrow(TypeError);
   });
 });

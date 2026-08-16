@@ -1,0 +1,9 @@
+# AIFlow Starter —— Cursor 规则
+# 完整版见 .trae/rules.md
+
+- 只用 154 白名单 class + af-* 组件标签，禁止自定义 class
+- 禁止内联 style / Tailwind 语法 / 任意值语法
+- 数据请求只用 fetchPage + `supabase://表名?...`（返回 { data, total }）
+- 用户输入插值必须 escapeHtml；事件名 af-{组件}:{动作}
+- 推荐工作流：MCP get_prompt → 生成 → check_compliance → 修复循环
+- 技术栈：原生 Web Components + Supabase + Cloudflare Pages，零框架

@@ -5,9 +5,35 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 - **L1 Token**：43 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
 - **L2 配方 + 原子**：154 个白名单封闭集 class（102 配方 + 52 原子，`btn`/`card`/`p-4`/...）
 - **L3 真组件**：28 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
-- **L4 AI 约束层**：System Prompt 引导 + ESLint 15 规则兜底 + CI 保护
+- **L4 AI 约束层**：System Prompt 引导 + ESLint 20 规则兜底 + CI 保护
 
-## 安装
+## 快速开始（AI 对话式脚手架）
+
+> 面向小白：**一条命令生成可运行工程，然后用对话完成开发**，无需手工配置路由/打包器/ESLint。
+
+```bash
+npx aiflow create my-app
+cd my-app && npm install && npm run dev
+```
+
+生成工程自带 `aiflow-grill` skill（对话式脚手架）与消费端 ESLint 约束。打开任一 AI 编码工具（TRAE / Claude Code / Cursor 等），说一句"我想做一个习惯打卡应用"，skill 会引导你：**拷问需求 → 需求拆分 → demo 确认 → 一次性生成页面**。
+
+### CLI 用法
+
+```bash
+npx aiflow create <目录名>       # 生成新工程（脚手架 + skill 自举）
+npx aiflow skill add [目录]      # 已建项目补装 / 升级 skill（幂等，默认当前目录）
+```
+
+### 升级
+
+```bash
+npm update @af-mobile/ui && npx aiflow skill add   # 库升级 + skill 同步
+```
+
+> 工程依赖 npm 包版本（非内嵌源码），升级只换库版本，业务代码不动。
+
+## 安装（作为库依赖）
 
 ```bash
 npm install @af-mobile/ui
@@ -430,7 +456,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 | 1b | d.ts 与源码组件数同步（防类型声明漂移） | `npm run types:check` |
 | 2 | 体积预算（L1+L2 CSS ≤ 8.2KB / 全量 28 组件+基类 ≤ 23.7KB / 按需2组件 ≤ 5.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 1.5KB） | `npm run size` |
 | 3 | 单元测试（jsdom） | `npm test` |
-| 4 | ESLint 15 规则（10 error + 5 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
+| 4 | ESLint 20 规则（13 error + 7 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
 | 5 | 发布前检查（build + Tree Shaking + sideEffects + types-sync + npm pack） | `npm run publish:check` |
 | 6 | eval 集格式闸门（校验 prompts.jsonl 结构） | `npm run eval:dry` |
 

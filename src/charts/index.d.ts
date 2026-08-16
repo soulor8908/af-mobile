@@ -128,6 +128,58 @@ export class AfChartPie extends AfElement implements ChartCommonProps {
 }
 
 // ============================================================
+// af-chart-radar：雷达（多维能力画像，单/双主体对比）
+// ============================================================
+
+/** 雷达维度定义 */
+export interface RadarDatum {
+  /** 维度名（超长截断 4 字 + 省略号） */
+  label?: string;
+  /** 数值（series 存在时作为维度名/max 载体） */
+  value?: number;
+  /** 该维满分（缺省取全体最大值） */
+  max?: number;
+}
+
+export class AfChartRadar extends AfElement implements ChartCommonProps {
+  static useShadow: true;
+  static tag: 'af-chart-radar';
+  /** 维度定义 [{label,value,max?}]（3-8 维） */
+  data?: RadarDatum[];
+  /** 对比主体 [{name,values}]（>2 个仅渲染前 2 并 console.warn） */
+  series?: ChartSeries[];
+  /** polygon（多边形网格）| circle（同心圆网格） */
+  shape?: 'polygon' | 'circle';
+  height?: number;
+  legend?: boolean;
+  loading?: boolean;
+  error?: string;
+  lazy?: boolean;
+  addEventListener(type: 'af-chart-radar:select', listener: (e: CustomEvent<ChartSelectDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-chart-radar:retry', listener: (e: CustomEvent<ChartRetryDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
+// af-chart-funnel：漏斗（梯形堆叠 + 层间转化率标注）
+// ============================================================
+
+export class AfChartFunnel extends AfElement implements ChartCommonProps {
+  static useShadow: true;
+  static tag: 'af-chart-funnel';
+  /** 层数据 [{label,value}]（自动按 value 降序排，非正值过滤） */
+  data?: ChartDatum[];
+  /** 层间转化率标注（v[i]/v[i-1] 百分比） */
+  showRate?: boolean;
+  height?: number;
+  legend?: boolean;
+  loading?: boolean;
+  error?: string;
+  lazy?: boolean;
+  addEventListener(type: 'af-chart-funnel:select', listener: (e: CustomEvent<ChartSelectDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-chart-funnel:retry', listener: (e: CustomEvent<ChartRetryDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
 // 注册辅助（保持 Tree Shaking：推荐 registerChart 单个注册）
 // ============================================================
 
@@ -136,6 +188,8 @@ export const CHART_TAGS: {
   'af-chart-line': typeof AfChartLine;
   'af-chart-bar': typeof AfChartBar;
   'af-chart-pie': typeof AfChartPie;
+  'af-chart-radar': typeof AfChartRadar;
+  'af-chart-funnel': typeof AfChartFunnel;
 };
 
 /** 注册单个图表组件 */
@@ -149,7 +203,7 @@ export function registerCharts(): void;
 // ============================================================
 
 export { niceTicks, linear } from './lib/scale';
-export { linePath, areaPath, arcPath, polar, fmtNum } from './lib/geometry';
+export { linePath, areaPath, arcPath, polar, radarPath, funnelPath, fmtNum } from './lib/geometry';
 export { svgEl, bindResize, bindLazy } from './lib/render';
 export { CHART_COLORS, seriesColor, seriesOpacity, CHART_CSS } from './lib/chart-theme';
 export { createTooltip, nearestIndex } from './lib/tooltip';

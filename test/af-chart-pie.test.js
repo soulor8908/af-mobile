@@ -106,12 +106,14 @@ describe('af-chart-pie Shadow DOM', () => {
 });
 
 describe('charts 入口 registerChart', () => {
-  it('registerCharts 注册全部 3 个标签', async () => {
+  it('registerCharts 注册全部 5 个标签', async () => {
     const { registerCharts, CHART_TAGS } = await import('../src/charts/index.js');
     registerCharts();
     expect(customElements.get('af-chart-line')).toBeDefined();
     expect(customElements.get('af-chart-bar')).toBeDefined();
     expect(customElements.get('af-chart-pie')).toBeDefined();
-    expect(Object.keys(CHART_TAGS).length).toBe(3);
+    expect(customElements.get('af-chart-radar')).toBeDefined();
+    expect(customElements.get('af-chart-funnel')).toBeDefined();
+    expect(Object.keys(CHART_TAGS).length).toBe(5);
   });
 });

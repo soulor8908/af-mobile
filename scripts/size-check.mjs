@@ -306,7 +306,7 @@ async function main() {
     if (over) violations.push(`charts/${c.file} ${fmt(c.gz)} > ${BUDGET.chartsPerComponent}KB`);
   }
   const chartsTotalOver = chartsTotalGz > BUDGET.chartsTotal * KB;
-  console.log(`charts 全量（3 组件+内核）${fmt(chartsTotalGz).padStart(9)}  预算 ≤ ${BUDGET.chartsTotal}KB  ${chartsTotalOver ? '✗ 超限' : '✓'}`);
+  console.log(`charts 全量（${chartCompSizes.length} 组件+内核）${fmt(chartsTotalGz).padStart(9)}  预算 ≤ ${BUDGET.chartsTotal}KB  ${chartsTotalOver ? '✗ 超限' : '✓'}`);
   if (chartsTotalOver) violations.push(`charts 全量 ${fmt(chartsTotalGz)} > ${BUDGET.chartsTotal}KB`);
 
   // 汇总

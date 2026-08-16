@@ -104,7 +104,7 @@ export class AfChartLine extends AfChart {
   }
 
   // 指针交互：找最近数据点 → tooltip（移动）/ select（tap）
-  _onPoint(px, tap) {
+  _onPoint(px, py, tap) {
     if (this._isSpark() || !this._pxs?.length) return;
     const i = nearestIndex(this._pxs, px);
     const list = this._seriesList();

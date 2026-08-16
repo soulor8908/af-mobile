@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { niceTicks, linear } from '../src/charts/lib/scale.js';
-import { linePath, areaPath, arcPath, polar, fmtNum } from '../src/charts/lib/geometry.js';
+import { linePath, areaPath, arcPath, polar, radarPath, funnelPath, fmtNum } from '../src/charts/lib/geometry.js';
 
 describe('charts 内核 scale', () => {
   it('niceTicks 归整为好看刻度（0-103 → 步长 25）', () => {
@@ -78,6 +78,23 @@ describe('charts 内核 geometry', () => {
     const [x, y] = polar(50, 50, 10, 0);
     expect(x).toBeCloseTo(50);
     expect(y).toBeCloseTo(40);
+  });
+
+  it('radarPath 多边形闭合（0=12 点顺时针）', () => {
+    const angles = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
+    const d = radarPath(50, 50, 40, angles, [1, 0.5, 1, 0.5]);
+    expect(d.startsWith('M50,10')).toBe(true); // 首顶点：12 点方向满半径
+    expect(d.match(/L/g).length).toBe(3);
+    expect(d.endsWith('Z')).toBe(true);
+  });
+
+  it('radarPath 空角度返回空串', () => {
+    expect(radarPath(50, 50, 40, [], [])).toBe('');
+  });
+
+  it('funnelPath 居中梯形', () => {
+    const d = funnelPath(160, 10, 100, 50, 20);
+    expect(d).toBe('M110,10L210,10L185,30L135,30Z');
   });
 
   it('fmtNum 大数缩写', () => {

@@ -130,7 +130,7 @@ export class AfChartBar extends AfChart {
     this._tipList = list;
   }
 
-  _onPoint(px, tap) {
+  _onPoint(px, py, tap) {
     if (!this._pxs?.length) return;
     const i = nearestIndex(this._pxs, px);
     const rows = this._tipList.map(s => `${esc(s.name ? s.name + ' ' : '')}<b>${fmtNum(s.values?.[i] ?? 0)}</b>`).join(' / ');

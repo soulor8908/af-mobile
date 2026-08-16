@@ -73,5 +73,15 @@
     "role": "img",
     "ariaLabel": true,
     "description": "饼图 svg 需要 role=img 和 aria-label 摘要（全量数据由 sr-table 提供）"
+  },
+  "af-chart-radar": {
+    "role": "img",
+    "ariaLabel": true,
+    "description": "雷达图 svg 需要 role=img 和 aria-label 摘要（全量数据由 sr-table 提供）"
+  },
+  "af-chart-funnel": {
+    "role": "img",
+    "ariaLabel": true,
+    "description": "漏斗图 svg 需要 role=img 和 aria-label 摘要（全量数据由 sr-table 提供）"
   }
 }

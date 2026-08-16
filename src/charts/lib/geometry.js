@@ -59,6 +59,20 @@ export function polar(cx, cy, r, ang) {
   return [cx + r * Math.sin(ang), cy - r * Math.cos(ang)];
 }
 
+// 雷达多边形 path：angles 弧度数组（0=12 点顺时针），values 为 0-1 归一化数组（半径 = r × v）
+export function radarPath(cx, cy, r, angles, values) {
+  if (!angles.length) return '';
+  const pts = angles.map((a, i) => polar(cx, cy, r * (values[i] ?? 0), a));
+  const f = (n) => +n.toFixed(2);
+  return 'M' + pts.map(p => `${f(p[0])},${f(p[1])}`).join('L') + 'Z';
+}
+
+// 漏斗梯形 path：居中于 cx，顶宽 w0 → 底宽 w1，层高 h（零坐标系，纯宽度比例）
+export function funnelPath(cx, y, w0, w1, h) {
+  const f = (n) => +n.toFixed(2);
+  return `M${f(cx - w0 / 2)},${f(y)}L${f(cx + w0 / 2)},${f(y)}L${f(cx + w1 / 2)},${f(y + h)}L${f(cx - w1 / 2)},${f(y + h)}Z`;
+}
+
 // 数值格式化：轴刻度与 tooltip 共用（大数缩写，保留必要精度）
 export function fmtNum(v) {
   const a = Math.abs(v);

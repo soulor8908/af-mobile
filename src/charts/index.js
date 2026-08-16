@@ -4,11 +4,13 @@
 import { AfChartLine } from './components/af-chart-line.js';
 import { AfChartBar } from './components/af-chart-bar.js';
 import { AfChartPie } from './components/af-chart-pie.js';
+import { AfChartRadar } from './components/af-chart-radar.js';
+import { AfChartFunnel } from './components/af-chart-funnel.js';
 
-export { AfChartLine, AfChartBar, AfChartPie };
-// 内核（高级用法 / Phase 2 radar、funnel 复用）
+export { AfChartLine, AfChartBar, AfChartPie, AfChartRadar, AfChartFunnel };
+// 内核（高级用法 / 自定义图表复用）
 export { niceTicks, linear } from './lib/scale.js';
-export { linePath, areaPath, arcPath, polar, fmtNum } from './lib/geometry.js';
+export { linePath, areaPath, arcPath, polar, radarPath, funnelPath, fmtNum } from './lib/geometry.js';
 export { svgEl, bindResize, bindLazy } from './lib/render.js';
 export { CHART_COLORS, seriesColor, seriesOpacity, CHART_CSS } from './lib/chart-theme.js';
 export { createTooltip, nearestIndex } from './lib/tooltip.js';
@@ -19,6 +21,8 @@ export const CHART_TAGS = {
   'af-chart-line': AfChartLine,
   'af-chart-bar': AfChartBar,
   'af-chart-pie': AfChartPie,
+  'af-chart-radar': AfChartRadar,
+  'af-chart-funnel': AfChartFunnel,
 };
 
 // 注册单个图表组件（保持 Tree Shaking；幂等，重复调用安全）
@@ -28,7 +32,7 @@ export function registerChart(tag) {
   if (!customElements.get(tag)) customElements.define(tag, C);
 }
 
-// 注册全部图表组件（失去 Tree Shaking，全量 3 个）
+// 注册全部图表组件（失去 Tree Shaking，全量 5 个）
 export function registerCharts() {
   for (const tag of Object.keys(CHART_TAGS)) registerChart(tag);
 }

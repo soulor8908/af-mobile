@@ -61,7 +61,7 @@
                             ↓（纯 HTTPS，零私有协议）
 ┌─ 基础设施（生态标准答案，非本项目资产）────────────────────────┐
 │  Supabase（Postgres + PostgREST + Auth + RLS）                │
-│  Vercel / Netlify（静态托管 + History fallback 已配）          │
+│  Vercel / Cloudflare Pages / Netlify（静态托管，fallback 已配）│
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -71,7 +71,7 @@
 |---|---|---|
 | 应用层 | 用户 | 永不失效（业务代码） |
 | 契约适配层 | 本项目 | 换 BaaS 时换 adapter，UI 不动 |
-| 基础设施 | 生态 | 可替换（Firebase/POCKETBASE 同构接入） |
+| 基础设施 | 生态 | 可替换（Firebase/POCKETBASE/D1 同构接入） |
 
 ### 1.1 三条命令的落地路径
 
@@ -83,11 +83,31 @@ npm create aiflow-app@latest my-app && cd my-app
 cp .env.example .env   # 填 VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
 npm run db:push        # 执行 supabase/schema.sql（建表 + 默认开启 RLS）
 
-# ③ 上线
-npx vercel --prod
+# ③ 上线（三选一，同一份产物 dist/）
+npx vercel --prod                          # Vercel
+npx wrangler pages deploy dist             # Cloudflare Pages
+# 或 Git 集成：Pages/Vercel 控制台连仓库，push 即部署
 ```
 
-「落地」从认知负担变成复制粘贴。Starter 自带 History 路由的 `vercel.json` rewrite（见 README「路由与部署」），部署配置不再是用户的第 101 个坑。
+「落地」从认知负担变成复制粘贴。Starter 同时附带三套平台配置（`vercel.json` + `_redirects`/`_headers`，见 §4.1），部署配置不再是用户的第 101 个坑。
+
+### 1.2 Cloudflare Pages 适配（与其他平台同权支持）
+
+架构与 Vercel 版零差异（静态产物 + Supabase 后端），仅交付物不同：
+
+| 项 | Vercel | Cloudflare Pages |
+|---|---|---|
+| SPA fallback | `vercel.json` rewrites | `public/_redirects`：`/*  /index.html  200`（Pages 另有"无 404.html 即自动兜底"的隐式行为，显式写更稳） |
+| CSP 头 | vercel.json headers | `public/_headers`（`connect-src 'self' https://*.supabase.co`） |
+| 环境变量 | dashboard / CLI | Pages → Settings → Environment variables（本地构建读 `.env`，Git 集成构建读 Pages 变量） |
+| 部署命令 | `npx vercel --prod` | `npx wrangler pages deploy dist` |
+
+两个易漏点（写入 Starter README 醒目位置）：
+
+1. **Supabase Auth 回调域名**：`https://<project>.pages.dev` 及自定义域名必须加入 Supabase → Auth → URL Configuration 的 redirect 列表（所有平台通用，Cloudflare 换域名后要重加）；
+2. **产物根勿放 `404.html`**：会关闭 Pages 的 SPA 自动兜底，子路由刷新变真 404。
+
+未来红利：后端若也选 Cloudflare，scheme 注册机制（§2.3）可直接扩展 `d1://` / `r2://` adapter，主包零改动。
 
 ---
 
@@ -197,7 +217,10 @@ export function registerBackend(scheme, adapter) {
 aiflow-starter/
 ├─ .env.example              # SUPABASE_URL / SUPABASE_ANON_KEY（gitignore 真身）
 ├─ .gitignore                # 预置 .env / .aiflow/ / node_modules
-├─ vercel.json               # History fallback rewrite（已含，见 README 部署章节）
+├─ vercel.json               # Vercel：History fallback rewrite + headers
+├─ public/
+│  ├─ _redirects             # Cloudflare Pages / Netlify：/* → /index.html 200
+│  └─ _headers               # Cloudflare Pages：CSP（connect-src 限 Supabase 域）
 ├─ index.html
 ├─ vite.config.js            # 零配置（Vite 仅作打包器，非框架）
 ├─ supabase/
@@ -270,7 +293,7 @@ addInterceptor('request', (url, opts) => {
 |---|---|---|
 | M1 | `registerBackend` scheme 路由进主包（§2.3） | coreRuntime ≤ 5.4KB；983+ 测试全绿；`fetchPage` 无 scheme 时行为零变化 |
 | M2 | `@af-mobile/adapters` + supabase adapter（§3） | `supabase://` 端到端：af-list 分页 + loadmore 判停 + total 解析 |
-| M3 | Starter 三页模板 + 三条命令（§4） | **新人实测：从 `npm create` 到 vercel URL 可访问 ≤ 10 分钟**；RLS 默认开启 |
+| M3 | Starter 三页模板 + 三条命令（§4） | **新人实测：从 `npm create` 到部署 URL 可访问 ≤ 10 分钟（Vercel 与 Cloudflare Pages 各跑一次）**；RLS 默认开启 |
 | M4 | benchmark 挂钩 | Starter 三页任务纳入首过率基准集（北极星指标的数据来源） |
 
 M3 的「10 分钟」是本方案对「落地」的**操作性定义**——不能三条命令跑通的模板不算完成。
@@ -283,7 +306,8 @@ M3 的「10 分钟」是本方案对「落地」的**操作性定义**——不�
 |---|---|
 | Supabase API 变更（PostgREST 语法演进） | adapter 独立包可热修；契约面（§2.2）不动，UI 层零感知 |
 | 用户绕过契约直接 fetch | ESLint 可加 `no-raw-fetch` 自定义规则（后续飞轮数据验证必要性后再做，避免过度约束） |
-| Starter 模板腐烂（依赖过时） | 模板 CI：每周定时 `npm create` → 构建 → e2e 三页冒烟 |
+| Starter 模板腐烂（依赖过时） | 模板 CI：每周定时 `npm create` → 构建 → e2e 三页冒烟（Vercel/Cloudflare 双平台轮换） |
+| 平台行为差异（如 Pages 的 404.html 隐式兜底） | §1.2 适配表显式化差异点；双平台冒烟纳入模板 CI |
 | 「三条命令」在某平台断裂（Windows/企业代理） | 文档提供降级路径（GitHub 模板 Use this template + 手动部署） |
 | 被误解为全栈框架 | README 首节放边界声明（§0.3 红线原样公开） |
 

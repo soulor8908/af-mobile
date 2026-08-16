@@ -320,6 +320,13 @@ app.get('*', (req, res) => res.sendFile(path.resolve('public/index.html')));
 try_files {path} /index.html
 ```
 
+```
+# Cloudflare Pages / Netlify — public/_redirects 文件（放产物根目录）
+/*  /index.html  200
+```
+
+Cloudflare Pages 注意：构建产物根目录**不要放 `404.html`**，否则会关闭 SPA 自动兜底，子路由刷新变真 404。
+
 注意事项：
 
 - **静态资源不能被吞**：以上配置均先尝试真实文件（`try_files $uri` / Express `express.static` 前置），确保 `/assets/*.js`、CSS 返回文件本体而非 HTML，否则页面白屏且控制台报「MIME type 不匹配」。

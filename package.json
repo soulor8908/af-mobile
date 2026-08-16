@@ -29,6 +29,9 @@
   "unpkg": "./dist/aiflow-ui.umd.js",
   "jsdelivr": "./dist/aiflow-ui.umd.js",
   "browser": "./dist/aiflow-ui.umd.js",
+  "bin": {
+    "aiflow": "./scripts/aiflow.mjs"
+  },
   "sideEffects": [
     "**/*.css"
   ],
@@ -36,7 +39,9 @@
     "src",
     "dist",
     "skills",
-    "scripts/skill-add.mjs"
+    "scripts/skill-add.mjs",
+    "scripts/create-app.mjs",
+    "scripts/aiflow.mjs"
   ],
   "scripts": {
     "test": "vitest run",
@@ -61,6 +66,7 @@
     "lint:flywheel": "node scripts/lint-flywheel.mjs",
     "generate": "node scripts/generate.mjs",
     "skill:add": "node scripts/skill-add.mjs",
+    "create": "node scripts/create-app.mjs",
     "mcp": "node mcp/index.mjs",
     "eval": "node eval/run.mjs",
     "eval:dry": "node eval/run.mjs --dry-run",

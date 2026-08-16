@@ -48,6 +48,9 @@ export const messages = {
     'sg.ld': '加载中…',
     'sg.er': '加载失败',
     'sg.rt': '重试',
+    'ch.em': '暂无数据',
+    'ch.rt': '重试',
+    'ch.otr': '其他',
   },
   'en-US': {
     'bt.al': 'Back to top',
@@ -88,6 +91,9 @@ export const messages = {
     'sg.ld': 'Loading...',
     'sg.er': 'Load failed',
     'sg.rt': 'Retry',
+    'ch.em': 'No data',
+    'ch.rt': 'Retry',
+    'ch.otr': 'Others',
   },
 };
 

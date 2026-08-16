@@ -23,7 +23,8 @@ export default {
   },
   create(context) {
     const filename = context.filename || context.getFilename();
-    if (!/src[\\/](components|blocks)[\\/].*\.js$/.test(filename)) return {};
+    // 覆盖 src/components、src/blocks 与 charts 子库 src/charts/components
+    if (!/src[\\/](?:charts[\\/])?(?:components|blocks)[\\/].*\.js$/.test(filename)) return {};
 
     const sourceCode = context.sourceCode || context.getSourceCode();
     const leaks = []; // { node, name, cleanup }

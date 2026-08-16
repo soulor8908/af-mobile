@@ -76,6 +76,10 @@ const BUDGET = {
   total: 20.0,         // KB，28 组件 + 基类（测量泄漏修复 + 紧凑化后实测 19.982KB，20KB 红线）
   onDemand2: 6.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 6.8,    // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind）
+  // charts 子库（charts-sublibrary-detailed-design.md §7）：独立入口 ./charts，不计入 total
+  chartsRuntime: 4.5,  // KB，charts 内核（scale+geometry+render+chart-theme+tooltip+chart-base，Phase 2 radar/funnel 复用）
+  chartsPerComponent: 2.8, // KB，单图表组件（同主库 perComponent 语义）
+  chartsTotal: 15.0,   // KB，charts 全量（Phase 1 预估 ~11KB，预留 Phase 2 radar+funnel ~2.5KB + 容差）
 };
 
 const KB = 1024;
@@ -150,6 +154,32 @@ async function onDemand2Gz(compA, compB) {
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
 
+// charts 内核：scale+geometry+render+chart-theme+tooltip+chart-base 合计 gzip
+// （external 掉主库基类/with-i18n/i18n，与 coreRuntime 同法防 tree-shake）
+async function measureChartsRuntime() {
+  const dir = mkdtempSync(join(tmpdir(), 'aiflow-charts-'));
+  const entry = join(dir, 'entry.js');
+  const toPosix = (p) => p.replace(/\\/g, '/');
+  const lib = (f) => toPosix(join(SRC, 'charts/lib', f));
+  writeFileSync(entry,
+    `import { niceTicks, linear } from '${lib('scale.js')}';\n` +
+    `import { linePath, areaPath, arcPath, polar, fmtNum } from '${lib('geometry.js')}';\n` +
+    `import { svgEl, bindResize, bindLazy } from '${lib('render.js')}';\n` +
+    `import { CHART_COLORS, seriesColor, seriesOpacity, CHART_CSS } from '${lib('chart-theme.js')}';\n` +
+    `import { createTooltip, nearestIndex } from '${lib('tooltip.js')}';\n` +
+    `import { AfChart } from '${lib('chart-base.js')}';\n` +
+    `// 引用以防 tree-shake 摇除\n` +
+    `globalThis.__aiflow_charts = [niceTicks, linear, linePath, areaPath, arcPath, polar, fmtNum, svgEl, bindResize, bindLazy, CHART_COLORS, seriesColor, seriesOpacity, CHART_CSS, createTooltip, nearestIndex, AfChart];\n`
+  );
+  const res = await build({
+    entryPoints: [entry],
+    bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+    absWorkingDir: ROOT,
+    external: ['../../lib/af-element.js', '../../lib/with-i18n.js', '../../lib/i18n.js'],
+  });
+  return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
+}
+
 // 核心运行时：router + state + fetch + i18n 合计 gzip（独立预算，不计入 total）
 // 注意：package.json 的 sideEffects 只列了 "**/*.css"，src/lib/*.js 被视为无副作用，
 // bare import 会被 esbuild tree-shake 摇除。因此用具名导入 + globalThis 引用强制保留代码
@@ -215,6 +245,26 @@ async function main() {
   // 5. 核心运行时（router + state + fetch）
   const coreGz = await measureCoreRuntime();
 
+  // 6. charts 子库（独立入口，不计入主库 total）
+  //    内核 external 掉主库基类/i18n（属主库与 coreRuntime）；组件 external 掉基类 + charts 内核
+  const chartsExternal = ['../../lib/af-element.js', '../../lib/with-i18n.js', '../../lib/i18n.js',
+    '../lib/chart-base.js', '../lib/scale.js', '../lib/geometry.js', '../lib/render.js',
+    '../lib/chart-theme.js', '../lib/tooltip.js'];
+  const chartsComps = readdirSync(join(SRC, 'charts/components')).filter(f => f.endsWith('.js')).sort();
+  const chartCompSizes = [];
+  for (const f of chartsComps) {
+    const { gz } = await minifyGz(join(SRC, 'charts/components', f), chartsExternal);
+    chartCompSizes.push({ file: f, gz });
+  }
+  const chartsRuntimeGz = await measureChartsRuntime();
+  const chartsTotalRes = await build({
+    entryPoints: [join(SRC, 'charts/index.js')],
+    bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+    absWorkingDir: ROOT,
+    external: ['../lib/af-element.js', '../lib/with-i18n.js', '../lib/i18n.js'],
+  });
+  const chartsTotalGz = gzipSync(Buffer.from(chartsTotalRes.outputFiles[0].text)).length;
+
   // === 报告 ===
   console.log('\n╔══════════════════════════════════════════════════════════╗');
   console.log('║          AIFlow UI —— 体积预算验证                      ║');
@@ -257,6 +307,20 @@ async function main() {
   const coreOver = coreGz > BUDGET.coreRuntime * KB;
   console.log(`核心运行时（state+fetch+router+i18n+page+bind） ${fmt(coreGz).padStart(4)}  预算 ≤ ${BUDGET.coreRuntime}KB  ${coreOver ? '✗ 超限' : '✓'}`);
   if (coreOver) violations.push(`核心运行时 ${fmt(coreGz)} > ${BUDGET.coreRuntime}KB`);
+
+  // charts 子库（独立入口 ./charts，不计入主库 total）
+  console.log('\n── charts 子库（@af-mobile/ui/charts，独立预算）──');
+  const chartsRuntimeOver = chartsRuntimeGz > BUDGET.chartsRuntime * KB;
+  console.log(`charts 内核（6 模块）   ${fmt(chartsRuntimeGz).padStart(10)}  预算 ≤ ${BUDGET.chartsRuntime}KB  ${chartsRuntimeOver ? '✗ 超限' : '✓'}`);
+  if (chartsRuntimeOver) violations.push(`charts 内核 ${fmt(chartsRuntimeGz)} > ${BUDGET.chartsRuntime}KB`);
+  for (const c of chartCompSizes) {
+    const over = c.gz > BUDGET.chartsPerComponent * KB;
+    console.log(`  ${c.file.padEnd(22)} ${fmt(c.gz).padStart(9)}  预算 ≤ ${BUDGET.chartsPerComponent}KB  ${over ? '✗ 超限' : '✓'}`);
+    if (over) violations.push(`charts/${c.file} ${fmt(c.gz)} > ${BUDGET.chartsPerComponent}KB`);
+  }
+  const chartsTotalOver = chartsTotalGz > BUDGET.chartsTotal * KB;
+  console.log(`charts 全量（${chartCompSizes.length} 组件+内核）${fmt(chartsTotalGz).padStart(9)}  预算 ≤ ${BUDGET.chartsTotal}KB  ${chartsTotalOver ? '✗ 超限' : '✓'}`);
+  if (chartsTotalOver) violations.push(`charts 全量 ${fmt(chartsTotalGz)} > ${BUDGET.chartsTotal}KB`);
 
   // 汇总
   console.log('\n──────────────────────────────────────────────────────────');

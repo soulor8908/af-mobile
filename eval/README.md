@@ -13,7 +13,7 @@
 ## 数据流
 
 ```
-eval/prompts.jsonl          需求库（62 条，含 expects + 可选 asserts）
+eval/prompts.jsonl          需求库（65 条，含 expects + 可选 asserts；starter 类为带后端契约的落地任务）
       │  run.mjs 生成（需 LLM key）
       ▼
 eval/results/<id>-k0.html   生成页面

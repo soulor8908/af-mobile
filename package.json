@@ -34,7 +34,9 @@
   ],
   "files": [
     "src",
-    "dist"
+    "dist",
+    "skills",
+    "scripts/skill-add.mjs"
   ],
   "scripts": {
     "test": "vitest run",
@@ -58,6 +60,7 @@
     "ai-fix": "node scripts/ai-fix.mjs",
     "lint:flywheel": "node scripts/lint-flywheel.mjs",
     "generate": "node scripts/generate.mjs",
+    "skill:add": "node scripts/skill-add.mjs",
     "mcp": "node mcp/index.mjs",
     "eval": "node eval/run.mjs",
     "eval:dry": "node eval/run.mjs --dry-run",

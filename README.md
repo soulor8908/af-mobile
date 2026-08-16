@@ -279,6 +279,10 @@ function App() {
 
 > 曾有的 `@af-mobile/vue` / `@af-mobile/react` 适配器包已移除：它们从未发布、无外部消费者，且 React 19 / Vue 3 已原生支持 Web Components，薄包装失去价值。
 
+## 从 Vant 迁移
+
+vant 约 70 个组件中，**28 个与 af-\* 一对一同名对应**（ActionSheet→`af-action-sheet`、Swipe→`af-swiper`、Toast→`af-toast` 等），Button/Cell/Tag/Checkbox 等纯样式组件由 154 白名单 class 配方覆盖，Popover/Overlay/Collapse 走原生能力。主要范式差异：`v-model` → property + `af-*:change` 事件；`showDialog()/showToast()` → 元素 `.open()/.show()` 方法；`--van-*` → token 覆盖。真实缺口 ~12 个（Slider/Collapse/ImagePreview 等）均有配方或原生逃生舱。完整映射表与逐页迁移 playbook 见 [Vant 迁移对比设计](docs/design/vant-migration-design.md)（该文档可直接投喂 AI；MCP `get_prompt` 对含 vant 关键词的需求自动注入映射 few-shot）。
+
 ## 注册方式
 
 ```js
@@ -521,6 +525,7 @@ npm run prompt:build
 
 - [P0 生产刚需设计](docs/design/p0-production-essentials-design.md)（路由 / 状态 / 异步 / Prompt 4 要素）
 - [v2.0 迁移指南](docs/migration-guide.md)（definePage → createPage / RouterError / scrollBehavior）
+- [Vant 迁移对比设计](docs/design/vant-migration-design.md)（能力映射 / API 范式对照 / 缺口逃生舱 / AI 投喂方式）
 
 **AI 工程与生态**
 

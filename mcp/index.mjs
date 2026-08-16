@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { recordRun, detectTool } from '../eval/telemetry.mjs';
 import { resolveAsset } from '../scripts/resolve-asset.mjs';
+import aiflow, { loadProjectClasses, extractAllClassLists } from '@af-mobile/eslint-plugin';
 
 const PKG_DIR = dirname(fileURLToPath(import.meta.url));
 const TMP_DIR = join(tmpdir(), 'aiflow-mcp');
@@ -83,7 +84,7 @@ const TOOLS = [
   },
   {
     name: 'flywheel_report',
-    description: '数据飞轮分析报告：Top 违规规则（按来源/工具分解）、白名单候选、RULE_HINTS 缺口、收敛度。帮你了解常见错误模式，一次写对。不调用 LLM。',
+    description: '数据飞轮分析报告：Top 违规规则（按来源/工具分解）、白名单候选、项目扩展使用（whitelist-v2 候选）、RULE_HINTS 缺口、收敛度。帮你了解常见错误模式，一次写对。不调用 LLM。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -96,14 +97,41 @@ const TOOLS = [
 
 // ===== 工具实现（导出供测试直接调用）=====
 
-// 遥测：MCP 每次检查都记录（含干净运行——收敛度数据）
-function recordMcpRun(file, passed, messages) {
+// 项目级扩展感知（project-extension 设计 §3.3）：探测 cwd 下 recipes.project.css 约定文件
+export function detectProjectRecipes(cwd = process.cwd()) {
+  const p = join(cwd, 'recipes.project.css');
+  return existsSync(p) ? p : null;
+}
+
+// 约定文件存在且有登记 class → { classes, rules 覆写, usedIn(code) 实际使用集 }；否则 null
+function projectExtensionContext(cwd = process.cwd()) {
+  const cssPath = detectProjectRecipes(cwd);
+  if (!cssPath) return null;
+  const classes = loadProjectClasses(cssPath);
+  if (classes.length === 0) return null;
+  const { 'aiflow/token-whitelist': tw } = aiflow.withProjectRules(cssPath);
+  return {
+    classes,
+    rules: { 'aiflow/token-whitelist': tw },
+    usedIn(code) {
+      const used = new Set();
+      for (const { classes: cs } of extractAllClassLists(String(code || ''))) {
+        for (const c of cs) if (classes.includes(c)) used.add(c);
+      }
+      return [...used];
+    },
+  };
+}
+
+// 遥测：MCP 每次检查都记录（含干净运行——收敛度数据 + 项目扩展使用——结晶回路，设计 §5.2）
+function recordMcpRun(file, passed, messages, usedClasses = []) {
   recordRun({
     source: 'mcp',
     tool: detectTool(),
     file,
     passed,
     violations: messages.map(m => ({ rule: m.rule, severity: m.severity, line: m.line, message: m.message })),
+    extensions: usedClasses.length ? { classes: usedClasses } : undefined,
   });
 }
 
@@ -116,20 +144,21 @@ export async function getPrompt({ prompt, promptMode = 'tailored' }) {
     return { promptMode, systemPrompt };
   }
   const { buildPrompt } = await import('../scripts/build-prompt.mjs');
-  return { promptMode, systemPrompt: buildPrompt({ userPrompt: prompt }) };
+  return { promptMode, systemPrompt: buildPrompt({ userPrompt: prompt, projectRecipes: detectProjectRecipes() }) };
 }
 
 export async function checkCompliance({ code, filename = 'snippet.html' }) {
   const { extractCode, runEslint } = await import('../scripts/ai-fix.mjs');
+  const ext = projectExtensionContext();
   const tmpPath = join(TMP_DIR, filename);
   mkdirSync(TMP_DIR, { recursive: true });
   writeFileSync(tmpPath, code);
   const { js } = extractCode(tmpPath);
   rmSync(TMP_DIR, { recursive: true, force: true });
-  const { messages } = await runEslint(js, ESLINT_OPTS);
+  const { messages } = await runEslint(js, ext ? { ...ESLINT_OPTS, rules: ext.rules } : ESLINT_OPTS);
   const errors = messages.filter(m => m.severity === 'error');
   const warnings = messages.filter(m => m.severity === 'warn');
-  recordMcpRun(filename, errors.length === 0, [...errors, ...warnings]);
+  recordMcpRun(filename, errors.length === 0, [...errors, ...warnings], ext?.usedIn(code));
   return {
     passed: errors.length === 0,
     errorCount: errors.length,
@@ -141,16 +170,18 @@ export async function checkCompliance({ code, filename = 'snippet.html' }) {
 
 export async function fixCode({ code, filename = 'snippet.html' }) {
   const { runAiFixLoop } = await import('../scripts/ai-fix.mjs');
+  const ext = projectExtensionContext();
   mkdirSync(TMP_DIR, { recursive: true });
   const tmpPath = join(TMP_DIR, filename);
   writeFileSync(tmpPath, code);
-  const result = await runAiFixLoop(tmpPath, null, null, ESLINT_OPTS);
+  const eslintOpts = ext ? { ...ESLINT_OPTS, rules: ext.rules } : ESLINT_OPTS;
+  const result = await runAiFixLoop(tmpPath, null, null, eslintOpts);
   rmSync(TMP_DIR, { recursive: true, force: true });
   if (result.ok) {
-    recordMcpRun(filename, true, []);
+    recordMcpRun(filename, true, [], ext?.usedIn(code));
     return { passed: true, rounds: result.rounds, message: 'ESLint 通过' };
   }
-  recordMcpRun(filename, false, result.lastErrors || []);
+  recordMcpRun(filename, false, result.lastErrors || [], ext?.usedIn(code));
   // 手动模式：返回修正 prompt 供调用方（AI Agent，用自己的模型）自行修正
   return {
     passed: false,
@@ -163,8 +194,9 @@ export async function fixCode({ code, filename = 'snippet.html' }) {
 
 export async function generatePage({ prompt, promptMode = 'tailored' }) {
   const { generate } = await import('../scripts/generate.mjs');
+  const ext = projectExtensionContext();
   const outputPath = join(TMP_DIR, `gen-${Date.now()}.html`);
-  const result = await generate(prompt, { outputPath, promptMode, eslintOpts: ESLINT_OPTS });
+  const result = await generate(prompt, { outputPath, promptMode, eslintOpts: ext ? { ...ESLINT_OPTS, rules: ext.rules } : ESLINT_OPTS });
   if (result.ok) return { passed: true, code: result.code, rounds: result.rounds };
   // 手动模式：返回 system prompt 供调用方自行生成（推荐改用 get_prompt）
   if (result.exitCode === 2) return { passed: false, mode: 'manual', systemPrompt: result.systemPrompt, userPrompt: result.userPrompt };
@@ -186,6 +218,7 @@ export async function flywheelReport({ since, topN = 10 } = {}) {
       classes: a.whitelistCandidates.classes.slice(0, topN),
       components: a.whitelistCandidates.components.slice(0, topN),
     },
+    projectExtensions: (a.projectExtensions || []).slice(0, topN),
     arbitraryValues: a.arbitraryValues.slice(0, topN),
     hintsGap: a.hintsGap,
     convergence: a.convergence,

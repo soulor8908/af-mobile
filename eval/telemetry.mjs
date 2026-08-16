@@ -48,7 +48,9 @@ export function sanitizeMessage(rule, message) {
 
 // 记录一次 lint 运行（违规或干净均可；violations 空数组 + passed=true 表示干净运行）
 // violations: [{ rule, severity, line, message }]
-export function recordRun({ source, tool, file, passed, violations }) {
+// extensions: { classes: [...] } 本次运行实际使用的项目扩展 class（结晶回路信号，project-extension 设计 §5.1；
+//   仅 class 标识符，不含 CSS 声明——隐私红线同 sanitizeMessage）
+export function recordRun({ source, tool, file, passed, violations, extensions }) {
   const event = {
     v: 1,
     ts: new Date().toISOString(),
@@ -63,6 +65,8 @@ export function recordRun({ source, tool, file, passed, violations }) {
       message: sanitizeMessage(v.rule, v.message || ''),
     })),
   };
+  const extClasses = [...new Set((extensions?.classes || []).filter(c => typeof c === 'string'))];
+  if (extClasses.length) event.extensions = { classes: extClasses };
   const dir = telemetryDir();
   mkdirSync(dir, { recursive: true });
   appendFileSync(telemetryPath(), JSON.stringify(event) + '\n');

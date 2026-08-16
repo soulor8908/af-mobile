@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   legacyRawToEvents, parseSince, analyze, renderReport, generatePrDraft,
-  mineWhitelistCandidates, mineArbitraryValues,
+  mineWhitelistCandidates, mineArbitraryValues, mineProjectExtensions,
 } from '../eval/flywheel.mjs';
 
 // 构造测试事件（消息文本为纯 prose，不含属性字面量）
@@ -66,6 +66,23 @@ describe('flywheel / 挖掘器', () => {
     const r = mineArbitraryValues(events);
     expect(r).toHaveLength(2);
     expect(r.find(x => x.name === 'p-13').count).toBe(1);
+  });
+
+  it('项目扩展挖掘：聚合使用次数 + 去重文件数，按次数降序', () => {
+    const mk = (classes, file) => ({
+      v: 1, ts: new Date().toISOString(), source: 'mcp', tool: 'trae-code',
+      file, passed: true, violations: [], extensions: { classes },
+    });
+    const r = mineProjectExtensions([
+      mk(['avatar-lg', 'filter-bar'], 'a.html'),
+      mk(['avatar-lg'], 'b.html'),
+      mk(['avatar-lg'], 'a.html'), // 同文件多次 → files 仍 2
+      { v: 1, ts: new Date().toISOString(), source: 'mcp', tool: 'x', file: 'c.html', passed: true, violations: [] }, // 无 extensions
+    ]);
+    expect(r).toEqual([
+      { name: 'avatar-lg', count: 3, files: 2 },
+      { name: 'filter-bar', count: 1, files: 1 },
+    ]);
   });
 });
 
@@ -152,6 +169,20 @@ describe('flywheel / renderReport', () => {
       expect(md).toContain('card-wrap');
       expect(md).toContain('收敛度');
     });
+  });
+
+  it('含项目扩展使用时输出 whitelist-v2 候选章节', async () => {
+    const events = [{
+      v: 1, ts: new Date().toISOString(), source: 'mcp', tool: 'trae-code',
+      file: 'p.html', passed: true, violations: [],
+      extensions: { classes: ['avatar-lg', 'avatar-lg', 'filter-bar'] },
+    }];
+    const a = await analyze(events);
+    expect(a.projectExtensions[0]).toEqual({ name: 'avatar-lg', count: 2, files: 1 });
+    const md = renderReport(a);
+    expect(md).toContain('项目扩展 Top');
+    expect(md).toContain('.avatar-lg');
+    expect(md).toContain('whitelist-v2');
   });
 });
 

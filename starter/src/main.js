@@ -1,6 +1,7 @@
 // 应用入口：注册组件 → 声明路由 → 守卫 → 启动
 import './backend.js';                       // 副作用装配 supabase:// scheme（设计 §4.3）
 import './styles.css';
+import '../recipes.project.css';             // 项目级扩展配方（约定块 class 自动过 lint 白名单）
 import { registerAll, route, start, beforeEach, go } from '@af-mobile/ui';
 import { supabase } from './backend.js';
 import loginPage from './pages/login.js';

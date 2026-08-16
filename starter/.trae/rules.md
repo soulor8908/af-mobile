@@ -10,6 +10,10 @@
 4. **数据请求只用 `fetchPage`**，后端地址写 `supabase://表名?...`，返回 `{ data, total }`
 5. **用户输入插值必须 `escapeHtml`（esc）**，事件名 `af-{组件}:{动作}`
 
+白名单不够用时按阶梯升级：优先现有 class 组合 + `data-*` + 原生元素 →
+仍不够则在 `recipes.project.css` 约定块（`/* === N. 用途 === */`）登记新 class——
+lint 与 AI prompt 自动识别，无需改配置（详见库 README「项目级扩展」）。
+
 ## 推荐工作流（数据飞轮 v2）
 
 ```

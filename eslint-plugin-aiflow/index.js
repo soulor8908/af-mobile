@@ -21,6 +21,7 @@ import wcBlockNoInternalRef from './rules/wc-block-no-internal-ref.js';
 import wcBlockPropsCount from './rules/wc-block-props-count.js';
 import wcBlockStates from './rules/wc-block-states.js';
 import wcBlockVariantEnum from './rules/wc-block-variant-enum.js';
+import { loadProjectClasses, extractAllClassLists } from './utils/helpers.js';
 
 const plugin = {
   meta: { name: 'eslint-plugin-aiflow', version: '2.0.0' },
@@ -91,5 +92,23 @@ Object.assign(plugin.configs, {
     },
   },
 });
+
+// 项目级扩展接线（project-extension 设计 §3.3）：
+// 读取 recipes.project.css 约定块 class → 并入 token-whitelist extraClass，
+// 消费端一行接入：rules: aiflow.withProjectRules('recipes.project.css')
+function withProjectRules(cssPath, baseRules) {
+  const base = baseRules || plugin.configs.recommended.rules;
+  const tw = base['aiflow/token-whitelist'];
+  const baseOpts = Array.isArray(tw) ? (tw[1] || {}) : {};
+  const extraClass = [...(baseOpts.extraClass || []), ...loadProjectClasses(cssPath)];
+  return {
+    ...base,
+    'aiflow/token-whitelist': ['error', { ...baseOpts, extraClass }],
+  };
+}
+plugin.withProjectRules = withProjectRules;
+
+export { withProjectRules };
+export { loadProjectClasses, projectClassesFromCss, extractAllClassLists } from './utils/helpers.js';
 
 export default plugin;

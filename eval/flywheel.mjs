@@ -170,6 +170,22 @@ export function mineArbitraryValues(events) {
   return Object.entries(vals).sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }));
 }
 
+// 项目扩展使用挖掘（project-extension 设计 §5.3）：聚合 events[].extensions.classes
+// → [{ name, count, files }]（按使用次数降序），供 whitelist-v2 晋升评估
+export function mineProjectExtensions(events) {
+  const agg = {};
+  for (const ev of events) {
+    for (const c of ev.extensions?.classes || []) {
+      const a = agg[c] = agg[c] || { name: c, count: 0, files: new Set() };
+      a.count++;
+      if (ev.file) a.files.add(ev.file);
+    }
+  }
+  return Object.values(agg)
+    .map(a => ({ name: a.name, count: a.count, files: a.files.size }))
+    .sort((a, b) => b.count - a.count);
+}
+
 // ===== 分析主入口 =====
 // 输出：{ total, perRule, whitelistCandidates, arbitraryValues, hintsGap, fixableCoverage, convergence }
 export async function analyze(events, opts = {}) {
@@ -219,6 +235,7 @@ export async function analyze(events, opts = {}) {
     total: filtered.length,
     perRule: perRuleList,
     whitelistCandidates: mineWhitelistCandidates(filtered),
+    projectExtensions: mineProjectExtensions(filtered),
     arbitraryValues: mineArbitraryValues(filtered),
     hintsGap,
     fixableCoverage,
@@ -236,6 +253,17 @@ export function renderReport(a, opts = {}) {
   lines.push(`> 事件数：${a.total}${opts.since ? `（近 ${opts.since}）` : ''}；来源权重：mcp×3 / cli×2 / ci×2 / eval×1`);
   lines.push(`> 生成时间：${new Date().toISOString()}`);
   lines.push('');
+
+  // 项目扩展 Top N（结晶回路，project-extension 设计 §5.3）
+  // 先于违规分支渲染：项目扩展来自合法使用（干净运行也有数据）
+  if (a.projectExtensions?.length) {
+    lines.push('## 项目扩展 Top（whitelist-v2 候选：被真实使用的项目配方）');
+    lines.push('');
+    for (const c of a.projectExtensions.slice(0, 10)) {
+      lines.push(`- \`.${c.name}\`：${c.count} 次（${c.files} 文件）→ 高频/跨项目使用 → 评估晋升 L2 配方（recipes.css + whitelist 三源登记）`);
+    }
+    lines.push('');
+  }
 
   if (a.perRule.length === 0) {
     lines.push('✓ 无违规记录——飞轮暂无输入。跑 `npm run lint:flywheel <paths>` 或通过 MCP `check_compliance` 喂数据。');

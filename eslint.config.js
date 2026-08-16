@@ -64,10 +64,11 @@ export default [
     rules: {},
   },
   // Starter 模板页面代码：消费端代码，启用完整 AI 规则集（模板自身必须过自己的约束闸门）
+  // withProjectRules：starter/recipes.project.css 约定块 class 自动并入（project-extension 设计 §3.3）
   {
     files: ['starter/src/**/*.js'],
     plugins: { aiflow },
-    rules: { ...AI_RULES },
+    rules: aiflow.withProjectRules('starter/recipes.project.css', AI_RULES),
   },
   // ESLint 规则测试夹具 + ai-fix 循环测试 + MCP 工具测试 + lint 采集测试：含故意违规用例以验证规则/修复/采集本身，关闭 AI 约束
   {

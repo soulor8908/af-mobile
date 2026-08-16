@@ -41,13 +41,15 @@ export function extractCode(filePath) {
 // === 2. 跑 ESLint ===
 // 临时文件必须放在 ROOT 下，让 ESLint flat config 能被找到（ESLint 从被 lint 的文件往上搜 config）
 // opts（pkg-publish 设计 §3.3）：configFile=内嵌配置（发布端，绕过仓库 config 发现）；
-//   cwd=ESLint 匹配基准（flat config 的 files 按 cwd 相对路径匹配，snippet 目录须在 cwd 之下）；tmpDir=snippet 落盘目录
+//   cwd=ESLint 匹配基准（flat config 的 files 按 cwd 相对路径匹配，snippet 目录须在 cwd 之下）；tmpDir=snippet 落盘目录；
+//   rules=按次规则覆写（overrideConfig.rules，MCP 注入项目扩展 extraClass 用，project-extension 设计 §3.3）
 export async function runEslint(code, opts = {}) {
   if (!code || !code.trim()) return { messages: [] };
   const { ESLint } = await import('eslint');
-  const engine = new ESLint(opts.configFile
+  const base = opts.configFile
     ? { overrideConfigFile: opts.configFile, cwd: opts.cwd || ROOT }
-    : { cwd: ROOT });
+    : { cwd: ROOT };
+  const engine = new ESLint(opts.rules ? { ...base, overrideConfig: { rules: opts.rules } } : base);
   const dir = opts.tmpDir || join(ROOT, '.cache/ai-fix');
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
@@ -73,7 +75,7 @@ export async function runEslint(code, opts = {}) {
 export const RULE_HINTS = {
   'aiflow/no-token-modification': '不要重定义 L1 token 变量。如需新 token，写在 tokens.css 或 tokens.project.css',
   'aiflow/no-inline-style': '改用对应的 atomic class：padding:16px → p-4；color:var(--c-brand) → text-brand；border-radius:8px → r-m',
-  'aiflow/token-whitelist': '该 class 不在 115 白名单内。改用最接近的 L2 配方/原子，或在 .eslintrc 的 extraClass 登记',
+  'aiflow/token-whitelist': '该 class 不在白名单内。改用最接近的 L2 配方/原子，或在 recipes.project.css 约定块 /* === N. 用途 === */ 内登记（lint+prompt 自动生效）',
   'aiflow/no-recipe-break': '该 class 组合会破坏配方：.btn 不要叠加 text-* 颜色；.input 不要叠加 t-sm/t-xs；.cell 不要叠加 f/fc',
   'aiflow/no-variant-conflict': '互斥变体只能保留最后一个：btn-sm+btn-lg → 删 btn-sm',
   'aiflow/no-arbitrary-value': '改用最接近的原子档位：p-[13px] → p-3 (12px)；p-7 → p-6 (32px)',

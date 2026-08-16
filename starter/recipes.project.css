@@ -1,0 +1,7 @@
+/* 项目级扩展配方：白名单外 class 的唯一登记处（project-extension 设计）
+   每个约定块（形如下方注释）内的 class 自动并入 lint 白名单与 AI prompt，
+   且被数据飞轮记录使用——高频/跨项目扩展可晋升官方 whitelist-v2。
+   规则：值必须用 var(--*) token；class 用 kebab-case；禁止 af- 前缀。 */
+
+/* === 1. 大头像（示例，可删除） === */
+.avatar-lg { width: 64px; height: 64px; border-radius: 50%; }

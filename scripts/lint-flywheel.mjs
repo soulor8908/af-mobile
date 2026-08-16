@@ -10,6 +10,8 @@ import { join, resolve, dirname, extname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractCode, RULE_HINTS } from './ai-fix.mjs';
 import { recordRun } from '../eval/telemetry.mjs';
+import aiflow from '../eslint-plugin-aiflow/index.js';
+import { extractAllClassLists } from '../eslint-plugin-aiflow/utils/helpers.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TMP_DIR = join(ROOT, '.cache/lint-flywheel');
@@ -51,7 +53,12 @@ export async function lintAndHarvest(inputs, opts = {}) {
   });
 
   const { ESLint } = await import('eslint');
-  const engine = new ESLint({ cwd: ROOT });
+  // 项目级扩展感知（project-extension 设计 §3.3/§5.2）：cwd 下 recipes.project.css 约定块自动放行
+  const { 'aiflow/token-whitelist': twOverride } = aiflow.withProjectRules('recipes.project.css');
+  const projectClasses = twOverride[1].extraClass;
+  const engine = new ESLint(projectClasses.length
+    ? { cwd: ROOT, overrideConfig: { rules: { 'aiflow/token-whitelist': twOverride } } }
+    : { cwd: ROOT });
   let results;
   try {
     results = await engine.lintFiles(snippets.map(s => s.snippetPath));
@@ -61,6 +68,7 @@ export async function lintAndHarvest(inputs, opts = {}) {
   const bySnippet = new Map(results.map(r => [r.filePath, r]));
 
   const byFile = [];
+  const jsByFile = new Map();
   for (const s of snippets) {
     const r = bySnippet.get(s.snippetPath);
     const messages = (r?.messages || []).map(m => ({
@@ -69,14 +77,21 @@ export async function lintAndHarvest(inputs, opts = {}) {
       severity: m.severity === 2 ? 'error' : 'warn',
       message: m.message,
     }));
-    byFile.push({ file: relative(ROOT, s.file), messages });
+    const rel = relative(ROOT, s.file);
+    byFile.push({ file: rel, messages });
+    jsByFile.set(rel, s);
   }
 
-  // 遥测：默认只记违规文件（防本地/CI 重复膨胀）；--record-clean 记全部
+  // 遥测：默认只记违规文件（防本地/CI 重复膨胀）；--record-clean 记全部；
+  // 使用了项目扩展的文件必记（干净也要记——结晶回路信号，设计 §5.2）
   const source = opts.source || (process.env.CI ? 'ci' : 'cli');
   for (const f of byFile) {
-    if (f.messages.length === 0 && !opts.recordClean) continue;
-    recordRun({ source, file: f.file, passed: f.messages.length === 0, violations: f.messages });
+    const used = projectClasses.length
+      ? [...new Set(extractAllClassLists(jsByFile.get(f.file)?.js || '').flatMap(x => x.classes))]
+          .filter(c => projectClasses.includes(c))
+      : [];
+    if (f.messages.length === 0 && !opts.recordClean && used.length === 0) continue;
+    recordRun({ source, file: f.file, passed: f.messages.length === 0, violations: f.messages, extensions: { classes: used } });
   }
 
   // 闸门语义与 `eslint --max-warnings 0` 一致：任何 error 或 warn 都失败

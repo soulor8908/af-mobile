@@ -46,6 +46,23 @@ describe('telemetry / recordRun + readTelemetry', () => {
     expect(events[0].violations).toHaveLength(0);
   });
 
+  it('extensions 字段：项目扩展使用写入并读回（去重 + 仅字符串）', () => {
+    recordRun({
+      source: 'cli', file: 'd.html', passed: true, violations: [],
+      extensions: { classes: ['avatar-lg', 'filter-bar', 'avatar-lg', 42] },
+    });
+    const events = readTelemetry();
+    expect(events[0].extensions).toEqual({ classes: ['avatar-lg', 'filter-bar'] });
+  });
+
+  it('extensions 为空/缺省时不落字段（旧 schema 零开销）', () => {
+    recordRun({ source: 'cli', file: 'e.html', passed: true, violations: [], extensions: { classes: [] } });
+    recordRun({ source: 'cli', file: 'f.html', passed: true, violations: [] });
+    const events = readTelemetry();
+    expect(events[0]).not.toHaveProperty('extensions');
+    expect(events[1]).not.toHaveProperty('extensions');
+  });
+
   it('坏行跳过不崩（AGENTS #6）', () => {
     appendFileSync(join(tmpDir, 'telemetry.jsonl'), '{broken json\n');
     recordRun({ source: 'cli', file: 'c.js', passed: false, violations: [{ rule: 'x', message: '' }] });

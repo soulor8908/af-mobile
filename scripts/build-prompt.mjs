@@ -76,7 +76,7 @@ export function extractGroupsFromCss(css) {
 // 从 recipes.project.css 解析 /* === N. 用途 === */ 注释块（含正文说明）
 export function extractProjectExtensions(css) {
   const items = [];
-  const re = /\/\*\s*===\s*(\d+)\.\s*(.+?)\s*===\s*\*\/([\s\S]*?)(?=\/\*\s*===\s*\d+\.|$)/g;
+  const re = /\/\*\s*===\s*(\d+)\.\s*(.+?)\s*===\s*\*\/([\s\S]*?)(?=\n\s*\n|\/\*\s*===\s*\d+\.|$)/g;
   let m;
   while ((m = re.exec(css))) {
     const num = Number(m[1]);

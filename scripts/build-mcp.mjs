@@ -14,7 +14,7 @@ await build({
   format: 'esm',
   platform: 'node',
   target: 'node18',
-  external: ['@modelcontextprotocol/sdk', 'eslint'],
+  external: ['@modelcontextprotocol/sdk', 'eslint', '@af-mobile/eslint-plugin'],
   banner: { js: '#!/usr/bin/env node\n' },
   logLevel: 'info',
 });

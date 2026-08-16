@@ -77,6 +77,7 @@ export default defineConfig({
 `,
 
   'eslint.config.js': `// AI 代码约束：保存即受 154 白名单 + 15 规则约束
+// recipes.project.css 约定块内的 class 自动并入白名单（项目级扩展，无需手写 extraClass）
 import aiflow from '@af-mobile/eslint-plugin';
 
 export default [
@@ -86,9 +87,18 @@ export default [
   {
     files: ['src/**/*.js'],
     plugins: { aiflow },
-    rules: { ...aiflow.configs.recommended.rules },
+    rules: aiflow.withProjectRules('recipes.project.css'),
   },
 ];
+`,
+
+  'recipes.project.css': `/* 项目级扩展配方：白名单外 class 的唯一登记处（project-extension 设计）
+   每个约定块（形如下方注释）内的 class 自动并入 lint 白名单与 AI prompt，
+   且被数据飞轮记录使用——高频/跨项目扩展可晋升官方 whitelist-v2。
+   规则：值必须用 var(--*) token；class 用 kebab-case；禁止 af- 前缀。 */
+
+/* === 1. 大头像（示例，可删除） === */
+.avatar-lg { width: 64px; height: 64px; border-radius: 50%; }
 `,
 
   '.gitignore': `node_modules/
@@ -97,6 +107,7 @@ dist/
 
   'src/main.js': `// 应用入口：注册组件 → 声明路由 → 启动（hash 模式，静态托管零配置）
 import '@af-mobile/ui/css';
+import '../recipes.project.css';   // 项目级扩展配方（约定块 class 自动过 lint 白名单）
 import { registerAll, route, start, initTheme } from '@af-mobile/ui';
 import homePage from './pages/home.js';
 import docsPage from './pages/docs.js';

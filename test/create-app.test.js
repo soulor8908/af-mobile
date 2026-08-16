@@ -24,6 +24,7 @@ describe('create-app scaffold', () => {
       'index.html',
       'vite.config.js',
       'eslint.config.js',
+      'recipes.project.css',
       '.gitignore',
       'src/main.js',
       'src/styles.css',

@@ -424,31 +424,32 @@ toggleTheme();            // 切换并持久化
 
 ## 项目级扩展
 
-L4 设计支持三类扩展通道（不可混用）：
+白名单外的长尾需求按**升级阶梯**处理（封闭集管下限，逃生舱开上限，飞轮把上限变下限）：
 
-| 扩展类型 | 场景 | 文件 | 登记 |
-|---|---|---|---|
-| L2 配方/原子变体 | `.avatar-lg`（大头像）、`.btn-gradient` | `recipes.project.css` | `extraClass` |
-| L1 token 值覆盖 | 项目品牌色 `--c-brand: #ff6b35` | `tokens.project.css` | ❌ |
-| L3 组件新增 | `<af-qrcode>` | `components/project-af-*.js` | `extraComponents` |
-
-```js
-// .eslintrc.cjs 项目级配置示例
-export default [
-  ...aiflowBaseConfig,
-  {
-    rules: {
-      'aiflow/token-whitelist': ['error', {
-        extraClass: ['avatar-lg', 'search-with-icon', 'search-icon'],
-        extraComponents: ['af-qrcode'],
-        allowProjectTokens: true,
-      }],
-    },
-  },
-];
+```
+L0 现有 class 组合 + data-* + 原生能力（零登记，优先）
+L1 recipes.project.css 约定块登记新 class（主通道，lint + prompt 自动生效）
+L2 extraClass/extraComponents 显式注册 / tokens.project.css 覆盖 token 值
+L3 自建 af-* 组件（extends AfElement，受 wc-* 质量规则约束）
+ ↓ 数据飞轮记录项目扩展的真实使用 → 报告输出 whitelist-v2 候选 → 官方晋升（20% → 80%）
 ```
 
-详细机制见 [docs/design/l4-detailed-design.md](docs/design/l4-detailed-design.md) §5。
+**主通道（L1）**：项目根 `recipes.project.css` 是白名单外 class 的唯一登记处，约定块内 class 自动三端生效，无需手写配置——
+
+```css
+/* === 1. 大头像（个人中心页专属） === */
+.avatar-lg { width: 64px; height: 64px; border-radius: 50%; }
+```
+
+| 生效端 | 机制 |
+|---|---|
+| lint | `rules: aiflow.withProjectRules('recipes.project.css')` 自动并入 extraClass（脚手架已预接） |
+| AI prompt | MCP `get_prompt` / `build-prompt --project` 自动注入「项目级扩展」段 |
+| 数据飞轮 | lint / `check_compliance` 记录扩展真实使用 → `npm run eval:flywheel` 报告「项目扩展 Top」作为 whitelist-v2 晋升候选 |
+
+约定：值必须用 `var(--*)` token；class 用 kebab-case；禁止 `af-` 前缀；块注释 `/* === N. 用途 === */` 是登记语法（强制文档化）。L2/L3 通道沿用 `extraClass` / `extraComponents` / 自建组件。
+
+完整设计（三逃生舱规范 / 结晶回路 / 晋升流程）见 [项目级扩展体系设计](docs/design/project-extension-design.md)。
 
 ## CI 保护链路
 
@@ -530,6 +531,7 @@ npm run prompt:build
 **AI 工程与生态**
 
 - [数据飞轮 v2 设计](docs/design/flywheel-v2-design.md)（源无关反馈闭环：MCP 遥测 → 白名单/Prompt 迭代）
+- [项目级扩展体系设计](docs/design/project-extension-design.md)（三逃生舱 / recipes.project.css 约定块自动注册 / 结晶回路）
 - [多包发布体系设计](docs/design/pkg-publish-mcp-prompt-design.md)（mcp / prompt 打包 + 资产快照闸门）
 
 ## License

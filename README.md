@@ -468,6 +468,18 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 - L3 Owner：`af-element.js`
 - L4 Owner：`whitelist-v*.json` / `system-prompt.*` / `eslint-plugin-aiflow/rules/**`
 
+## 包生态（@af-mobile scope）
+
+| 包 | 用途 | 安装/接入 |
+|---|---|---|
+| `@af-mobile/ui` | 主包：28 组件 + 路由/状态/主题/i18n + CLI（`aiflow`） | `npm i @af-mobile/ui` / `npx aiflow create` |
+| `@af-mobile/eslint-plugin` | 20 条 AI 约束规则（白名单/禁令/组件质量） | devDependency + flat config |
+| `@af-mobile/mcp` | MCP Server：`get_prompt` / `check_compliance` / `fix_code` / `generate_page` / `flywheel_report` | `npx @af-mobile/mcp`（注册进 TRAE / Claude Code / Cursor） |
+| `@af-mobile/prompt` | System Prompt 构建器（按需求裁剪白名单+组件 API+few-shot） | `import { buildPrompt } from '@af-mobile/prompt'` |
+| `@af-mobile/adapters` | 后端 scheme 适配器：`supabase://table?...` → PostgREST（零 BaaS SDK） | `npm i @af-mobile/adapters`（peer 依赖主包） |
+
+> MCP 五个工具的完整用法与数据飞轮机制见 [AGENTS.md §5](AGENTS.md)；CLI 与 skill 工作流见上文「快速开始」。
+
 ## 本地开发
 
 ```bash
@@ -498,9 +510,22 @@ npm run prompt:build
 
 ## 设计文档
 
-- [L1+L2 详细设计](docs/design/l1-l2-detailed-design.md)
+**架构与分层**
+
+- [架构 RFC v3（总纲：AI 生成系统的完整方案）](docs/design/aiflow-ui-rfc-v3.md)
+- [L1+L2 详细设计](docs/design/l1-l2-detailed-design.md)（Token / 配方原子 / 白名单）
 - [L3 真组件详细设计](docs/design/l3-detailed-design.md)
-- [L4 AI 约束层详细设计](docs/design/l4-detailed-design.md)
+- [L4 AI 约束层详细设计](docs/design/l4-detailed-design.md)（Prompt / ESLint / CI 三层约束）
+
+**运行时与迁移**
+
+- [P0 生产刚需设计](docs/design/p0-production-essentials-design.md)（路由 / 状态 / 异步 / Prompt 4 要素）
+- [v2.0 迁移指南](docs/migration-guide.md)（definePage → createPage / RouterError / scrollBehavior）
+
+**AI 工程与生态**
+
+- [数据飞轮 v2 设计](docs/design/flywheel-v2-design.md)（源无关反馈闭环：MCP 遥测 → 白名单/Prompt 迭代）
+- [多包发布体系设计](docs/design/pkg-publish-mcp-prompt-design.md)（mcp / prompt 打包 + 资产快照闸门）
 
 ## License
 

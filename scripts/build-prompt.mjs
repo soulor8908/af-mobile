@@ -170,6 +170,9 @@ const COMPONENT_META = [
   { tag: 'af-progress', purpose: '进度条', props: 'value, max, color', events: '—' },
   { tag: 'af-steps', purpose: '步骤条', props: 'steps, current', events: '—' },
   { tag: 'af-countdown', purpose: '倒计时', props: 'time, autostart', events: 'af-countdown:change, af-countdown:end' },
+  { tag: 'af-chart-line', purpose: '折线/面积/散点/迷你图（charts 子库）', props: 'data, labels, series, variant, smooth, show-axis, height, legend, loading, error', events: 'af-chart-line:select, af-chart-line:retry' },
+  { tag: 'af-chart-bar', purpose: '柱状/条形/堆叠/分组图（charts 子库）', props: 'data, labels, series, variant, max-count, height, legend, loading, error', events: 'af-chart-bar:select, af-chart-bar:retry' },
+  { tag: 'af-chart-pie', purpose: '饼/环形/半环/玫瑰图（charts 子库）', props: 'data, variant, inner-radius, center-text, height, legend, loading, error', events: 'af-chart-pie:select, af-chart-pie:retry' },
 ];
 
 // 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）

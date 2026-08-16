@@ -14,7 +14,7 @@ export default {
   create(context) {
     const filename = context.filename || context.getFilename();
     // 仅检查 src/components/*.js 文件
-    if (!/src[\\/]components[\\/].*\.js$/.test(filename)) return {};
+    if (!/src[\\/](?:charts[\\/])?components[\\/].*\.js$/.test(filename)) return {};
 
     const sourceCode = context.sourceCode || context.getSourceCode();
     const source = sourceCode.getText();

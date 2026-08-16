@@ -12,7 +12,13 @@
   "exports": {
     ".": {
       "import": "./src/index.js",
+      "types": "./src/index.d.ts",
       "default": "./src/index.js"
+    },
+    "./charts": {
+      "import": "./src/charts/index.js",
+      "types": "./src/charts/index.d.ts",
+      "default": "./src/charts/index.js"
     },
     "./css": "./src/index.css",
     "./aiflow-ui.css": "./src/index.css",

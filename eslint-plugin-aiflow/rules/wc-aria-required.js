@@ -22,7 +22,7 @@ export default {
   },
   create(context) {
     const filename = context.filename || context.getFilename();
-    if (!/src[\\/]components[\\/].*\.js$/.test(filename)) return {};
+    if (!/src[\\/](?:charts[\\/])?components[\\/].*\.js$/.test(filename)) return {};
 
     // 从文件名提取组件名（af-xxx.js → af-xxx）
     const m = filename.match(/(af-[a-z-]+)\.js$/);

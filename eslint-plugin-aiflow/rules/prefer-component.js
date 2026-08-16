@@ -16,7 +16,7 @@ export default {
   create(context) {
     const filename = context.filename || context.getFilename();
     // 组件源码自身实现不适用此规则（避免 af-list.js 报"prefer <af-list>"的自指误报）
-    if (/src[\\/]components[\\/].*\.js$/.test(filename)) return {};
+    if (/src[\\/](?:charts[\\/])?components[\\/].*\.js$/.test(filename)) return {};
     const sourceCode = context.sourceCode || context.getSourceCode();
     let hasToast = false, hasSheet = false, hasList = false;
     let hasSetTimeout = false, hasScrollListener = false;

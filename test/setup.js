@@ -119,7 +119,7 @@ if (!URL.revokeObjectURL) {
   URL.revokeObjectURL = () => {};
 }
 
-// === TouchEvent / Touch（af-pull-refresh / af-swipe-cell 依赖；jsdom 未实现） ===
+// === TouchEvent / Touch（af-pull-refresh / af-swipe-cell 依赖；jsdom 未实现）===
 // jsdom 不支持触摸 API，补一个最小实现：TouchEvent 继承 Event，touches 为构造参数中的数组
 if (typeof global.Touch === 'undefined') {
   global.Touch = class Touch {

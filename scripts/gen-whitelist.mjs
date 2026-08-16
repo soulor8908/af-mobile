@@ -28,9 +28,10 @@ export function extractTokens(file) {
   return [...set].sort();
 }
 
-// 从 src/index.js 的 import 路径提取组件 tagName
+// 从 src/index.js + src/charts/index.js 的 import 路径提取组件 tagName
+// charts 子库组件在 src/charts/components/，入口 src/charts/index.js（./charts 独立导出）
 export function extractComponents() {
-  const code = readFileSync(join(SRC, 'index.js'), 'utf8');
+  const code = readFileSync(join(SRC, 'index.js'), 'utf8') + '\n' + readFileSync(join(SRC, 'charts/index.js'), 'utf8');
   const set = new Set();
   const re = /from '\.\/components\/([a-z-]+)\.js'/g;
   let m;

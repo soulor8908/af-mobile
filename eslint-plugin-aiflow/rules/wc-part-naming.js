@@ -13,7 +13,7 @@ export default {
   },
   create(context) {
     const filename = context.filename || context.getFilename();
-    if (!/src[\\/]components[\\/].*\.js$/.test(filename)) return {};
+    if (!/src[\\/](?:charts[\\/])?components[\\/].*\.js$/.test(filename)) return {};
 
     function checkString(str, node) {
       const re = /part\s*=\s*"([^"]*)"/g;

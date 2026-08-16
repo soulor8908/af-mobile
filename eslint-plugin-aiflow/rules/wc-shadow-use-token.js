@@ -28,7 +28,7 @@ export default {
   },
   create(context) {
     const filename = context.filename || context.getFilename();
-    if (!/src[\\/]components[\\/].*\.js$/.test(filename)) return {};
+    if (!/src[\\/](?:charts[\\/])?components[\\/].*\.js$/.test(filename)) return {};
 
     const sourceCode = context.sourceCode || context.getSourceCode();
     const source = sourceCode.getText();

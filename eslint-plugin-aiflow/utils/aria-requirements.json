@@ -58,5 +58,20 @@
   "af-upload": {
     "ariaLabel": true,
     "description": "上传组件的触发按钮需 aria-label；预览网格用 role=list"
+  },
+  "af-chart-line": {
+    "role": "img",
+    "ariaLabel": true,
+    "description": "折线图 svg 需要 role=img 和 aria-label 摘要（全量数据由 sr-table 提供）"
+  },
+  "af-chart-bar": {
+    "role": "img",
+    "ariaLabel": true,
+    "description": "柱状图 svg 需要 role=img 和 aria-label 摘要（全量数据由 sr-table 提供）"
+  },
+  "af-chart-pie": {
+    "role": "img",
+    "ariaLabel": true,
+    "description": "饼图 svg 需要 role=img 和 aria-label 摘要（全量数据由 sr-table 提供）"
   }
 }

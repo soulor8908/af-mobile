@@ -13,6 +13,9 @@
     "rules/",
     "utils/"
   ],
+  "dependencies": {
+    "postcss": "^8.4.0"
+  },
   "peerDependencies": {
     "eslint": ">=9.0.0"
   },

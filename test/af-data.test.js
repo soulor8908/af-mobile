@@ -101,3 +101,76 @@ describe('af-data ref 集成 :bind', () => {
     });
   });
 });
+
+describe('af-data data-path / total-field', () => {
+  it('data-path 提取对象形响应的列表字段', async () => {
+    const { fetchPage } = await import('../src/lib/fetch.js');
+    fetchPage.mockResolvedValue({ data: [1, 2, 3], total: 100 });
+    const el = makeData({ src: '/api/list', ref: 'ds', dataPath: 'data' });
+    await vi.waitFor(() => expect(el.getData()).toEqual([1, 2, 3]));
+  });
+
+  it('data-path 支持多段嵌套路径', async () => {
+    const { fetchPage } = await import('../src/lib/fetch.js');
+    fetchPage.mockResolvedValue({ list: { items: ['a', 'b'] } });
+    const el = makeData({ src: '/api/x', ref: 'ds', dataPath: 'list.items' });
+    await vi.waitFor(() => expect(el.getData()).toEqual(['a', 'b']));
+  });
+
+  it('total-field 读取服务端 total 而非数组长度', async () => {
+    const { fetchPage } = await import('../src/lib/fetch.js');
+    fetchPage.mockResolvedValue({ list: [1, 2, 3], total: 42 });
+    const el = makeData({ src: '/api/x', ref: 'ds', dataPath: 'list', totalField: 'total' });
+    await vi.waitFor(() => expect(el.getTotal()).toBe(42));
+  });
+
+  it('total-field 支持嵌套路径', async () => {
+    const { fetchPage } = await import('../src/lib/fetch.js');
+    fetchPage.mockResolvedValue({ data: [1], meta: { total: 7 } });
+    const el = makeData({ src: '/api/x', ref: 'ds', dataPath: 'data', totalField: 'meta.total' });
+    await vi.waitFor(() => expect(el.getTotal()).toBe(7));
+  });
+
+  it('无 total-field 时数组响应 total = 数组长度（旧行为保持）', async () => {
+    const { fetchPage } = await import('../src/lib/fetch.js');
+    fetchPage.mockResolvedValue([1, 2, 3]);
+    const el = makeData({ src: '/api/x', ref: 'ds' });
+    await vi.waitFor(() => expect(el.getTotal()).toBe(3));
+  });
+
+  it('无 total-field 时 data-path 提取的数组 total = 数组长度', async () => {
+    const { fetchPage } = await import('../src/lib/fetch.js');
+    fetchPage.mockResolvedValue({ data: [1, 2], total: 99 });
+    const el = makeData({ src: '/api/x', ref: 'ds', dataPath: 'data' });
+    await vi.waitFor(() => expect(el.getData()).toEqual([1, 2]));
+    expect(el.getTotal()).toBe(2);
+  });
+
+  it('无 total-field 且 data-path 指向非数组对象时 total = 0', async () => {
+    const { fetchPage } = await import('../src/lib/fetch.js');
+    fetchPage.mockResolvedValue({ info: { name: 'x' } });
+    const el = makeData({ src: '/api/x', ref: 'ds', dataPath: 'info' });
+    await vi.waitFor(() => expect(el.getData()).toEqual({ name: 'x' }));
+    expect(el.getTotal()).toBe(0);
+  });
+
+  it('data-path 未命中时 data = undefined，不抛错', async () => {
+    const { fetchPage } = await import('../src/lib/fetch.js');
+    fetchPage.mockResolvedValue({ other: [1] });
+    const el = makeData({ src: '/api/x', ref: 'ds', dataPath: 'missing.path' });
+    await vi.waitFor(() => expect(el.getData()).toBeUndefined());
+  });
+
+  it('data-path + total-field 通过 ref 暴露给 :bind', async () => {
+    const { fetchPage } = await import('../src/lib/fetch.js');
+    fetchPage.mockResolvedValue({ data: [1, 2], total: 50 });
+    document.body.innerHTML = `
+      <af-data src="/api/list" ref="ds" data-path="data" total-field="total"></af-data>
+      <div :data-total="ds.total"></div>
+    `;
+    _stopBind = initBind(document.body, createPage({ state: {} }));
+    await vi.waitFor(() => {
+      expect(document.querySelector('div').getAttribute('data-total')).toBe('50');
+    });
+  });
+});

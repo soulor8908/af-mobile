@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { initBind, registerDataRef, _resetBind } from '../src/lib/bind.js';
 import { createPage } from '../src/lib/page.js';
 
@@ -87,12 +87,38 @@ describe(':bind refName.field（af-data ref）绑定', () => {
     expect(document.querySelector('div').getAttribute('data-len')).toBe('[1,2,3]');
   });
 
+  it('支持多段 ref 路径（af-data data-path 场景）', () => {
+    registerDataRef('ds', () => ({ list: { items: ['a', 'b'], meta: { total: 5 } } }));
+    const page = createPage({ state: {} });
+    document.body.innerHTML = `<div :data-items="ds.list.items" :data-total="ds.list.meta.total"></div>`;
+    bind(document.body, page);
+    expect(document.querySelector('div').getAttribute('data-items')).toBe('["a","b"]');
+    expect(document.querySelector('div').getAttribute('data-total')).toBe('5');
+  });
+
+  it('多段 ref 路径未命中时置 undefined 并移除属性', () => {
+    registerDataRef('ds', () => ({ a: { b: 1 } }));
+    const page = createPage({ state: {} });
+    document.body.innerHTML = `<div :data-missing="ds.a.nope"></div>`;
+    bind(document.body, page);
+    expect(document.querySelector('div').hasAttribute('data-missing')).toBe(false);
+  });
+
   it('非法表达式不绑定', () => {
     const page = createPage({ state: {} });
     document.body.innerHTML = `<div :title="a + b"></div>`;
     bind(document.body, page);
     expect(document.querySelector('div').hasAttribute('title')).toBe(false);
     expect(document.querySelector('div').hasAttribute(':title')).toBe(false);
+  });
+
+  it('未解析表达式发出 console.warn 告警（不再静默失败）', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const page = createPage({ state: {} });
+    document.body.innerHTML = `<div :title="a + b"></div>`;
+    bind(document.body, page);
+    expect(warnSpy).toHaveBeenCalledWith('[aiflow] :bind 未解析:title="a + b"');
+    warnSpy.mockRestore();
   });
 });
 

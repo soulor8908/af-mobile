@@ -66,7 +66,8 @@ function scan(root, stateObj, derivedObj) {
 
 function bindOne(el, attrName, expr, stateObj, derivedObj) {
   const parsed = parseExpr(expr, stateObj, derivedObj);
-  if (!parsed) return null;
+  // 未解析表达式不再静默失败：开发期告警，帮助定位拼写错误
+  if (!parsed) return console.warn(`[aiflow] :bind 未解析:${attrName}="${expr}"`), null;
   return effect(() => {
     const val = parsed.get();
     applyValue(el, attrName, val);
@@ -82,8 +83,8 @@ function parseExpr(expr, stateObj, derivedObj) {
   if (/^derived\./.test(expr)) {
     return { get: () => getPath(derivedObj, expr.slice(8)) };
   }
-  // refName.xxx（af-data ref）
-  if (/^[a-zA-Z_$][\w$]*\.[a-zA-Z_$][\w$]*$/.test(expr)) {
+  // refName.a.b.c（af-data ref，支持多段路径）
+  if (/^[a-zA-Z_$][\w$]*(\.[a-zA-Z_$][\w$]*)+$/.test(expr)) {
     const [refName, ...rest] = expr.split('.');
     return { get: () => {
       const getData = getDataRef(refName);

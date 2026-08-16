@@ -131,11 +131,14 @@ npm run types:check
 
 # 6. Prompt 快照一致性（修改了 src/ 或 prompt/ 时必跑）
 npm run prompt:check
+
+# 7. ARIA 要求同步（aria-requirements.json ↔ wc-aria-required.js，AGENTS.md #5）
+npm run aria:check
 ```
 
 **一体化命令（等价于 CI 的核心闸门）：**
 ```bash
-npx vitest run && npm run size && npm run whitelist:check && npm run types:check
+npx vitest run && npm run size && npm run whitelist:check && npm run types:check && npm run aria:check
 ```
 
 ### 自检失败处理
@@ -147,6 +150,7 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 | 体积超预算 | 优化实现，不允许调大预算（除非用户明确同意） |
 | 白名单不同步 | 补登白名单或改用 data-* 属性，不允许删检查 |
 | 类型不同步 | 更新 `src/index.d.ts`，不允许删类型声明 |
+| ARIA 不同步 | 补 `wc-aria-required.js` 检测分支或修正 JSON，不允许删检查 |
 
 ### 何时需要跑 build 验证
 

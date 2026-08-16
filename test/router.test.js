@@ -378,6 +378,63 @@ describe('router keep-alive', () => {
   });
 });
 
+describe('router 修复行为（404 / guard / keep-alive）', () => {
+  it('404 导航清空 outlet，不残留上个路由 DOM', async () => {
+    route('/valid-404', (p, ctx) => { ctx.outlet.innerHTML = '<div>stale</div>'; });
+    notFound(() => {});
+    start({ outlet: '#app' });
+    await go('/valid-404');
+    expect(document.querySelector('[data-router-view]').innerHTML).toContain('stale');
+    await go('/does-not-exist');
+    expect(document.querySelector('#app').innerHTML).not.toContain('stale');
+  });
+
+  it('beforeEach 返回 false 时不提交 URL（URL 与视图一致）', async () => {
+    route('/guard-url', () => {});
+    routerBeforeEach(() => false);
+    start({ outlet: '#app' });
+    const ok = await go('/guard-url');
+    expect(ok).toBe(false);
+    expect(window.location.pathname).toBe('/');
+  });
+
+  it('守卫通过后才提交 URL', async () => {
+    const handler = vi.fn();
+    route('/guard-pass-url', handler);
+    routerBeforeEach(() => undefined);
+    start({ outlet: '#app' });
+    const ok = await go('/guard-pass-url');
+    expect(ok).toBe(true);
+    expect(window.location.pathname).toBe('/guard-pass-url');
+  });
+
+  it('keep-alive 缓存命中恢复 params', async () => {
+    const handler = vi.fn((p, ctx) => { ctx.outlet.innerHTML = `<div>id=${p.id}</div>`; });
+    route('/ka-p/:id', handler, { keepAlive: true });
+    route('/ka-other', () => {});
+    start({ outlet: '#app' });
+    await go('/ka-p/7');
+    await go('/ka-other');
+    await go('/ka-p/7');   // cache hit：不重跑 handler
+    expect(handler).toHaveBeenCalledOnce();
+    expect(current().params).toEqual({ id: '7' });
+  });
+
+  it('keep-alive 命中时恢复滚动位置', async () => {
+    const scrollSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    Object.defineProperty(window, 'scrollY', { value: 400, configurable: true, writable: true });
+    route('/ka-scroll', (p, ctx) => { ctx.outlet.innerHTML = '<div>page</div>'; }, { keepAlive: true });
+    route('/ka-scroll2', () => {});
+    start({ outlet: '#app' });
+    await go('/ka-scroll');
+    await go('/ka-scroll2');   // 离开时记录 scrollY=400
+    scrollSpy.mockClear();
+    await go('/ka-scroll');    // cache hit → applyScroll(0, 400)
+    expect(scrollSpy).toHaveBeenCalledWith(0, 400);
+    Object.defineProperty(window, 'scrollY', { value: 0, configurable: true, writable: true });
+  });
+});
+
 describe('router stop() 生命周期', () => {
   it('start() 返回 stop，stop() 移除 popstate 监听器防止累积', async () => {
     const fn = vi.fn();

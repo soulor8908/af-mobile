@@ -140,6 +140,20 @@ export function stop() {
   }
 }
 
+// 替换当前 outlet 内容前：若当前路由是 keep-alive 且已入缓存，摘除节点保留实例并记录滚动位置；
+// 否则直接清空（旧节点销毁）
+function detachCurrent() {
+  if (!_rootOutlet) return;
+  const cur = _currentRoute;
+  if (cur?.keepAlive && cur.outlet && cur.outlet.parentNode === _rootOutlet && _cache.has(cur.path)) {
+    _cache.get(cur.path).scrollTop = window.scrollY || 0;
+    _rootOutlet.removeChild(cur.outlet);
+    return;
+  }
+  _rootOutlet.innerHTML = '';
+}
+
+// 返回 true = 导航成立（渲染完成或进入 404，可提交 URL）；返回 false = 被守卫阻止（不提交 URL）
 async function render(path) {
   _currentNav?.abort();
   const from = _currentRoute ? toObj(_currentRoute) : null;   // 导航前捕获旧路由
@@ -151,40 +165,44 @@ async function render(path) {
   };
   _currentNav = nav;
 
-  // keep-alive 命中
-  if (_cache.has(path)) {
-    const cached = _cache.get(path);
-    if (_rootOutlet) {
-      _rootOutlet.innerHTML = '';
-      _rootOutlet.appendChild(cached.outlet);
+  const matches = matchNested(path);
+
+  // 守卫前置：无论 keep-alive 命中与否，导航必须先过守卫
+  if (matches.length > 0) {
+    const lastMatch = matches[matches.length - 1];
+    if (_beforeEachGuard) {
+      const result = await _beforeEachGuard(lastMatch.route, lastMatch.params, path);
+      if (result === false) return false;   // 阻止导航：不渲染、不提交 URL
+      if (typeof result === 'string') { await go(result, { transition: false }); return false; }  // 重定向
     }
-    _currentRoute = { path, params: {}, query, route: cached.route, outlet: cached.outlet, meta: cached.route.meta || {} };
-    applyScroll(_scrollBehavior
-      ? await _scrollBehavior({ path: cleanPath, params: {}, query, meta: cached.route.meta || {} }, from, { x: 0, y: cached.scrollTop })
-      : { x: 0, y: cached.scrollTop });
-    callAfterEach(cached.route, {}, path);
-    return;
+    if (nav.aborted) return false;
   }
 
-  const matches = matchNested(path);
+  // keep-alive 命中：挂回缓存实例（不重新执行 handler），恢复 params 与滚动位置
+  if (_cache.has(path)) {
+    const cached = _cache.get(path);
+    detachCurrent();
+    if (_rootOutlet) _rootOutlet.appendChild(cached.outlet);
+    _currentRoute = { path, params: cached.params, query, route: cached.route, outlet: cached.outlet, meta: cached.route.meta || {}, keepAlive: true };
+    applyScroll(_scrollBehavior
+      ? await _scrollBehavior({ path: cleanPath, params: cached.params, query, meta: cached.route.meta || {} }, from, { x: 0, y: cached.scrollTop })
+      : { x: 0, y: cached.scrollTop });
+    callAfterEach(cached.route, cached.params, path);
+    return true;
+  }
+
+  // 404：清空 outlet，让 notFound 渲染到干净容器（404 也是有效导航，提交 URL）
   if (matches.length === 0) {
+    detachCurrent();
     _notFoundHandler?.(path);
     _currentRoute = { path, params: {}, query, route: null, outlet: _rootOutlet };
-    return;
+    return true;
   }
 
   const lastMatch = matches[matches.length - 1];
-
-  if (_beforeEachGuard) {
-    const result = await _beforeEachGuard(lastMatch.route, lastMatch.params, path);
-    if (result === false) return;
-    if (typeof result === 'string') { await go(result); return; }
-  }
-  if (nav.aborted) return;
-
   const node = document.createElement('div');
   node.setAttribute('data-router-view', '');
-  if (_rootOutlet) _rootOutlet.innerHTML = '';
+  detachCurrent();
   if (_rootOutlet) _rootOutlet.appendChild(node);
 
   let currentOutlet = node;
@@ -205,7 +223,7 @@ async function render(path) {
     }
     lastRoute = m.route;
     lastParams = m.params;
-    if (nav.aborted) return;
+    if (nav.aborted) return false;
   }
 
   // keep-alive：缓存 DOM 节点
@@ -214,26 +232,29 @@ async function render(path) {
       const oldest = _cache.keys().next().value;
       _cache.delete(oldest);
     }
-    _cache.set(path, { outlet: node, scrollTop: 0, route: lastRoute });
+    _cache.set(path, { outlet: node, scrollTop: 0, params: lastParams, route: lastRoute });
   }
 
-  _currentRoute = { path, params: lastParams, query, route: lastRoute, outlet: node, meta: lastRoute.meta || {} };
+  _currentRoute = { path, params: lastParams, query, route: lastRoute, outlet: node, meta: lastRoute.meta || {}, keepAlive: !!lastRoute.keepAlive };
   callAfterEach(lastRoute, lastParams, path);
   if (lastRoute.scroll !== false) {
     applyScroll(_scrollBehavior
       ? await _scrollBehavior({ path: cleanPath, params: lastParams, query, meta: lastRoute.meta || {} }, from, null)
       : { x: 0, y: 0 });
   }
+  return true;
 }
 
-export function go(path, options = {}) {
-  if (typeof history === 'undefined') return Promise.resolve();
+export async function go(path, options = {}) {
+  if (typeof history === 'undefined') return Promise.resolve(false);
   const { replace = false, transition = true } = options;
   document.documentElement.dataset.transition = 'forward';
-  const navigate = () => {
+  const navigate = async () => {
+    const ok = await render(path);
+    if (!ok) return false;   // 守卫阻止：不提交 URL（避免 URL 与视图不一致）
     if (replace) history.replaceState({}, '', path);
     else history.pushState({}, '', path);
-    return render(path);
+    return true;
   };
   if (transition && document.startViewTransition) {
     return new Promise((resolve, reject) => {

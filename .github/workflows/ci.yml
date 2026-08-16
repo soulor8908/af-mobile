@@ -31,6 +31,10 @@ jobs:
       - name: Prompt sync (committed ↔ runtime)
         run: npm run prompt:check
 
+      # Step 1d: ARIA 要求同步（JSON 声明 ↔ 规则 JS 检测分支，AGENTS.md #5）
+      - name: ARIA sync (requirements ↔ rule)
+        run: npm run aria:check
+
       # Step 2: 体积检查（L1+L2 CSS + L3 JS）
       - name: Size budget check
         run: npm run size

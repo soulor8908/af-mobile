@@ -61,7 +61,7 @@
                             ↓（纯 HTTPS，零私有协议）
 ┌─ 基础设施（生态标准答案，非本项目资产）────────────────────────┐
 │  Supabase（Postgres + PostgREST + Auth + RLS）                │
-│  Vercel / Cloudflare Pages / Netlify（静态托管，fallback 已配）│
+│  Cloudflare Pages（默认）/ Vercel / Netlify（静态托管，已配）  │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -84,14 +84,24 @@ cp .env.example .env   # 填 VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
 npm run db:push        # 执行 supabase/schema.sql（建表 + 默认开启 RLS）
 
 # ③ 上线（三选一，同一份产物 dist/）
-npx vercel --prod                          # Vercel
-npx wrangler pages deploy dist             # Cloudflare Pages
+npx wrangler pages deploy dist             # Cloudflare Pages（默认推荐）
+npx vercel --prod                          # Vercel（一等公民备选）
 # 或 Git 集成：Pages/Vercel 控制台连仓库，push 即部署
 ```
 
 「落地」从认知负担变成复制粘贴。Starter 同时附带三套平台配置（`vercel.json` + `_redirects`/`_headers`，见 §4.1），部署配置不再是用户的第 101 个坑。
 
-### 1.2 Cloudflare Pages 适配（与其他平台同权支持）
+### 1.2 部署平台选型：默认 Cloudflare Pages，Vercel 一等公民
+
+同一份静态产物，命令对称（`wrangler pages deploy dist` ↔ `vercel --prod`），排序只是信号问题。默认取 Cloudflare Pages，理由按权重：
+
+1. **成本确定性**：目标用户是被 token 账单教育过的人群。Vercel Hobby 档 100GB/月带宽上限 + bill shock 风险是真实恐惧；Cloudflare Pages 免费档**带宽不限**——「上线零成本，火了也零成本」。
+2. **架构协同**：scheme 注册机制（§2.3）未来接 `d1://` / `r2://` adapter，前后端同生态闭环。
+3. **大陆可达性**：`pages.dev` 默认域名通常可达（慢但通），`vercel.app` 长期被污染——目标用户含中文开发者时是决定性差异。
+
+代价（诚实记录）：AI 开发生态肌肉记忆与 Supabase 官方模板均默认 Vercel，熟悉度逆风。对冲：命令对称 + M3 验收线双平台各跑一次。**回退条件**：若遥测显示 vercel 命令使用率显著碾压 wrangler（≥10:1），说明熟悉度权重高于成本权重，默认换回——一天的事。
+
+### 1.3 Cloudflare Pages 适配细节
 
 架构与 Vercel 版零差异（静态产物 + Supabase 后端），仅交付物不同：
 
@@ -107,7 +117,7 @@ npx wrangler pages deploy dist             # Cloudflare Pages
 1. **Supabase Auth 回调域名**：`https://<project>.pages.dev` 及自定义域名必须加入 Supabase → Auth → URL Configuration 的 redirect 列表（所有平台通用，Cloudflare 换域名后要重加）；
 2. **产物根勿放 `404.html`**：会关闭 Pages 的 SPA 自动兜底，子路由刷新变真 404。
 
-未来红利：后端若也选 Cloudflare，scheme 注册机制（§2.3）可直接扩展 `d1://` / `r2://` adapter，主包零改动。
+架构协同红利：后端若也选 Cloudflare（D1/R2），scheme 注册机制（§2.3）可直接扩展 `d1://` / `r2://` adapter，主包零改动——这也是 §1.2 默认 Cloudflare 的理由之一。
 
 ---
 

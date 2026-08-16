@@ -131,6 +131,39 @@ npm install @af-mobile/ui
 
 事件名遵循 `af-{组件}:{动作}` 格式，`event.detail` 携带结构化数据。
 
+## 图表子库（@af-mobile/ui/charts）
+
+> 独立入口，**不进主包**——不 `import './charts'` 就零字节加载，主库体积预算不受影响。SVG 原生渲染 + 2022+ 移动端基线，全量 ~15KB gzip 覆盖移动端 ~95% 高频图表场景。
+
+```js
+import { registerChart } from '@af-mobile/ui/charts';
+registerChart('af-chart-line');   // 或 registerCharts() 全量 5 个
+```
+
+```html
+<af-chart-line data='[{"label":"1月","value":120},{"label":"2月","value":150}]'
+               variant="area" smooth legend></af-chart-line>
+
+<af-chart-pie data='[{"label":"线上","value":62},{"label":"线下","value":38}]'
+              variant="donut" center-text="{total}"></af-chart-pie>
+```
+
+| 组件 | 标签 | variant 覆盖 | 关键属性 | 关键事件 |
+|---|---|---|---|---|
+| 折线/面积/散点/迷你趋势 | `<af-chart-line>` | `line`/`area`/`scatter`/`spark` | `data` `labels` `series` `variant` `smooth` `show-axis` | `af-chart-line:select` |
+| 柱状/条形/堆叠/分组 | `<af-chart-bar>` | `column`/`bar`/`stacked`/`grouped` | `data` `labels` `series` `variant` `max-count` | `af-chart-bar:select` |
+| 饼/环形/半环/玫瑰 | `<af-chart-pie>` | `pie`/`donut`/`half`/`rose` | `data` `variant` `inner-radius` `center-text` | `af-chart-pie:select` |
+| 雷达 | `<af-chart-radar>` | — | `data` `series` `shape` | `af-chart-radar:select` |
+| 漏斗 | `<af-chart-funnel>` | — | `data` `show-rate` | `af-chart-funnel:select` |
+
+- **数据契约**：单序列 `data='[{"label":"1月","value":120}]'`；多序列（line/bar）`labels` + `series='[{"name":"今年","values":[...]}]'`；雷达 `data='[{"label":"速度","value":80,"max":100}]'`
+- **五态**：`loading`（骨架）/ `error`（重试，派发 `af-chart-{x}:retry`）/ `data` 空自动空态
+- **主题**：取色读 `--c-brand/--c-success/--c-warn/--c-danger/--c-muted` token，深色模式免费跟随；数据项可带 `color` 覆盖
+- **无障碍**：`role="img"` + 摘要 `aria-label` + 视觉隐藏数据表；动画响应 `prefers-reduced-motion`
+- **体积预算**（CI 阻断）：内核 `chartsRuntime` ≤ 4.5KB / 全量 `chartsTotal` ≤ 15KB / 单图表组件 ≤ 2.8KB gzip
+
+设计与分期详见 [docs/design/charts-sublibrary-detailed-design.md](docs/design/charts-sublibrary-detailed-design.md)。
+
 ## SSR / Hydration 使用指南
 
 @af-mobile/ui 是浏览器端 Custom Elements 库，`customElements` 在 Node 服务端不存在，直接 `import` 会抛错。本节给出 SSR 框架接入方式。
@@ -472,7 +505,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 
 | 包 | 用途 | 安装/接入 |
 |---|---|---|
-| `@af-mobile/ui` | 主包：28 组件 + 路由/状态/主题/i18n + CLI（`aiflow`） | `npm i @af-mobile/ui` / `npx aiflow create` |
+| `@af-mobile/ui` | 主包：28 组件 + 路由/状态/主题/i18n + charts 图表子库（`/charts` 入口，5 图表组件）+ CLI（`aiflow`） | `npm i @af-mobile/ui` / `npx aiflow create` |
 | `@af-mobile/eslint-plugin` | 20 条 AI 约束规则（白名单/禁令/组件质量） | devDependency + flat config |
 | `@af-mobile/mcp` | MCP Server：`get_prompt` / `check_compliance` / `fix_code` / `generate_page` / `flywheel_report` | `npx @af-mobile/mcp`（注册进 TRAE / Claude Code / Cursor） |
 | `@af-mobile/prompt` | System Prompt 构建器（按需求裁剪白名单+组件 API+few-shot） | `import { buildPrompt } from '@af-mobile/prompt'` |
@@ -516,6 +549,7 @@ npm run prompt:build
 - [L1+L2 详细设计](docs/design/l1-l2-detailed-design.md)（Token / 配方原子 / 白名单）
 - [L3 真组件详细设计](docs/design/l3-detailed-design.md)
 - [L4 AI 约束层详细设计](docs/design/l4-detailed-design.md)（Prompt / ESLint / CI 三层约束）
+- [Charts 图表子库详细设计](docs/design/charts-sublibrary-detailed-design.md)（SVG 原生图表 / 独立入口 / 体积预算）
 
 **运行时与迁移**
 

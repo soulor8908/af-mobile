@@ -76,7 +76,7 @@ export default defineConfig({
 });
 `,
 
-  'eslint.config.js': `// AI 代码约束：保存即受 154 白名单 + 15 规则约束
+  'eslint.config.js': `// AI 代码约束：保存即受 155 白名单 + 15 规则约束
 // recipes.project.css 约定块内的 class 自动并入白名单（项目级扩展，无需手写 extraClass）
 import aiflow from '@af-mobile/eslint-plugin';
 
@@ -156,7 +156,7 @@ export default async function docsPage(params, ctx) {
       <header class="navbar navbar-fixed"><h1 class="title">开发指引</h1></header>
       <div class="card">
         <h3 class="subtitle">约束</h3>
-        <p class="body">只用 154 白名单 class 和 af-* 组件标签；禁止内联 style 与 Tailwind 语法。</p>
+        <p class="body">只用 155 白名单 class 和 af-* 组件标签；禁止内联 style 与 Tailwind 语法。</p>
       </div>
       <div class="card">
         <h3 class="subtitle">组件 API</h3>

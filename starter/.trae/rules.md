@@ -4,7 +4,7 @@
 
 ## 约束（保存即由 ESLint 强制，违规会 error）
 
-1. **只用 154 白名单 class**（`page` / `card` / `btn` / `title` / `caption` / `navbar` 等）+ 20 个 `af-*` 组件标签，禁止自定义 class
+1. **只用 155 白名单 class**（`page` / `card` / `btn` / `title` / `caption` / `navbar` 等）+ 28 个 `af-*` 组件标签，禁止自定义 class
 2. **禁止内联 style**：布局用白名单 class 或 `data-role` + 少量自定义 CSS
 3. **禁止 Tailwind 语法 / 任意值语法**（`p-4`、`w-[100px]`）
 4. **数据请求只用 `fetchPage`**，后端地址写 `supabase://表名?...`，返回 `{ data, total }`

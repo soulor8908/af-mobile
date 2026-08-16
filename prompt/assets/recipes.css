@@ -94,7 +94,7 @@
   .price-del { font-size: var(--t-sm); font-weight: var(--fw-normal);
                color: var(--c-muted); text-decoration: line-through; }
 
-  /* === 表单（8） === */
+  /* === 表单（9） === */
   .label {
     display: block;
     margin-bottom: var(--s-1);
@@ -143,6 +143,9 @@
     color: var(--c-danger);
     line-height: var(--lh-tight);
   }
+
+  /* 滑块：原生 input[type=range]（vant Slider），accent-color 免 thumb 定制 */
+  .slider { width: 100%; accent-color: var(--c-brand); }
 
   .search-input {
     width: 100%;
@@ -299,6 +302,7 @@
   }
 
   /* === 反馈（9） === */
+
   .empty {
     display: flex;
     flex-direction: column;

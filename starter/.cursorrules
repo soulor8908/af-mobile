@@ -1,7 +1,7 @@
 # AIFlow Starter —— Cursor 规则
 # 完整版见 .trae/rules.md
 
-- 只用 154 白名单 class + af-* 组件标签，禁止自定义 class
+- 只用 155 白名单 class + af-* 组件标签，禁止自定义 class
 - 禁止内联 style / Tailwind 语法 / 任意值语法
 - 数据请求只用 fetchPage + `supabase://表名?...`（返回 { data, total }）
 - 用户输入插值必须 escapeHtml；事件名 af-{组件}:{动作}

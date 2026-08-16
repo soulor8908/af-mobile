@@ -67,23 +67,24 @@
 | Toast | `<af-toast>` | `showToast('x')` → `toastEl.show('x')` 单例 |
 | Uploader | `<af-upload>` | — |
 
-### 1.2 配方替代（L2 class + 原生元素，零 JS 零组件）
+### 1.2 配方替代（L2 class + 原生元素，零 JS 零组件；已逐项核实存在于白名单）
 
 | vant | af 方案 | 说明 |
 |---|---|---|
 | Button | `.btn` + `.btn-ghost/.btn-danger/.btn-block/.btn-sm/.btn-lg` | 原生 `<button>` |
 | Cell | `.cell` / `.list-item` | 原生 div；可点击加 `role="button"` + tabindex |
-| Checkbox | `.checkbox` 配方 + `<input type="checkbox">` | 原生 a11y/键盘免费获得 |
-| Radio | `.radio` 配方 + `<input type="radio">` | 同上 |
-| Tag | `.tag`（含语义变体） | — |
+| Checkbox | `.checkbox` / `.checkbox-sm` + `<input type="checkbox">` | 原生 a11y/键盘免费获得 |
+| Radio | `.radio` / `.radio-sm` + `<input type="radio">` | 同上 |
+| Slider | `.slider` + `<input type="range">`（v1.5.1 新增） | `accent-color` 原生美化轨道/滑块，免 JS |
+| Tag | `.tag` / `.tag-danger/.tag-ok/.tag-warn` | — |
 | Avatar | `.avatar` | 图片头像可用 `<af-img>` 组合 |
 | Divider | `.divider` | — |
 | Empty | `.empty` | 配文案/按钮组合 |
-| Form | `.form-row` + `.label` + `.input` + `.form-err` | 原生 `<form>` + 校验外置 |
-| Grid | 原生 CSS Grid + `g-*` 原子 | — |
-| Layout (Row/Col) | 原生 flex/grid + `f/fc/jcsb/aic` 原子 | — |
-| Loading | `.skeleton-line`（加载占位）/ `.spinner` 类配方 | 阻塞态用 af-dialog + 文案 |
-| Icon | inline SVG（各组件内嵌） | 无独立 icon font；迁移时抽成项目 SVG 资产 |
+| Form | `.form-row` / `.form-row-h` + `.label` + `.input` + `.form-err` | 原生 `<form>` + 校验外置 |
+| Grid / Layout | 原生 CSS Grid/flex + `g-*` / `f/fc/jcsb/aic` 原子 | — |
+| Loading | `.spinner` / `.spinner-sm/.spinner-lg`；占位用 `.skeleton-*` | 阻塞态用 af-dialog + 文案 |
+| Collapse | `.collapse` + `.collapse-summary/.collapse-content` + `<details>` | 已内置（含箭头旋转动效） |
+| Icon | inline SVG（各组件内嵌） | 设计差异：无 icon font；迁移时抽成项目 SVG 资产 |
 
 ### 1.3 原生能力替代（2022+ 浏览器标准，见 AGENTS.md 原生优先原则）
 
@@ -91,10 +92,9 @@
 |---|---|
 | Popover | 原生 `popover` API（af-dropdown / af-action-sheet 同款机制） |
 | Overlay | `dialog::backdrop`（af-dialog 自带） |
-| Collapse / Accordion | `<details><summary>` + 配方（或 recipes.project.css 扩展） |
 | Notify | `<af-toast>` 或 `.notice-bar` 变体 |
 | Lazyload | `<af-img>` 内置 / 原生 `loading="lazy"` |
-| ImagePreview | `<af-swiper>` 全屏变体组合（半成品，见 §4） |
+| NumberKeyboard / PasswordInput | 原生 `inputmode="numeric"` / `inputmode="none"` + 自绘键盘；支付级安全键盘属业务层 |
 
 ---
 
@@ -165,23 +165,42 @@ L3 需补缺口：§4 清单，走 recipes.project.css / extraClass / 原生 / �
 
 ---
 
-## 4. 真实缺口清单与处理路径
+## 4. 真实缺口四分类盘点（v1.5.1 逐项核实）
 
 > 与"组件数量不足"结论一致：缺口优先走逃生舱，不盲目立项。
+> 四分类：**新增**（本次已入库）/ **完善**（给了组合方案，落地在项目层）/ **替换方案**（§1.2/§1.3 已覆盖，无需动）/ **不需要**（明确不做）。
 
-| 缺口 | 优先级 | 处理路径 |
-|---|---|---|
-| Slider 滑块 | 高 | **建议立项 L3**（原生 `<input type="range">` + 配方即可起步，成本低） |
-| Collapse 折叠面板 | 高 | 原生 `<details>` + recipes.project.css（无需组件） |
-| ImagePreview 图片预览 | 中 | af-swiper 全屏变体组合；或 recipes.project.css |
-| NumberKeyboard / PasswordInput | 中 | recipes.project.css + 原生 `inputmode`（支付场景组合） |
-| Circle 环形进度 | 低 | SVG `stroke-dasharray` 配方 |
-| FloatingBubble / FloatingPanel | 低 | 原生 `drag`（2025+）或少量 JS + 配方 |
-| Sidebar / TreeSelect | 低 | af-tabs 垂直变体 / cascade-picker 承载 |
-| ShareSheet | 低 | af-action-sheet 变体（options + 描述） |
-| GoodsAction / SubmitBar | 中 | `.actions` / `.checkout-bar` 配方已覆盖大半，差价场景走 recipes.project.css |
-| AddressEdit / AddressList / Area | 中 | af-field + af-cascade-picker（省市区 tree）组合，业务层组装 |
-| Sku / Coupon 等重业务组件 | 低 | 不建议库内对齐——属业务模板，回归 Block 复活条件（结构完整性失败 >30%）再议 |
+### 4.1 需新增（已落地 ✅）
+
+| 缺口 | 落地 |
+|---|---|
+| Slider 滑块 | `.slider` 配方入库（recipes.css 表单组，原生 `input[type=range]` + `accent-color: var(--c-brand)`，白名单第 103 个 recipe class，三源同步完成） |
+
+### 4.2 需完善（走 recipes.project.css 项目级组合，半成品能力由组合方案补齐）
+
+| 缺口 | 组合方案（写入 recipes.project.css 约定块） |
+|---|---|
+| ImagePreview 图片预览 | af-swiper 无全屏变体（已核实）。组合：`<div class="preview-full"><af-swiper>…</af-swiper></div>`，`.preview-full { position: fixed; inset: 0; z-index: var(--z-modal); background: #000; }` 登记到项目约定块，点遮罩关闭由页面层监听 click |
+| ShareSheet 分享面板 | af-action-sheet 的 items **无 desc 副标题字段**（已核实）。两条路：① items 文本内嵌描述（`label: '微信 · 分享到好友'`）；② 需要图标网格时走项目级自定义面板 + 原生 `popover` API（同 af-dropdown 机制） |
+| Pagination 页码跳转 | af-list 只有 loadmore 无限滚动（已核实）。简单上一页/下一页：`.actions` + `.btn btn-sm` 组合；页码输入用 `.input` 窄列 |
+| Circle 环形进度 | SVG `stroke-dasharray` + `.circle-bar { stroke: var(--c-brand); transform: rotate(-90deg); transform-origin: center; fill: none; }` 项目级登记 |
+| NumberKeyboard / PasswordInput | 原生 `inputmode` 属性方案（§1.3）；支付级安全键盘属业务层不进库 |
+
+### 4.3 有替换方案（验证为真，零缺口）
+
+Button/Cell/Checkbox/Radio/Tag/Avatar/Divider/Empty/Form/Loading/Collapse/Slider（全部 §1.2 已核实）+ Popover/Overlay/Notify/Lazyload/NumberKeyboard（§1.3 原生能力）+ GoodsAction/SubmitBar（`.actions`/`.checkout-bar`）+ Sidebar/TreeSelect（af-tabs 垂直变体 / af-cascade-picker 承载）+ DatePicker/TimePicker（af-picker 列模式）+ FloatingBubble/FloatingPanel（原生 `drag` 2025+ 或少量 JS + 配方）。
+
+### 4.4 不需要（明确不做，含理由）
+
+| vant | 不做的理由 |
+|---|---|
+| Icon 组件库 | 设计差异非缺口：af 内嵌 inline SVG，无 icon font 依赖；项目图标走 SVG 资产 |
+| ConfigProvider | 已有等价物：`data-theme` + `initTheme()/toggleTheme()` |
+| Sku / Coupon / AddressEdit / AddressList / Area | 业务模板非原语；Area 可由 af-field + af-cascade-picker（省市区 tree）组合；Sku/Coupon 回归 Block 复活条件（结构完整性失败 >30%）再议 |
+| Signature / Watermark | 低频且无 AI 生成高频场景；项目级按需自绘 |
+| Style（内置样式包） | af 等价物即 L1 tokens.css，无对应关系 |
+
+**结论**：vant ~70 组件中 28 个一对一组件 + 18 个配方/原生替换 + 5 类项目级组合 = 覆盖 ~51 项高频能力；真正"组件不存在且无方案"的缺口为 **0**。剩余为业务模板与低频特性，属有意不做（诚实边界见 §6）。
 
 ---
 

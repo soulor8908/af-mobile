@@ -240,6 +240,16 @@ export function filterFewshots(tpl, categories) {
   return tpl.slice(0, start) + kept.join('') + tpl.slice(end);
 }
 
+// ===== 2C vant 迁移映射注入（需求含 vant/van-/迁移关键词时追加，vant-migration 设计 §5C）=====
+const VANT_MIGRATION_HINT = `
+# vant 迁移速查（需求检测到 vant 词汇时注入）
+
+- 标签替换：\`van-xxx\` → \`af-xxx\`（28 个一对一：ActionSheet/BackTop/Badge/Calendar/Cascader→cascade-picker/CountDown/Dialog/DropdownMenu/Field/Image/List/NavBar/NoticeBar/Picker/Progress/PullRefresh/Rate/Search→search-bar/Skeleton/Stepper/Steps/SwipeCell/Swipe→swiper/Switch/Tabbar/Tabs/Toast/Uploader）
+- 纯样式组件不用组件标签：Button→\`.btn\`、Cell→\`.cell\`、Checkbox/Radio→\`.checkbox\`/\`.radio\` + 原生 input、Tag→\`.tag\`、Slider→\`.slider\` + \`<input type="range">\`、Collapse→\`<details>\` + \`.collapse\`、Empty→\`.empty\`、Loading→\`.spinner\`
+- 范式转换：\`v-model\` → property + \`af-*:change\` 事件；\`showDialog()/showToast()\` → 元素 \`.open()\`/\`.show()\` 方法；\`--van-*\` → tokens.project.css 覆盖 token 值
+- 无对应物：NumberKeyboard→原生 \`inputmode\`；ImagePreview→项目级 \`.preview-full\` + af-swiper 组合（recipes.project.css 登记）；Sku/Coupon 等业务模板不迁移
+`;
+
 // ===== 2B 模块化：buildPrompt（Prompt 即 API）=====
 // 角色（固定）+ 白名单（半固定）+ 组件 API（按需）+ Few-shot（动态检索）+ 模型特化 + 主题扩展 组合
 // 无参 buildPrompt() = 全量（等价旧构建，CI 快照用）
@@ -288,6 +298,9 @@ export function buildPrompt({ components = [], categories = null, userPrompt = '
         '## 项目 Token（theme 注入，' + tokens.length + ' 个）\n\n' + row + '\n\n## 禁止内联 style 的属性');
     }
   }
+
+  // vant 迁移速查（可选）：需求含 vant 词汇时追加映射段（vant-migration 设计 §5C）
+  if (userPrompt && /vant|van-|迁移/.test(userPrompt)) out += '\n' + VANT_MIGRATION_HINT.trimStart();
 
   // 模型特化头：拼在 prompt 最前
   if (model) {

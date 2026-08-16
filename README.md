@@ -3,7 +3,7 @@
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
 
 - **L1 Token**：43 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
-- **L2 配方 + 原子**：154 个白名单封闭集 class（102 配方 + 52 原子，`btn`/`card`/`p-4`/...）
+- **L2 配方 + 原子**：155 个白名单封闭集 class（103 配方 + 52 原子，`btn`/`card`/`p-4`/...）
 - **L3 真组件**：28 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 20 规则兜底 + CI 保护
 
@@ -281,7 +281,7 @@ function App() {
 
 ## 从 Vant 迁移
 
-vant 约 70 个组件中，**28 个与 af-\* 一对一同名对应**（ActionSheet→`af-action-sheet`、Swipe→`af-swiper`、Toast→`af-toast` 等），Button/Cell/Tag/Checkbox 等纯样式组件由 154 白名单 class 配方覆盖，Popover/Overlay/Collapse 走原生能力。主要范式差异：`v-model` → property + `af-*:change` 事件；`showDialog()/showToast()` → 元素 `.open()/.show()` 方法；`--van-*` → token 覆盖。真实缺口 ~12 个（Slider/Collapse/ImagePreview 等）均有配方或原生逃生舱。完整映射表与逐页迁移 playbook 见 [Vant 迁移对比设计](docs/design/vant-migration-design.md)（该文档可直接投喂 AI；MCP `get_prompt` 对含 vant 关键词的需求自动注入映射 few-shot）。
+vant 约 70 个组件中，**28 个与 af-\* 一对一同名对应**（ActionSheet→`af-action-sheet`、Swipe→`af-swiper`、Toast→`af-toast` 等），Button/Cell/Tag/Checkbox/Slider 等纯样式组件由 155 白名单 class 配方覆盖（Slider 为原生 `input[type=range]` + `.slider`），Popover/Overlay/Collapse/NumberKeyboard 走原生能力；ImagePreview/ShareSheet/Pagination/Circle 给了 recipes.project.css 项目级组合方案；Sku/Coupon/Signature 等业务模板与低频特性明确不做——**"组件不存在且无方案"的缺口为 0**。主要范式差异：`v-model` → property + `af-*:change` 事件；`showDialog()/showToast()` → 元素 `.open()/.show()` 方法；`--van-*` → token 覆盖。完整四分类缺口盘点与逐页迁移 playbook 见 [Vant 迁移对比设计](docs/design/vant-migration-design.md)（该文档可直接投喂 AI；MCP `get_prompt` 对含 vant 关键词的需求自动注入映射 few-shot）。
 
 ## 注册方式
 
@@ -396,7 +396,7 @@ toggleTheme();            // 切换并持久化
 
 1. `tokens.css` 以外不可重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 2. `style=""` 不可设置 `color/background*/padding*/margin*/font-size/border-radius/box-shadow`
-3. 不可使用 154 白名单外的 class 名或自定义组件标签
+3. 不可使用 155 白名单外的 class 名或自定义组件标签
 4. `.btn`（非 ghost）不可叠加 `text-brand/text-danger/text-success`
 5. `.input` 不可叠加 `t-sm/t-xs`（iOS 聚焦 < 16px 自动放大页面）
 6. `.cell/.list-item` 不可叠加 `f/fc` 原子

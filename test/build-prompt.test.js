@@ -271,6 +271,15 @@ describe('build-prompt / buildPrompt（Prompt 即 API）', () => {
     expect(p).toContain('## 示例 2：page-login');
     expect(p).not.toContain('## 示例 1：page-list');
   });
+  it('userPrompt 含 vant 词汇注入迁移速查，普通需求不注入（§5C）', () => {
+    const withVant = buildPrompt({ userPrompt: '把 van-list 页面迁移过来' });
+    expect(withVant).toContain('vant 迁移速查');
+    expect(withVant).toContain('`van-xxx` → `af-xxx`');
+    const plain = buildPrompt({ userPrompt: '登录页：手机号验证码' });
+    expect(plain).not.toContain('vant 迁移速查');
+    // 全量模式（CI 快照）不受影响
+    expect(buildPrompt()).not.toContain('vant 迁移速查');
+  });
   it('显式 categories 只保留指定 few-shot', () => {
     const p = buildPrompt({ categories: ['page-list'] });
     expect(p).toContain('## 示例 1：page-list');

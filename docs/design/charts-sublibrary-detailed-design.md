@@ -1,6 +1,6 @@
 # AIFlow UI —— Charts 图表子库详细设计（@af-mobile/ui/charts）
 
-> 状态：设计稿（待评审）。实施分期见 §11。
+> 状态：**已实施**（Phase 1-2 完成，5 组件 + 内核全部落地，2026-08-16）。验收记录见 §11。
 > 定位：L3 之上的**可选子库**，独立入口 `@af-mobile/ui/charts`，不进主 `index.js`。
 > 基线：2022+ 移动端浏览器（iOS 16+ / Chrome 99+），不考虑 PC 兼容与降级。
 
@@ -481,7 +481,7 @@ const BUDGET = {
 
 | 期 | 内容 | 产出预算 | 验收 |
 |---|---|---|---|
-| **Phase 1（MVP）** | 内核 5 模块 + af-chart-line/bar/pie（含全部 variant）+ size-check 两条预算线 + whitelist/types/prompt 三源同步 + 单测/e2e | chartsTotal ≤ 11KB | `npm run ci` 全绿（新增 2 条 charts 预算线） |
-| **Phase 2** | af-chart-radar（复用极坐标弧内核）+ af-chart-funnel | chartsTotal ≤ 15KB | 同上 |
+| **Phase 1（MVP）✅ 已实施** | 内核 5 模块 + af-chart-line/bar/pie（含全部 variant）+ size-check 两条预算线 + whitelist/types/prompt 三源同步 + 单测 | chartsTotal ≤ 11KB | ✅ charts 全量 8.83KB gzip；单测 1071 通过；ESLint/size/whitelist/types/aria 全绿 |
+| **Phase 2 ✅ 已实施** | af-chart-radar（复用极坐标弧内核）+ af-chart-funnel | chartsTotal ≤ 15KB | ✅ charts 全量（5 组件+内核）10.18KB gzip；单测 1095 通过；publish:check 14/14 |
 
 每期完成后按 AGENTS §2 全量自检（ESLint/测试/size/whitelist/types/aria），exports 变更额外跑 `npm run build && npm run publish:check`。

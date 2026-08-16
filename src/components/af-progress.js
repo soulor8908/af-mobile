@@ -19,6 +19,6 @@ export class AfProgress extends AfElement {
   }
 }
 
-AfElement.defineProp(AfProgress.prototype, 'value', { type: Number, default: 0 });
-AfElement.defineProp(AfProgress.prototype, 'max', { type: Number, default: 100 });
-AfElement.defineProp(AfProgress.prototype, 'color', { type: String, default: 'brand' });
+AfElement.defineProp(AfProgress.prototype, 'value', 0);
+AfElement.defineProp(AfProgress.prototype, 'max', 100);
+AfElement.defineProp(AfProgress.prototype, 'color', 'brand');

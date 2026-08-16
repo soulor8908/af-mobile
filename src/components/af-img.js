@@ -115,10 +115,10 @@ export class AfImg extends AfElement {
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfImg.prototype, 'src', { type: String, default: '' });
-AfElement.defineProp(AfImg.prototype, 'alt', { type: String, default: '' });
-AfElement.defineProp(AfImg.prototype, 'placeholderSrc', { attr: 'placeholder-src', type: String, default: '' });
-AfElement.defineProp(AfImg.prototype, 'failSrc', { attr: 'fail-src', type: String, default: '' });
-AfElement.defineProp(AfImg.prototype, 'variant', { type: String, default: 'default' });
-AfElement.defineProp(AfImg.prototype, 'rootMargin', { attr: 'root-margin', type: String, default: '200px' });
-AfElement.defineProp(AfImg.prototype, 'lazy', { type: Boolean, default: true });
+AfElement.defineProp(AfImg.prototype, 'src', '');
+AfElement.defineProp(AfImg.prototype, 'alt', '');
+AfElement.defineProp(AfImg.prototype, 'placeholderSrc', '');
+AfElement.defineProp(AfImg.prototype, 'failSrc', '');
+AfElement.defineProp(AfImg.prototype, 'variant', 'default');
+AfElement.defineProp(AfImg.prototype, 'rootMargin', '200px');
+AfElement.defineProp(AfImg.prototype, 'lazy', true);

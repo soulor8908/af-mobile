@@ -76,9 +76,9 @@ export class AfPullRefresh extends withI18n(AfElement) {
       }
     };
 
-    this.addEventListener('touchstart', this._onTouchStart, { passive: true });
-    this.addEventListener('touchmove', this._onTouchMove, { passive: false });
-    this.addEventListener('touchend', this._onTouchEnd);
+    this._listen(this, 'touchstart', this._onTouchStart, { passive: true });
+    this._listen(this, 'touchmove', this._onTouchMove, { passive: false });
+    this._listen(this, 'touchend', this._onTouchEnd);
   }
 
   _setPull(h) {
@@ -113,12 +113,6 @@ export class AfPullRefresh extends withI18n(AfElement) {
       else if (!this.refreshing) this._setPull(0);
     }
   }
-
-  unmounted() {
-    this.removeEventListener('touchstart', this._onTouchStart);
-    this.removeEventListener('touchmove', this._onTouchMove);
-    this.removeEventListener('touchend', this._onTouchEnd);
-  }
 }
 
-AfElement.defineProp(AfPullRefresh.prototype, 'refreshing', { type: Boolean, default: false });
+AfElement.defineProp(AfPullRefresh.prototype, 'refreshing', false);

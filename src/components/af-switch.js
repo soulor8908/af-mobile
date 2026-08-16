@@ -36,7 +36,7 @@ export class AfSwitch extends AfElement {
 
   _bindClick() {
     this._onClick = () => this.toggle();
-    this._btn.addEventListener('click', this._onClick);
+    this._listen(this._btn, 'click', this._onClick);
   }
 
   _bindKeydown() {
@@ -46,7 +46,7 @@ export class AfSwitch extends AfElement {
         this.toggle();
       }
     };
-    this._btn.addEventListener('keydown', this._onKeydown);
+    this._listen(this._btn, 'keydown', this._onKeydown);
   }
 
   onAttributeChange(name) {
@@ -58,14 +58,9 @@ export class AfSwitch extends AfElement {
       this._btn = this.$('.switch');
     }
   }
-
-  unmounted() {
-    this._btn?.removeEventListener('click', this._onClick);
-    this._btn?.removeEventListener('keydown', this._onKeydown);
-  }
 }
 
-AfElement.defineProp(AfSwitch.prototype, 'checked', { type: Boolean, default: false });
-AfElement.defineProp(AfSwitch.prototype, 'disabled', { type: Boolean, default: false });
-AfElement.defineProp(AfSwitch.prototype, 'loading', { type: Boolean, default: false });
-AfElement.defineProp(AfSwitch.prototype, 'size', { type: String, default: 'md' });
+AfElement.defineProp(AfSwitch.prototype, 'checked', false);
+AfElement.defineProp(AfSwitch.prototype, 'disabled', false);
+AfElement.defineProp(AfSwitch.prototype, 'loading', false);
+AfElement.defineProp(AfSwitch.prototype, 'size', 'md');

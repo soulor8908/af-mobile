@@ -43,7 +43,7 @@ export class AfRate extends AfElement {
         this.emit('af-rate:change', { value: v });
       }
     };
-    this.addEventListener('change', this._onChange);
+    this._listen(this, 'change', this._onChange);
   }
 
   onAttributeChange(name) {
@@ -54,14 +54,10 @@ export class AfRate extends AfElement {
       this._updateChecked();
     }
   }
-
-  unmounted() {
-    this.removeEventListener('change', this._onChange);
-  }
 }
 
-AfElement.defineProp(AfRate.prototype, 'value', { type: Number, default: 0 });
-AfElement.defineProp(AfRate.prototype, 'max', { type: Number, default: 5 });
-AfElement.defineProp(AfRate.prototype, 'readonly', { type: Boolean, default: false });
-AfElement.defineProp(AfRate.prototype, 'size', { type: String, default: 'md' });
-AfElement.defineProp(AfRate.prototype, 'label', { type: String, default: '评分' });
+AfElement.defineProp(AfRate.prototype, 'value', 0);
+AfElement.defineProp(AfRate.prototype, 'max', 5);
+AfElement.defineProp(AfRate.prototype, 'readonly', false);
+AfElement.defineProp(AfRate.prototype, 'size', 'md');
+AfElement.defineProp(AfRate.prototype, 'label', '评分');

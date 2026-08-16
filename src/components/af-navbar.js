@@ -41,7 +41,7 @@ export class AfNavbar extends withI18n(AfElement) {
     const btn = this.$('[data-role="back"]');
     if (!btn) return;
     this._onBack = () => this.emit('af-navbar:back', {});
-    btn.addEventListener('click', this._onBack);
+    this._listen(btn, 'click', this._onBack);
   }
 
   onAttributeChange(name, oldVal, newVal) {
@@ -60,13 +60,9 @@ export class AfNavbar extends withI18n(AfElement) {
       }
     }
   }
-
-  unmounted() {
-    this.$('[data-role="back"]')?.removeEventListener('click', this._onBack);
-  }
 }
 
-AfElement.defineProp(AfNavbar.prototype, 'title', { type: String, default: '' });
-AfElement.defineProp(AfNavbar.prototype, 'showBack', { attr: 'show-back', type: Boolean, default: false });
-AfElement.defineProp(AfNavbar.prototype, 'backText', { attr: 'back-text', type: String, default: '←' });
-AfElement.defineProp(AfNavbar.prototype, 'backAriaLabel', { attr: 'back-aria-label', type: String, default: null });
+AfElement.defineProp(AfNavbar.prototype, 'title', '');
+AfElement.defineProp(AfNavbar.prototype, 'showBack', false);
+AfElement.defineProp(AfNavbar.prototype, 'backText', '←');
+AfElement.defineProp(AfNavbar.prototype, 'backAriaLabel', null);

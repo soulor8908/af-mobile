@@ -57,7 +57,7 @@ export class AfTabbar extends withI18n(AfElement) {
       const idx = Number(item.dataset.index);
       if (idx >= 0) this.setActive(idx);
     };
-    this._tabbar.addEventListener('click', this._onClick);
+    this._listen(this._tabbar, 'click', this._onClick);
   }
 
   _bindKeydown() {
@@ -77,7 +77,7 @@ export class AfTabbar extends withI18n(AfElement) {
       this.setActive(idx);
       items[idx].focus();
     };
-    this._tabbar.addEventListener('keydown', this._onKeydown);
+    this._listen(this._tabbar, 'keydown', this._onKeydown);
   }
 
   onAttributeChange(name) {
@@ -97,14 +97,9 @@ export class AfTabbar extends withI18n(AfElement) {
       this._applyI18n();
     }
   }
-
-  unmounted() {
-    this._tabbar?.removeEventListener('click', this._onClick);
-    this._tabbar?.removeEventListener('keydown', this._onKeydown);
-  }
 }
 
-AfElement.defineProp(AfTabbar.prototype, 'tabs', { type: Array, default: [] });
-AfElement.defineProp(AfTabbar.prototype, 'activeIndex', { attr: 'active-index', type: Number, default: 0 });
-AfElement.defineProp(AfTabbar.prototype, 'fixed', { type: Boolean, default: true });
-AfElement.defineProp(AfTabbar.prototype, 'ariaLabel', { attr: 'aria-label', type: String, default: null });
+AfElement.defineProp(AfTabbar.prototype, 'tabs', []);
+AfElement.defineProp(AfTabbar.prototype, 'activeIndex', 0);
+AfElement.defineProp(AfTabbar.prototype, 'fixed', true);
+AfElement.defineProp(AfTabbar.prototype, 'ariaLabel', null);

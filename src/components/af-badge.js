@@ -32,7 +32,7 @@ export class AfBadge extends AfElement {
   }
 }
 
-AfElement.defineProp(AfBadge.prototype, 'content', { type: String, default: '' });
+AfElement.defineProp(AfBadge.prototype, 'content', '');
 AfElement.defineProp(AfBadge.prototype, 'max', { type: Number, default: null });
-AfElement.defineProp(AfBadge.prototype, 'dot', { type: Boolean, default: false });
+AfElement.defineProp(AfBadge.prototype, 'dot', false);
 AfElement.defineProp(AfBadge.prototype, 'color', { attr: 'data-color', type: String, default: 'danger' });

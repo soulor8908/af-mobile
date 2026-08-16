@@ -63,7 +63,7 @@ export class AfStepper extends withI18n(AfElement) {
       if (role === 'minus') this.setValue(this.value - this.step);
       else if (role === 'plus') this.setValue(this.value + this.step);
     };
-    this.addEventListener('click', this._onClick);
+    this._listen(this, 'click', this._onClick);
   }
 
   _bindInput() {
@@ -76,7 +76,7 @@ export class AfStepper extends withI18n(AfElement) {
       if (!Number.isNaN(v)) this.setValue(v);
       else this._input.value = String(this.value);
     };
-    this._input.addEventListener('change', this._onChange);
+    this._listen(this._input, 'change', this._onChange);
   }
 
   onAttributeChange(name) {
@@ -91,16 +91,11 @@ export class AfStepper extends withI18n(AfElement) {
       this._applyI18n();
     }
   }
-
-  unmounted() {
-    this.removeEventListener('click', this._onClick);
-    this._input?.removeEventListener('change', this._onChange);
-  }
 }
 
-AfElement.defineProp(AfStepper.prototype, 'value', { type: Number, default: 0 });
-AfElement.defineProp(AfStepper.prototype, 'min', { type: Number, default: 0 });
-AfElement.defineProp(AfStepper.prototype, 'max', { type: Number, default: 99 });
-AfElement.defineProp(AfStepper.prototype, 'step', { type: Number, default: 1 });
-AfElement.defineProp(AfStepper.prototype, 'disabled', { type: Boolean, default: false });
-AfElement.defineProp(AfStepper.prototype, 'ariaLabel', { attr: 'aria-label', type: String, default: null });
+AfElement.defineProp(AfStepper.prototype, 'value', 0);
+AfElement.defineProp(AfStepper.prototype, 'min', 0);
+AfElement.defineProp(AfStepper.prototype, 'max', 99);
+AfElement.defineProp(AfStepper.prototype, 'step', 1);
+AfElement.defineProp(AfStepper.prototype, 'disabled', false);
+AfElement.defineProp(AfStepper.prototype, 'ariaLabel', null);

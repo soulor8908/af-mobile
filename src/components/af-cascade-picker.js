@@ -25,7 +25,7 @@ export class AfCascadePicker extends AfPicker {
       if (e.detail?.column == null) return;
       this._rebuild();
     };
-    this.addEventListener('af-picker:change', this._onChange);
+    this._listen(this, 'af-picker:change', this._onChange);
     this._rebuild();
   }
 
@@ -41,11 +41,6 @@ export class AfCascadePicker extends AfPicker {
     if (name === 'tree') { this._rebuild(); return; }
     super.onAttributeChange(name, oldVal, newVal);
   }
-
-  unmounted() {
-    this.removeEventListener('af-picker:change', this._onChange);
-    super.unmounted();
-  }
 }
 
-AfElement.defineProp(AfCascadePicker.prototype, 'tree', { type: Array, default: [] });
+AfElement.defineProp(AfCascadePicker.prototype, 'tree', []);

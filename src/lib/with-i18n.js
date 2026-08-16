@@ -11,20 +11,9 @@ export function withI18n(Base) {
 
     connectedCallback() {
       super.connectedCallback();
-      // localechange 订阅（与 themechange 对称）：语言切换时 onLocaleChange → _applyI18n
-      if (!this._localeHandler) {
-        this._localeHandler = (e) => this.onLocaleChange?.(e.detail);
-        document.documentElement.addEventListener('localechange', this._localeHandler);
-      }
+      // localechange 订阅（与 themechange 对称，经 _listen 登记，断开时基类统一解绑）
+      this._listen(document.documentElement, 'localechange', (e) => this.onLocaleChange?.(e.detail));
       this._applyI18n();
-    }
-
-    disconnectedCallback() {
-      if (this._localeHandler) {
-        document.documentElement.removeEventListener('localechange', this._localeHandler);
-        this._localeHandler = null;
-      }
-      super.disconnectedCallback();
     }
 
     /** 语言切换回调（默认重新应用 i18n 映射表，子类可重写） */

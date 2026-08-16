@@ -47,7 +47,7 @@ export class AfSearchBar extends withI18n(AfElement) {
         this._emitInput();
       }
     };
-    this._input.addEventListener('input', this._onInput);
+    this._listen(this._input, 'input', this._onInput);
   }
 
   _bindKeydown() {
@@ -59,7 +59,7 @@ export class AfSearchBar extends withI18n(AfElement) {
         this.emit('af-search-bar:search', { value: this.value });
       }
     };
-    this._input.addEventListener('keydown', this._onKeydown);
+    this._listen(this._input, 'keydown', this._onKeydown);
   }
 
   _bindClear() {
@@ -72,7 +72,7 @@ export class AfSearchBar extends withI18n(AfElement) {
       this.emit('af-search-bar:clear', { value: '' });
       this.emit('af-search-bar:input', { value: '' });
     };
-    this._clear.addEventListener('click', this._onClear);
+    this._listen(this._clear, 'click', this._onClear);
   }
 
   focus() { this._input?.focus(); }
@@ -85,13 +85,10 @@ export class AfSearchBar extends withI18n(AfElement) {
 
   unmounted() {
     clearTimeout(this._debounceTimer);
-    this._input?.removeEventListener('input', this._onInput);
-    this._input?.removeEventListener('keydown', this._onKeydown);
-    this._clear?.removeEventListener('click', this._onClear);
   }
 }
 
-AfElement.defineProp(AfSearchBar.prototype, 'value', { type: String, default: '' });
-AfElement.defineProp(AfSearchBar.prototype, 'placeholder', { type: String, default: null });
-AfElement.defineProp(AfSearchBar.prototype, 'clearable', { type: Boolean, default: true });
-AfElement.defineProp(AfSearchBar.prototype, 'debounce', { type: Number, default: 300 });
+AfElement.defineProp(AfSearchBar.prototype, 'value', '');
+AfElement.defineProp(AfSearchBar.prototype, 'placeholder', null);
+AfElement.defineProp(AfSearchBar.prototype, 'clearable', true);
+AfElement.defineProp(AfSearchBar.prototype, 'debounce', 300);

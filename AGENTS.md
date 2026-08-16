@@ -248,7 +248,8 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 - [ ] 模态组件：open() 保存焦点，close() 还原焦点
 - [ ] 交互列表：支持 Arrow/Enter 键盘导航
 - [ ] ARIA：满足 `aria-requirements.json` 中声明的必需属性
-- [ ] `mounted()` 中的 addEventListener / setTimeout / 观察器在 `unmounted()` 中清理
+- [ ] 事件绑定统一 `this._listen(target, type, handler)` 登记（基类断开时自动解绑；禁止直接 addEventListener，`wc-cleanup` 会报错；外部目标切换等需立即解绑的场景可先 removeEventListener 再 `_listen`）
+- [ ] `mounted()` 中的 setTimeout / 观察器在 `unmounted()` 中清理（事件监听已由 `_listen` 自动处理，无需手写 removeEventListener）
 - [ ] 跑 §2 自检命令
 
 ### 修改 ESLint 插件 `eslint-plugin-aiflow/`

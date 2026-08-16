@@ -247,26 +247,55 @@ describe('L3-5 aiflow/wc-aria-required', () => {
 });
 
 describe('L3-6 aiflow/wc-cleanup', () => {
-  it('addEventListener 无 removeEventListener 报 warn', () => {
+  it('直接 addEventListener 报 listen（须走 _listen 登记）', () => {
     ruleTester.run('wc-cleanup', wcCleanup, {
       valid: [],
       invalid: [{
         filename: 'src/components/af-foo.js',
         code: `export class AfFoo { mounted() { window.addEventListener('scroll', fn); } }`,
-        errors: [{ messageId: 'leak' }],
+        errors: [{ messageId: 'listen' }],
       }],
     });
   });
-  it('addEventListener + removeEventListener 放行', () => {
+  it('unmounted 成对 removeEventListener 也不再放行（必须 _listen）', () => {
+    ruleTester.run('wc-cleanup', wcCleanup, {
+      valid: [],
+      invalid: [{
+        filename: 'src/components/af-foo.js',
+        code: `export class AfFoo { mounted() { window.addEventListener('scroll', fn); } unmounted() { window.removeEventListener('scroll', fn); } }`,
+        errors: [{ messageId: 'listen' }],
+      }],
+    });
+  });
+  it('this._listen 登记放行', () => {
     ruleTester.run('wc-cleanup', wcCleanup, {
       valid: [{
         filename: 'src/components/af-foo.js',
-        code: `export class AfFoo { mounted() { window.addEventListener('scroll', fn); } unmounted() { window.removeEventListener('scroll', fn); } }`,
+        code: `export class AfFoo { mounted() { this._listen(window, 'scroll', fn); } }`,
       }],
       invalid: [],
     });
   });
-  it('setTimeout 无 clearTimeout 报 warn', () => {
+  it('传 signal 选项的原生自动解绑放行', () => {
+    ruleTester.run('wc-cleanup', wcCleanup, {
+      valid: [{
+        filename: 'src/components/af-foo.js',
+        code: `export class AfFoo { mounted() { window.addEventListener('scroll', fn, { signal }); } }`,
+      }],
+      invalid: [],
+    });
+  });
+  it('覆盖 src/blocks 目录', () => {
+    ruleTester.run('wc-cleanup', wcCleanup, {
+      valid: [],
+      invalid: [{
+        filename: 'src/blocks/af-foo.js',
+        code: `export class AfFoo { mounted() { this.addEventListener('click', fn); } }`,
+        errors: [{ messageId: 'listen' }],
+      }],
+    });
+  });
+  it('setTimeout 无 clearTimeout 报 leak', () => {
     ruleTester.run('wc-cleanup', wcCleanup, {
       valid: [],
       invalid: [{
@@ -276,11 +305,30 @@ describe('L3-6 aiflow/wc-cleanup', () => {
       }],
     });
   });
-  it('setTimeout + clearTimeout 放行', () => {
+  it('setTimeout + unmounted clearTimeout 放行', () => {
     ruleTester.run('wc-cleanup', wcCleanup, {
       valid: [{
         filename: 'src/components/af-foo.js',
         code: `export class AfFoo { mounted() { this._t = setTimeout(fn, 1000); } unmounted() { clearTimeout(this._t); } }`,
+      }],
+      invalid: [],
+    });
+  });
+  it('MutationObserver 无 disconnect 报 leak', () => {
+    ruleTester.run('wc-cleanup', wcCleanup, {
+      valid: [],
+      invalid: [{
+        filename: 'src/components/af-foo.js',
+        code: `export class AfFoo { mounted() { this._o = new MutationObserver(fn); this._o.observe(this, { childList: true }); } }`,
+        errors: [{ messageId: 'leak' }],
+      }],
+    });
+  });
+  it('MutationObserver + unmounted disconnect 放行', () => {
+    ruleTester.run('wc-cleanup', wcCleanup, {
+      valid: [{
+        filename: 'src/components/af-foo.js',
+        code: `export class AfFoo { mounted() { this._o = new MutationObserver(fn); } unmounted() { this._o?.disconnect(); } }`,
       }],
       invalid: [],
     });

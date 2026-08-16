@@ -2,10 +2,10 @@
 // 用法：node scripts/size-check.mjs
 // 依据 docs/design/l3-detailed-design.md §8.5 CI 体积监控（数字与下方 BUDGET 一致）
 //   单组件 JS gzip ≤ 2.8KB   PR 阻断（CSS 计入 L1+L2 总预算，不单测）
-//   基类 AfElement gzip     ≤ 1.5KB  PR 阻断
-//   全部 28 组件 + 基类 gzip ≤ 23.6KB PR 阻断
-//   按需引入 2 组件 gzip    ≤ 5.5KB   warn
-//   (核心运行时 state+fetch+router+i18n ≤ 5.4KB，独立预算不计入 total)
+//   基类 AfElement gzip     ≤ 2.0KB  PR 阻断
+//   全部 28 组件 + 基类 gzip ≤ 20.0KB PR 阻断
+//   按需引入 2 组件 gzip    ≤ 6.5KB   warn
+//   (核心运行时 state+fetch+router+i18n+page+bind ≤ 6.8KB，独立预算不计入 total)
 // 实现：esbuild 打包+minify，Node zlib 测 gzip（原生，无 gzip-size 依赖）
 import { build } from 'esbuild';
 import { gzipSync } from 'node:zlib';
@@ -62,17 +62,29 @@ const SRC = join(ROOT, 'src');
 // v3.8 调整（P2+性能修复，用户已确认）：
 //   total 23.7→23.8KB：af-list 虚拟滚动重渲染后补设 aria-activedescendant（跨屏回归，无障碍 bug 修复）
 //   + bind.js 复杂对象优先走组件 property 赋值（:bind 大数组避免 JSON.stringify 往返），增量约 +24B gzip
+// v3.9 调整（体积优化 A+B+D+E+F，用户已确认，total 23.135→19.982KB 达成 <20KB 目标）：
+//   修复测量泄漏：external 未覆盖组件内 '../lib/i18n.js'、page.js 内 './state.js' 等路径变体，
+//   i18n/page/bind/router/state 曾被误计入 total（约 -3.1KB）；page+bind 纳入 coreRuntime 独立预算
+//   base 1.5→2.0KB：焦点陷阱/滚动锁/_listen 事件登记下沉基类（组件侧净删更多，实测 1.951KB）
+//   total 23.8→20.0KB：泄漏修复 + defineProp 紧凑签名 + _listen 删手写解绑（实测 19.982KB，锚定 20KB 红线）
+//   coreRuntime 5.4→6.8KB：新增 page.js+bind.js（createPage 页面运行时，实测 6.591KB）
+//   onDemand2 5.5→6.5KB：i18n 泄漏修复后按需场景实测 6.041KB（warn 级）
 const BUDGET = {
   css: 8.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
-  base: 1.5,           // KB，AfElement 基类（+_applyI18n + localechange 订阅）
-  total: 23.8,         // KB，28 组件 + 基类（含 i18n 增量 + destroyPage + v3.8 aria/性能修复）
-  onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
-  coreRuntime: 5.4,    // KB，router(2.0)+state(0.9)+fetch(0.8)+i18n(1.1)+容差(0.6)，独立预算不计入 total（v3.0 state.js +Owner pattern）
+  base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
+  total: 20.0,         // KB，28 组件 + 基类（测量泄漏修复 + 紧凑化后实测 19.982KB，20KB 红线）
+  onDemand2: 6.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
+  coreRuntime: 6.8,    // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind）
 };
 
 const KB = 1024;
 const fmt = (b) => (b / KB).toFixed(3) + 'KB';
+
+// 核心运行时模块：所有组件侧测量（total / 单组件 / 按需 / 基类）一律 external，不计入组件体积
+// 路径变体：index.js 写 './lib/x.js'，组件写 '../lib/x.js'，lib 内部互引写 './x.js'——漏一种就会被误打包（v3.9 前的测量泄漏根源）
+const CORE_MODULES = ['router', 'state', 'fetch', 'i18n', 'resource', 'theme', 'page', 'bind', 'data-ref'];
+const CORE_EXT = CORE_MODULES.flatMap((m) => [`./lib/${m}.js`, `../lib/${m}.js`, `./${m}.js`]);
 
 // esbuild minify 单文件（external 掉基类/theme，只测本组件代码）
 async function minifyGz(entry, external = []) {
@@ -132,8 +144,8 @@ async function onDemand2Gz(compA, compB) {
     minify: true,
     legalComments: 'none',
     absWorkingDir: ROOT,
-    // i18n.js 属 coreRuntime，按需引入场景也 external 掉
-    external: ['./lib/i18n.js', '../lib/i18n.js'],
+    // 核心运行时模块 external 掉（i18n/page/bind 等，见 CORE_EXT 注释）
+    external: CORE_EXT,
   });
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
@@ -152,8 +164,9 @@ async function measureCoreRuntime() {
     `import { fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, setCacheAdapter, localStorageAdapter } from '${toPosix(join(SRC, 'lib/fetch.js'))}';\n` +
     `import { route, go, back, forward, beforeEach, afterEach, notFound, current, start } from '${toPosix(join(SRC, 'lib/router.js'))}';\n` +
     `import { t, getLocale, setLocale, initLocale, addMessages, messages } from '${toPosix(join(SRC, 'lib/i18n.js'))}';\n` +
+    `import { createPage } from '${toPosix(join(SRC, 'lib/page.js'))}';\n` +
     `// 引用以防 tree-shake 摇除\n` +
-    `globalThis.__aiflow_core = [signal, computed, effect, batch, createRoot, getOwner, untrack, createResource, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, setCacheAdapter, localStorageAdapter, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages];\n`
+    `globalThis.__aiflow_core = [signal, computed, effect, batch, createRoot, getOwner, untrack, createResource, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, setCacheAdapter, localStorageAdapter, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages, createPage];\n`
   );
   const res = await build({
     entryPoints: [entry],
@@ -164,17 +177,17 @@ async function measureCoreRuntime() {
 }
 
 async function main() {
-  // i18n.js 属于 coreRuntime（与 router/state/fetch 同级），在基类/组件/onDemand2 测量中均 external 掉
+  // 核心运行时模块（CORE_EXT）在基类/组件/onDemand2 测量中均 external 掉
   // af-cascade-picker 复用 af-picker（子类继承滚轮内核）：af-picker 单独测一次，级联组件只测增量
-  const external = ['../lib/af-element.js', '../lib/theme.js', './af-element.js', './theme.js', '../lib/i18n.js', './i18n.js', './af-picker.js', '../components/af-picker.js'];
+  const external = [...CORE_EXT, '../lib/af-element.js', './af-element.js', './af-picker.js', '../components/af-picker.js'];
 
   // 0. L1+L2 CSS（tokens+recipes+atomic 拼接后 gzip）
   const cssFiles = ['tokens.css', 'recipes.css', 'atomic.css'];
   const cssConcat = cssFiles.map(f => readFileSync(join(SRC, f))).join('\n');
   const cssGz = gzipSync(cssConcat).length;
 
-  // 1. 基类（external i18n.js，属 coreRuntime）
-  const baseGz = (await minifyGz(join(SRC, 'lib/af-element.js'), ['./i18n.js'])).gz;
+  // 1. 基类（核心运行时模块 external，见 CORE_EXT）
+  const baseGz = (await minifyGz(join(SRC, 'lib/af-element.js'), CORE_EXT)).gz;
 
   // 2. 各组件
   const comps = readdirSync(join(SRC, 'components')).filter(f => f.endsWith('.js')).sort();
@@ -184,13 +197,13 @@ async function main() {
     compSizes.push({ file: f, gz });
   }
 
-  // 3. 全量 bundle（index.js，含基类 + 14 组件，不含 coreRuntime）
-  // coreRuntime（router/state/fetch/i18n/resource/theme）独立预算，external 掉避免计入 total
+  // 3. 全量 bundle（index.js，含基类 + 28 组件，不含 coreRuntime）
+  // coreRuntime（router/state/fetch/i18n/resource/theme/page/bind）独立预算，external 掉避免计入 total
   const totalRes = await build({
     entryPoints: [join(SRC, 'index.js')],
     bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
     absWorkingDir: ROOT,
-    external: ['./lib/router.js', './lib/state.js', './lib/fetch.js', './lib/i18n.js', './lib/resource.js', './lib/theme.js'],
+    external: CORE_EXT,
   });
   const totalGz = gzipSync(Buffer.from(totalRes.outputFiles[0].text)).length;
 
@@ -242,7 +255,7 @@ async function main() {
   // 核心运行时
   console.log('');
   const coreOver = coreGz > BUDGET.coreRuntime * KB;
-  console.log(`核心运行时（state+fetch+router+i18n） ${fmt(coreGz).padStart(8)}  预算 ≤ ${BUDGET.coreRuntime}KB  ${coreOver ? '✗ 超限' : '✓'}`);
+  console.log(`核心运行时（state+fetch+router+i18n+page+bind） ${fmt(coreGz).padStart(4)}  预算 ≤ ${BUDGET.coreRuntime}KB  ${coreOver ? '✗ 超限' : '✓'}`);
   if (coreOver) violations.push(`核心运行时 ${fmt(coreGz)} > ${BUDGET.coreRuntime}KB`);
 
   // 汇总

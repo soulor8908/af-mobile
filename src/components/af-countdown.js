@@ -59,5 +59,5 @@ export class AfCountdown extends AfElement {
   }
 }
 
-AfElement.defineProp(AfCountdown.prototype, 'time', { type: Number, default: 60 });
-AfElement.defineProp(AfCountdown.prototype, 'autostart', { type: Boolean, default: true });
+AfElement.defineProp(AfCountdown.prototype, 'time', 60);
+AfElement.defineProp(AfCountdown.prototype, 'autostart', true);

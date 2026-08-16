@@ -67,8 +67,8 @@ export class AfField extends AfElement {
       this.value = this._input.value;
       this.emit('af-field:change', { value: this.value });
     };
-    this._input.addEventListener('input', this._onInput);
-    this._input.addEventListener('change', this._onChange);
+    this._listen(this._input, 'input', this._onInput);
+    this._listen(this._input, 'change', this._onChange);
   }
 
   setError(msg) {
@@ -111,21 +111,16 @@ export class AfField extends AfElement {
       this.setError(this.error);
     }
   }
-
-  unmounted() {
-    this._input?.removeEventListener('input', this._onInput);
-    this._input?.removeEventListener('change', this._onChange);
-  }
 }
 
-AfElement.defineProp(AfField.prototype, 'label', { type: String, default: '' });
-AfElement.defineProp(AfField.prototype, 'icon', { type: String, default: '' });
-AfElement.defineProp(AfField.prototype, 'type', { type: String, default: 'input' });
-AfElement.defineProp(AfField.prototype, 'inputType', { attr: 'input-type', type: String, default: 'text' });
-AfElement.defineProp(AfField.prototype, 'value', { type: String, default: '' });
-AfElement.defineProp(AfField.prototype, 'placeholder', { type: String, default: '' });
-AfElement.defineProp(AfField.prototype, 'help', { type: String, default: '' });
-AfElement.defineProp(AfField.prototype, 'error', { type: String, default: '' });
-AfElement.defineProp(AfField.prototype, 'disabled', { type: Boolean, default: false });
-AfElement.defineProp(AfField.prototype, 'readonly', { type: Boolean, default: false });
-AfElement.defineProp(AfField.prototype, 'ariaLabel', { attr: 'aria-label', type: String, default: '' });
+AfElement.defineProp(AfField.prototype, 'label', '');
+AfElement.defineProp(AfField.prototype, 'icon', '');
+AfElement.defineProp(AfField.prototype, 'type', 'input');
+AfElement.defineProp(AfField.prototype, 'inputType', 'text');
+AfElement.defineProp(AfField.prototype, 'value', '');
+AfElement.defineProp(AfField.prototype, 'placeholder', '');
+AfElement.defineProp(AfField.prototype, 'help', '');
+AfElement.defineProp(AfField.prototype, 'error', '');
+AfElement.defineProp(AfField.prototype, 'disabled', false);
+AfElement.defineProp(AfField.prototype, 'readonly', false);
+AfElement.defineProp(AfField.prototype, 'ariaLabel', '');

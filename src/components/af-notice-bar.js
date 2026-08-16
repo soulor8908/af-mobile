@@ -17,5 +17,5 @@ export class AfNoticeBar extends AfElement {
   onAttributeChange() { this._render(); }
 }
 
-AfElement.defineProp(AfNoticeBar.prototype, 'text', { type: String, default: '' });
-AfElement.defineProp(AfNoticeBar.prototype, 'scroll', { type: Boolean, default: false });
+AfElement.defineProp(AfNoticeBar.prototype, 'text', '');
+AfElement.defineProp(AfNoticeBar.prototype, 'scroll', false);

@@ -42,7 +42,7 @@ export class AfCalendar extends AfElement {
       const day = e.target.closest('.day');
       if (day && !day.disabled && day.dataset.date) this._select(day.dataset.date);
     };
-    this.shadowRoot.addEventListener('click', this._onClick);
+    this._listen(this.shadowRoot, 'click', this._onClick);
   }
 
   _ym() {
@@ -111,13 +111,9 @@ export class AfCalendar extends AfElement {
       this._render();
     }
   }
-
-  unmounted() {
-    this.shadowRoot?.removeEventListener('click', this._onClick);
-  }
 }
 
-AfElement.defineProp(AfCalendar.prototype, 'value', { type: String, default: null });
-AfElement.defineProp(AfCalendar.prototype, 'month', { type: String, default: null });
-AfElement.defineProp(AfCalendar.prototype, 'min', { type: String, default: null });
-AfElement.defineProp(AfCalendar.prototype, 'max', { type: String, default: null });
+AfElement.defineProp(AfCalendar.prototype, 'value', null);
+AfElement.defineProp(AfCalendar.prototype, 'month', null);
+AfElement.defineProp(AfCalendar.prototype, 'min', null);
+AfElement.defineProp(AfCalendar.prototype, 'max', null);

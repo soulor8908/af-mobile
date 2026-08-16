@@ -26,5 +26,5 @@ export class AfSteps extends AfElement {
   }
 }
 
-AfElement.defineProp(AfSteps.prototype, 'steps', { type: Array, default: [] });
-AfElement.defineProp(AfSteps.prototype, 'current', { type: Number, default: 0 });
+AfElement.defineProp(AfSteps.prototype, 'steps', []);
+AfElement.defineProp(AfSteps.prototype, 'current', 0);

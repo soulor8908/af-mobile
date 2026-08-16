@@ -43,8 +43,6 @@ export class AfDialog extends withI18n(AfElement) {
   constructor() {
     super();
     this.returnValue = null;
-    this._previouslyFocused = null;
-    this._scrollLocked = false;
   }
 
   get isOpen() { return this._dialog ? this._dialog.open : false; }
@@ -65,22 +63,22 @@ export class AfDialog extends withI18n(AfElement) {
       e.preventDefault();
       this.close('esc');
     };
-    this._dialog.addEventListener('cancel', this._onCancel);
+    this._listen(this._dialog, 'cancel', this._onCancel);
 
     // backdrop 点击关闭：showModal 时 dialog 自身即 backdrop 区域
     this._onClick = (e) => {
       if (this.closeOnBackdrop && e.target === this._dialog) this.close('backdrop');
     };
-    this._dialog.addEventListener('click', this._onClick);
+    this._listen(this._dialog, 'click', this._onClick);
 
     // 关闭按钮
     this._onCloseBtnClick = () => this.close('close');
     this._closeBtn = this.$('.close-btn');
-    this._closeBtn.addEventListener('click', this._onCloseBtnClick);
+    this._listen(this._closeBtn, 'click', this._onCloseBtnClick);
 
     // 焦点陷阱补强（部分浏览器原生 showModal 焦点陷阱行为不一致）
-    this._onKeydown = (e) => this._trapKeydown(e);
-    this._dialog.addEventListener('keydown', this._onKeydown);
+    this._onKeydown = (e) => this._trapTab(e, this._dialog);
+    this._listen(this._dialog, 'keydown', this._onKeydown);
 
     // 初始 open 状态
     if (this.hasAttribute('open')) {
@@ -90,12 +88,11 @@ export class AfDialog extends withI18n(AfElement) {
 
   open() {
     if (!this._dialog || this._dialog.open) return;
-    this._previouslyFocused = document.activeElement;
+    this.saveFocus();
     this._dialog.showModal();
     this.setAttribute('open', '');
-    AfElement.lockScroll();
-    this._scrollLocked = true;
-    this._focusFirst();
+    this._lockScroll();
+    this._focusFirst(this._dialog);
     this.emit('af-dialog:open', {});
   }
 
@@ -104,41 +101,9 @@ export class AfDialog extends withI18n(AfElement) {
     this.returnValue = action;
     this._dialog.close(action);
     this.removeAttribute('open');
-    if (this._scrollLocked) { AfElement.unlockScroll(); this._scrollLocked = false; }
-    // 焦点还原
-    if (this._previouslyFocused && typeof this._previouslyFocused.focus === 'function') {
-      this._previouslyFocused.focus();
-      this._previouslyFocused = null;
-    }
+    this._unlockScroll();
+    this.restoreFocus();
     this.emit('af-dialog:close', { action });
-  }
-
-  _focusFirst() {
-    const focusable = this._getFocusable();
-    if (focusable.length) focusable[0].focus();
-    else { this._dialog.tabIndex = -1; this._dialog.focus(); }
-  }
-
-  _getFocusable() {
-    const sel = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-    // 同时覆盖 Shadow DOM 与 slotted（Light DOM）内容，避免页脚按钮焦点盲区
-    const shadowEls = [...this.shadowRoot.querySelectorAll(sel)];
-    const slottedEls = [...this.querySelectorAll(sel)];
-    const visible = (el) => el.offsetParent !== null || el.getClientRects().length > 0;
-    return [...shadowEls, ...slottedEls].filter(el => !el.disabled && visible(el));
-  }
-
-  _trapKeydown(e) {
-    if (e.key !== 'Tab') return;
-    const focusable = this._getFocusable();
-    if (focusable.length < 2) { e.preventDefault(); return; }
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault(); last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault(); first.focus();
-    }
   }
 
   onAttributeChange(name, oldVal, newVal) {
@@ -158,19 +123,14 @@ export class AfDialog extends withI18n(AfElement) {
   }
 
   unmounted() {
-    if (this._scrollLocked) AfElement.unlockScroll();
+    this._unlockScroll();
     if (this._dialog && this._dialog.open) this._dialog.close();
-    // Shadow DOM 元素随组件销毁，removeEventListener / cancelAnimationFrame 是为通过 wc-cleanup 检测
-    this._dialog?.removeEventListener('cancel', this._onCancel);
-    this._dialog?.removeEventListener('click', this._onClick);
-    this._dialog?.removeEventListener('keydown', this._onKeydown);
-    this._closeBtn?.removeEventListener('click', this._onCloseBtnClick);
     if (this._rafId != null) cancelAnimationFrame(this._rafId);
   }
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfDialog.prototype, 'title', { type: String, default: '' });
-AfElement.defineProp(AfDialog.prototype, 'closeOnEsc', { attr: 'close-on-esc', type: Boolean, default: true });
-AfElement.defineProp(AfDialog.prototype, 'closeOnBackdrop', { attr: 'close-on-backdrop', type: Boolean, default: true });
-AfElement.defineProp(AfDialog.prototype, 'variant', { type: String, default: 'default' });
+AfElement.defineProp(AfDialog.prototype, 'title', '');
+AfElement.defineProp(AfDialog.prototype, 'closeOnEsc', true);
+AfElement.defineProp(AfDialog.prototype, 'closeOnBackdrop', true);
+AfElement.defineProp(AfDialog.prototype, 'variant', 'default');

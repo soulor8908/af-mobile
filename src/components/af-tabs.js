@@ -116,7 +116,7 @@ export class AfTabs extends withI18n(AfElement) {
       const idx = this.$$('.tab-item').indexOf(tab);
       if (idx >= 0) this.setActive(idx);
     };
-    this._tabbar.addEventListener('click', this._onClick);
+    this._listen(this._tabbar, 'click', this._onClick);
   }
 
   _bindKeydown() {
@@ -137,7 +137,7 @@ export class AfTabs extends withI18n(AfElement) {
       this.setActive(realIdx);
       tabs[idx].focus();
     };
-    this._tabbar.addEventListener('keydown', this._onKeydown);
+    this._listen(this._tabbar, 'keydown', this._onKeydown);
   }
 
   onAttributeChange(name, oldVal, newVal) {
@@ -166,15 +166,12 @@ export class AfTabs extends withI18n(AfElement) {
   }
 
   unmounted() {
-    // Light DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
-    this._tabbar?.removeEventListener('click', this._onClick);
-    this._tabbar?.removeEventListener('keydown', this._onKeydown);
     this._observer?.disconnect();
   }
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfTabs.prototype, 'tabs', { type: Array, default: [] });
-AfElement.defineProp(AfTabs.prototype, 'activeIndex', { attr: 'active-index', type: Number, default: 0 });
-AfElement.defineProp(AfTabs.prototype, 'variant', { type: String, default: 'default' });
-AfElement.defineProp(AfTabs.prototype, 'fixed', { type: Boolean, default: false });
+AfElement.defineProp(AfTabs.prototype, 'tabs', []);
+AfElement.defineProp(AfTabs.prototype, 'activeIndex', 0);
+AfElement.defineProp(AfTabs.prototype, 'variant', 'default');
+AfElement.defineProp(AfTabs.prototype, 'fixed', false);

@@ -34,12 +34,12 @@ export class AfUpload extends withI18n(AfElement) {
 
   _bindClick() {
     this._onClick = () => this._input.click();
-    this.$('.btn').addEventListener('click', this._onClick);
+    this._listen(this.$('.btn'), 'click', this._onClick);
   }
 
   _bindChange() {
     this._onChange = () => this._handleFiles([...this._input.files]);
-    this._input.addEventListener('change', this._onChange);
+    this._listen(this._input, 'change', this._onChange);
   }
 
   _handleFiles(files) {
@@ -125,15 +125,13 @@ export class AfUpload extends withI18n(AfElement) {
 
   unmounted() {
     this._revokeAll();
-    this.$('.btn')?.removeEventListener('click', this._onClick);
-    this._input?.removeEventListener('change', this._onChange);
   }
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfUpload.prototype, 'accept', { type: String, default: 'image/*' });
-AfElement.defineProp(AfUpload.prototype, 'multiple', { type: Boolean, default: true });
-AfElement.defineProp(AfUpload.prototype, 'maxSize', { attr: 'max-size', type: Number, default: 0 });
-AfElement.defineProp(AfUpload.prototype, 'maxCount', { attr: 'max-count', type: Number, default: 0 });
-AfElement.defineProp(AfUpload.prototype, 'buttonText', { attr: 'button-text', type: String, default: null });
+AfElement.defineProp(AfUpload.prototype, 'accept', 'image/*');
+AfElement.defineProp(AfUpload.prototype, 'multiple', true);
+AfElement.defineProp(AfUpload.prototype, 'maxSize', 0);
+AfElement.defineProp(AfUpload.prototype, 'maxCount', 0);
+AfElement.defineProp(AfUpload.prototype, 'buttonText', null);
 AfElement.defineProp(AfUpload.prototype, 'ariaLabelText', { attr: 'aria-label', type: String, default: null });

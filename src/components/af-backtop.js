@@ -33,7 +33,7 @@ export class AfBacktop extends withI18n(AfElement) {
       this._scrollTimer = setTimeout(() => this._updateVisibility(), 100);
     };
 
-    this._scrollTarget.addEventListener('scroll', this._onScroll);
+    this._listen(this._scrollTarget, 'scroll', this._onScroll);
     // 用 hidden 属性控制显隐，遵守 Light DOM 不可设内联样式的约束
     this._updateVisibility();
 
@@ -41,7 +41,7 @@ export class AfBacktop extends withI18n(AfElement) {
       this.scrollToTop();
       this.emit('af-backtop:click', {});
     };
-    this.$('button').addEventListener('click', this._onClick);
+    this._listen(this.$('button'), 'click', this._onClick);
   }
 
   _updateVisibility() {
@@ -70,11 +70,10 @@ export class AfBacktop extends withI18n(AfElement) {
     if (name === 'threshold') {
       this._updateVisibility();
     } else if (name === 'target') {
-      if (this._scrollTarget) {
-        this._scrollTarget.removeEventListener('scroll', this._onScroll);
-      }
+      // 外部滚动目标切换需立即解绑旧目标（新监听经 _listen 登记，断开时统一解绑）
+      this._scrollTarget?.removeEventListener('scroll', this._onScroll);
       this._scrollTarget = this.target ? document.querySelector(this.target) : window;
-      this._scrollTarget.addEventListener('scroll', this._onScroll);
+      this._listen(this._scrollTarget, 'scroll', this._onScroll);
       this._updateVisibility();
     } else if (name === 'text') {
       const btn = this.$('button');
@@ -85,15 +84,13 @@ export class AfBacktop extends withI18n(AfElement) {
   }
 
   unmounted() {
-    this._scrollTarget?.removeEventListener('scroll', this._onScroll);
     if (this._scrollTimer) clearTimeout(this._scrollTimer);
-    this.$('button')?.removeEventListener('click', this._onClick);
   }
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfBacktop.prototype, 'threshold', { type: Number, default: 200 });
-AfElement.defineProp(AfBacktop.prototype, 'target', { type: String, default: '' });
-AfElement.defineProp(AfBacktop.prototype, 'text', { type: String, default: '↑' });
-AfElement.defineProp(AfBacktop.prototype, 'ariaLabelText', { attr: 'aria-label-text', type: String, default: null });
-AfElement.defineProp(AfBacktop.prototype, 'position', { type: String, default: 'right-bottom' });
+AfElement.defineProp(AfBacktop.prototype, 'threshold', 200);
+AfElement.defineProp(AfBacktop.prototype, 'target', '');
+AfElement.defineProp(AfBacktop.prototype, 'text', '↑');
+AfElement.defineProp(AfBacktop.prototype, 'ariaLabelText', null);
+AfElement.defineProp(AfBacktop.prototype, 'position', 'right-bottom');

@@ -33,4 +33,4 @@ export class AfSkeletonPage extends withI18n(AfElement) {
   }
 }
 
-AfElement.defineProp(AfSkeletonPage.prototype, 'variant', { type: String, default: 'list' });
+AfElement.defineProp(AfSkeletonPage.prototype, 'variant', 'list');

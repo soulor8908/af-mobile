@@ -40,6 +40,33 @@ describe('AfElement 基类', () => {
     expect(el.unmountedCalls).toBe(1);
   });
 
+  it('_listen 登记：断开统一解绑并清空登记表，重连不残留旧监听（F）', () => {
+    const el = new TestEl();
+    document.body.appendChild(el);
+    const log = [];
+    el._listen(window, 'test-listen-event', () => log.push(1));
+    expect(el._listeners.some(([t, type]) => t === window && type === 'test-listen-event')).toBe(true);
+    window.dispatchEvent(new Event('test-listen-event'));
+    expect(log.length).toBe(1);
+    document.body.removeChild(el);
+    // 断开后登记表清空，事件不再触发（自动解绑）
+    expect(el._listeners).toBe(null);
+    window.dispatchEvent(new Event('test-listen-event'));
+    expect(log.length).toBe(1);
+    // 重连后未重新 _listen 则不触发（由 mounted 重新绑定）
+    document.body.appendChild(el);
+    window.dispatchEvent(new Event('test-listen-event'));
+    expect(log.length).toBe(1);
+  });
+
+  it('_listen 空目标安全跳过（对齐 ?. 调用点）', () => {
+    const el = new TestEl();
+    document.body.appendChild(el);
+    const before = el._listeners.length; // onThemeChange 已登记 1 条
+    el._listen(null, 'click', () => {});
+    expect(el._listeners.length).toBe(before);
+  });
+
   it('defineProp 双向同步：property → attribute', () => {
     const el = new TestEl();
     document.body.appendChild(el);
@@ -64,6 +91,31 @@ describe('AfElement 基类', () => {
     expect(el.items).toEqual([1, 2, 3]);
     el.setAttribute('config', '{"a":1}');
     expect(el.config).toEqual({ a: 1 });
+  });
+
+  it('defineProp 紧凑形式：default 值即 spec，type 推断 + attr 自动 kebab-case', () => {
+    class CompactEl extends AfElement {}
+    AfElement.defineProp(CompactEl.prototype, 'confirmText', '确定');
+    AfElement.defineProp(CompactEl.prototype, 'maxCount', 9);
+    AfElement.defineProp(CompactEl.prototype, 'checked', true);
+    AfElement.defineProp(CompactEl.prototype, 'tabs', []);
+    AfElement.defineProp(CompactEl.prototype, 'title', null);
+    customElements.define('test-compact-el', CompactEl);
+    const el = new CompactEl();
+    document.body.appendChild(el);
+    // attr 自动 kebab-case
+    expect(CompactEl.observedAttributes).toContain('confirm-text');
+    expect(CompactEl.observedAttributes).toContain('max-count');
+    // type 推断 + 默认值
+    expect(el.confirmText).toBe('确定');
+    el.setAttribute('max-count', '12');
+    expect(el.maxCount).toBe(12);
+    expect(el.checked).toBe(true);
+    expect(el.tabs).toEqual([]);
+    expect(el.title).toBe(null);
+    // setter → attribute 同步
+    el.maxCount = 3;
+    expect(el.getAttribute('max-count')).toBe('3');
   });
 
   it('JSON.parse 失败时回退 default（P2-6，避免非法 JSON 导致组件崩溃）', () => {

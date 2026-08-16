@@ -31,7 +31,7 @@ export class AfDropdown extends withI18n(AfElement) {
       if (this.disabled) return;
       this._list.showPopover();
     };
-    this._trigger.addEventListener('click', this._onTriggerClick);
+    this._listen(this._trigger, 'click', this._onTriggerClick);
 
     this._onListClick = (e) => {
       const item = e.target.closest('.list-item');
@@ -44,7 +44,7 @@ export class AfDropdown extends withI18n(AfElement) {
       this._list.hidePopover();
       this.emit('af-dropdown:select', { index: idx, value: option.value });
     };
-    this._list.addEventListener('click', this._onListClick);
+    this._listen(this._list, 'click', this._onListClick);
 
     this._onToggle = (e) => {
       this._trigger.setAttribute('aria-expanded', String(e.newState === 'open'));
@@ -61,7 +61,7 @@ export class AfDropdown extends withI18n(AfElement) {
         this.emit('af-dropdown:close', {});
       }
     };
-    this._list.addEventListener('toggle', this._onToggle);
+    this._listen(this._list, 'toggle', this._onToggle);
 
     // 方向键导航（WAI-ARIA combobox 期望 ↑↓ 选择）
     this._onKeydown = (e) => {
@@ -75,7 +75,7 @@ export class AfDropdown extends withI18n(AfElement) {
       else idx = idx <= 0 ? items.length - 1 : idx - 1;
       items[idx].focus();
     };
-    this._list.addEventListener('keydown', this._onKeydown);
+    this._listen(this._list, 'keydown', this._onKeydown);
   }
 
   _render() {
@@ -141,18 +141,13 @@ export class AfDropdown extends withI18n(AfElement) {
   }
 
   unmounted() {
-    // Light DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
-    this._trigger?.removeEventListener('click', this._onTriggerClick);
-    this._list?.removeEventListener('click', this._onListClick);
-    this._list?.removeEventListener('toggle', this._onToggle);
-    this._list?.removeEventListener('keydown', this._onKeydown);
     if (this._rafId) cancelAnimationFrame(this._rafId);
   }
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfDropdown.prototype, 'options', { type: Array, default: [] });
-AfElement.defineProp(AfDropdown.prototype, 'value', { type: String, default: '' });
-AfElement.defineProp(AfDropdown.prototype, 'placeholder', { type: String, default: null });
-AfElement.defineProp(AfDropdown.prototype, 'triggerClass', { attr: 'trigger-class', type: String, default: 'input' });
-AfElement.defineProp(AfDropdown.prototype, 'disabled', { type: Boolean, default: false });
+AfElement.defineProp(AfDropdown.prototype, 'options', []);
+AfElement.defineProp(AfDropdown.prototype, 'value', '');
+AfElement.defineProp(AfDropdown.prototype, 'placeholder', null);
+AfElement.defineProp(AfDropdown.prototype, 'triggerClass', 'input');
+AfElement.defineProp(AfDropdown.prototype, 'disabled', false);

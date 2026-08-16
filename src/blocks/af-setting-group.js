@@ -47,7 +47,7 @@ export class AfSettingGroup extends withI18n(AfElement) {
     this.removeAttribute('aria-busy');
     if (this._error) {
       this.innerHTML = this._wrap(`<div class="empty" data-role="error" aria-live="assertive"><div class="body" data-role="error-text"></div><button class="btn btn-ghost btn-sm" data-role="retry-btn" type="button"></button></div>`);
-      this.$('[data-role="retry-btn"]').addEventListener('click', () => {
+      this._listen(this.$('[data-role="retry-btn"]'), 'click', () => {
         this._error = null;
         this.emit('af-setting-group:retry', {});
         this._render();
@@ -90,17 +90,14 @@ export class AfSettingGroup extends withI18n(AfElement) {
       const idx = Number(row.dataset.index);
       this.emit('af-setting-group:itemclick', { index: idx, item: this.items[idx] });
     };
-    this._listEl.addEventListener('click', this._onClick);
+    this._listen(this._listEl, 'click', this._onClick);
     if (this.variant === 'with-switch') {
-      this._switchHandlers = [];
       this.$$('af-switch').forEach((sw) => {
         const idx = Number(sw.dataset.index);
-        const h = (e) => {
+        this._listen(sw, 'af-switch:change', (e) => {
           e.stopPropagation();
           this.emit('af-setting-group:change', { index: idx, checked: e.detail.checked, item: this.items[idx] });
-        };
-        sw.addEventListener('af-switch:change', h);
-        this._switchHandlers.push([sw, h]);
+        });
       });
     }
   }
@@ -121,7 +118,7 @@ export class AfSettingGroup extends withI18n(AfElement) {
         }
       }
     };
-    this.addEventListener('keydown', this._onKeydown);
+    this._listen(this, 'keydown', this._onKeydown);
   }
 
   setError(err) {
@@ -137,16 +134,10 @@ export class AfSettingGroup extends withI18n(AfElement) {
       this._applyI18n();
     }
   }
-
-  unmounted() {
-    this.removeEventListener('keydown', this._onKeydown);
-    this._listEl?.removeEventListener('click', this._onClick);
-    this._switchHandlers?.forEach(([sw, h]) => sw.removeEventListener('af-switch:change', h));
-  }
 }
 
 // variant: default / with-switch / with-value
-AfElement.defineProp(AfSettingGroup.prototype, 'variant', { type: String, default: 'default' });
-AfElement.defineProp(AfSettingGroup.prototype, 'title', { type: String, default: '' });
-AfElement.defineProp(AfSettingGroup.prototype, 'items', { type: Array, default: [] });
-AfElement.defineProp(AfSettingGroup.prototype, 'loading', { type: Boolean, default: false });
+AfElement.defineProp(AfSettingGroup.prototype, 'variant', 'default');
+AfElement.defineProp(AfSettingGroup.prototype, 'title', '');
+AfElement.defineProp(AfSettingGroup.prototype, 'items', []);
+AfElement.defineProp(AfSettingGroup.prototype, 'loading', false);

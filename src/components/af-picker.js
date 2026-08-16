@@ -60,8 +60,6 @@ export class AfPicker extends withI18n(AfElement) {
     this._scrollers = [];
     this._scrollTimers = new Map();
     this._rafIds = [];
-    this._scrollLocked = false;
-    this._previouslyFocused = null;
   }
 
   // 完整 shadow 模板（DSD 声明式封装 + mounted 动态渲染共用同一结构）
@@ -78,11 +76,10 @@ export class AfPicker extends withI18n(AfElement) {
     // popover=auto 的 light dismiss（点遮罩/Esc）会绕过 close()，用 toggle 事件兜底解锁 + 焦点还原
     this._onPickerToggle = (e) => {
       if (e.newState !== 'closed') return;
-      if (this._scrollLocked) { AfElement.unlockScroll(); this._scrollLocked = false; }
-      this._previouslyFocused?.focus();
-      this._previouslyFocused = null;
+      this._unlockScroll();
+      this.restoreFocus();
     };
-    this._picker.addEventListener('toggle', this._onPickerToggle);
+    this._listen(this._picker, 'toggle', this._onPickerToggle);
 
     this._applyItemHeight();
     this._renderColumns();
@@ -91,12 +88,12 @@ export class AfPicker extends withI18n(AfElement) {
       this.emit('af-picker:cancel', {});
       this.close();
     };
-    this.$('.btn-cancel').addEventListener('click', this._onCancelClick);
+    this._listen(this.$('.btn-cancel'), 'click', this._onCancelClick);
     this._onConfirmClick = () => {
       this.emit('af-picker:confirm', { values: this.values });
       this.close();
     };
-    this.$('.btn-confirm').addEventListener('click', this._onConfirmClick);
+    this._listen(this.$('.btn-confirm'), 'click', this._onConfirmClick);
 
     // 初始滚动到选中项
     this._rafIds.push(requestAnimationFrame(() => this._scrollToValues(true)));
@@ -132,10 +129,10 @@ export class AfPicker extends withI18n(AfElement) {
 
       // scroll 防抖
       const onScroll = () => this._onColumnScroll(c);
-      colEl.addEventListener('scroll', onScroll);
+      this._listen(colEl, 'scroll', onScroll);
       // 键盘 ↑↓
       const onKeydown = (e) => this._onColumnKeydown(c, e);
-      colEl.addEventListener('keydown', onKeydown);
+      this._listen(colEl, 'keydown', onKeydown);
     });
   }
 
@@ -224,17 +221,16 @@ export class AfPicker extends withI18n(AfElement) {
 
   open() {
     this._picker?.showPopover();
-    if (!this._scrollLocked) { AfElement.lockScroll(); this._scrollLocked = true; }
+    this._lockScroll();
     // 焦点管理：保存触发元素 + 聚焦首列以便键盘操作
-    this._previouslyFocused = document.activeElement;
+    this.saveFocus();
     this._rafIds.push(requestAnimationFrame(() => this._scrollers[0]?.focus()));
   }
   close() {
     this._picker?.hidePopover();
-    if (this._scrollLocked) { AfElement.unlockScroll(); this._scrollLocked = false; }
+    this._unlockScroll();
     // 焦点还原到触发元素
-    this._previouslyFocused?.focus();
-    this._previouslyFocused = null;
+    this.restoreFocus();
   }
 
   onAttributeChange(name, oldVal, newVal) {
@@ -255,23 +251,19 @@ export class AfPicker extends withI18n(AfElement) {
   }
 
   unmounted() {
-    if (this._scrollLocked) AfElement.unlockScroll();
+    this._unlockScroll();
     this._scrollTimers.forEach(t => clearTimeout(t));
     this._scrollTimers.clear();
     this._rafIds.forEach(id => cancelAnimationFrame(id));
     this._rafIds = [];
-    // Shadow DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
-    this._picker?.removeEventListener('toggle', this._onPickerToggle);
-    this.$('.btn-cancel')?.removeEventListener('click', this._onCancelClick);
-    this.$('.btn-confirm')?.removeEventListener('click', this._onConfirmClick);
   }
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfPicker.prototype, 'columns', { type: Array, default: [] });
-AfElement.defineProp(AfPicker.prototype, 'values', { type: Array, default: [] });
-AfElement.defineProp(AfPicker.prototype, 'title', { type: String, default: null });
-AfElement.defineProp(AfPicker.prototype, 'confirmText', { attr: 'confirm-text', type: String, default: null });
-AfElement.defineProp(AfPicker.prototype, 'cancelText', { attr: 'cancel-text', type: String, default: null });
-AfElement.defineProp(AfPicker.prototype, 'itemHeight', { attr: 'item-height', type: Number, default: 36 });
-AfElement.defineProp(AfPicker.prototype, 'visibleCount', { attr: 'visible-count', type: Number, default: 5 });
+AfElement.defineProp(AfPicker.prototype, 'columns', []);
+AfElement.defineProp(AfPicker.prototype, 'values', []);
+AfElement.defineProp(AfPicker.prototype, 'title', null);
+AfElement.defineProp(AfPicker.prototype, 'confirmText', null);
+AfElement.defineProp(AfPicker.prototype, 'cancelText', null);
+AfElement.defineProp(AfPicker.prototype, 'itemHeight', 36);
+AfElement.defineProp(AfPicker.prototype, 'visibleCount', 5);

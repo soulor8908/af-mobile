@@ -46,7 +46,7 @@ export class AfProductCard extends withI18n(AfElement) {
     this.removeAttribute('aria-busy');
     if (this._error) {
       this.innerHTML = this._wrap(`<div class="empty" data-role="error" aria-live="assertive"><div class="body" data-role="error-text"></div><button class="btn btn-ghost btn-sm" data-role="retry-btn" type="button"></button></div>`);
-      this.$('[data-role="retry-btn"]').addEventListener('click', () => {
+      this._listen(this.$('[data-role="retry-btn"]'), 'click', () => {
         this._error = null;
         this.emit('af-product-card:retry', {});
         this._render();
@@ -79,7 +79,7 @@ export class AfProductCard extends withI18n(AfElement) {
       const idx = Number(row.dataset.index);
       this.emit('af-product-card:itemclick', { index: idx, item: this.items[idx] });
     };
-    this._listEl.addEventListener('click', this._onClick);
+    this._listen(this._listEl, 'click', this._onClick);
   }
 
   _bindKeydown() {
@@ -98,7 +98,7 @@ export class AfProductCard extends withI18n(AfElement) {
         }
       }
     };
-    this.addEventListener('keydown', this._onKeydown);
+    this._listen(this, 'keydown', this._onKeydown);
   }
 
   setError(err) {
@@ -114,14 +114,9 @@ export class AfProductCard extends withI18n(AfElement) {
       this._applyI18n();
     }
   }
-
-  unmounted() {
-    this.removeEventListener('keydown', this._onKeydown);
-    this._listEl?.removeEventListener('click', this._onClick);
-  }
 }
 
-AfElement.defineProp(AfProductCard.prototype, 'title', { type: String, default: '' });
-AfElement.defineProp(AfProductCard.prototype, 'price', { type: String, default: '' });
-AfElement.defineProp(AfProductCard.prototype, 'items', { type: Array, default: [] });
-AfElement.defineProp(AfProductCard.prototype, 'loading', { type: Boolean, default: false });
+AfElement.defineProp(AfProductCard.prototype, 'title', '');
+AfElement.defineProp(AfProductCard.prototype, 'price', '');
+AfElement.defineProp(AfProductCard.prototype, 'items', []);
+AfElement.defineProp(AfProductCard.prototype, 'loading', false);

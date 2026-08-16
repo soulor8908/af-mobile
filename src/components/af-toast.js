@@ -60,4 +60,4 @@ export class AfToast extends AfElement {
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfToast.prototype, 'duration', { type: Number, default: 2000 });
+AfElement.defineProp(AfToast.prototype, 'duration', 2000);

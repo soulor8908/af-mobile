@@ -1,63 +1,56 @@
 // L3-6 aiflow/wc-cleanup（warn）
-// 检测：组件 JS 中有 addEventListener/IntersectionObserver/ResizeObserver/setTimeout/setInterval/rAF
-//       但 unmounted() 内无对应清理调用
-const RESOURCE_PATTERNS = [
-  { name: 'addEventListener', cleanup: 'removeEventListener', msg: "addEventListener has no matching removeEventListener in unmounted(); potential memory leak" },
-  { name: 'IntersectionObserver', cleanup: 'disconnect', msg: "IntersectionObserver has no matching disconnect() in unmounted(); potential memory leak" },
-  { name: 'ResizeObserver', cleanup: 'disconnect', msg: "ResizeObserver has no matching disconnect() in unmounted(); potential memory leak" },
-  { name: 'setTimeout', cleanup: 'clearTimeout', msg: "setTimeout has no matching clearTimeout() in unmounted(); potential memory leak" },
-  { name: 'setInterval', cleanup: 'clearInterval', msg: "setInterval has no matching clearInterval() in unmounted(); potential memory leak" },
-  { name: 'requestAnimationFrame', cleanup: 'cancelAnimationFrame', msg: "requestAnimationFrame has no matching cancelAnimationFrame() in unmounted(); potential leak" },
+// 检测两类资源泄漏（覆盖 src/components 与 src/blocks）：
+// 1) addEventListener 未通过 this._listen() 登记（传 signal 选项的原生自动解绑除外）
+//    —— 基类 disconnectedCallback 统一解绑 _listeners，绕过登记即泄漏
+// 2) IntersectionObserver/ResizeObserver/MutationObserver/setTimeout/setInterval/rAF
+//    在 unmounted() 中无对应清理调用
+const TIMERS = [
+  { name: 'setTimeout', cleanup: 'clearTimeout' },
+  { name: 'setInterval', cleanup: 'clearInterval' },
+  { name: 'requestAnimationFrame', cleanup: 'cancelAnimationFrame' },
 ];
+const OBSERVERS = ['IntersectionObserver', 'ResizeObserver', 'MutationObserver'];
 
 export default {
   meta: {
-    type: 'suggestion',
-    docs: { description: '检测资源未在 unmounted() 中清理' },
+    type: 'problem',
+    docs: { description: '组件资源清理：addEventListener 走 _listen，观察器/定时器在 unmounted() 清理' },
     schema: [],
     messages: {
-      leak: '{{name}} {{msg}}',
+      listen: 'addEventListener 需通过 this._listen(target, type, handler) 登记，由基类在断开时统一解绑（AbortController 场景可传 { signal }）',
+      leak: '{{name}} 需在 unmounted() 中调用 {{cleanup}}，否则潜在内存泄漏',
     },
   },
   create(context) {
     const filename = context.filename || context.getFilename();
-    if (!/src[\\/]components[\\/].*\.js$/.test(filename)) return {};
+    if (!/src[\\/](components|blocks)[\\/].*\.js$/.test(filename)) return {};
 
     const sourceCode = context.sourceCode || context.getSourceCode();
-    const found = new Map(); // resource name → true
+    const leaks = []; // { node, name, cleanup }
+
+    const hasSignal = (args) => args.some((a) => a.type === 'ObjectExpression'
+      && a.properties.some((p) => p.key?.name === 'signal'));
 
     return {
       CallExpression(node) {
         const callee = node.callee;
-        let name = null;
-        if (callee.type === 'Identifier') name = callee.name;
-        else if (callee.type === 'MemberExpression') name = callee.property?.name;
-        else if (callee.type === 'NewExpression') name = callee.callee?.name;
-        // new IntersectionObserver(...) 的 callee 是 Identifier
-        if (!name && callee.type === 'Identifier') name = callee.name;
-
-        for (const p of RESOURCE_PATTERNS) {
-          if (name === p.name || (node.callee?.type === 'Identifier' && node.callee.name === p.name)) {
-            found.set(p.name, p);
-            break;
-          }
-          // new IntersectionObserver / new ResizeObserver
-          if (callee.type === 'Identifier' && callee.name === p.name) {
-            found.set(p.name, p);
-            break;
-          }
+        if (callee.type === 'MemberExpression' && callee.property?.name === 'addEventListener') {
+          if (!hasSignal(node.arguments)) context.report({ node, messageId: 'listen' });
+          return;
+        }
+        if (callee.type === 'Identifier') {
+          const p = TIMERS.find((t) => t.name === callee.name);
+          if (p) leaks.push({ node, name: p.name, cleanup: p.cleanup });
         }
       },
       NewExpression(node) {
-        const name = node.callee?.name;
-        for (const p of RESOURCE_PATTERNS) {
-          if (name === p.name) { found.set(p.name, p); break; }
+        if (OBSERVERS.includes(node.callee?.name)) {
+          leaks.push({ node, name: node.callee.name, cleanup: 'disconnect' });
         }
       },
       'Program:exit'() {
+        // 提取 unmounted() 方法体文本（括号计数，支持任意嵌套）
         const source = sourceCode.getText();
-        // 检测 unmounted 方法是否存在（宽松匹配：unmounted() { ... } 到匹配的闭合大括号）
-        // 用计数法提取 unmounted body，支持任意层级嵌套
         let unmountedBody = '';
         const startMatch = source.match(/unmounted\s*\(\s*\)\s*\{/);
         if (startMatch) {
@@ -70,9 +63,9 @@ export default {
             i++;
           }
         }
-        for (const [name, p] of found) {
-          if (!unmountedBody.includes(p.cleanup)) {
-            context.report({ loc: { line: 1, column: 0 }, messageId: 'leak', data: { name, msg: p.msg } });
+        for (const l of leaks) {
+          if (!unmountedBody.includes(l.cleanup)) {
+            context.report({ node: l.node, messageId: 'leak', data: { name: l.name, cleanup: l.cleanup } });
           }
         }
       },

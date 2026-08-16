@@ -207,7 +207,7 @@ export class AfList extends withI18n(AfElement) {
       });
     };
     // passive: 不调 preventDefault，浏览器可并行滚动合成，提升滚动性能
-    this._scroller.addEventListener('scroll', this._onScroll, { passive: true });
+    this._listen(this._scroller, 'scroll', this._onScroll, { passive: true });
   }
 
   _bindPullRefresh() {
@@ -238,9 +238,9 @@ export class AfList extends withI18n(AfElement) {
         this._refreshIndicator.style.setProperty('--af-refresh-h', '0px');
       }
     };
-    this._scroller.addEventListener('touchstart', this._onTouchStart, { passive: true });
-    this._scroller.addEventListener('touchmove', this._onTouchMove, { passive: false });
-    this._scroller.addEventListener('touchend', this._onTouchEnd);
+    this._listen(this._scroller, 'touchstart', this._onTouchStart, { passive: true });
+    this._listen(this._scroller, 'touchmove', this._onTouchMove, { passive: false });
+    this._listen(this._scroller, 'touchend', this._onTouchEnd);
   }
 
   _bindClick() {
@@ -252,7 +252,7 @@ export class AfList extends withI18n(AfElement) {
         this.emit('af-list:itemclick', { index: idx, item: this.data[idx] });
       }
     };
-    this._scroller.addEventListener('click', this._onClick);
+    this._listen(this._scroller, 'click', this._onClick);
   }
 
   // 键盘导航：↑↓ 移动活跃项（滚动入视）+ Enter 触发 itemclick
@@ -277,7 +277,7 @@ export class AfList extends withI18n(AfElement) {
         }
       }
     };
-    this._scroller.addEventListener('keydown', this._onKeydown);
+    this._listen(this._scroller, 'keydown', this._onKeydown);
   }
 
   // 滚动使指定索引项进入视口（虚拟滚动下会触发 scroll→_updateViewport 重渲染）
@@ -322,24 +322,16 @@ export class AfList extends withI18n(AfElement) {
 
   unmounted() {
     if (this._scrollRaf) { cancelAnimationFrame(this._scrollRaf); this._scrollRaf = null; }
-    this._scroller?.removeEventListener('scroll', this._onScroll);
-    this._scroller?.removeEventListener('click', this._onClick);
-    this._scroller?.removeEventListener('keydown', this._onKeydown);
-    if (this.refresh) {
-      this._scroller?.removeEventListener('touchstart', this._onTouchStart);
-      this._scroller?.removeEventListener('touchmove', this._onTouchMove);
-      this._scroller?.removeEventListener('touchend', this._onTouchEnd);
-    }
   }
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfList.prototype, 'data', { type: Array, default: [] });
-AfElement.defineProp(AfList.prototype, 'pageSize', { attr: 'page-size', type: Number, default: 20 });
-AfElement.defineProp(AfList.prototype, 'itemHeight', { attr: 'item-height', type: Number, default: 48 });
-AfElement.defineProp(AfList.prototype, 'buffer', { type: Number, default: 5 });
-AfElement.defineProp(AfList.prototype, 'mode', { type: String, default: 'normal' });
-AfElement.defineProp(AfList.prototype, 'refresh', { type: Boolean, default: true });
-AfElement.defineProp(AfList.prototype, 'loading', { type: Boolean, default: false });
-AfElement.defineProp(AfList.prototype, 'emptyText', { attr: 'empty-text', type: String, default: null });
-AfElement.defineProp(AfList.prototype, 'height', { type: String, default: '' });
+AfElement.defineProp(AfList.prototype, 'data', []);
+AfElement.defineProp(AfList.prototype, 'pageSize', 20);
+AfElement.defineProp(AfList.prototype, 'itemHeight', 48);
+AfElement.defineProp(AfList.prototype, 'buffer', 5);
+AfElement.defineProp(AfList.prototype, 'mode', 'normal');
+AfElement.defineProp(AfList.prototype, 'refresh', true);
+AfElement.defineProp(AfList.prototype, 'loading', false);
+AfElement.defineProp(AfList.prototype, 'emptyText', null);
+AfElement.defineProp(AfList.prototype, 'height', '');

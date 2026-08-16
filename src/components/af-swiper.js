@@ -74,7 +74,7 @@ export class AfSwiper extends withI18n(AfElement) {
       this._updateTransform();
       this._applyI18n();
     };
-    this.shadowRoot.querySelector('slot')?.addEventListener('slotchange', this._onSlotChange);
+    this._listen(this.shadowRoot.querySelector('slot'), 'slotchange', this._onSlotChange);
 
     // 等待 slot 子元素就绪
     this._rafId = requestAnimationFrame(() => {
@@ -93,7 +93,7 @@ export class AfSwiper extends withI18n(AfElement) {
       this._correctTransform();
       this.emit('af-swiper:change', { index: this.activeIndex });
     };
-    this._track.addEventListener('transitionend', this._onTransitionEnd);
+    this._listen(this._track, 'transitionend', this._onTransitionEnd);
   }
 
   // P1-2: loop 无缝循环——在 slot 前后插入首尾 clone
@@ -247,13 +247,13 @@ export class AfSwiper extends withI18n(AfElement) {
       }
     };
 
-    this.addEventListener('touchstart', this._onTouchStart, { passive: true });
-    this.addEventListener('touchmove', this._onTouchMove, { passive: false });
-    this.addEventListener('touchend', this._onTouchEnd);
+    this._listen(this, 'touchstart', this._onTouchStart, { passive: true });
+    this._listen(this, 'touchmove', this._onTouchMove, { passive: false });
+    this._listen(this, 'touchend', this._onTouchEnd);
   }
 
   _bindDots() {
-    this._dots.addEventListener('click', (e) => {
+    this._listen(this._dots, 'click', (e) => {
       const dot = e.target.closest('.dot');
       if (!dot) return;
       this.goTo(Number(dot.dataset.idx));
@@ -269,7 +269,7 @@ export class AfSwiper extends withI18n(AfElement) {
         case 'End':        e.preventDefault(); this.goTo(this.slideCount - 1); this._focusActiveDot(); break;
       }
     };
-    this.addEventListener('keydown', this._onKeydown);
+    this._listen(this, 'keydown', this._onKeydown);
   }
 
   _focusActiveDot() {
@@ -330,19 +330,13 @@ export class AfSwiper extends withI18n(AfElement) {
     clearTimeout(this._correctTimer);
     if (this._rafId != null) cancelAnimationFrame(this._rafId);
     this._resizeObserver?.disconnect();
-    this._track?.removeEventListener('transitionend', this._onTransitionEnd);
-    this.shadowRoot?.querySelector('slot')?.removeEventListener('slotchange', this._onSlotChange);
-    this.removeEventListener('touchstart', this._onTouchStart);
-    this.removeEventListener('touchmove', this._onTouchMove);
-    this.removeEventListener('touchend', this._onTouchEnd);
-    this.removeEventListener('keydown', this._onKeydown);
   }
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfSwiper.prototype, 'activeIndex', { attr: 'active-index', type: Number, default: 0 });
-AfElement.defineProp(AfSwiper.prototype, 'autoplay', { type: Number, default: 0 });
-AfElement.defineProp(AfSwiper.prototype, 'loop', { type: Boolean, default: false });
-AfElement.defineProp(AfSwiper.prototype, 'duration', { type: Number, default: 250 });
-AfElement.defineProp(AfSwiper.prototype, 'showDots', { attr: 'show-dots', type: Boolean, default: true });
-AfElement.defineProp(AfSwiper.prototype, 'disabled', { type: Boolean, default: false });
+AfElement.defineProp(AfSwiper.prototype, 'activeIndex', 0);
+AfElement.defineProp(AfSwiper.prototype, 'autoplay', 0);
+AfElement.defineProp(AfSwiper.prototype, 'loop', false);
+AfElement.defineProp(AfSwiper.prototype, 'duration', 250);
+AfElement.defineProp(AfSwiper.prototype, 'showDots', true);
+AfElement.defineProp(AfSwiper.prototype, 'disabled', false);

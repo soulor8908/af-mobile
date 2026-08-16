@@ -82,9 +82,9 @@ export class AfData extends AfElement {
   }
 }
 
-AfElement.defineProp(AfData.prototype, 'src', { type: String });
-AfElement.defineProp(AfData.prototype, 'ref', { type: String });
-AfElement.defineProp(AfData.prototype, 'dataPath', { attr: 'data-path', type: String });
-AfElement.defineProp(AfData.prototype, 'totalField', { attr: 'total-field', type: String });
-AfElement.defineProp(AfData.prototype, 'cache', { type: Boolean, default: false });
-AfElement.defineProp(AfData.prototype, 'cacheTtl', { attr: 'cache-ttl', type: Number, default: 5000 });
+AfElement.defineProp(AfData.prototype, 'src', null);
+AfElement.defineProp(AfData.prototype, 'ref', null);
+AfElement.defineProp(AfData.prototype, 'dataPath', null);
+AfElement.defineProp(AfData.prototype, 'totalField', null);
+AfElement.defineProp(AfData.prototype, 'cache', false);
+AfElement.defineProp(AfData.prototype, 'cacheTtl', 5000);

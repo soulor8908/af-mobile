@@ -88,9 +88,9 @@ export class AfSwipeCell extends AfElement {
       this._track.style.setProperty('--af-swipe-x', this._offset + 'px');
     };
 
-    this.addEventListener('touchstart', this._onTouchStart, { passive: true });
-    this.addEventListener('touchmove', this._onTouchMove, { passive: false });
-    this.addEventListener('touchend', this._onTouchEnd);
+    this._listen(this, 'touchstart', this._onTouchStart, { passive: true });
+    this._listen(this, 'touchmove', this._onTouchMove, { passive: false });
+    this._listen(this, 'touchend', this._onTouchEnd);
   }
 
   _bindClick() {
@@ -104,7 +104,7 @@ export class AfSwipeCell extends AfElement {
       this.emit('af-swipe-cell:action', { action: action.dataset.action });
       this.close();
     };
-    this.addEventListener('click', this._onClick);
+    this._listen(this, 'click', this._onClick);
   }
 
   open() {
@@ -117,13 +117,6 @@ export class AfSwipeCell extends AfElement {
     this._offset = 0;
     this._track.style.setProperty('--af-swipe-x', '0px');
   }
-
-  unmounted() {
-    this.removeEventListener('touchstart', this._onTouchStart);
-    this.removeEventListener('touchmove', this._onTouchMove);
-    this.removeEventListener('touchend', this._onTouchEnd);
-    this.removeEventListener('click', this._onClick);
-  }
 }
 
-AfElement.defineProp(AfSwipeCell.prototype, 'disabled', { type: Boolean, default: false });
+AfElement.defineProp(AfSwipeCell.prototype, 'disabled', false);

@@ -59,8 +59,7 @@ export class AfElement extends HTMLElement {
     this._mounted = true;
     this._ensureShadow();
     if (this.onThemeChange) {
-      this._themeHandler = (e) => this.onThemeChange(e.detail);
-      document.documentElement.addEventListener('themechange', this._themeHandler);
+      this._listen(document.documentElement, 'themechange', (e) => this.onThemeChange(e.detail));
     }
     if (this.constructor._perf.size) this._perfStart = performance.now();
     this.mounted?.();
@@ -68,11 +67,12 @@ export class AfElement extends HTMLElement {
   }
 
   disconnectedCallback() {
-    if (this._themeHandler) {
-      document.documentElement.removeEventListener('themechange', this._themeHandler);
-      this._themeHandler = null;
-    }
     this.unmounted?.();
+    // 统一解绑 _listen 登记的监听并清空登记表：重连时由 mounted 重新绑定
+    if (this._listeners) {
+      for (const [target, type, handler, opts] of this._listeners) target.removeEventListener(type, handler, opts);
+      this._listeners = null;
+    }
     // 复位挂载标志：下次 connectedCallback 重新执行 mounted，重建监听与 DOM
     this._mounted = false;
   }
@@ -92,6 +92,14 @@ export class AfElement extends HTMLElement {
 
   emit(name, detail = {}) {
     this.dispatchEvent(new CustomEvent(name, { detail, bubbles: true, composed: true }));
+  }
+
+  // 事件绑定登记：断开时由 disconnectedCallback 统一解绑，组件重连由 mounted 重新绑定，
+  // 杜绝重复监听；子类不再需要在 unmounted() 手写 removeEventListener。target 为空时安全跳过
+  _listen(target, type, handler, opts) {
+    if (!target) return;
+    target.addEventListener(type, handler, opts);
+    (this._listeners ??= []).push([target, type, handler, opts]);
   }
 
   // === 渲染监控（P2：onRender/onUpdate 钩子 + DevTools 集成） ===
@@ -137,6 +145,54 @@ export class AfElement extends HTMLElement {
     }
   }
 
+  // === 模态辅助（dialog/action-sheet/picker 共用）：实例级滚动锁 + 焦点保存/还原/陷阱 ===
+  // 实例级滚动锁包装：重复调用安全，unmounted 兜底调用不会多扣引用计数
+  _lockScroll() {
+    if (!this._scrollLocked) { AfElement.lockScroll(); this._scrollLocked = true; }
+  }
+
+  _unlockScroll() {
+    if (this._scrollLocked) { AfElement.unlockScroll(); this._scrollLocked = false; }
+  }
+
+  // 焦点管理：open() 保存触发元素，close()/light dismiss 后还原
+  saveFocus() {
+    this._previouslyFocused = document.activeElement;
+  }
+
+  restoreFocus() {
+    this._previouslyFocused?.focus();
+    this._previouslyFocused = null;
+  }
+
+  // 可聚焦元素收集：root 默认 $root；Shadow DOM 组件额外覆盖 slotted（Light DOM）内容，避免页脚按钮焦点盲区
+  _getFocusable(root = this.$root) {
+    const sel = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const els = [...root.querySelectorAll(sel)];
+    if (this.constructor.useShadow) els.push(...this.querySelectorAll(sel));
+    return els.filter(el => !el.disabled && (el.offsetParent !== null || el.getClientRects().length > 0));
+  }
+
+  _focusFirst(root = this.$root) {
+    const focusable = this._getFocusable(root);
+    if (focusable.length) focusable[0].focus();
+    else { root.tabIndex = -1; root.focus(); }
+  }
+
+  // Tab 焦点陷阱（部分浏览器原生 showModal/popover 焦点陷阱行为不一致的补强）
+  _trapTab(e, root = this.$root) {
+    if (e.key !== 'Tab') return;
+    const focusable = this._getFocusable(root);
+    if (focusable.length < 2) { e.preventDefault(); return; }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  }
+
   // 样式注入模式：'inline'（默认，Shadow DOM 封装，零请求）| 'external'（CSP 合规，<link> 引用）
   static cssMode = 'inline';
 
@@ -163,9 +219,17 @@ export class AfElement extends HTMLElement {
   // type: String / Number / Boolean / Array / Object
   // 必须在 customElements.define 之前调用（在类定义后、模块顶层调）
   // attribute 变化时自动同步到 property（写 private 字段，不走 setter），子类 onAttributeChange 只需处理副作用（重渲染等）
-  static defineProp(proto, name, { attr, type = String, default: defVal = null } = {}) {
+  // 紧凑形式：defineProp(proto, 'confirmText', '确定') —— type 从 default 值推断（null 视为 String），
+  // attr 自动取 name 的 kebab-case（confirmText → confirm-text）；attr 别名或 Number/null 等推断不了的场景传对象形式
+  static defineProp(proto, name, opts = {}) {
+    const spec = opts && typeof opts === 'object' && !Array.isArray(opts) ? opts : { default: opts };
+    const defVal = 'default' in spec ? spec.default : null;
+    const type = spec.type || (Array.isArray(defVal) ? Array
+      : typeof defVal === 'number' ? Number
+      : typeof defVal === 'boolean' ? Boolean
+      : defVal && typeof defVal === 'object' ? Object : String);
+    const attrName = spec.attr || name.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
     const privateName = Symbol(name);
-    const attrName = attr || name;
     const ctor = proto.constructor;
     // 子类定义属性时继承父类已声明的 observedAttributes/_propMeta（复制避免影子覆盖，
     // 否则父类属性在子类实例上不再触发 attributeChangedCallback）

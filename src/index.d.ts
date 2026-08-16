@@ -116,7 +116,8 @@ export class AfElement extends HTMLElement {
   protected onLocaleChange?(locale: string): void;
   /** i18n 映射表：{ selector: [attr, keyOrFn, fallbackProp?, skipIfAttr?] } */
   static i18n?: Record<string, [string, string | ((host: AfElement, t: (key: string, vars?: TranslateVars) => string, el: Element, index: number) => string), string?, string?]>;
-  /** 定义属性（attribute 与 property 双向同步） */
+  /** 定义属性（attribute 与 property 双向同步）
+   *  紧凑形式：defineProp(proto, 'confirmText', '确定') —— type 从 default 推断（null 视为 String），attr 自动 kebab-case */
   static defineProp(
     proto: AfElement,
     name: string,
@@ -124,7 +125,7 @@ export class AfElement extends HTMLElement {
       attr?: string;
       type?: 'String' | 'Number' | 'Boolean' | 'Array' | 'Object';
       default?: unknown;
-    }
+    } | unknown
   ): void;
   /** 注册全局渲染事件订阅者（DevTools/性能分析），返回取消函数；默认零开销 */
   static onPerf(cb: (event: PerfEvent) => void): () => void;

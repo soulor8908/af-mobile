@@ -14,13 +14,11 @@ export class AfActionSheet extends withI18n(AfElement) {
 
   constructor() {
     super();
-    this._previouslyFocused = null;
-    this._scrollLocked = false;
+    this._isSelecting = false;
   }
 
   mounted() {
     this._render();
-    this._isSelecting = false;
     this._bindEvents();
   }
 
@@ -37,68 +35,35 @@ export class AfActionSheet extends withI18n(AfElement) {
       this.emit('af-action-sheet:close', {});
       this._isSelecting = false;
     };
-    this._sheet.addEventListener('click', this._onClick);
+    this._listen(this._sheet, 'click', this._onClick);
 
     this._onCancelClick = () => {
       this.hidePopover();
       this.emit('af-action-sheet:close', {});
     };
     this._cancelBtn = this.$('.af-action-sheet-cancel');
-    this._cancelBtn?.addEventListener('click', this._onCancelClick);
+    this._listen(this._cancelBtn, 'click', this._onCancelClick);
 
     this._onToggle = (e) => {
       if (e.newState === 'open') {
-        this._previouslyFocused = document.activeElement;
-        AfElement.lockScroll();
-        this._scrollLocked = true;
-        this._focusFirst();
+        this.saveFocus();
+        this._lockScroll();
+        this._focusFirst(this._sheet);
         this.emit('af-action-sheet:open', {});
       }
       if (e.newState === 'closed') {
-        if (this._scrollLocked) { AfElement.unlockScroll(); this._scrollLocked = false; }
+        this._unlockScroll();
         if (!this._isSelecting) {
           this.emit('af-action-sheet:close', {});
         }
-        this._restoreFocus();
+        this.restoreFocus();
       }
     };
-    this._sheet.addEventListener('toggle', this._onToggle);
+    this._listen(this._sheet, 'toggle', this._onToggle);
 
     // 焦点陷阱补强（原生 popover 焦点陷阱行为不一致，与 af-dialog 对称）
-    this._onKeydown = (e) => this._trapKeydown(e);
-    this._sheet.addEventListener('keydown', this._onKeydown);
-  }
-
-  _getFocusable() {
-    return [...this._sheet.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )].filter(el => !el.disabled && el.offsetParent !== null);
-  }
-
-  _focusFirst() {
-    const focusable = this._getFocusable();
-    if (focusable.length) focusable[0].focus();
-    else { this._sheet.tabIndex = -1; this._sheet.focus(); }
-  }
-
-  _trapKeydown(e) {
-    if (e.key !== 'Tab') return;
-    const focusable = this._getFocusable();
-    if (focusable.length < 2) { e.preventDefault(); return; }
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault(); last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault(); first.focus();
-    }
-  }
-
-  _restoreFocus() {
-    if (this._previouslyFocused && typeof this._previouslyFocused.focus === 'function') {
-      this._previouslyFocused.focus();
-      this._previouslyFocused = null;
-    }
+    this._onKeydown = (e) => this._trapTab(e, this._sheet);
+    this._listen(this._sheet, 'keydown', this._onKeydown);
   }
 
   _render() {
@@ -149,24 +114,20 @@ export class AfActionSheet extends withI18n(AfElement) {
     if (!this._sheet) return;
     this._renderContent();
     // cancelBtn 引用变了需重绑；列表/标题项变化不涉及事件绑定（click 委托在 _sheet 上）
+    // 先解绑旧节点（避免同节点双触发），新节点经 _listen 登记、断开时统一解绑
     this._cancelBtn?.removeEventListener('click', this._onCancelClick);
-    this._cancelBtn?.addEventListener('click', this._onCancelClick);
+    this._listen(this._cancelBtn, 'click', this._onCancelClick);
     // 重渲染后重新应用 i18n（.sheet aria-label + cancelBtn textContent 由 _applyI18n 设置）
     this._applyI18n();
   }
 
   unmounted() {
-    if (this._scrollLocked) AfElement.unlockScroll();
-    // Light DOM 元素随组件销毁，removeEventListener 是为通过 wc-cleanup 检测
-    this._sheet?.removeEventListener('click', this._onClick);
-    this._sheet?.removeEventListener('toggle', this._onToggle);
-    this._sheet?.removeEventListener('keydown', this._onKeydown);
-    this._cancelBtn?.removeEventListener('click', this._onCancelClick);
+    this._unlockScroll();
   }
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfActionSheet.prototype, 'options', { type: Array, default: [] });
-AfElement.defineProp(AfActionSheet.prototype, 'title', { type: String, default: '' });
-AfElement.defineProp(AfActionSheet.prototype, 'showCancel', { attr: 'show-cancel', type: Boolean, default: true });
-AfElement.defineProp(AfActionSheet.prototype, 'cancelText', { attr: 'cancel-text', type: String, default: null });
+AfElement.defineProp(AfActionSheet.prototype, 'options', []);
+AfElement.defineProp(AfActionSheet.prototype, 'title', '');
+AfElement.defineProp(AfActionSheet.prototype, 'showCancel', true);
+AfElement.defineProp(AfActionSheet.prototype, 'cancelText', null);

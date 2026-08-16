@@ -152,6 +152,10 @@ export class AfList extends withI18n(AfElement) {
     }
     this._viewport.innerHTML = html;
 
+    // 键盘导航的活跃项可能随滚动移出渲染窗：重渲染后补设 aria-activedescendant，
+    // 防止目标项在窗外时 querySelector 为 null 导致的永久丢失（P2 无障碍）
+    if (this._activeIndex != null) this._updateAriaActive(this._activeIndex);
+
     this._checkLoadmore(scroller, total);
   }
 

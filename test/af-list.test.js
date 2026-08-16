@@ -169,6 +169,22 @@ describe('af-list 虚拟滚动', () => {
     const el = makeList({ data: makeData(3) });
     expect(el.$('.list').getAttribute('tabindex')).toBe('0');
   });
+
+  it('键盘导航跨屏后 aria-activedescendant 不丢失（P2 回归）', () => {
+    const el = makeList({ data: makeData(100), itemHeight: 48, buffer: 2 });
+    const scroller = el.$('.list');
+    // 视口只够 2 行，首屏渲染窗为 [0, 6)，index 20 在窗外
+    Object.defineProperty(scroller, 'clientHeight', { value: 96 });
+    // 模拟键盘连续导航到屏外 index 20（真实场景：scroll 事件触发 _updateViewport 补设）
+    el._activeIndex = 20;
+    scroller.scrollTop = 20 * 48; // 20 进入渲染窗 [18, 24)
+    el._updateViewport();
+    const activeId = scroller.getAttribute('aria-activedescendant');
+    expect(activeId).toBeTruthy();
+    const target = el._viewport.querySelector(`#${activeId}`);
+    expect(target).not.toBeNull();
+    expect(Number(target.dataset.listIndex)).toBe(20);
+  });
 });
 
 describe('af-list 属性变更与下拉刷新（补充分支）', () => {

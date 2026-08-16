@@ -131,7 +131,7 @@ if (typeof window !== 'undefined') {
 
 ### 2. SSR 预渲染 Light DOM（首屏占位）
 
-Light DOM 组件的结构（含 L2 class）可由服务端直接渲染到 HTML 作为**首屏占位**。客户端 `registerAll()` 后组件 `connectedCallback` 触发，**会用组件内部模板重建 DOM 并接管交互**——这不是增量 hydration，SSR 子节点会被覆盖。因此 SSR 预渲染的价值是「避免白屏」，而非「复用服务端 DOM」。Shadow DOM 组件内部结构不可预渲染，仅客户端挂载。
+Light DOM 组件的结构（含 L2 class）可由服务端直接渲染到 HTML 作为**首屏占位**。客户端 `registerAll()` 后组件 `connectedCallback` 触发，**会用组件内部模板重建 DOM 并接管交互**——这不是增量 hydration，SSR 子节点会被覆盖。因此 SSR 预渲染的价值是「避免白屏」，而非「复用服务端 DOM」。Shadow DOM 组件默认仅客户端挂载；实现了 `shadowHTML()` 的组件支持 **DSD（Declarative Shadow DOM）预渲染**——服务端调用 `el.dsdTemplate()` 输出 `<template shadowrootmode="open">`，无 JS 时结构/样式即刻可见，客户端 upgrade 接管交互（见 §3 矩阵）。
 
 > ⚠️ **非增量 hydrate**：组件 `mounted()` 会用 `innerHTML` 重建内部结构（虚拟列表的 `.list` 外壳、tabbar 等）。SSR 输出的子节点仅作首屏占位，客户端 upgrade 后即被替换。若对首屏闪烁敏感，可在组件外加 `style="visibility:hidden"` 占位，upgrade 后再显隐。
 
@@ -165,12 +165,12 @@ Nuxt / Remix 同理：服务端输出 Light DOM + L2 class 作首屏占位，客
 | 组件 | DOM | SSR 预渲染占位 | 客户端 upgrade | 注意 |
 |---|---|---|---|---|
 | af-list | Light | ✓ 渲染 .list 结构 | ✓ 重建外壳+接管虚拟滚动 | 需 data 属性；非增量 hydrate |
-| af-swiper | Shadow | ✗ Shadow 内不预渲染 | ✓ 接管 touch | 仅客户端 |
+| af-swiper | Shadow | ✓ DSD 预渲染结构 | ✓ 接管 touch | 需服务端调 dsdTemplate() |
 | af-tabs | Light | ✓ 渲染 tabbar + panels | ✓ 重建外壳+接管切换 | 非增量 hydrate |
-| af-dialog | Shadow | ✗ 不预渲染 | ✓ showModal | 仅客户端 |
+| af-dialog | Shadow | ✓ DSD 预渲染结构 | ✓ showModal | 需服务端调 dsdTemplate() |
 | af-toast | Light | ✗ 不预渲染（单例按需） | ✓ 单例 | 仅客户端 |
 | af-action-sheet | Light | ✗ 不预渲染（popover 按需） | ✓ popover | 仅客户端 |
-| af-picker | Shadow | ✗ Shadow 不预渲染 | ✓ 接管 | 仅客户端 |
+| af-picker | Shadow | ✓ DSD 预渲染结构 | ✓ 接管 | 需服务端调 dsdTemplate() |
 | af-dropdown | Light | ✗ 不预渲染（popover 按需） | ✓ popover | 仅客户端 |
 | af-img | Light | ✓ 渲染 img + 占位 | ✓ 重建外壳+懒加载 | 需 src 属性；非增量 hydrate |
 | af-backtop | Light | ✗ 不预渲染 | ✓ | 仅客户端 |
@@ -190,10 +190,10 @@ Nuxt / Remix 同理：服务端输出 Light DOM + L2 class 作首屏占位，客
 | af-progress | Light | ✓ 渲染进度条结构 | ✓ 重建+接管 | 非增量 hydrate |
 | af-steps | Light | ✓ 渲染步骤条结构 | ✓ 重建+接管 | 非增量 hydrate |
 | af-countdown | Light | ✓ 渲染倒计时结构 | ✓ 重建+接管 | 非增量 hydrate |
-| af-cascade-picker | Shadow | ✗ Shadow 内不预渲染 | ✓ 复用 AfPicker 内核 | 仅客户端 |
+| af-cascade-picker | Shadow | ✓ DSD 预渲染结构 | ✓ 复用 AfPicker 内核 | 需服务端调 dsdTemplate() |
 | af-calendar | Shadow | ✗ Shadow 不预渲染 | ✓ 接管 | 仅客户端 |
 
-> 规则：**Light DOM + 有初始可见结构** 的组件支持 SSR 预渲染作首屏占位；Shadow DOM 与按需弹层类组件仅客户端渲染。所有 Light DOM 组件 upgrade 时均为「重建接管」而非「增量 hydrate」。
+> 规则：**Light DOM + 有初始可见结构** 的组件支持 SSR 预渲染作首屏占位；**Shadow DOM 中实现 `shadowHTML()` 的组件支持 DSD 预渲染**（上表 ✓ DSD）；未实现 `shadowHTML()` 的 Shadow 与按需弹层类组件仅客户端渲染。所有仅经 `innerHTML` 重建的组件 upgrade 时均为「重建接管」而非「增量 hydrate」。
 
 ## 框架集成（Vue 3 / React 原生直用）
 

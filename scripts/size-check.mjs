@@ -59,11 +59,14 @@ const SRC = join(ROOT, 'src');
 //   total 23.6→23.7KB：page.js 未 external（index.js 导出 createPage/destroyPage），新增 destroyPage 约 +100B gzip，实测 23.615KB
 // v3.7 调整（definePage 全局单例移除，用户已确认）：
 //   删除 definePage/destroyPage/clearPageState/getTransition/getKeepAlive，index.js 仅导出 createPage，total 实测回落
+// v3.8 调整（P2+性能修复，用户已确认）：
+//   total 23.7→23.8KB：af-list 虚拟滚动重渲染后补设 aria-activedescendant（跨屏回归，无障碍 bug 修复）
+//   + bind.js 复杂对象优先走组件 property 赋值（:bind 大数组避免 JSON.stringify 往返），增量约 +24B gzip
 const BUDGET = {
   css: 8.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 1.5,           // KB，AfElement 基类（+_applyI18n + localechange 订阅）
-  total: 23.7,         // KB，28 组件 + 基类（含 i18n 增量 + destroyPage）
+  total: 23.8,         // KB，28 组件 + 基类（含 i18n 增量 + destroyPage + v3.8 aria/性能修复）
   onDemand2: 5.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 5.4,    // KB，router(2.0)+state(0.9)+fetch(0.8)+i18n(1.1)+容差(0.6)，独立预算不计入 total（v3.0 state.js +Owner pattern）
 };

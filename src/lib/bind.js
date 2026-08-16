@@ -99,6 +99,14 @@ function getPath(obj, path) {
 }
 
 function applyValue(el, attrName, val) {
+  // 目标元素已有同名 property（自定义元素 defineProp 或原生成员）时直接赋 property：
+  // 避免复杂对象走 JSON.stringify→setAttribute→attributeChangedCallback→JSON.parse 的往返
+  // （:bind 绑定 af-list:data 等大数组时开销显著）。无同名 property 的 attribute
+  // （role/aria-* / data-* 等）仍回落 setAttribute，行为不变。
+  if (attrName in el) {
+    el[attrName] = val;
+    return;
+  }
   if (val == null || val === false) {
     el.removeAttribute(attrName);
   } else if (val === true) {

@@ -1,0 +1,27 @@
+body { margin: 0; font-family: system-ui, sans-serif; background: #f5f6f8; }
+.pg-topbar { display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: #fff; border-bottom: 1px solid #eee; }
+.pg-topbar h1 { font-size: 16px; margin: 0; }
+.pg-topbar select { padding: 4px 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
+.pg-main { display: flex; gap: 20px; padding: 20px; align-items: flex-start; }
+.pg-stage { flex: 1; min-width: 0; }
+.pg-device { width: 375px; max-width: 100%; margin: 0 auto; transition: width .2s; }
+.pg-device-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #333; color: #fff; font-size: 12px; border-radius: 12px 12px 0 0; }
+.pg-device-bar span { margin-right: auto; opacity: .85; }
+.pg-device-bar .pg-btn { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.2); color: #fff; }
+.pg-device-screen { background: #fff; border: 1px solid #ddd; border-top: none; min-height: 420px; max-height: calc(100vh - 210px); overflow: auto; padding: 16px; border-radius: 0 0 12px 12px; }
+.pg-panel { width: 360px; flex-shrink: 0; background: #fff; border: 1px solid #eee; border-radius: 12px; overflow: hidden; }
+.pg-tabs { display: flex; border-bottom: 1px solid #eee; }
+.pg-tab { flex: 1; padding: 10px; border: none; background: none; cursor: pointer; color: #666; font-size: 13px; }
+.pg-tab.is-active { color: #2563eb; border-bottom: 2px solid #2563eb; font-weight: 600; }
+.pg-tabpanel { display: none; padding: 12px; max-height: 340px; overflow: auto; }
+.pg-tabpanel.is-active { display: block; }
+.pg-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; font-size: 13px; }
+.pg-row label { color: #555; }
+.pg-row select, .pg-row input[type="text"], .pg-row input[type="number"] { padding: 4px 8px; border: 1px solid #ddd; border-radius: 6px; }
+.pg-log { background: #111; color: #7dffa8; padding: 8px; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; min-height: 120px; white-space: pre-wrap; word-break: break-all; overflow: auto; }
+.pg-btn { border: 1px solid #ddd; background: #fff; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px; }
+.pg-btn.is-active { background: #2563eb; color: #fff; border-color: #2563eb; }
+.pg-scenarios { border-top: 1px solid #eee; padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+.pg-empty { color: #999; font-size: 13px; padding: 16px; text-align: center; }
+#pg-event-clear { margin-top: 8px; }
+#pg-style-code { min-height: 60px; margin-top: 8px; }

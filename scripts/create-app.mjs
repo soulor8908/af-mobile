@@ -76,7 +76,7 @@ export default defineConfig({
 });
 `,
 
-  'eslint.config.js': `// AI 代码约束：保存即受 154 白名单 + 15 规则约束
+  'eslint.config.js': `// AI 代码约束：保存即受 164 白名单 + 15 规则约束
 import aiflow from '@af-mobile/eslint-plugin';
 
 export default [
@@ -122,17 +122,17 @@ import { go } from '@af-mobile/ui';
 export default async function homePage(params, ctx) {
   ctx.outlet.innerHTML = \`
     <main class="page">
-      <header class="navbar navbar-fixed"><h1 class="title">我的应用</h1></header>
       <section class="hero">
-        <h2 class="title">项目已就绪</h2>
-        <p class="caption">用 TRAE 或任意 AI 编码工具打开本项目，说出你的想法，aiflow-grill skill 会引导你完成需求确认与页面生成。</p>
+        <p class="eyebrow">AIFlow App</p>
+        <h1 class="display">我的应用</h1>
+        <p class="subtitle">项目已就绪</p>
       </section>
-      <div class="card">
-        <h3 class="subtitle">下一步</h3>
-        <p class="body">编辑 src/pages/home.js 开始开发。</p>
-      </div>
+      <section class="card">
+        <h3 class="section-title">下一步</h3>
+        <p class="body">用 TRAE 或任意 AI 编码工具打开本项目，说出你的想法，aiflow-grill skill 会引导你完成需求确认与页面生成。</p>
+      </section>
       <div class="actions">
-        <button class="btn" data-role="go-docs">查看开发指引</button>
+        <button class="btn btn-block" data-role="go-docs">查看开发指引</button>
       </div>
     </main>\`;
 
@@ -146,14 +146,14 @@ export default async function docsPage(params, ctx) {
   ctx.outlet.innerHTML = \`
     <main class="page">
       <header class="navbar navbar-fixed"><h1 class="title">开发指引</h1></header>
-      <div class="card">
-        <h3 class="subtitle">约束</h3>
-        <p class="body">只用 154 白名单 class 和 af-* 组件标签；禁止内联 style 与 Tailwind 语法。</p>
-      </div>
-      <div class="card">
-        <h3 class="subtitle">组件 API</h3>
+      <section class="card">
+        <h3 class="section-title">约束</h3>
+        <p class="body">只用 164 白名单 class 和 af-* 组件标签；禁止内联 style 与 Tailwind 语法。</p>
+      </section>
+      <section class="card">
+        <h3 class="section-title">组件 API</h3>
         <p class="body">见 node_modules/@af-mobile/ui/README.md。</p>
-      </div>
+      </section>
       <div class="actions">
         <button class="btn btn-ghost" data-role="back">返回首页</button>
       </div>

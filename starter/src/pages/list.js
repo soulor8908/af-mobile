@@ -6,7 +6,11 @@ const PAGE_SIZE = 20;
 export default async function listPage(params, ctx) {
   ctx.outlet.innerHTML = `
     <main class="page">
-      <header class="navbar navbar-fixed"><h1 class="title">商品列表</h1></header>
+      <section class="hero">
+        <p class="eyebrow">AIFlow Starter</p>
+        <h1 class="display">商品列表</h1>
+        <p class="subtitle">分页加载 · 搜索过滤 · 点击进详情</p>
+      </section>
       <af-search-bar placeholder="搜索商品"></af-search-bar>
       <af-list data-role="list" page-size="${PAGE_SIZE}"></af-list>
     </main>`;

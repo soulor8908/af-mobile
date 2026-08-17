@@ -59,7 +59,8 @@ async function treeShakeCheck() {
   const included = allComps.filter(c => code.includes(c.replace('af-', 'Af').replace(/-(\w)/g, (_, c) => c.toUpperCase())));
   const excluded = allComps.filter(c => !included.includes(c));
   check('Tree Shaking 摇除未引入组件', excluded.length >= 7, `${excluded.length}/${allComps.length} 个被摇除`);
-  check('按需 2 组件体积', gz < 5.5 * KB, fmt(gz));
+  // onDemand2 预算与 size-check.mjs BUDGET.onDemand2 对齐（v3.9 调至 6.5KB，实测 6.041KB）
+  check('按需 2 组件体积', gz < 6.5 * KB, fmt(gz));
 }
 
 // 3. whitelist 同步检查

@@ -1,5 +1,6 @@
 // AIFlow UI —— Playground 沙盒宿主页逻辑
-// 场景文件契约：{ tag, name, scenarios: [{ name, html, props[], events[], styleTokens[] }] }
+// 场景文件契约：{ tag, name, scenarios: [{ name, html, main?, props[], events[], styleTokens[], init? }] }
+// main: { selector } 用于定位组件实例（缺省回退 html 首元素）；init: 渲染后调用（注入数据/绑定按钮）
 // props 控件：boolean=开关按钮 / select=下拉 / number=数字 / string=文本，赋值 el[prop] 实时生效
 // styleTokens 控件：color=取色器 / range=滑杆，以 CSS 变量覆盖到 #pg-screen，并展示覆盖代码
 import { registerAll } from '../../src/index.js';
@@ -19,7 +20,8 @@ async function loadComponent(tag) {
 
 function renderScenario(spec, scenario) {
   screen.innerHTML = scenario.html;
-  const el = screen.firstElementChild; // 组件实例
+  scenario.init?.();
+  const el = scenario.main ? screen.querySelector(scenario.main.selector) : screen.firstElementChild;
   buildProps(scenario, el);
   buildEvents(scenario, el);
   buildStyles(scenario);
@@ -38,6 +40,7 @@ function renderScenario(spec, scenario) {
 function buildProps(scenario, el) {
   const box = $('#pg-props');
   box.innerHTML = '';
+  if (!el) return; // 场景未定位到组件实例（如 main.selector 无匹配）时容错
   for (const item of scenario.props || []) {
     const row = document.createElement('div');
     row.className = 'pg-row';
@@ -83,6 +86,7 @@ function buildEvents(scenario, el) {
   const log = $('#pg-event-log');
   log.textContent = '（等待事件触发…）';
   $('#pg-event-clear').onclick = () => { log.textContent = ''; }; // 覆盖式绑定，避免重复监听
+  if (!el) return; // 场景未定位到组件实例时容错
   for (const name of scenario.events || []) {
     el.addEventListener(name, (e) => {
       log.textContent += `[${new Date().toLocaleTimeString()}] ${e.type} ${JSON.stringify(e.detail ?? {})}\n`;

@@ -97,11 +97,14 @@ dist/
 
   'src/main.js': `// 应用入口：注册组件 → 声明路由 → 启动（hash 模式，静态托管零配置）
 import '@af-mobile/ui/css';
-import { registerAll, route, start, initTheme } from '@af-mobile/ui';
+import { route, start, initTheme, register } from '@af-mobile/ui';
 import homePage from './pages/home.js';
 import docsPage from './pages/docs.js';
 
-registerAll();
+// 按需注册页面用到的 af-* 组件（禁止 registerAll()，会失去 Tree Shaking）
+// 例：register('af-list', 'af-dialog', 'af-field', 'af-toast');
+register();
+
 initTheme();
 
 route('/', homePage);

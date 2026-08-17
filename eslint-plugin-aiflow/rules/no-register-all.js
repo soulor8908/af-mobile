@@ -12,8 +12,10 @@ export default {
   },
   create(context) {
     const filename = context.filename || context.getFilename();
-    // 非消费端放行：库源码（index.js 导出 registerAll）/单元测试/构建脚本（build.mjs 全量入口）
-    if (/src[\\/]|test[\\/]|scripts[\\/]/.test(filename)) return {};
+    // 非消费端放行：单元测试夹具 / 构建脚本（build.mjs 全量入口）
+    // 注意：原正则含 `src[\\/]` 会误伤消费端 src/main.js——消费端恰恰是要约束的对象。
+    // 库源码 src/ 不在此 skip 也安全：库源码只定义/导出 registerAll，不调用它。
+    if (/test[\\/]|scripts[\\/]/.test(filename)) return {};
     return {
       CallExpression(node) {
         const callee = node.callee;

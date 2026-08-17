@@ -61,7 +61,22 @@ description: "Conversational AI scaffold for AIFlow mobile H5 apps. Grills the u
 
 ## Phase 5 — 一次性生成工程
 
-用户确认后**按以下两步执行，不可跳过 Step 1**：
+用户确认 demo 后，**先通过生成前 checklist 门，再按以下两步执行**：
+
+### Step 0：生成前 checklist 门（强制，未通过禁止进入 Step 1）
+
+进入 Phase 5 前，AI 必须逐条声明以下证据，**任一项拿不出证据即视为跳过了 grill，禁止生成工程**：
+
+| 项 | 证据形式 | 不通过的判定 |
+|---|---|---|
+| Phase 1 拷问完成 | 拷问记录 / 拆分表已写到文件或对话 | "我大致问了一下"=无证据=跳过 |
+| Phase 3 demo 已生成 | demo 文件路径或可访问 URL | "demo 在我脑子里"=跳过 |
+| Phase 4 用户确认 | 用户明确说"确认/可以/开始生成"的对话引用 | AI 自行判断"应该可以了"=跳过 |
+| 测试方案已定 | jsdom 桩清单（参照 §Phase 5 测试环境契约）+ 数据层导入方式 + 路由测试策略 | "等代码写完再想"=跳过 |
+| 数据层模型已列 | 拆分表含字段名 + 存储键名（localStorage 键 / supabase 表名） | "用通用 schema"=跳过 |
+| 已读 `eslint.config.js` 的 `extraClass` | 列出脚手架默认白名单 + 本次需要新增的 class | 没读过 = 跳过 |
+
+**用户可随时要求 AI 贴出 checklist 证据。** AI 必须能用文件路径 / 对话引用 / 桩清单回答，不能用"我考虑过了"作答。
 
 ### Step 1：跑脚手架生成基础骨架（强制）
 
@@ -80,15 +95,31 @@ description: "Conversational AI scaffold for AIFlow mobile H5 apps. Grills the u
 
 - `src/pages/home.js` → 实际首页（按 demo 迁移业务逻辑）
 - `src/pages/<name>.js` → 新增页面（每页一文件）
-- `src/main.js` → 替换路由表（保留 `registerAll/initTheme/start('#app', { hash: true })` 三件套，可改用显式 `customElements.define` 列表以兼容 minify）
+- `src/main.js` → 替换路由表（保留 `initTheme/start('#app', { hash: true })` 两件套；**组件注册用显式 `register(...names)`**，禁止 `registerAll()`，否则触发 `aiflow/no-register-all` 且失去 Tree Shaking）
 - `src/styles.css` → 项目级自定义样式（只用 `var(--*)` token；白名单外 class 必须在 `eslint.config.js` 用 `extraClass` 登记）
 - 数据层（如 `src/store.js`）：按拆分表 localStorage 或 Supabase
 
 规则：事件名 `af-{组件}:{动作}`；分页判停 `endLoadMore`；暗色 FOUC 用 `<head>` 内联同步脚本设 `data-theme`；假数据换成真实数据层（per 拆分表）。
 
+#### 测试环境契约（写代码前必须确认，避免 Phase 5 反应式踩坑）
+
+在写业务代码或测试前，先对齐以下 jsdom/vitest 的已知限制——这些都是上次 demo 项目真实踩过的坑：
+
+| 场景 | 契约 | 写法 |
+|---|---|---|
+| `HTMLDialogElement.showModal()` | jsdom 不支持，需打桩 | `HTMLDialogElement.prototype.showModal = () => {}`（在 test/setup.js） |
+| 自定义元素方法 | jsdom 下 `customElements.define` 后才可调用，异步测试需 `await` 微任务 | `await Promise.resolve()` 或 `await customElements.whenDefined('af-x')` |
+| `customElements.define` 重复注册 | 抛 `AlreadyDefined` 异常 | 用 `if (!customElements.get(name))` 守卫，或在 setup.js 清理 |
+| `import.meta.resolve` 相对路径 | vitest 下解析不稳定 | 数据层/资源测试用绝对路径：`import.meta.url` + `fileURLToPath` 派生 |
+| `navigator.clipboard` / `navigator.share` | jsdom 下只读或未实现 | 测试前 `Object.defineProperty(navigator, 'xxx', { value: stub, configurable: true })` |
+| `innerText` | jsdom 不支持（只支持 `textContent`） | 组件测试断言用 `textContent`，组件实现避免用 `innerText` |
+| `IntersectionObserver` / `ResizeObserver` | jsdom 不提供 | 在 `test/setup.js` 注入桩：`global.IntersectionObserver = class { observe(){} unobserve(){} disconnect(){} }` |
+
+**未列入的 API 默认按"jsdom 不支持"假设**。在 demo 阶段就确定测试桩清单，不要等 Phase 5 自检失败才发现。
+
 **交付前自检（全绿才算完成）：**
 1. `npm install && npm run dev` 能启动
-2. `npm run lint` 0 error
+2. `npm run lint` 0 error（含 0 warning——`no-register-all` 是 warn，触发即视为违反）
 3. 浏览器逐页截图与 demo 对照，页面齐全、跳转正常
 4. 数据读写真实生效（刷新后状态保留）
 

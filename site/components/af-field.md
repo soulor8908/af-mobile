@@ -1,35 +1,37 @@
-# af-field 表单字段
-<!-- gen:start:scenarios -->
-## 示例
+# af-field
 
-<!-- 无 Playground 场景（可补充 demo/scenarios/af-<tag>.js） -->
-<!-- gen:end:scenarios -->
-<!-- gen:start:props -->
+> v1.5.0 · 结构化表单字段
+
 ## API
 
-| 属性 | 类型 | 说明 |
-| --- | --- | --- |
-| label | `string` | 标签 |
-| icon | `string` | 前置图标 |
-| type | `'input' \| 'textarea'` | 控件类型（input/textarea） |
-| inputType | `string` | input 元素 type 属性（text/password/email...） |
-| value | `string` | 当前值 |
-| placeholder | `string` | 占位文案 |
-| help | `string` | 帮助文本 |
-| error | `string` | 校验错误消息 |
-| disabled | `boolean` | 禁用 |
-| readonly | `boolean` | 只读 |
-| ariaLabel | `string` | aria-label 文案 |
-<!-- gen:end:props -->
-<!-- gen:start:events -->
+<!-- gen:start:api -->
+### 属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| label | `string` | '' | 标签 |
+| icon | `string` | '' | 前置图标 |
+| type | `'input' \| 'textarea'` | 'input' | 控件类型（input/textarea） |
+| inputType | `string` | 'text' | input 元素 type 属性（text/password/email...） |
+| value | `string` | '' | 当前值 |
+| placeholder | `string` | '' | 占位文案 |
+| help | `string` | '' | 帮助文本 |
+| error | `string` | '' | 校验错误消息 |
+| disabled | `boolean` | false | 禁用 |
+| readonly | `boolean` | false | 只读 |
+| ariaLabel | `string` | '' | aria-label 文案 |
+
+### 事件
+
 | 事件名 | 说明 |
 | --- | --- |
-| `af-field:input` |  |
-| `af-field:change` |  |
-<!-- gen:end:events -->
-<!-- gen:start:methods -->
-| 方法 | 签名 |
+| `af-field:input` | 触发时：组件内 emit 调用 |
+| `af-field:change` | 触发时：组件内 emit 调用 |
+
+### 方法
+
+| 签名 | 说明 |
 | --- | --- |
-| `setError` | `setError(msg: string): void` |
-| `focus` | `focus(): void` |
-<!-- gen:end:methods -->
+| `setError(msg: string): void` | 设置校验错误（空字符串清除） |
+| `focus(): void` | 聚焦输入框 |
+<!-- gen:end:api -->

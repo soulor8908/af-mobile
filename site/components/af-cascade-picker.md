@@ -1,6 +1,6 @@
-# af-pull-refresh
+# af-cascade-picker
 
-> v1.5.0 · 下拉刷新容器
+> v1.3.0 · 级联选择器，复用 af-picker 滚轮内核
 
 ## API
 
@@ -9,17 +9,17 @@
 
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| refreshing | `boolean` | false | 加载中状态 |
+| tree | `CascadeNode[]` | '[]' | 树形级联数据 |
 
 ### 事件
 
 | 事件名 | 说明 |
 | --- | --- |
-| `af-pull-refresh:refresh` | 触发时：组件内 emit 调用 |
+
 
 ### 方法
 
 | 签名 | 说明 |
 | --- | --- |
-| `endRefresh(): void` | 结束刷新（收起指示器） |
+
 <!-- gen:end:api -->

@@ -1,27 +1,29 @@
-# af-rate 评分
-<!-- gen:start:scenarios -->
-## 示例
+# af-rate
 
-<!-- 无 Playground 场景（可补充 demo/scenarios/af-<tag>.js） -->
-<!-- gen:end:scenarios -->
-<!-- gen:start:props -->
+> v1.3.0 · 评分
+
 ## API
 
-| 属性 | 类型 | 说明 |
-| --- | --- | --- |
-| value | `number` | 当前评分（0-max） |
-| max | `number` | 星数上限 |
-| readonly | `boolean` | 只读（不可交互） |
-| size | `'sm' \| 'md' \| 'lg'` | 尺寸变体（sm/md/lg） |
-| label | `string` | radiogroup 无障碍标签 |
-<!-- gen:end:props -->
-<!-- gen:start:events -->
+<!-- gen:start:api -->
+### 属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| value | `number` | 0 | 当前评分（0-max） |
+| max | `number` | 5 | 星数上限 |
+| readonly | `boolean` | false | 只读（不可交互） |
+| size | `'sm' \| 'md' \| 'lg'` | 'md' | 尺寸变体（sm/md/lg） |
+| label | `string` | '评分' | radiogroup 无障碍标签 |
+
+### 事件
+
 | 事件名 | 说明 |
 | --- | --- |
-| `af-rate:change` |  |
-<!-- gen:end:events -->
-<!-- gen:start:methods -->
-| 方法 | 签名 |
+| `af-rate:change` | 触发时：组件内 emit 调用 |
+
+### 方法
+
+| 签名 | 说明 |
 | --- | --- |
-| — | — |
-<!-- gen:end:methods -->
+
+<!-- gen:end:api -->

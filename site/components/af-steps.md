@@ -1,26 +1,26 @@
-# af-steps 步骤条
-<!-- gen:start:scenarios -->
-## 示例
+# af-steps
 
-<!-- 无 Playground 场景（可补充 demo/scenarios/af-<tag>.js） -->
-<!-- gen:end:scenarios -->
-<!-- gen:start:props -->
+> v1.3.0 · 步骤条
+
 ## API
 
-| 属性 | 类型 | 说明 |
-| --- | --- | --- |
-| steps | `Array<string \| { label: string }>` | 步骤项（字符串或 { label }） |
-| current | `number` | 当前步骤索引（0 起） |
-| remaining | `number` | 剩余秒数 |
-| total | `number` | 总秒数 |
-<!-- gen:end:props -->
-<!-- gen:start:events -->
+<!-- gen:start:api -->
+### 属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| steps | `Array<string \| { label: string }>` | '[]' | 步骤项（字符串或 { label }） |
+| current | `number` | 0 | 当前步骤索引（0 起） |
+
+### 事件
+
 | 事件名 | 说明 |
 | --- | --- |
-| — | — |
-<!-- gen:end:events -->
-<!-- gen:start:methods -->
-| 方法 | 签名 |
+
+
+### 方法
+
+| 签名 | 说明 |
 | --- | --- |
-| — | — |
-<!-- gen:end:methods -->
+
+<!-- gen:end:api -->

@@ -1,25 +1,26 @@
-# af-swipe-cell 滑动单元格
-<!-- gen:start:scenarios -->
-## 示例
+# af-swipe-cell
 
-<!-- 无 Playground 场景（可补充 demo/scenarios/af-<tag>.js） -->
-<!-- gen:end:scenarios -->
-<!-- gen:start:props -->
+> v1.5.0 · 滑动单元格
+
 ## API
 
-| 属性 | 类型 | 说明 |
-| --- | --- | --- |
-| disabled | `boolean` | 禁用滑动 |
-| value | `number` |  |
-<!-- gen:end:props -->
-<!-- gen:start:events -->
+<!-- gen:start:api -->
+### 属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| disabled | `boolean` | false | 禁用滑动 |
+
+### 事件
+
 | 事件名 | 说明 |
 | --- | --- |
-| `af-swipe-cell:action` |  |
-<!-- gen:end:events -->
-<!-- gen:start:methods -->
-| 方法 | 签名 |
+| `af-swipe-cell:action` | 触发时：组件内 emit 调用 |
+
+### 方法
+
+| 签名 | 说明 |
 | --- | --- |
-| `open` | `open(): void` |
-| `close` | `close(): void` |
-<!-- gen:end:methods -->
+| `open(): void` | 打开右侧操作区 |
+| `close(): void` | 关闭右侧操作区 |
+<!-- gen:end:api -->

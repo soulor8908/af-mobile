@@ -1,27 +1,28 @@
-# af-tabbar 底部标签栏
-<!-- gen:start:scenarios -->
-## 示例
+# af-tabbar
 
-<!-- 无 Playground 场景（可补充 demo/scenarios/af-<tag>.js） -->
-<!-- gen:end:scenarios -->
-<!-- gen:start:props -->
+> v1.5.0 · 底部标签栏
+
 ## API
 
-| 属性 | 类型 | 说明 |
-| --- | --- | --- |
-| tabs | `TabbarItem[]` | 标签配置 |
-| activeIndex | `number` | 当前激活索引 |
-| fixed | `boolean` | 固定在底部 |
-| ariaLabel | `string` | aria-label 文案 |
-| value | `number` |  |
-<!-- gen:end:props -->
-<!-- gen:start:events -->
+<!-- gen:start:api -->
+### 属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| tabs | `TabbarItem[]` | '[]' | 标签配置 |
+| activeIndex | `number` | 0 | 当前激活索引 |
+| fixed | `boolean` | true | 固定在底部 |
+| ariaLabel | `string` | null | aria-label 文案 |
+
+### 事件
+
 | 事件名 | 说明 |
 | --- | --- |
-| `af-tabbar:change` |  |
-<!-- gen:end:events -->
-<!-- gen:start:methods -->
-| 方法 | 签名 |
+| `af-tabbar:change` | 触发时：组件内 emit 调用 |
+
+### 方法
+
+| 签名 | 说明 |
 | --- | --- |
-| `setActive` | `setActive(index: number, silent?: boolean): void` |
-<!-- gen:end:methods -->
+| `setActive(index: number, silent?: boolean): void` | 设置激活标签 |
+<!-- gen:end:api -->

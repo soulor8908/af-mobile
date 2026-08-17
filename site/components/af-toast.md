@@ -1,40 +1,27 @@
-# af-toast 轻提示
-<!-- gen:start:scenarios -->
-## 示例
+# af-toast
 
-<iframe src="/empty"></iframe>
-### 1. 四种类型
-```html
+> P1 · 轻提示
 
-        <div class="actions">
-          <button class="btn" id="t-success">成功</button>
-          <button class="btn btn-ghost" id="t-warning">警告</button>
-          <button class="btn btn-danger" id="t-error">错误</button>
-          <button class="btn btn-ghost" id="t-loading">加载中</button>
-        </div>
-        <af-toast id="toast"></af-toast>
-```
-<!-- gen:end:scenarios -->
-<!-- gen:start:props -->
 ## API
 
-| 属性 | 类型 | 说明 |
-| --- | --- | --- |
-| duration | `number` | 显示时长（ms） |
-| message *(readonly)* | `string` | 当前消息（只读） |
-| label | `string` |  |
-| value | `string \| number` |  |
-| index | `number` |  |
-| value | `string \| number` |  |
-<!-- gen:end:props -->
-<!-- gen:start:events -->
+<!-- gen:start:api -->
+### 属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| duration | `number` | 2000 | 显示时长（ms） |
+| message *(readonly)* | `string` |  | 当前消息（只读） |
+
+### 事件
+
 | 事件名 | 说明 |
 | --- | --- |
-| `af-toast:dismiss` |  |
-<!-- gen:end:events -->
-<!-- gen:start:methods -->
-| 方法 | 签名 |
+| `af-toast:dismiss` | 触发时：组件内 emit 调用 |
+
+### 方法
+
+| 签名 | 说明 |
 | --- | --- |
-| `show` | `show(message: string, duration?: number): void` |
-| `dismiss` | `dismiss(): void` |
-<!-- gen:end:methods -->
+| `show(message: string, duration?: number): void` | 显示提示 |
+| `dismiss(): void` | 关闭提示 |
+<!-- gen:end:api -->

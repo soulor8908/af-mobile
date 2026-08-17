@@ -1,128 +1,118 @@
-// AIFlow UI —— 文档站 API 底稿生成器
-// 从 src/index.d.ts 提取组件属性/事件/方法 → 生成 site/components/af-*.md 的生成区
-// marker 结构：<!-- gen:start:xxx --> ... <!-- gen:end:xxx -->，只重写 marker 内内容，人工区保留
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+// AIFlow UI —— 文档站 API 生成器（P2 Task A）
+// 从 src/index.d.ts 解析组件属性/方法/事件，结合组件源码 defineProp 默认值，
+// 生成 site/components/af-*.md 文档页（marker：<!-- gen:start:api --> ... <!-- gen:end:api -->）
+import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const DTS = join(ROOT, 'src/index.d.ts');
-const DEMO_IDX = join(ROOT, 'demo/index.html');
-const OUT_DIR = join(ROOT, 'site/components');
-const LIST_JSON = join(ROOT, 'site/.vitepress/component-list.json');
-const SCEN_DIR = join(ROOT, 'demo/scenarios');
 
 // 组件类名 → 标签：AfActionSheet → af-action-sheet
-const classToTag = (name) =>
-  name.replace(/^Af/, '').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+const classToTag = (name) => `af-${name.replace(/^Af/, '').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()}`;
 
-const esc = (s) => String(s ?? '').replace(/\|/g, '\\|');
+// 段头注释：// af-xxx（P0 · 中文名）
+const HEAD_RE = (tag) => new RegExp(`^// ${tag}（([^）]*)）$`, 'm');
+// 类定义：export class AfXxx extends Parent { ... }（到行首 `}` 结束）
+const CLASS_RE = /export\s+class\s+(Af[A-Za-z]+)\s+extends\s+[A-Za-z]+\s*\{([\s\S]*?)^\}/m;
 
-// 从 d.ts 的一个组件类块提取属性/方法/事件
-export function parseClassBlock(block) {
+// —— 类体行解析：属性（可带上一行 JSDoc）/ 方法 / 事件 ——
+function parseBody(body) {
   const props = [];
-  const events = [];
   const methods = [];
-  let desc = '';
-  for (const raw of block.split('\n')) {
+  const events = [];
+  let doc = '';
+  for (const raw of body.split('\n')) {
     const line = raw.trim();
-    if (!line) continue;
-    const cm = line.match(/^\/\*\*(.*?)\*\//);
-    if (cm) { desc = cm[1].trim(); continue; }
-    if (line.startsWith('}')) continue;
-    if (line.startsWith('//') || /\bstatic\s/.test(line)) { desc = ''; continue; }
-    // 事件：addEventListener(type: 'af-x:ev', ...)
-    const ev = line.match(/^addEventListener\(type:\s*['"]([a-z][\w:-]*)['"]/);
-    if (ev) { events.push(ev[1]); continue; }
-    // 方法：name(args...): Type;
-    const md = line.match(/^([a-zA-Z][a-zA-Z0-9]*)\s*\([^)]*\)\s*:\s*([^;]*);/);
-    if (md) { methods.push({ name: md[1], sig: line.replace(/;$/, '') }); desc = ''; continue; }
-    // 属性：readonly? name: Type;
-    const pr = line.match(/^(readonly\s+)?([a-zA-Z][a-zA-Z0-9]*)\s*:\s*([^=;]+);/);
-    if (pr && !pr[2].includes('(')) { props.push({ name: pr[2], type: pr[3].trim(), readonly: !!pr[1], desc }); desc = ''; }
+    if (!line) { doc = ''; continue; }
+    const dm = line.match(/^\/\*\* (.*?) \*\/$/);
+    if (dm) { doc = dm[1].trim(); continue; }
+    const em = line.match(/^addEventListener\(type: '([^']+)'/);
+    if (em) { events.push({ name: em[1] }); continue; }
+    const mm = line.match(/^([a-zA-Z][\w]*)(\(.*\)):\s*([^;]+);$/);
+    if (mm) { methods.push({ name: mm[1], sig: line.replace(/;$/, ''), doc }); doc = ''; continue; }
+    const pm = line.match(/^(readonly )?([a-zA-Z][\w]*)\??: (.+);$/);
+    if (pm) { props.push({ name: pm[2], type: pm[3].trim(), readonly: !!pm[1], doc }); doc = ''; continue; }
+    doc = '';
   }
-  return { props, events, methods };
+  return { props, methods, events };
 }
 
-const tbl = (headers, rows) =>
-  `| ${headers.join(' | ')} |\n| ${headers.map(() => '---').join(' | ')} |\n` +
-  (rows.length ? rows.join('\n') : `| ${headers.map(() => '—').join(' | ')} |`);
-
-const propsTable = (api) =>
-  tbl(['属性', '类型', '说明'], api.props.map((p) => `| ${esc(p.name)}${p.readonly ? ' *(readonly)*' : ''} | \`${esc(p.type)}\` | ${esc(p.desc)} |`));
-const eventsTable = (evts) => tbl(['事件名', '说明'], evts.map((e) => `| \`${esc(e)}\` |  |`));
-const methodsTable = (m) => tbl(['方法', '签名'], m.map((x) => `| \`${esc(x.name)}\` | \`${esc(x.sig)}\` |`));
-
-// 从场景文件构建「示例」区：Playground iframe + 逐个场景代码块
-// 场景文件仅作数据源；无场景文件则输出占位说明
-async function scenariosSection(tag) {
-  const path = join(SCEN_DIR, `af-${tag}.js`);
-  if (!existsSync(path)) return '## 示例\n\n<!-- 无 Playground 场景（可补充 demo/scenarios/af-<tag>.js） -->';
-  const mod = await import(path);
-  const cfg = mod.default;
-  const list = cfg.scenarios || [];
-  const url = `/v/demo/playground.html?c=af-${tag}`;
-  const lines = [`## 示例\n\n<iframe src="${url}" width="100%" height="520" style="border:1px solid var(--vp-c-divider);border-radius:8px;background:#fff" title="af-${tag} Playground"></iframe>`];
-  list.forEach((s, i) => {
-    lines.push(`### ${i + 1}. ${s.name}`);
-    lines.push('```html', s.html.trimEnd(), '```');
+// —— 解析 index.d.ts ——
+// 定位所有 `export class AfXxx extends AfElement`，向前找最近的 `// af-xxx（…）` 段头，
+// 向后到下一个 `export class` 或文件尾，只取类体内属性/方法/事件（避开 interface 定义）。
+export function parseDts(code) {
+  const out = [];
+  const anchors = [...code.matchAll(/^export\s+class\s+(Af[A-Za-z]+)\s+extends\s+AfElement\s*\{/gm)];
+  anchors.forEach((a, i) => {
+    const tag = classToTag(a[1]);
+    const h = code.slice(0, a.index).match(HEAD_RE(tag));
+    if (!h) return;
+    const end = i + 1 < anchors.length ? anchors[i + 1].index : code.length;
+    const clsM = code.slice(h.index, end).match(CLASS_RE);
+    if (!clsM) return;
+    out.push({ tag, desc: h[1].trim(), cls: a[1], ...parseBody(clsM[2]) });
   });
-  return lines.join('\n');
+  return out;
 }
 
-// 追加/重建生成区，保留 marker 之前的人工区（标题 / 开头说明）
-function upsert(file, header, sections) {
-  let text;
-  if (!existsSync(file)) {
-    text = header + '\n';
-  } else {
-    const cur = readFileSync(file, 'utf8');
-    const i = cur.indexOf('<!-- gen:start:');
-    let manual = i >= 0 ? cur.slice(0, i).trimEnd() : header;
-    // 幂等：移除人工区残留的生成结构标题（## 示例 / ## API），避免重复
-    manual = manual.replace(/(\n## (?:示例|API)\s*)+$/g, '');
-    text = manual + '\n';
-  }
-  for (const [key, content] of sections) {
-    text += `<!-- gen:start:${key} -->\n${content}\n<!-- gen:end:${key} -->\n`;
-  }
-  writeFileSync(file, text);
+// —— 解析 defineProp 默认值 ——
+const DEF_RE = /defineProp\([\w.]+\.prototype,\s*'([\w]+)',\s*([^)]+)\);/g;
+const parseLiteral = (raw) => {
+  const s = raw.trim();
+  if (s === 'null') return null;
+  if (s === 'true') return true;
+  if (s === 'false') return false;
+  if (/^-?\d+(\.\d+)?$/.test(s)) return Number(s);
+  if ((s.startsWith("'") && s.endsWith("'")) || (s.startsWith('"') && s.endsWith('"'))) return s.slice(1, -1);
+  return s;
+};
+export function parseDefineProps(src) {
+  const defs = {};
+  for (const m of src.matchAll(DEF_RE)) defs[m[1]] = parseLiteral(m[2]);
+  return defs;
 }
 
-export async function generateDocs() {
-  const dts = readFileSync(DTS, 'utf8');
-  const demo = existsSync(DEMO_IDX) ? readFileSync(DEMO_IDX, 'utf8') : '';
-  const names = [...dts.matchAll(/^export class (Af[A-Za-z]+) extends AfElement \{/gm)].map((m) => m[1]);
-  mkdirSync(OUT_DIR, { recursive: true });
-  mkdirSync(dirname(LIST_JSON), { recursive: true });
-  const list = [];
-  for (let i = 0; i < names.length; i++) {
-    const name = names[i];
-    const start = dts.indexOf(`class ${name} `);
-    const end = i + 1 < names.length ? dts.indexOf(`class ${names[i + 1]} `, start + name.length) : dts.length;
-    const tag = classToTag(name);
-    const tm = demo.match(new RegExp(`>af-${tag}\\s+([^<\\n]+)</span>`));
-    const title = tm ? tm[1].trim() : tag;
-    const api = parseClassBlock(dts.slice(start, end));
-    const file = join(OUT_DIR, `af-${tag}.md`);
-    upsert(file, `# af-${tag} ${title}`, [
-      ['scenarios', await scenariosSection(tag)],
-      ['props', '## API\n\n' + propsTable(api)],
-      ['events', eventsTable(api.events)],
-      ['methods', methodsTable(api.methods)],
-    ]);
-    list.push({ tag, className: name, title });
-  }
-  writeFileSync(LIST_JSON, JSON.stringify(list, null, 2) + '\n');
-  return list.length;
+// —— 渲染 markdown ——
+const esc = (s) => String(s ?? '').replace(/\|/g, '\\|');
+const fmtDef = (d) => {
+  if (d === undefined) return '';
+  return typeof d === 'string' ? `'${d}'` : String(d);
+};
+export function renderMarkdown(c) {
+  const propRows = c.props.map((p) => {
+    const name = p.readonly ? `${esc(p.name)} *(readonly)*` : esc(p.name);
+    return `| ${name} | \`${esc(p.type)}\` | ${esc(fmtDef(p.def))} | ${esc(p.doc)} |`;
+  }).join('\n');
+  const evtRows = c.events.map((e) => `| \`${esc(e.name)}\` | 触发时：组件内 emit 调用 |`).join('\n');
+  const mtdRows = c.methods.map((m) => `| \`${esc(m.sig)}\` | ${esc(m.doc)} |`).join('\n');
+  return `# ${c.tag}\n\n> ${c.desc}\n\n## API\n\n<!-- gen:start:api -->\n### 属性\n\n| 属性 | 类型 | 默认值 | 说明 |\n| --- | --- | --- | --- |\n${propRows}\n\n### 事件\n\n| 事件名 | 说明 |\n| --- | --- |\n${evtRows}\n\n### 方法\n\n| 签名 | 说明 |\n| --- | --- |\n${mtdRows}\n<!-- gen:end:api -->\n`;
 }
 
-if (fileURLToPath(import.meta.url) === process.argv[1]) {
-  try {
-    const n = await generateDocs();
-    console.log(`✓ docs:gen 完成，${n} 个组件`);
-  } catch (e) {
-    console.error(e);
-    process.exit(1);
-  }
+// —— 主流程：遍历 src/components/af-*.js，按段头定位 d.ts 段并生成文档页 ——
+function findComponent(code, tag) {
+  const h = code.match(HEAD_RE(tag));
+  if (!h) return null;
+  const clsM = code.slice(h.index).match(CLASS_RE);
+  if (!clsM) return null;
+  return { tag, desc: h[1].trim(), cls: clsM[1], ...parseBody(clsM[2]) };
 }
+
+export function main() {
+  const dts = readFileSync(join(ROOT, 'src/index.d.ts'), 'utf8');
+  const outDir = join(ROOT, 'site/components');
+  mkdirSync(outDir, { recursive: true });
+  const files = readdirSync(join(ROOT, 'src/components')).filter((f) => /^af-.*\.js$/.test(f));
+  let n = 0;
+  for (const f of files) {
+    const tag = f.replace(/\.js$/, '');
+    const c = findComponent(dts, tag);
+    if (!c) continue; // 无 d.ts 段的组件（如 af-data）跳过
+    const defs = parseDefineProps(readFileSync(join(ROOT, 'src/components', f), 'utf8'));
+    c.props = c.props.map((p) => ({ ...p, def: defs[p.name] }));
+    writeFileSync(join(outDir, `${tag}.md`), renderMarkdown(c));
+    n++;
+  }
+  console.log(`✓ gen-docs: 生成/更新 ${n} 个组件文档页`);
+}
+
+if (process.argv[1] && import.meta.url === 'file://' + process.argv[1]) main();

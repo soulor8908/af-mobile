@@ -1,6 +1,6 @@
 {
   "name": "create-af-mobile",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "AIFlow app scaffolder — npm create af-mobile my-app（转发 @af-mobile/ui CLI，脚手架 + aiflow-grill skill 自举）",
   "type": "module",
   "bin": {
@@ -10,7 +10,7 @@
     "bin.mjs"
   ],
   "dependencies": {
-    "@af-mobile/ui": "^1.4.0"
+    "@af-mobile/ui": "^1.4.1"
   },
   "keywords": [
     "create",

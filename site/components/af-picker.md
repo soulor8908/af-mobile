@@ -2,6 +2,28 @@
 
 > P1 · 滚轮选择器
 
+## 示例
+
+### 日期选择
+
+```html
+<div class="actions">
+          <button class="btn" id="pk-open">打开选择器</button>
+        </div>
+        <af-picker id="picker" title="选择日期"></af-picker>
+        <p class="caption" id="pk-log">确认后显示选中值</p>
+```
+
+### 省市级联
+
+```html
+<div class="actions">
+          <button class="btn" id="pk-open2">打开选择器</button>
+        </div>
+        <af-picker id="picker2" title="选择省市"></af-picker>
+        <p class="caption" id="pk-log2">切换省份联动城市列</p>
+```
+
 ## API
 
 <!-- gen:start:api -->

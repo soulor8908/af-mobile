@@ -2,6 +2,19 @@
 
 > v1.2.0 · 开关切换
 
+## 示例
+
+### 开关列表
+
+```html
+<div class="card">
+          <div class="cell"><span class="body">通知推送</span><af-switch id="s1"></af-switch></div>
+          <div class="cell"><span class="body">自动播放</span><af-switch id="s2" checked></af-switch></div>
+          <div class="cell"><span class="body">加载态</span><af-switch id="s3" loading></af-switch></div>
+          <div class="cell"><span class="body">禁用</span><af-switch id="s4" disabled></af-switch></div>
+        </div>
+```
+
 ## API
 
 <!-- gen:start:api -->

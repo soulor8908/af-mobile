@@ -1,9 +1,9 @@
 // AIFlow UI —— 文档站 API 生成器（P2 Task A）
 // 从 src/index.d.ts 解析组件属性/方法/事件，结合组件源码 defineProp 默认值，
 // 生成 site/components/af-*.md 文档页（marker：<!-- gen:start:api --> ... <!-- gen:end:api -->）
-import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -85,7 +85,10 @@ export function renderMarkdown(c) {
   }).join('\n');
   const evtRows = c.events.map((e) => `| \`${esc(e.name)}\` | 触发时：组件内 emit 调用 |`).join('\n');
   const mtdRows = c.methods.map((m) => `| \`${esc(m.sig)}\` | ${esc(m.doc)} |`).join('\n');
-  return `# ${c.tag}\n\n> ${c.desc}\n\n## API\n\n<!-- gen:start:api -->\n### 属性\n\n| 属性 | 类型 | 默认值 | 说明 |\n| --- | --- | --- | --- |\n${propRows}\n\n### 事件\n\n| 事件名 | 说明 |\n| --- | --- |\n${evtRows}\n\n### 方法\n\n| 签名 | 说明 |\n| --- | --- |\n${mtdRows}\n<!-- gen:end:api -->\n`;
+  // 示例段：demo/scenarios/{tag}.js 存在时，把每个场景的 html 原样嵌入（主流程已挂到 c.scenarios）
+  const examples = (c.scenarios || []).map((s) => `### ${s.name}\n\n\`\`\`html\n${s.html.trim()}\n\`\`\``).join('\n\n');
+  const exampleSection = examples ? `## 示例\n\n${examples}\n\n` : '';
+  return `# ${c.tag}\n\n> ${c.desc}\n\n${exampleSection}## API\n\n<!-- gen:start:api -->\n### 属性\n\n| 属性 | 类型 | 默认值 | 说明 |\n| --- | --- | --- | --- |\n${propRows}\n\n### 事件\n\n| 事件名 | 说明 |\n| --- | --- |\n${evtRows}\n\n### 方法\n\n| 签名 | 说明 |\n| --- | --- |\n${mtdRows}\n<!-- gen:end:api -->\n`;
 }
 
 // —— 主流程：遍历 src/components/af-*.js，按段头定位 d.ts 段并生成文档页 ——
@@ -97,7 +100,7 @@ function findComponent(code, tag) {
   return { tag, desc: h[1].trim(), cls: clsM[1], ...parseBody(clsM[2]) };
 }
 
-export function main() {
+export async function main() {
   const dts = readFileSync(join(ROOT, 'src/index.d.ts'), 'utf8');
   const outDir = join(ROOT, 'site/components');
   mkdirSync(outDir, { recursive: true });
@@ -109,10 +112,16 @@ export function main() {
     if (!c) continue; // 无 d.ts 段的组件（如 af-data）跳过
     const defs = parseDefineProps(readFileSync(join(ROOT, 'src/components', f), 'utf8'));
     c.props = c.props.map((p) => ({ ...p, def: defs[p.name] }));
+    // 场景示例：demo/scenarios/{tag}.js 存在则挂到 c.scenarios，renderMarkdown 在 ## API 前插入 ## 示例
+    const scPath = join(ROOT, 'demo/scenarios', `${tag}.js`);
+    if (existsSync(scPath)) {
+      const spec = (await import(pathToFileURL(scPath).href)).default;
+      c.scenarios = spec?.scenarios;
+    }
     writeFileSync(join(outDir, `${tag}.md`), renderMarkdown(c));
     n++;
   }
   console.log(`✓ gen-docs: 生成/更新 ${n} 个组件文档页`);
 }
 
-if (process.argv[1] && import.meta.url === 'file://' + process.argv[1]) main();
+if (process.argv[1] && import.meta.url === 'file://' + process.argv[1]) main().catch((e) => { console.error(e); process.exit(1); });

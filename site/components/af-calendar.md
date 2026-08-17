@@ -2,6 +2,14 @@
 
 > v1.3.0 · 日历
 
+## 示例
+
+### 日期选择
+
+```html
+<af-calendar id="cal"></af-calendar>
+```
+
 ## API
 
 <!-- gen:start:api -->

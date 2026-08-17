@@ -2,6 +2,18 @@
 
 > v1.5.0 · 数量选择器
 
+## 示例
+
+### 数量选择
+
+```html
+<div class="card p-3">
+          <div class="cell"><span class="body">购买数量</span><af-stepper id="st" value="2"></af-stepper></div>
+          <div class="cell"><span class="body">限购(1-5)</span><af-stepper id="st2" min="1" max="5" value="3"></af-stepper></div>
+          <div class="cell"><span class="body">步长 5</span><af-stepper id="st3" step="5" max="100" value="10"></af-stepper></div>
+        </div>
+```
+
 ## API
 
 <!-- gen:start:api -->

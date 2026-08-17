@@ -2,6 +2,14 @@
 
 > P0 · 标签页切换
 
+## 示例
+
+### 基础标签页
+
+```html
+<af-tabs id="tabs"></af-tabs>
+```
+
 ## API
 
 <!-- gen:start:api -->

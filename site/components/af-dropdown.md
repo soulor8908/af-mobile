@@ -2,6 +2,28 @@
 
 > P2 · 下拉菜单
 
+## 示例
+
+### 城市选择
+
+```html
+<div class="card p-3">
+          <p class="body">选择收货城市</p>
+          <af-dropdown id="dd" placeholder="请选择城市"></af-dropdown>
+        </div>
+        <p class="caption" id="dd-log">选中后显示 value</p>
+```
+
+### 禁用选项
+
+```html
+<div class="card p-3">
+          <div class="cell"><span class="body">可用</span><af-dropdown id="dd2" value="周一"></af-dropdown></div>
+          <div class="cell"><span class="body">含禁用项</span><af-dropdown id="dd3" value="周日"></af-dropdown></div>
+        </div>
+        <p class="caption" id="dd-log2">禁用的「周六」不可选</p>
+```
+
 ## API
 
 <!-- gen:start:api -->

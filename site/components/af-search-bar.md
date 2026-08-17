@@ -2,6 +2,18 @@
 
 > v1.2.0 · 搜索栏
 
+## 示例
+
+### 搜索栏
+
+```html
+<div class="actions">
+          <button class="btn btn-ghost btn-block" id="sb-focus">聚焦搜索</button>
+        </div>
+        <af-search-bar id="sb" placeholder="搜索商品、店铺"></af-search-bar>
+        <p class="caption" id="sb-log">输入内容查看事件</p>
+```
+
 ## API
 
 <!-- gen:start:api -->

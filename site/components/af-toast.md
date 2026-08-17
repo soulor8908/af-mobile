@@ -2,6 +2,20 @@
 
 > P1 · 轻提示
 
+## 示例
+
+### 四种类型
+
+```html
+<div class="actions">
+          <button class="btn" id="t-success">成功</button>
+          <button class="btn btn-ghost" id="t-warning">警告</button>
+          <button class="btn btn-danger" id="t-error">错误</button>
+          <button class="btn btn-ghost" id="t-loading">加载中</button>
+        </div>
+        <af-toast id="toast"></af-toast>
+```
+
 ## API
 
 <!-- gen:start:api -->

@@ -2,6 +2,14 @@
 
 > P0 · 长列表虚拟滚动
 
+## 示例
+
+### 长列表
+
+```html
+<af-list id="list"></af-list>
+```
+
 ## API
 
 <!-- gen:start:api -->

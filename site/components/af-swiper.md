@@ -2,6 +2,19 @@
 
 > P0 · 轮播/滑动卡片
 
+## 示例
+
+### 轮播滑动
+
+```html
+<af-swiper id="swiper">
+          <div class="swiper-slide" style="height:180px;display:flex;align-items:center;justify-content:center;background:var(--c-muted-bg);font-weight:600;">Slide 1</div>
+          <div class="swiper-slide" style="height:180px;display:flex;align-items:center;justify-content:center;background:var(--c-muted-bg);font-weight:600;">Slide 2</div>
+          <div class="swiper-slide" style="height:180px;display:flex;align-items:center;justify-content:center;background:var(--c-muted-bg);font-weight:600;">Slide 3</div>
+          <div class="swiper-slide" style="height:180px;display:flex;align-items:center;justify-content:center;background:var(--c-muted-bg);font-weight:600;">Slide 4</div>
+        </af-swiper>
+```
+
 ## API
 
 <!-- gen:start:api -->

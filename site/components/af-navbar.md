@@ -2,6 +2,30 @@
 
 > v1.5.0 · 顶部导航栏
 
+## 示例
+
+### 基础导航栏
+
+```html
+<af-navbar id="nb" title="商品详情" show-back back-text="返回"></af-navbar>
+        <div class="card">
+          <p class="body">导航栏 sticky 定位 · 顶部 safe-area 适配</p>
+        </div>
+        <p class="caption" id="nb-log">点击返回按钮触发 af-navbar:back</p>
+```
+
+### 右侧插槽
+
+```html
+<af-navbar id="nb2" title="个人中心" show-back back-text="返回">
+          <button slot="right" class="btn btn-ghost btn-sm" id="nb-share">分享</button>
+        </af-navbar>
+        <div class="card">
+          <p class="body">右侧可插入按钮等自定义内容（slot="right"）</p>
+        </div>
+        <p class="caption" id="nb-log2">点击右上角「分享」</p>
+```
+
 ## API
 
 <!-- gen:start:api -->

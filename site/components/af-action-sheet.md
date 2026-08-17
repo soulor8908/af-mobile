@@ -2,6 +2,17 @@
 
 > P1 · 底部操作面板
 
+## 示例
+
+### 基础操作
+
+```html
+<div class="actions">
+          <button class="btn" id="as-open">打开操作面板</button>
+        </div>
+        <af-action-sheet id="sheet" title="选择操作"></af-action-sheet>
+```
+
 ## API
 
 <!-- gen:start:api -->

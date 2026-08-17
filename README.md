@@ -25,6 +25,16 @@ npx aiflow create <目录名>       # 生成新工程（脚手架 + skill 自举
 npx aiflow skill add [目录]      # 已建项目补装 / 升级 skill（幂等，默认当前目录）
 ```
 
+### aiflow-grill skill 装到哪里
+
+skill 是单文件 `SKILL.md`，随 `@af-mobile/ui` npm 包分发。`npx aiflow create` / `npx aiflow skill add` 会把它同步到三类目标，各 AI 编码工具自动发现、无需 IDE 插件或配置：
+
+| 同步目标 | 消费方 |
+|---|---|
+| `.trae/skills/aiflow-grill/SKILL.md` | TRAE 自动发现 |
+| `.claude/skills/aiflow-grill/SKILL.md` | Claude Code 自动发现 |
+| `skills/aiflow-grill/SKILL.md` + 追加 `AGENTS.md` 指引段 | Cursor 等 AGENTS.md 标准读者 |
+
 ### 升级
 
 ```bash

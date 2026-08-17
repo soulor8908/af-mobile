@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>云境咖啡 · AIFlow UI 全量范式页</title>
+  <link rel="stylesheet" href="../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
+</head>
+<body>
+  <!-- app-shell：#app 为路由 outlet，af-tabbar 常驻 outlet 外（路由切换不销毁） -->
+  <div id="app"></div>
+  <af-tabbar id="tabbar" aria-label="主导航"></af-tabbar>
+
+  <script type="module">
+    import {
+      register, escapeHtml as esc,
+      initTheme, toggleTheme, getTheme,
+      initLocale, addMessages, t, setLocale, getLocale,
+      signal, computed, effect, batch, createRoot,
+      fetchPage, registerBackend, addInterceptor, invalidateCache, createResource,
+      route, go, start, afterEach, notFound,
+    } from '../src/index.js';
+    import { registerChart } from '../src/charts/index.js';
+
+    /* ============ ① 按需注册（唯一合法方式，禁止全量注册 / UMD） ============ */
+    register('af-navbar', 'af-tabbar', 'af-notice-bar', 'af-search-bar', 'af-swiper', 'af-tabs',
+      'af-dropdown', 'af-list', 'af-img', 'af-badge', 'af-countdown', 'af-pull-refresh',
+      'af-backtop', 'af-skeleton-page', 'af-dialog', 'af-picker', 'af-cascade-picker',
+      'af-stepper', 'af-switch', 'af-field', 'af-swipe-cell', 'af-action-sheet',
+      'af-steps', 'af-progress', 'af-rate', 'af-upload', 'af-toast', 'af-calendar');
+    for (const c of ['af-chart-line', 'af-chart-bar', 'af-chart-pie', 'af-chart-radar', 'af-chart-funnel']) registerChart(c);
+
+    initTheme();
+    initLocale();
+
+    /* ============ ② i18n：中英词条 + 即时切换 ============ */
+    addMessages('zh-CN', {
+      'tab.menu': '菜单', 'tab.cart': '点单', 'tab.orders': '订单', 'tab.stats': '看板',
+      'menu.search': '搜索咖啡 / 茶饮', 'menu.flash': '云南雨季批次限时 9 折，售完即止',
+      'cart.title': '点单台', 'cart.empty': '购物车是空的', 'cart.goMenu': '去点单',
+      'cart.date': '预约自取', 'cart.addr': '送出地址', 'cart.addrBtn': '选择省市区',
+      'cart.note': '备注', 'cart.notePh': '口味偏好、免咖啡因等（选填）', 'cart.utensil': '附带餐具',
+      'cart.clear': '清空', 'cart.checkout': '去结算', 'cart.pay': '合计',
+      'orders.title': '我的订单', 'orders.empty': '还没有订单',
+      'stats.title': '经营看板', 'stats.dark': '暗色模式', 'stats.lang': 'English',
+      'common.back': '返回', 'common.more': '更多', 'common.reorder': '再来一单',
+      'msg.added': '已加入购物车', 'msg.done': '已完成', 'msg.needCart': '请先选购商品',
+      'pd.cup': '杯型', 'pd.cream': '加奶油', 'pd.add': '加入购物车', 'pd.qty': '数量',
+    });
+    addMessages('en-US', {
+      'tab.menu': 'Menu', 'tab.cart': 'Cart', 'tab.orders': 'Orders', 'tab.stats': 'Stats',
+      'menu.search': 'Search coffee / tea', 'menu.flash': 'Yunnan batch 10% off, while stocks last',
+      'cart.title': 'Cart', 'cart.empty': 'Cart is empty', 'cart.goMenu': 'Browse menu',
+      'cart.date': 'Pickup date', 'cart.addr': 'Address', 'cart.addrBtn': 'Choose region',
+      'cart.note': 'Note', 'cart.notePh': 'Preferences, decaf… (optional)', 'cart.utensil': 'Utensils',
+      'cart.clear': 'Clear', 'cart.checkout': 'Checkout', 'cart.pay': 'Total',
+      'orders.title': 'Orders', 'orders.empty': 'No orders yet',
+      'stats.title': 'Dashboard', 'stats.dark': 'Dark mode', 'stats.lang': 'English',
+      'common.back': 'Back', 'common.more': 'More', 'common.reorder': 'Reorder',
+      'msg.added': 'Added to cart', 'msg.done': 'Done', 'msg.needCart': 'Cart is empty',
+      'pd.cup': 'Cup', 'pd.cream': 'Cream', 'pd.add': 'Add to cart', 'pd.qty': 'Qty',
+    });
+
+    /* ============ ③ mock 数据源：registerBackend 注册内存后端，零真实网络 ============ */
+    // 商品插画：内联 SVG data URI，自包含无外部依赖
+    const art = (hue, label) => 'data:image/svg+xml,' + encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="320"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue},42%,72%)"/><stop offset="1" stop-color="hsl(${(hue + 40) % 360},38%,50%)"/></linearGradient></defs><rect width="480" height="320" fill="url(#g)"/><text x="50%" y="52%" font-size="44" fill="rgba(255,252,245,.92)" text-anchor="middle" font-family="serif">${label}</text></svg>`);
+    const BROKEN = 'mock://broken.img';                      // 演示 af-img 加载失败 → failSrc 回退
+    const FAIL = art(28, '图片走丢了');
+
+    const CATS = [['all', '全部'], ['coffee', '咖啡'], ['tea', '茶饮'], ['bake', '烘焙']];
+    const NAMES = [['云南日晒拿铁', 'coffee'], ['哥伦比亚手冲', 'coffee'], ['燕麦馥芮白', 'coffee'], ['危地马拉冷萃', 'coffee'],
+      ['茉莉初雪奶绿', 'tea'], ['鸭屎香柠檬茶', 'tea'], ['炙烤乌龙纯茶', 'tea'], ['桂花米乳茶', 'tea'],
+      ['可颂·海盐黄油', 'bake'], ['生巧熔岩挞', 'bake'], ['碱水结·原味', 'bake'], ['开心果巴斯克', 'bake']];
+    const PRODUCTS = Array.from({ length: 32 }, (_, i) => {
+      const [name, cat] = NAMES[i % NAMES.length];
+      return { id: i + 1, name, cat, price: 12 + (i % 9) * 3, rating: 4.2 + (i % 8) / 10,
+        hot: i % 5 === 0, img: i === 9 ? BROKEN : art((i * 47) % 360, name.slice(0, 2)) };
+    });
+
+    const REGION = [
+      { label: '云南省', value: 'yn', children: [
+        { label: '昆明市', value: 'km', children: [{ label: '五华区', value: 'wh' }, { label: '盘龙区', value: 'pl' }] },
+        { label: '大理州', value: 'dl', children: [{ label: '大理市', value: 'dls' }] },
+      ] },
+      { label: '上海市', value: 'sh', children: [
+        { label: '静安区', value: 'ja' }, { label: '徐汇区', value: 'xh' },
+      ] },
+      { label: '广东省', value: 'gd', children: [
+        { label: '广州市', value: 'gz', children: [{ label: '天河区', value: 'th' }] },
+      ] },
+    ];
+    const STEPS = ['已下单', '制作中', '待取餐', '已完成'];
+
+    // scheme 适配器：fetchPage 遇 mock:// URL 分发到此（真实项目替换为 supabase:// 等）
+    registerBackend('mock', async (url, opts = {}) => {
+      const u = new URL(url.slice(7) || '/', 'http://mock');               // 剥离 mock:// 便于解析 pathname + query
+      const q = u.searchParams;
+      if (u.pathname === '/products') {
+        let list = PRODUCTS;
+        const cat = q.get('cat'); const kw = (q.get('q') || '').trim();
+        if (cat && cat !== 'all') list = list.filter(p => p.cat === cat);
+        if (kw) list = list.filter(p => p.name.includes(kw));
+        const sort = q.get('sort');
+        if (sort === 'price') list = [...list].sort((a, b) => a.price - b.price);
+        if (sort === 'sold') list = [...list].sort((a, b) => (b.id % 7) - (a.id % 7));
+        const size = +(q.get('pageSize') || 8); const page = +(q.get('page') || 1);
+        return { data: list.slice((page - 1) * size, page * size), total: list.length };
+      }
+      if (u.pathname === '/orders') return { data: orders(), total: orders().length };
+      if (u.pathname === '/stats') return { data: {
+        days: ['一', '二', '三', '四', '五', '六', '日'].map(d => '周' + d),
+        latte: [120, 132, 101, 134, 90, 230, 210], pour: [32, 41, 38, 52, 46, 88, 76],
+        cats: [{ label: '咖啡', value: 864 }, { label: '茶饮', value: 512 }, { label: '烘焙', value: 336 }],
+        flavor: [{ label: '醇厚', value: 9, max: 10 }, { label: '果酸', value: 7, max: 10 }, { label: '香气', value: 8, max: 10 },
+          { label: '回甘', value: 6, max: 10 }, { label: '甜感', value: 7, max: 10 }],
+        funnel: [{ label: '进店', value: 1200 }, { label: '加购', value: 640 }, { label: '下单', value: 320 }, { label: '支付', value: 268 }, { label: '复购', value: 96 }],
+      } };
+      throw new Error('404: ' + u.pathname);
+    });
+    // 请求拦截器：模拟 250ms 网络延迟（loading / 骨架屏状态真实可演示）
+    addInterceptor('request', (url, o) => new Promise(r => setTimeout(() => r(o), 250)));
+
+    /* ============ ④ 全局状态：signal → computed → effect 单向数据流 ============ */
+    const cart = signal([]);                                   // [{id,name,cup,price,qty,img}]
+    const orders = signal([                                    // 初始两条订单，覆盖各状态
+      { id: 'A2026081701', items: 2, total: 66, status: 3, progress: 100, payRemain: 0, reviewed: false },
+      { id: 'A2026081702', items: 1, total: 28, status: 1, progress: 45, payRemain: 420, reviewed: false },
+    ]);
+    const cartCount = computed(() => cart().reduce((n, it) => n + it.qty, 0));
+    const cartTotal = computed(() => cart().reduce((n, it) => n + it.qty * it.price, 0));
+    const yuan = n => '¥' + n.toFixed(2);
+
+    // toast 单例：手动创建 .toast 元素是禁令，必须走组件实例管理
+    const toast = document.createElement('af-toast');
+    document.body.appendChild(toast);
+
+    // tabbar：badge 由 cartCount 派生（computed + effect 自动联动），文案走 t()
+    const tabbar = document.getElementById('tabbar');
+    const TABS = () => [
+      { label: t('tab.menu'), value: '/' },
+      { label: t('tab.cart'), value: '/order' },
+      { label: t('tab.orders'), value: '/orders' },
+      { label: t('tab.stats'), value: '/stats' },
+    ];
+    effect(() => {
+      const tabs = TABS();
+      const n = cartCount();
+      if (n) tabs[1].badge = n;                                // 购物车角标 = 商品种类数
+      tabbar.tabs = tabs;
+    });
+    tabbar.addEventListener('af-tabbar:change', e => go(TABS()[e.detail.index].value));
+    afterEach((r, p, path) => {                                // tabbar 高亮跟随路由（单一真相源）
+      const idx = TABS().findIndex(x => x.value === path.split('?')[0]);
+      if (idx >= 0) tabbar.activeIndex = idx;
+    });
+    // 语言切换：重建 tabbar 文案 + 重渲染当前视图
+    document.documentElement.addEventListener('localechange', () => {
+      tabbar.tabs = TABS();
+      const c = currentPath();
+      if (c) go(c, { replace: true });
+    });
+    const currentPath = () => location.hash.slice(1).split('?')[0] || '/';
+
+    const today = () => new Date().toISOString().slice(0, 10);
+
+    /* ============ ⑤ 视图 1：菜单（/）—— 浏览 / 搜索 / 加购 ============ */
+    function menuPage(params, ctx) {
+      ctx.outlet.innerHTML = `
+        <main class="page">
+          <af-notice-bar text="${esc(t('menu.flash'))} · AIFlow UI kitchen-sink" scroll></af-notice-bar>
+          <af-search-bar placeholder="${esc(t('menu.search'))}" clearable debounce="200"></af-search-bar>
+          <af-swiper autoplay="4000" loop>
+            <div class="card center fc g-2 p-6"><span class="display">云南雨季批次</span><span class="body text-muted">日晒处理 · 限时 9 折</span></div>
+            <div class="card center fc g-2 p-6"><span class="display">手冲实验室</span><span class="body text-muted">本周豆单已更新</span></div>
+            <div class="card center fc g-2 p-6"><span class="display">会员日</span><span class="body text-muted">每周三积分享双倍</span></div>
+          </af-swiper>
+          <div class="f aic g-3 p-3">
+            <af-tabs class="flex-1"></af-tabs>
+            <af-dropdown placeholder="推荐"></af-dropdown>
+          </div>
+          <div class="card f aic jcsb p-3">
+            <span class="body t-b">限时折扣</span>
+            <af-countdown time="1800" autostart></af-countdown>
+          </div>
+          <af-pull-refresh>
+            <af-list page-size="8" item-height="84" refresh></af-list>
+          </af-pull-refresh>
+          <af-backtop></af-backtop>
+          <af-skeleton-page variant="list" data-role="sk"></af-skeleton-page>
+          <af-dialog data-role="pd" close-on-esc>
+            <div slot="body" class="fc g-3"></div>
+            <div slot="footer" class="actions">
+              <button class="btn btn-ghost" data-role="pd-cancel">${esc(t('common.back'))}</button>
+              <button class="btn" data-role="pd-add">${esc(t('pd.add'))}</button>
+            </div>
+          </af-dialog>
+          <af-picker title="${esc(t('pd.cup'))}"></af-picker>
+        </main>`;
+
+      const $ = s => ctx.outlet.querySelector(s);
+      const sk = $('[data-role="sk"]'), list = $('af-list'), pd = $('[data-role="pd"]');
+      const picker = $('af-picker'), tabs = $('af-tabs'), sort = $('af-dropdown'), search = $('af-search-bar');
+      const query = { cat: 'all', sort: 'rec', q: '' };
+      let page = 1;
+
+      tabs.tabs = CATS.map(([value, label]) => ({ label, value }));
+      sort.options = [{ label: '推荐', value: 'rec' }, { label: '价格优先', value: 'price' }, { label: '销量优先', value: 'sold' }];
+      picker.columns = [[
+        { label: '中杯 12oz', value: 'M' }, { label: '大杯 16oz', value: 'L' }, { label: '超大杯 20oz', value: 'XL' },
+      ]];
+
+      // af-list renderItem：根节点必须带 data-list-index（itemclick 键盘/点击委托依赖）；插值必须 esc()（禁令 #1 XSS）
+      list.renderItem = (it, idx) => `
+        <div class="list-item g-3 aic p-2" data-list-index="${idx}">
+          <af-img variant="thumb" src="${it.img}" fail-src="${FAIL}" alt="${esc(it.name)}"></af-img>
+          <div class="flex-1 fc g-1">
+            <div class="f aic g-2">
+              <span class="body t-b">${esc(it.name)}</span>
+              ${it.hot ? '<af-badge content="HOT"></af-badge>' : ''}
+            </div>
+            <span class="caption text-muted">★ ${it.rating.toFixed(1)}</span>
+            <span class="price">${yuan(it.price)}</span>
+          </div>
+        </div>`;
+
+      async function load(reset) {
+        if (reset) page = 1;
+        const qs = new URLSearchParams({ ...query, page, pageSize: 8 });
+        const { data, total } = await fetchPage('mock://products?' + qs);
+        list.data = reset ? data : [...list.data, ...data];
+        list.totalCount = total;
+        if (list.data.length >= total) list.endLoadMore(false);
+        sk.hidden = true;                                      // 首屏骨架 → 内容（原生 hidden，非 style）
+      }
+      list.addEventListener('af-list:loadmore', async e => { page = e.detail.page; await load(false); list.endLoadMore(true); });
+      list.addEventListener('af-list:refresh', async () => {
+        invalidateCache('mock://products');                    // 失效缓存后强制取新
+        await load(true);
+        list.endRefresh();
+      });
+      tabs.addEventListener('af-tabs:change', e => { query.cat = String(e.detail.value); load(true); });
+      sort.addEventListener('af-dropdown:select', e => { query.sort = String(e.detail.value); load(true); });
+      search.addEventListener('af-search-bar:input', e => { query.q = e.detail.value; load(true); });
+
+      // 商品详情（af-dialog）：af-img 大图 + af-rate 只读 + af-picker 杯型 + af-stepper + af-switch
+      const draft = { cup: 'L', qty: 1, cream: false, product: null };
+      list.addEventListener('af-list:itemclick', e => {
+        const p = e.detail.item;
+        Object.assign(draft, { cup: 'L', qty: 1, cream: false, product: p });
+        pd.title = p.name;
+        pd.querySelector('[slot="body"]').innerHTML = `
+          <af-img src="${p.img}" fail-src="${FAIL}" alt="${esc(p.name)}"></af-img>
+          <div class="f aic jcsb">
+            <af-rate value="${p.rating}" readonly size="sm" label="${esc(p.name)}"></af-rate>
+            <span class="price">${yuan(p.price)}</span>
+          </div>
+          <div class="form-row">
+            <span class="label">${esc(t('pd.cup'))}</span>
+            <button class="btn btn-ghost btn-sm" data-role="cup" type="button">大杯 16oz</button>
+          </div>
+          <div class="form-row">
+            <span class="label">${esc(t('pd.qty'))}</span>
+            <af-stepper value="1" min="1" max="9"></af-stepper>
+          </div>
+          <div class="form-row">
+            <span class="label">${esc(t('pd.cream'))}</span>
+            <af-switch></af-switch>
+          </div>`;
+        pd.open();                                             // 焦点陷阱由组件内实现，关闭自动还原
+      });
+      pd.addEventListener('click', e => {
+        if (e.target.closest('[data-role="pd-cancel"]')) pd.close();
+        if (e.target.closest('[data-role="cup"]')) picker.open();
+      });
+      picker.addEventListener('af-picker:confirm', e => {
+        draft.cup = e.detail.values[0];
+        const btn = pd.querySelector('[data-role="cup"]');
+        if (btn) btn.textContent = { M: '中杯 12oz', L: '大杯 16oz', XL: '超大杯 20oz' }[draft.cup];
+      });
+      pd.addEventListener('af-stepper:change', e => { draft.qty = e.detail.value; });
+      pd.addEventListener('af-switch:change', e => { draft.cream = e.detail.checked; });
+      pd.addEventListener('click', e => {
+        if (!e.target.closest('[data-role="pd-add"]')) return;
+        const { product: p, cup, qty, cream } = draft;
+        pd.close();
+        batch(() => {                                          // batch：一次写多信号只通知一次
+          const key = p.id + cup;
+          const hit = cart().find(it => it.key === key);
+          cart.set(hit
+            ? cart().map(it => it.key === key ? { ...it, qty: Math.min(9, it.qty + qty) } : it)
+            : [...cart(), { key, id: p.id, name: p.name, cup, qty, price: p.price + (cream ? 3 : 0), img: p.img }]);
+        });
+        toast.show(t('msg.added'), { type: 'success' });
+      });
+
+      load(true);
+    }
+
+    /* ============ ⑥ 视图 2：点单台（/order）—— 购物车 / 规格 / 预约 ============ */
+    function cartPage(params, ctx) {
+      ctx.outlet.innerHTML = `
+        <main class="page">
+          <header class="navbar">
+            <h1 class="title flex-1">${esc(t('cart.title'))}</h1>
+            <button class="btn btn-ghost btn-sm" data-role="clear" type="button">${esc(t('cart.clear'))}</button>
+          </header>
+          <div data-role="rows" class="fc g-2 p-3"></div>
+          <section class="card fc g-3 p-3">
+            <details class="collapse">
+              <summary class="collapse-summary">${esc(t('cart.date'))}</summary>
+              <div class="collapse-content"><af-calendar min="${today()}"></af-calendar></div>
+            </details>
+            <div class="form-row jcsb">
+              <span class="label">${esc(t('cart.addr'))}</span>
+              <button class="btn btn-ghost btn-sm" data-role="addr" type="button">${esc(t('cart.addrBtn'))}</button>
+            </div>
+            <af-field label="${esc(t('cart.note'))}" type="textarea" placeholder="${esc(t('cart.notePh'))}"></af-field>
+            <div class="form-row jcsb">
+              <span class="label">${esc(t('cart.utensil'))}</span>
+              <af-switch></af-switch>
+            </div>
+          </section>
+          <div class="checkout-bar">
+            <span class="caption">${esc(t('cart.pay'))}</span>
+            <span class="price flex-1" data-role="total">¥0.00</span>
+            <button class="btn" data-role="checkout" type="button">${esc(t('cart.checkout'))}</button>
+          </div>
+          <af-cascade-picker title="${esc(t('cart.addr'))}"></af-cascade-picker>
+          <af-dialog title="${esc(t('cart.checkout'))}？" close-on-esc>
+            <div slot="body"><p class="body">确认提交本单？提交后将开始制作。</p></div>
+            <div slot="footer" class="actions">
+              <button class="btn btn-ghost" data-role="cancel" type="button">取消</button>
+              <button class="btn" data-role="ok" type="button">确认</button>
+            </div>
+          </af-dialog>
+        </main>`;
+
+      const $ = s => ctx.outlet.querySelector(s);
+      const rows = $('[data-role="rows"]'), cascade = $('af-cascade-picker'), dlg = $('af-dialog');
+      const field = $('af-field');
+      cascade.tree = REGION;
+
+      // 购物车行：af-swipe-cell 左滑删除 + af-stepper 改数量（事件委托挂常驻容器）
+      const dispose = createRoot(() => {
+        effect(() => {
+          const items = cart();
+          rows.innerHTML = items.length ? items.map(it => `
+            <af-swipe-cell data-key="${esc(it.key)}">
+              <div slot="content" class="list-item g-3 aic p-2">
+                <af-img variant="thumb" src="${it.img}" alt="${esc(it.name)}"></af-img>
+                <div class="flex-1 fc g-1">
+                  <span class="body t-b">${esc(it.name)} · ${it.cup}</span>
+                  <span class="price">${yuan(it.price)}</span>
+                </div>
+                <af-stepper value="${it.qty}" min="1" max="9" aria-label="${esc(it.name)}"></af-stepper>
+              </div>
+              <div slot="right"><button class="btn btn-sm btn-danger" data-act="del" type="button">删除</button></div>
+            </af-swipe-cell>`).join('')
+            : `<div class="empty fc g-2"><span class="body text-muted">${esc(t('cart.empty'))}</span>
+               <button class="btn btn-ghost" data-role="goMenu" type="button">${esc(t('cart.goMenu'))}</button></div>`;
+        });
+        effect(() => { $('[data-role="total"]').textContent = yuan(cartTotal()); });
+      });
+      ctx.signal.addEventListener('abort', dispose);
+
+      rows.addEventListener('af-stepper:change', e => {
+        const key = e.target.closest('af-swipe-cell')?.dataset.key;
+        cart.set(cart().map(it => it.key === key ? { ...it, qty: e.detail.value } : it));
+      });
+      rows.addEventListener('af-swipe-cell:action', e => {
+        if (e.detail.action !== 'del') return;
+        const cell = e.target.closest('af-swipe-cell');
+        cell.close();
+        cart.set(cart().filter(it => it.key !== cell.dataset.key));
+        toast.show(t('msg.done'));
+      });
+      rows.addEventListener('click', e => {
+        if (e.target.closest('[data-role="goMenu"]')) go('/');
+      });
+
+      $('af-calendar').addEventListener('af-calendar:select', e => toast.show(e.detail.date));
+      $('[data-role="addr"]').addEventListener('click', () => cascade.open());
+      cascade.addEventListener('af-picker:confirm', e => {
+        // 逐级下钻 tree，把 value 链翻译为 label 链
+        let level = REGION; const labels = [];
+        for (const v of e.detail.values) {
+          const node = level.find(n => n.value === v);
+          if (!node) break;
+          labels.push(node.label);
+          level = node.children || [];
+        }
+        if (labels.length) $('[data-role="addr"]').textContent = labels.join(' / ');
+      });
+
+      $('[data-role="clear"]').addEventListener('click', () => {
+        if (!cart().length) return;
+        cart.set([]);
+        toast.show(t('msg.done'));
+      });
+      $('[data-role="checkout"]').addEventListener('click', () => {
+        if (!cart().length) { toast.show(t('msg.needCart'), { type: 'warning' }); return; }
+        dlg.open();
+      });
+      dlg.addEventListener('click', e => {
+        if (e.target.closest('[data-role="cancel"]')) dlg.close();
+        if (!e.target.closest('[data-role="ok"]')) return;
+        dlg.close();
+        const order = { id: 'A' + Date.now(), items: cartCount(), total: cartTotal(), snapshot: cart(),
+          status: 1, progress: 8, payRemain: 600, note: field.value, reviewed: false };
+        batch(() => { orders.set([order, ...orders()]); cart.set([]); });   // 一次导航内合并通知
+        toast.show(t('msg.done'), { type: 'success' });
+        go('/orders');
+      });
+    }
+
+    /* ============ ⑦ 视图 3：订单（/orders）—— 状态 / 进度 / 评价 ============ */
+    function ordersPage(params, ctx) {
+      ctx.outlet.innerHTML = `
+        <main class="page">
+          <af-navbar title="${esc(t('orders.title'))}" show-back back-text="${esc(t('common.back'))}"></af-navbar>
+          <af-pull-refresh data-role="pr">
+            <div data-role="rows" class="fc g-3 p-3"></div>
+          </af-pull-refresh>
+          <af-action-sheet title="${esc(t('common.more'))}" show-cancel></af-action-sheet>
+        </main>`;
+
+      const $ = s => ctx.outlet.querySelector(s);
+      const rows = $('[data-role="rows"]'), sheet = $('af-action-sheet');
+      const review = {};                                       // 评价草稿：{ [oid]: { rate, files } }
+
+      const dispose = createRoot(() => {
+        effect(() => {
+          const list = orders();
+          rows.innerHTML = list.length ? list.map(o => {
+            const body = o.status < 3 ? `
+              <af-steps steps='${esc(JSON.stringify(STEPS))}' current="${o.status}"></af-steps>
+              <af-progress value="${o.progress}" max="100"></af-progress>` : '';
+            const pay = o.payRemain > 0 && o.status === 1 ? `
+              <div class="f aic jcsb">
+                <af-countdown time="${o.payRemain}" autostart></af-countdown>
+                <button class="btn btn-sm" data-act="pay" type="button">立即支付</button>
+              </div>` : '';
+            const rateBox = o.status === 3 && !o.reviewed ? `
+              <af-rate max="5" label="${esc(o.id)}"></af-rate>
+              <af-upload accept="image/*" multiple max-size="2097152" max-count="3" button-text="晒图"></af-upload>
+              <button class="btn btn-sm btn-block" data-act="review" type="button">提交评价</button>` : '';
+            const tag = o.reviewed ? '<span class="tag tag-ok">已评价</span>'
+              : o.status === 2 ? '<span class="tag tag-warn">待取餐</span>'
+              : o.status === 3 ? '<span class="tag">已完成</span>' : '';
+            return `
+              <div class="card fc g-3 p-3" data-oid="${esc(o.id)}">
+                <div class="f aic jcsb">
+                  <span class="caption text-muted">${esc(o.id)} · ${o.items} 件</span>
+                  ${tag}
+                </div>
+                ${o.note ? `<span class="caption text-muted">备注：${esc(o.note)}</span>` : ''}
+                ${body}${pay}${rateBox}
+                <div class="actions">
+                  <button class="btn btn-ghost btn-sm" data-act="reorder" type="button">${esc(t('common.reorder'))}</button>
+                  <button class="btn btn-ghost btn-sm" data-act="more" type="button">${esc(t('common.more'))}</button>
+                </div>
+              </div>`;
+          }).join('') : `<div class="empty"><span class="body text-muted">${esc(t('orders.empty'))}</span></div>`;
+        });
+      });
+      ctx.signal.addEventListener('abort', dispose);
+
+      // 制作进度每 3s +4（signal 驱动重渲染；路由离开时经 abort 清理定时器）
+      const timer = setInterval(() => {
+        let changed = false;
+        const next = orders().map(o => {
+          if (o.status !== 1 || o.progress >= 100) return o;
+          changed = true;
+          const progress = Math.min(100, o.progress + 4);
+          return { ...o, progress, status: progress >= 100 ? 2 : o.status };
+        });
+        if (changed) orders.set(next);
+      }, 3000);
+      ctx.signal.addEventListener('abort', () => clearInterval(timer));
+
+      sheet.options = [
+        { label: '联系客服', value: 'service' },
+        { label: '取消订单', value: 'cancel', danger: true },
+        { label: t('common.reorder'), value: 'reorder' },
+      ];
+      let sheetOid = null;
+      // 再来一单：用下单时的购物车快照回填（数据单向：signal.set → effect 重渲染）
+      function reOrder(oid) {
+        const o = orders().find(x => x.id === oid);
+        if (o?.snapshot?.length) { cart.set(o.snapshot); go('/order'); }
+      }
+      rows.addEventListener('click', e => {
+        const oid = e.target.closest('[data-oid]')?.dataset.oid;
+        const act = e.target.closest('[data-act]')?.dataset.act;
+        if (!oid || !act) return;
+        if (act === 'more') { sheetOid = oid; sheet.showPopover(); }
+        if (act === 'pay') { orders.set(orders().map(o => o.id === oid ? { ...o, payRemain: 0 } : o)); toast.show('支付成功', { type: 'success' }); }
+        if (act === 'reorder') reOrder(oid);
+        if (act === 'review') {
+          if (!review[oid]?.rate) { toast.show('请先打分', { type: 'warning' }); return; }
+          orders.set(orders().map(o => o.id === oid ? { ...o, reviewed: true } : o));
+          toast.show(t('msg.done'), { type: 'success' });
+        }
+      });
+      sheet.addEventListener('af-action-sheet:select', e => {
+        if (e.detail.value === 'service') toast.show('客服小云已接入');
+        if (e.detail.value === 'cancel') {
+          orders.set(orders().filter(o => o.id !== sheetOid));
+          toast.show('订单已取消');
+        }
+        if (e.detail.value === 'reorder') reOrder(sheetOid);
+      });
+
+      // 评价：评分 + 晒图（change 事件 detail.files 由组件生成预览）
+      rows.addEventListener('af-rate:change', e => {
+        const oid = e.target.closest('[data-oid]')?.dataset.oid;
+        if (oid) review[oid] = { ...(review[oid] || {}), rate: e.detail.value };
+      });
+      rows.addEventListener('af-upload:change', e => {
+        const oid = e.target.closest('[data-oid]')?.dataset.oid;
+        if (oid) review[oid] = { ...(review[oid] || {}), files: e.detail.files?.length || 0 };
+      });
+      rows.addEventListener('af-upload:error', e => {
+        toast.show(`已忽略 ${e.detail.errors.length} 个不合规文件`, { type: 'warning' });
+      });
+
+      // 下拉刷新：重新拉取订单（走 mock 后端完整链路）
+      $('[data-role="pr"]').addEventListener('af-pull-refresh:refresh', async () => {
+        const { data } = await fetchPage('mock://orders');
+        orders.set(data);
+        $('[data-role="pr"]').endRefresh();
+      });
+
+      $('af-navbar').addEventListener('af-navbar:back', () => go('/'));
+    }
+
+    /* ============ ⑧ 视图 4：看板（/stats）—— 图表 / 偏好 ============ */
+    function statsPage(params, ctx) {
+      ctx.outlet.innerHTML = `
+        <main class="page">
+          <header class="navbar"><h1 class="title">${esc(t('stats.title'))}</h1></header>
+          <section class="stats-grid p-3">
+            <div class="card center fc p-3"><span class="title">318</span><span class="caption text-muted">今日杯数</span></div>
+            <div class="card center fc p-3"><span class="title">¥7,842</span><span class="caption text-muted">今日营收</span></div>
+            <div class="card center fc p-3"><span class="title">¥24.6</span><span class="caption text-muted">客单价</span></div>
+          </section>
+          <section class="card fc g-2 p-3">
+            <span class="body t-b">本月营收目标 68%</span>
+            <af-progress value="68" max="100"></af-progress>
+          </section>
+          <section class="card fc g-2 p-3">
+            <span class="body t-b">近 7 日销量</span>
+            <af-chart-line smooth legend></af-chart-line>
+            <span class="caption text-muted" data-role="tip">点击数据点查看数值</span>
+          </section>
+          <section class="card fc g-2 p-3">
+            <span class="body t-b">品类销量</span>
+            <af-chart-bar variant="column"></af-chart-bar>
+          </section>
+          <section class="card fc g-2 p-3">
+            <span class="body t-b">营收构成</span>
+            <af-chart-pie variant="donut" center-text="合计 {total} 元" legend lazy></af-chart-pie>
+          </section>
+          <section class="card fc g-2 p-3">
+            <span class="body t-b">招牌豆风味画像</span>
+            <af-chart-radar legend lazy></af-chart-radar>
+          </section>
+          <section class="card fc g-2 p-3">
+            <span class="body t-b">下单转化漏斗</span>
+            <af-chart-funnel show-rate lazy></af-chart-funnel>
+          </section>
+          <section class="card fc g-3 p-3">
+            <span class="body t-b">偏好</span>
+            <div class="form-row jcsb"><span class="label">${esc(t('stats.dark'))}</span><af-switch data-role="theme"></af-switch></div>
+            <div class="form-row jcsb"><span class="label">${esc(t('stats.lang'))}</span><af-switch data-role="lang"></af-switch></div>
+          </section>
+          <af-skeleton-page variant="card" data-role="sk"></af-skeleton-page>
+        </main>`;
+
+      const $ = s => ctx.outlet.querySelector(s);
+      const sk = $('[data-role="sk"]');
+      $('[data-role="theme"]').checked = getTheme() === 'dark';
+      $('[data-role="lang"]').checked = getLocale() === 'en-US';
+      $('[data-role="theme"]').addEventListener('af-switch:change', toggleTheme);
+      $('[data-role="lang"]').addEventListener('af-switch:change', e => setLocale(e.detail.checked ? 'en-US' : 'zh-CN'));
+
+      // createResource：source → fetcher，loading/data/error 三态驱动骨架屏与图表
+      const res = createResource(() => 'mock://stats', u => fetchPage(u));
+      const dispose = createRoot(() => {
+        effect(() => {
+          if (res.isLoading()) return;
+          const d = res.data();
+          if (!d) return;
+          sk.hidden = true;
+          const line = $('af-chart-line');
+          line.labels = d.days;
+          line.series = [{ name: '奶咖', values: d.latte }, { name: '手冲', values: d.pour }];
+          const bar = $('af-chart-bar');
+          bar.labels = d.cats.map(c => c.label);
+          bar.series = [{ name: '杯数', values: d.cats.map(c => c.value) }];
+          $('af-chart-pie').data = d.cats;
+          const radar = $('af-chart-radar');
+          radar.data = d.flavor;
+          radar.series = [{ name: '云南日晒', values: [9, 7, 8, 6, 7] }, { name: '瑰夏', values: [6, 9, 9, 8, 5] }];
+          $('af-chart-funnel').data = d.funnel;
+        });
+      });
+      ctx.signal.addEventListener('abort', dispose);
+
+      $('af-chart-line').addEventListener('af-chart-line:select', e => {
+        $('[data-role="tip"]').textContent = `${e.detail.label} · 第 ${e.detail.seriesIndex + 1} 序列 · ${e.detail.value} 杯`;
+      });
+      $('af-chart-pie').addEventListener('af-chart-pie:select', e => {
+        toast.show(`${e.detail.label}：${e.detail.value} 元`);
+      });
+    }
+
+    /* ============ ⑨ 路由装配 + 404 + 启动（hash 模式零服务端配置） ============ */
+    route('/', menuPage);
+    route('/order', cartPage);
+    route('/orders', ordersPage);
+    route('/stats', statsPage);
+    notFound(path => {
+      const app = document.getElementById('app');
+      app.innerHTML = `
+        <main class="page center fc g-3 p-4">
+          <span class="display">404</span>
+          <span class="body text-muted">${esc(path)}</span>
+          <button class="btn" id="nf-back" type="button">返回首页</button>
+        </main>`;
+      app.querySelector('#nf-back').addEventListener('click', () => go('/'));
+    });
+    start({ hash: true, outlet: '#app' });
+  </script>
+</body>
+</html>

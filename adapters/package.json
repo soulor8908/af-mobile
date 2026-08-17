@@ -1,6 +1,6 @@
 {
   "name": "@af-mobile/adapters",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "AIFlow UI 后端 scheme 适配器（supabase:// 等），peer 依赖 @af-mobile/ui，零 BaaS SDK 强依赖",
   "type": "module",
   "exports": {

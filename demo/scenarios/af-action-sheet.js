@@ -20,7 +20,7 @@ export default {
       events: ['af-action-sheet:open', 'af-action-sheet:select', 'af-action-sheet:close'],
       styleTokens: [
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
-        { token: '--radius-lg', label: '顶部圆角', type: 'range', min: 0, max: 24, default: 12 },
+        { token: '--r-l', label: '顶部圆角', type: 'range', min: 0, max: 24, default: 12 },
       ],
       init: () => {
         const sheet = document.getElementById('sheet');

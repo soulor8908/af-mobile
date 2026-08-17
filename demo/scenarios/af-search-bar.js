@@ -21,7 +21,7 @@ export default {
       events: ['af-search-bar:input', 'af-search-bar:search', 'af-search-bar:clear'],
       styleTokens: [
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
-        { token: '--radius-m', label: '圆角', type: 'range', min: 0, max: 24, default: 8 },
+        { token: '--r-m', label: '圆角', type: 'range', min: 0, max: 24, default: 8 },
       ],
       init: () => {
         const log = document.getElementById('sb-log');

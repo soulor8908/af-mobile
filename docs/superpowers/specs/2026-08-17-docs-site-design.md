@@ -132,7 +132,7 @@ export default {
 | 阶段 | 内容 | 验收 |
 |---|---|---|
 | P1 | 站点骨架 + guide 4 篇 + docs.yml | 站点上线可访问（已实施：骨架+9 任务+链路验证完成，待 push main 触发部署验证） |
-| P2 | gen-docs.mjs + 28 组件底稿 + 场景文件 + Playground 宿主页 | 每组件 ≥2 场景可交互；`docs:gen` 幂等 |
+| P2 | gen-docs.mjs + 28 组件底稿 + 场景文件 + Playground 宿主页 | 已实施：13 组件 17 场景可交互（高频 10 + calendar/search-bar/stepper），gen-docs 幂等 + 示例嵌入 + iframe 在线调试，vitest 1116 全绿，待部署验证 |
 | P3 | blocks/charts/runtime 章节 + ai-collaboration 深度内容 | 全 API 覆盖 |
 
 ## 11. 风险

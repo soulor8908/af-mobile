@@ -22,7 +22,7 @@ export default {
       events: ['af-toast:dismiss'],
       styleTokens: [
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
-        { token: '--radius-lg', label: '圆角', type: 'range', min: 0, max: 24, default: 12 },
+        { token: '--r-l', label: '圆角', type: 'range', min: 0, max: 24, default: 12 },
       ],
       init: () => {
         const toast = document.getElementById('toast');

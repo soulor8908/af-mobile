@@ -89,7 +89,7 @@ describe('tokens / 真实仓库基线', () => {
     expect(JSON.stringify(generated, null, 2) + '\n').toBe(committed);
   });
 
-  it('token 组与数量符合预期（58 个叶子 token）', () => {
+  it('token 组与数量符合预期（69 个叶子 token）', () => {
     const count = (node) => {
       let n = 0;
       for (const [k, v] of Object.entries(node)) {
@@ -99,7 +99,7 @@ describe('tokens / 真实仓库基线', () => {
       }
       return n;
     };
-    expect(count(generated)).toBe(58);
+    expect(count(generated)).toBe(69);
     expect(generated.palette).toBeDefined();
     expect(generated.color).toBeDefined();
     expect(generated.spacing).toBeDefined();

@@ -9,8 +9,8 @@
 
 # 设计体系速查
 
-- **L1 Token（58 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
-- **L2 配方（104）+ 原子（52）= 156 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
+- **L1 Token（72 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
+- **L2 配方（108）+ 原子（56）= 164 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
 - **L3 真组件（33 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 20 规则（13 error + 7 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
@@ -18,11 +18,11 @@
 
 # L2 白名单（构建时注入）
 
-## L2 配方（104 个，按用途分组）
+## L2 配方（108 个，按用途分组）
 
 **按钮（7）：** `btn` `btn-sm` `btn-lg` `btn-ghost` `btn-danger` `btn-success` `btn-block`
-**容器（5）：** `page` `card` `cell` `center` `sheet`
-**文本（7）：** `title` `subtitle` `body` `caption` `meta` `price` `price-del`
+**容器（8）：** `page` `card` `cell` `center` `sheet` `eyebrow` `section` `section-title`
+**文本（8）：** `display` `title` `subtitle` `body` `caption` `meta` `price` `price-del`
 **表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-loading` `switch-thumb` `search-bar-wrap` `search-bar-icon` `search-bar-clear` `input-err` `upload-trigger` `upload-grid`
 **列表（6）：** `list` `list-item` `list-item-compact` `divider` `thumb` `avatar`
 **反馈（17）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast`
@@ -37,15 +37,15 @@
 **步骤条（6）：** `steps` `step` `step-done` `step-active` `step-circle` `step-label`
 **分段控制器（3）：** `segmented` `segmented-item` `segmented-block`
 
-## L2 原子（52 个，按用途分组）
+## L2 原子（56 个，按用途分组）
 
-**间距 padding（9）：** `p-0` `p-1` `p-2` `p-3` `p-4` `p-5` `p-6` `p-8` `p-10`
-**间距 margin（5）：** `m-0` `m-1` `m-2` `m-3` `m-4`
+**间距 padding（10）：** `p-0` `p-1` `p-2` `p-3` `p-4` `p-5` `p-6` `p-7` `p-8` `p-10`
+**间距 margin（6）：** `m-0` `m-1` `m-2` `m-3` `m-4` `m-5`
 **间距 gap（5）：** `g-0` `g-1` `g-2` `g-3` `g-4`
 **Flex/Grid 布局（8）：** `f` `fc` `aic` `jcc` `jcsb` `jce` `flex-1` `w-full`
 **圆角（5）：** `r-0` `r-s` `r-m` `r-l` `r-f`
-**文本字号（5）：** `t-xs` `t-sm` `t-md` `t-lg` `t-xl`
-**字重（2）：** `t-b` `t-m`
+**文本字号（6）：** `t-display` `t-xs` `t-sm` `t-md` `t-lg` `t-xl`
+**字重（3）：** `t-b` `t-m` `t-semibold`
 **颜色（6）：** `text-brand` `text-muted` `text-danger` `text-success` `bg-brand` `bg-muted`
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
 **文本对齐（4，补齐至 52）（4）：** `t-left` `t-center` `t-right` `ws-nowrap`
@@ -54,9 +54,9 @@
 
 `<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-calendar>` `<af-cascade-picker>` `<af-chart-bar>` `<af-chart-funnel>` `<af-chart-line>` `<af-chart-pie>` `<af-chart-radar>` `<af-countdown>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-notice-bar>` `<af-picker>` `<af-progress>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-steps>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
-## L1 Token 变量（58 个，必须用 var(--*) 引用）
+## L1 Token 变量（72 个，必须用 var(--*) 引用）
 
-`--c-bg` `--c-border` `--c-brand` `--c-card` `--c-danger` `--c-muted` `--c-muted-bg` `--c-onbrand` `--c-success` `--c-text` `--c-warn` `--dur-base` `--dur-fast` `--dur-slow` `--ease-in-out` `--ease-out` `--fw-bold` `--fw-medium` `--fw-normal` `--lh-normal` `--lh-tight` `--palette-bg` `--palette-border` `--palette-brand` `--palette-card` `--palette-color-scheme` `--palette-danger` `--palette-muted` `--palette-muted-bg` `--palette-onbrand` `--palette-shadow-lg` `--palette-shadow-md` `--palette-shadow-sm` `--palette-success` `--palette-text` `--palette-warn` `--r-f` `--r-l` `--r-m` `--r-s` `--s-1` `--s-2` `--s-3` `--s-4` `--s-5` `--s-6` `--shadow-lg` `--shadow-md` `--shadow-sm` `--t-lg` `--t-md` `--t-sm` `--t-xl` `--t-xs` `--z-base` `--z-dropdown` `--z-modal` `--z-sticky`
+`--c-bg` `--c-border` `--c-brand` `--c-brand-soft` `--c-brand-strong` `--c-card` `--c-danger` `--c-muted` `--c-muted-bg` `--c-onbrand` `--c-success` `--c-text` `--c-warn` `--dur-base` `--dur-fast` `--dur-slow` `--ease-in-out` `--ease-out` `--fw-bold` `--fw-medium` `--fw-normal` `--fw-semibold` `--lh-display` `--lh-normal` `--lh-tight` `--ls-caption` `--ls-display` `--palette-bg` `--palette-border` `--palette-brand` `--palette-brand-soft` `--palette-brand-strong` `--palette-card` `--palette-color-scheme` `--palette-danger` `--palette-muted` `--palette-muted-bg` `--palette-onbrand` `--palette-shadow-lg` `--palette-shadow-md` `--palette-shadow-sm` `--palette-success` `--palette-text` `--palette-warn` `--r-f` `--r-l` `--r-m` `--r-s` `--r-xs` `--ring-focus` `--s-1` `--s-2` `--s-3` `--s-4` `--s-5` `--s-6` `--s-7` `--s-8` `--shadow-brand` `--shadow-lg` `--shadow-md` `--shadow-sm` `--t-display` `--t-lg` `--t-md` `--t-sm` `--t-xl` `--t-xs` `--z-base` `--z-dropdown` `--z-modal` `--z-sticky`
 
 ## 禁止内联 style 的属性（17 个）
 
@@ -111,7 +111,7 @@
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-03. 禁止使用 156 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
+03. 禁止使用 164 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success`（破坏 onbrand 对比度）
 05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fc` 原子（自带 `display:flex`，再设会破坏布局）

@@ -26,7 +26,7 @@ describe('build-prompt / extractGroupsFromCss', () => {
     expect(groups.length).toBeGreaterThan(0);
     const names = groups.map(g => g.name);
     expect(names).toContain('按钮（7）');
-    expect(names).toContain('容器（5）');
+    expect(names).toContain('容器（7）');
     // 每个分组都至少有一个 class
     for (const g of groups) expect(g.classes.length).toBeGreaterThan(0);
   });

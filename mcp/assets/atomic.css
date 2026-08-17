@@ -1,4 +1,4 @@
-/* AIFlow UI —— L2 原子工具类：52 个，白名单封闭集 */
+/* AIFlow UI —— L2 原子工具类：56 个，白名单封闭集 */
 @layer utilities {
   /* === 间距 padding（9） === */
   .p-0  { padding: 0; }
@@ -8,7 +8,8 @@
   .p-4  { padding: var(--s-4); }
   .p-5  { padding: var(--s-5); }
   .p-6  { padding: var(--s-6); }
-  .p-8  { padding: calc(var(--s-6) * 2); }
+  .p-7  { padding: var(--s-7); }
+  .p-8  { padding: var(--s-8); }
   .p-10 { padding: calc(var(--s-6) * 2.5); }
 
   /* === 间距 margin（5） === */
@@ -17,6 +18,7 @@
   .m-2 { margin: var(--s-2); }
   .m-3 { margin: var(--s-3); }
   .m-4 { margin: var(--s-4); }
+  .m-5 { margin: var(--s-5); }
 
   /* === 间距 gap（5） === */
   .g-0 { gap: 0; }
@@ -42,16 +44,18 @@
   .r-l { border-radius: var(--r-l); }
   .r-f { border-radius: var(--r-f); }
 
-  /* === 文本字号（5） === */
+  /* === 文本字号（6） === */
+  .t-display { font-size: var(--t-display); }
   .t-xs { font-size: var(--t-xs); }
   .t-sm { font-size: var(--t-sm); }
   .t-md { font-size: var(--t-md); }
   .t-lg { font-size: var(--t-lg); }
   .t-xl { font-size: var(--t-xl); }
 
-  /* === 字重（2） === */
+  /* === 字重（3） === */
   .t-b  { font-weight: var(--fw-bold); }
   .t-m  { font-weight: var(--fw-medium); }
+  .t-semibold { font-weight: var(--fw-semibold); }
 
   /* === 颜色（6） === */
   .text-brand   { color: var(--c-brand); }

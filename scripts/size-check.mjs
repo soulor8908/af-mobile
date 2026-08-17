@@ -73,8 +73,11 @@ const SRC = join(ROOT, 'src');
 //   CSS 8.2→8.3KB：新增 .page-col/.scroll-y App 骨架配方（解决多页面应用布局缺口，AI 反复违规私建 class 的根因）
 //   total 20.0→20.1KB：ea9f365 register/registerAll 改用显式 REGISTRY 字面量数组（minify-safe，P0 修复——
 //     旧实现依赖 Function.name 推导 tag，esbuild 压缩类名后生产构建组件无法注册），实测 20.090KB
+// v4.0 调整（Quiet Precision 设计刷新，用户已确认）：
+//   CSS 8.3→9.0KB：token 体系升级（品牌色阶/display 字号/10px+圆角/双层阴影）+ 新配方（.display/.eyebrow/.section/.section-title）
+//     + 控件精修（按钮渐变辉光/输入框 focus ring/卡片边框），实测 8.909KB
 const BUDGET = {
-  css: 8.3,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式 + v3.10 App 骨架配方）
+  css: 9.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，v4.0 Quiet Precision 设计刷新实测 8.909KB）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
   total: 20.1,         // KB，28 组件 + 基类（v3.10：register minify-safe REGISTRY 后实测 20.090KB）

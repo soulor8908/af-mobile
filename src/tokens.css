@@ -1,4 +1,4 @@
-/* AIFlow UI —— L1 Token 层：43 变量 + reset + base + 主题切换
+/* AIFlow UI —— L1 Token 层：55 变量 + reset + base + 主题切换
    本文件由库维护者管理，CI 通过 CODEOWNERS 保护。AI 不可改。 */
 
 @layer reset, base, tokens, components, utilities;
@@ -39,69 +39,77 @@
 @layer tokens {
   /* === 主题调色板（二次抽象：单处定义，light/dark 共享） === */
   :root {
-    --palette-brand: #2563eb;  --palette-onbrand: #fff;
-    --palette-text: #1a2332;   --palette-muted: #5a6b7e;
-    --palette-card: #fff;      --palette-bg: #fafbfc;   --palette-muted-bg: #f1f4f8;
-    --palette-border: #dde3eb;
-    --palette-danger: #dc2626; --palette-success: #16a34a; --palette-warn: #d97706;
-    --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.05);
-    --palette-shadow-md: 0 4px 12px rgba(0,0,0,.08);
-    --palette-shadow-lg: 0 8px 24px rgba(0,0,0,.12);
+    --palette-brand: #2B5CE6;  --palette-brand-strong: #1F46C8;  --palette-onbrand: #fff;
+    --palette-brand-soft: #EAF0FE;
+    --palette-text: #1B2434;   --palette-muted: #6B7893;
+    --palette-card: #fff;      --palette-bg: #F6F7F9;   --palette-muted-bg: #EEF1F6;
+    --palette-border: #E2E7F0;
+    --palette-danger: #E5484D; --palette-success: #1A9E5A; --palette-warn: #E58F18;
+    --palette-shadow-sm: 0 1px 2px rgba(17,24,39,.05), 0 1px 3px rgba(17,24,39,.06);
+    --palette-shadow-md: 0 4px 8px rgba(17,24,39,.05), 0 8px 24px rgba(17,24,39,.07);
+    --palette-shadow-lg: 0 8px 16px rgba(17,24,39,.08), 0 24px 48px rgba(17,24,39,.12);
     --palette-color-scheme: light;
   }
 
   /* === 系统暗黑自动跟随：仅当未显式设 light 时生效 === */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --palette-brand: #3b82f6;  --palette-onbrand: #fff;
-      --palette-text: #e2e8f0;   --palette-muted: #94a3b8;
-      --palette-card: #1e293b;   --palette-bg: #0f172a;   --palette-muted-bg: #1e293b;
-      --palette-border: #334155;
-      --palette-danger: #ef4444; --palette-success: #22c55e; --palette-warn: #f59e0b;
-      --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.3);
-      --palette-shadow-md: 0 4px 12px rgba(0,0,0,.4);
-      --palette-shadow-lg: 0 8px 24px rgba(0,0,0,.5);
+      --palette-brand: #4F7BEF;  --palette-brand-strong: #6B8FF0;  --palette-onbrand: #fff;
+      --palette-brand-soft: rgba(79,123,239,.16);
+      --palette-text: #E8ECF4;   --palette-muted: #9AA6BD;
+      --palette-card: #1C2333;   --palette-bg: #10141E;   --palette-muted-bg: #262E41;
+      --palette-border: #2E3852;
+      --palette-danger: #EF6A6E; --palette-success: #3BB574; --palette-warn: #F0A73C;
+      --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.32), 0 1px 3px rgba(0,0,0,.36);
+      --palette-shadow-md: 0 4px 8px rgba(0,0,0,.36), 0 8px 24px rgba(0,0,0,.42);
+      --palette-shadow-lg: 0 8px 16px rgba(0,0,0,.42), 0 24px 48px rgba(0,0,0,.5);
       --palette-color-scheme: dark;
     }
   }
 
   /* === 手动切换 dark：覆盖系统 light（无需 :root[data-theme="light"]，:root 默认即 light） === */
   :root[data-theme="dark"] {
-    --palette-brand: #3b82f6;  --palette-onbrand: #fff;
-    --palette-text: #e2e8f0;   --palette-muted: #94a3b8;
-    --palette-card: #1e293b;   --palette-bg: #0f172a;   --palette-muted-bg: #1e293b;
-    --palette-border: #334155;
-    --palette-danger: #ef4444; --palette-success: #22c55e; --palette-warn: #f59e0b;
-    --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.3);
-    --palette-shadow-md: 0 4px 12px rgba(0,0,0,.4);
-    --palette-shadow-lg: 0 8px 24px rgba(0,0,0,.5);
+    --palette-brand: #4F7BEF;  --palette-brand-strong: #6B8FF0;  --palette-onbrand: #fff;
+    --palette-brand-soft: rgba(79,123,239,.16);
+    --palette-text: #E8ECF4;   --palette-muted: #9AA6BD;
+    --palette-card: #1C2333;   --palette-bg: #10141E;   --palette-muted-bg: #262E41;
+    --palette-border: #2E3852;
+    --palette-danger: #EF6A6E; --palette-success: #3BB574; --palette-warn: #F0A73C;
+    --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.32), 0 1px 3px rgba(0,0,0,.36);
+    --palette-shadow-md: 0 4px 8px rgba(0,0,0,.36), 0 8px 24px rgba(0,0,0,.42);
+    --palette-shadow-lg: 0 8px 16px rgba(0,0,0,.42), 0 24px 48px rgba(0,0,0,.5);
     --palette-color-scheme: dark;
   }
 
   /* === 对外 Token：从调色板派生（单处映射，三处主题不再重复） === */
   :root {
-    --c-brand: var(--palette-brand);  --c-onbrand: var(--palette-onbrand);
+    --c-brand: var(--palette-brand);  --c-brand-strong: var(--palette-brand-strong);
+    --c-brand-soft: var(--palette-brand-soft);
+    --c-onbrand: var(--palette-onbrand);
     --c-text: var(--palette-text);    --c-muted: var(--palette-muted);
     --c-card: var(--palette-card);    --c-bg: var(--palette-bg);    --c-muted-bg: var(--palette-muted-bg);
     --c-border: var(--palette-border);
     --c-danger: var(--palette-danger); --c-success: var(--palette-success); --c-warn: var(--palette-warn);
 
     /* === 间距 === */
-    --s-1: 4px;  --s-2: 8px;  --s-3: 12px;
-    --s-4: 16px; --s-5: 24px; --s-6: 32px;
+    --s-1: 4px;  --s-2: 8px;  --s-3: 12px;  --s-4: 16px;
+    --s-5: 24px; --s-6: 32px; --s-7: 40px; --s-8: 56px;
 
-    /* === 字号 / 行高 / 字重 === */
-    --t-xs: 12px; --t-sm: 14px; --t-md: 16px; --t-lg: 18px; --t-xl: 22px;
-    --lh-tight: 1.25;  --lh-normal: 1.7;
-    --fw-normal: 400;  --fw-medium: 500;  --fw-bold: 700;
+    /* === 字号 / 行高 / 字重 / 字距 === */
+    --t-display: 28px; --t-xl: 20px; --t-lg: 17px; --t-md: 15px; --t-sm: 13px; --t-xs: 11px;
+    --lh-display: 1.15; --lh-tight: 1.3;  --lh-normal: 1.55;
+    --fw-normal: 400;  --fw-medium: 500;  --fw-semibold: 600;  --fw-bold: 700;
+    --ls-display: -0.02em;  --ls-caption: 0.01em;
 
     /* === 圆角 === */
-    --r-s: 4px; --r-m: 8px; --r-l: 12px; --r-f: 9999px;
+    --r-xs: 6px; --r-s: 10px; --r-m: 14px; --r-l: 20px; --r-f: 9999px;
 
     /* === 阴影（从调色板派生） === */
     --shadow-sm: var(--palette-shadow-sm);
     --shadow-md: var(--palette-shadow-md);
     --shadow-lg: var(--palette-shadow-lg);
+    --shadow-brand: 0 4px 14px rgba(43,92,230,.28);
+    --ring-focus: 0 0 0 3px rgba(43,92,230,.15);
 
     /* === z-index === */
     --z-base: 0; --z-sticky: 200; --z-dropdown: 1000; --z-modal: 1100;

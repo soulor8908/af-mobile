@@ -63,6 +63,12 @@ export default [
     plugins: { aiflow },
     rules: {},
   },
+  // create-af-mobile 薄壳 CLI：库代码，无 DOM/CSS，不受 AI 白名单约束
+  {
+    files: ['create-af-mobile/**/*.mjs'],
+    plugins: { aiflow },
+    rules: {},
+  },
   // Starter 模板页面代码：消费端代码，启用完整 AI 规则集（模板自身必须过自己的约束闸门）
   {
     files: ['starter/src/**/*.js'],

@@ -1,7 +1,7 @@
 // AIFlow 脚手架：node scripts/create-app.mjs <dir>
 // 生成最小可运行工程（npm 版本依赖 + hash 路由 + FOUC 防闪 + ESLint 约束），
 // 并自动安装 aiflow-grill skill（多工具目标），形成迭代闭环。
-// 用法等价：npx -p @af-mobile/ui aiflow create <dir>
+// 用法等价：npx @af-mobile/ui create <dir>
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';

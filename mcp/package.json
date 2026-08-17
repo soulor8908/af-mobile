@@ -1,6 +1,6 @@
 {
   "name": "@af-mobile/mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "description": "AIFlow UI MCP Server — get_prompt / check_compliance / fix_code / generate_page / flywheel_report（零 LLM 配置可用）",
   "exports": {

@@ -4,6 +4,19 @@
 
 > 早期版本（v1.0.0 ~ v1.3.x）未维护本文件，变更记录自 v1.4.0 起。
 
+## [1.4.2] - 2026-08-17
+
+### Fixed
+- **`register` / `registerAll` 压缩安全化**：以显式 tag→Ctor 字面量表替代 `Function.name` 推导，规避 minify 后类名被混淆为 a/b/c 导致组件注册失败；`start()` 增补 outlet 参数归一化守卫（回归测试 6 例）
+
+### Added
+- **布局配方 `.page-col` / `.scroll-y`**：`src/recipes.css` 新增两布局 class，白名单同步扩至 156（recipe 104 + atomic 52）
+- **消费端 AI 开发体验**：`mcp/assets` 与 `prompt/assets` 的 system-prompt 增补完整 App 骨架示例（index.html / main.js / list.js / 设计范式）
+
+### Published
+- `@af-mobile/ui@1.4.2`（含上述 register 修复与布局配方）、`@af-mobile/eslint-plugin@2.0.1`（白名单 +2）、`@af-mobile/prompt@2.0.2`、`@af-mobile/mcp@1.0.2`（assets 同步）
+- **`create-af-mobile@1.4.1` 首发**：含 skill 安装修复与 `@af-mobile/ui@^1.4.1` 依赖
+
 ## [1.4.1] - 2026-08-17
 
 ### Added

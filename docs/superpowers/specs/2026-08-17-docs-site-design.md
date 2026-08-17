@@ -123,7 +123,9 @@ export default {
 
 `.github/workflows/docs.yml`：push main 且 `site/`、`src/`、`demo/`、`scripts/gen-docs.mjs` 有变更 → `npm run docs:gen`（校验无 marker 漂移）→ `vitepress build` + `demo:build` → 部署 GitHub Pages。
 
-待确认：仓库名与 `base` 路径；私有仓库需 Pages 付费计划（若私有则备选 Cloudflare Pages）。
+仓库名：`af-mobile-docs`；VitePress `base` 配置为 `/v/`（`base: '/v/'`）；联调时用 `npm run docs:gen && vitepress build --base /v/` 校验产物可访问性。
+
+私有仓库需 Pages 付费计划（若私有则备选 Cloudflare Pages）。
 
 ## 10. 分期落地
 

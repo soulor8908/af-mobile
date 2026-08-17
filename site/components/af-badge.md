@@ -1,9 +1,12 @@
 # af-badge 徽标角标
-
+<!-- gen:start:scenarios -->
 ## 示例
 
-## API
+<!-- 无 Playground 场景（可补充 demo/scenarios/af-<tag>.js） -->
+<!-- gen:end:scenarios -->
 <!-- gen:start:props -->
+## API
+
 | 属性 | 类型 | 说明 |
 | --- | --- | --- |
 | content | `string` | 徽标内容（数值超过 max 显示 max+） |

@@ -1,9 +1,12 @@
 # af-swipe-cell 滑动单元格
-
+<!-- gen:start:scenarios -->
 ## 示例
 
-## API
+<!-- 无 Playground 场景（可补充 demo/scenarios/af-<tag>.js） -->
+<!-- gen:end:scenarios -->
 <!-- gen:start:props -->
+## API
+
 | 属性 | 类型 | 说明 |
 | --- | --- | --- |
 | disabled | `boolean` | 禁用滑动 |

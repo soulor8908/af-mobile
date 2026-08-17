@@ -10,6 +10,7 @@ const DTS = join(ROOT, 'src/index.d.ts');
 const DEMO_IDX = join(ROOT, 'demo/index.html');
 const OUT_DIR = join(ROOT, 'site/components');
 const LIST_JSON = join(ROOT, 'site/.vitepress/component-list.json');
+const SCEN_DIR = join(ROOT, 'demo/scenarios');
 
 // 组件类名 → 标签：AfActionSheet → af-action-sheet
 const classToTag = (name) =>
@@ -52,7 +53,24 @@ const propsTable = (api) =>
 const eventsTable = (evts) => tbl(['事件名', '说明'], evts.map((e) => `| \`${esc(e)}\` |  |`));
 const methodsTable = (m) => tbl(['方法', '签名'], m.map((x) => `| \`${esc(x.name)}\` | \`${esc(x.sig)}\` |`));
 
-// 追加/重建生成区，保留 marker 之前的人工区（标题 / 示例说明）
+// 从场景文件构建「示例」区：Playground iframe + 逐个场景代码块
+// 场景文件仅作数据源；无场景文件则输出占位说明
+async function scenariosSection(tag) {
+  const path = join(SCEN_DIR, `af-${tag}.js`);
+  if (!existsSync(path)) return '## 示例\n\n<!-- 无 Playground 场景（可补充 demo/scenarios/af-<tag>.js） -->';
+  const mod = await import(path);
+  const cfg = mod.default;
+  const list = cfg.scenarios || [];
+  const url = `/v/demo/playground.html?c=af-${tag}`;
+  const lines = [`## 示例\n\n<iframe src="${url}" width="100%" height="520" style="border:1px solid var(--vp-c-divider);border-radius:8px;background:#fff" title="af-${tag} Playground"></iframe>`];
+  list.forEach((s, i) => {
+    lines.push(`### ${i + 1}. ${s.name}`);
+    lines.push('```html', s.html.trimEnd(), '```');
+  });
+  return lines.join('\n');
+}
+
+// 追加/重建生成区，保留 marker 之前的人工区（标题 / 开头说明）
 function upsert(file, header, sections) {
   let text;
   if (!existsSync(file)) {
@@ -60,7 +78,10 @@ function upsert(file, header, sections) {
   } else {
     const cur = readFileSync(file, 'utf8');
     const i = cur.indexOf('<!-- gen:start:');
-    text = i >= 0 ? cur.slice(0, i).trimEnd() + '\n' : header + '\n';
+    let manual = i >= 0 ? cur.slice(0, i).trimEnd() : header;
+    // 幂等：移除人工区残留的生成结构标题（## 示例 / ## API），避免重复
+    manual = manual.replace(/(\n## (?:示例|API)\s*)+$/g, '');
+    text = manual + '\n';
   }
   for (const [key, content] of sections) {
     text += `<!-- gen:start:${key} -->\n${content}\n<!-- gen:end:${key} -->\n`;
@@ -68,14 +89,15 @@ function upsert(file, header, sections) {
   writeFileSync(file, text);
 }
 
-export function generateDocs() {
+export async function generateDocs() {
   const dts = readFileSync(DTS, 'utf8');
   const demo = existsSync(DEMO_IDX) ? readFileSync(DEMO_IDX, 'utf8') : '';
   const names = [...dts.matchAll(/^export class (Af[A-Za-z]+) extends AfElement \{/gm)].map((m) => m[1]);
   mkdirSync(OUT_DIR, { recursive: true });
   mkdirSync(dirname(LIST_JSON), { recursive: true });
   const list = [];
-  names.forEach((name, i) => {
+  for (let i = 0; i < names.length; i++) {
+    const name = names[i];
     const start = dts.indexOf(`class ${name} `);
     const end = i + 1 < names.length ? dts.indexOf(`class ${names[i + 1]} `, start + name.length) : dts.length;
     const tag = classToTag(name);
@@ -83,20 +105,21 @@ export function generateDocs() {
     const title = tm ? tm[1].trim() : tag;
     const api = parseClassBlock(dts.slice(start, end));
     const file = join(OUT_DIR, `af-${tag}.md`);
-    upsert(file, `# af-${tag} ${title}\n\n## 示例\n\n## API`, [
-      ['props', propsTable(api)],
+    upsert(file, `# af-${tag} ${title}`, [
+      ['scenarios', await scenariosSection(tag)],
+      ['props', '## API\n\n' + propsTable(api)],
       ['events', eventsTable(api.events)],
       ['methods', methodsTable(api.methods)],
     ]);
     list.push({ tag, className: name, title });
-  });
+  }
   writeFileSync(LIST_JSON, JSON.stringify(list, null, 2) + '\n');
   return list.length;
 }
 
 if (fileURLToPath(import.meta.url) === process.argv[1]) {
   try {
-    const n = generateDocs();
+    const n = await generateDocs();
     console.log(`✓ docs:gen 完成，${n} 个组件`);
   } catch (e) {
     console.error(e);

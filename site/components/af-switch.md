@@ -1,9 +1,22 @@
 # af-switch 开关
-
+<!-- gen:start:scenarios -->
 ## 示例
 
-## API
+<iframe src="/empty"></iframe>
+### 1. 开关列表
+```html
+
+        <div class="card">
+          <div class="cell"><span class="body">通知推送</span><af-switch id="s1"></af-switch></div>
+          <div class="cell"><span class="body">自动播放</span><af-switch id="s2" checked></af-switch></div>
+          <div class="cell"><span class="body">加载态</span><af-switch id="s3" loading></af-switch></div>
+          <div class="cell"><span class="body">禁用</span><af-switch id="s4" disabled></af-switch></div>
+        </div>
+```
+<!-- gen:end:scenarios -->
 <!-- gen:start:props -->
+## API
+
 | 属性 | 类型 | 说明 |
 | --- | --- | --- |
 | checked | `boolean` | 开关状态 |

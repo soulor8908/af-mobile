@@ -1,9 +1,17 @@
 # af-tabs 标签页
-
+<!-- gen:start:scenarios -->
 ## 示例
 
-## API
+<iframe src="/empty"></iframe>
+### 1. 基础标签页
+```html
+
+        <af-tabs id="tabs"></af-tabs>
+```
+<!-- gen:end:scenarios -->
 <!-- gen:start:props -->
+## API
+
 | 属性 | 类型 | 说明 |
 | --- | --- | --- |
 | tabs | `TabItem[]` | 标签配置 |

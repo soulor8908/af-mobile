@@ -1,9 +1,16 @@
 # af-list 长列表（虚拟滚动）
-
+<!-- gen:start:scenarios -->
 ## 示例
 
-## API
+<iframe src="/empty"></iframe>
+
+```html
+<af-list id="list"></af-list>
+```
+<!-- gen:end:scenarios -->
 <!-- gen:start:props -->
+## API
+
 | 属性 | 类型 | 说明 |
 | --- | --- | --- |
 | data | `unknown[]` | 列表数据 |

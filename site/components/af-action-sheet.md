@@ -1,9 +1,20 @@
 # af-action-sheet 底部面板
-
+<!-- gen:start:scenarios -->
 ## 示例
 
-## API
+<iframe src="/empty"></iframe>
+### 1. 基础操作
+```html
+
+        <div class="actions">
+          <button class="btn" id="as-open">打开操作面板</button>
+        </div>
+        <af-action-sheet id="sheet" title="选择操作"></af-action-sheet>
+```
+<!-- gen:end:scenarios -->
 <!-- gen:start:props -->
+## API
+
 | 属性 | 类型 | 说明 |
 | --- | --- | --- |
 | options | `ActionSheetOption[]` | 选项列表 |

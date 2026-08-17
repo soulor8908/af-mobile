@@ -1,0 +1,35 @@
+// AIFlow UI —— af-toast Playground 场景
+// 契约见 af-dialog.js 顶部注释；props 控件复用 demo/props-panel.js schema
+export default {
+  tag: 'af-toast',
+  scenarios: [
+    {
+      name: '四种类型',
+      html: `
+        <div class="actions">
+          <button class="btn" id="t-success">成功</button>
+          <button class="btn btn-ghost" id="t-warning">警告</button>
+          <button class="btn btn-danger" id="t-error">错误</button>
+          <button class="btn btn-ghost" id="t-loading">加载中</button>
+        </div>
+        <af-toast id="toast"></af-toast>
+      `,
+      main: { selector: 'af-toast' },
+      props: [
+        { prop: 'duration', label: '显示时长(ms)', type: 'number', min: 0, max: 5000, step: 500 },
+      ],
+      evts: ['af-toast:dismiss'],
+      tokens: [
+        { token: '--c-onbrand', label: '品牌色', type: 'color' },
+        { token: '--radius-lg', label: '圆角', type: 'range', min: 0, max: 24, default: 12 },
+      ],
+      init: () => {
+        const toast = document.getElementById('toast');
+        document.getElementById('t-success')?.addEventListener('click', () => toast.show('操作成功', { type: 'success' }));
+        document.getElementById('t-warning')?.addEventListener('click', () => toast.show('请注意资产风险', { type: 'warning' }));
+        document.getElementById('t-error')?.addEventListener('click', () => toast.show('操作失败，请重试', { type: 'error' }));
+        document.getElementById('t-loading')?.addEventListener('click', () => toast.show('加载中…', { type: 'loading', duration: 0 }));
+      },
+    },
+  ],
+};

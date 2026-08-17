@@ -1,9 +1,21 @@
 # af-search-bar 搜索栏
-
+<!-- gen:start:scenarios -->
 ## 示例
 
-## API
+<iframe src="/empty"></iframe>
+### 1. 搜索栏
+```html
+
+        <div class="actions">
+          <button class="btn btn-ghost btn-block" id="sb-focus">聚焦搜索</button>
+        </div>
+        <af-search-bar id="sb" placeholder="搜索商品、店铺"></af-search-bar>
+        <p class="caption" id="sb-log">输入内容查看事件</p>
+```
+<!-- gen:end:scenarios -->
 <!-- gen:start:props -->
+## API
+
 | 属性 | 类型 | 说明 |
 | --- | --- | --- |
 | value | `string` | 输入值 |

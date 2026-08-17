@@ -1,9 +1,21 @@
 # af-stepper 步进器
-
+<!-- gen:start:scenarios -->
 ## 示例
 
-## API
+<iframe src="/empty"></iframe>
+### 1. 数量选择
+```html
+
+        <div class="card p-3">
+          <div class="cell"><span class="body">购买数量</span><af-stepper id="st" value="2"></af-stepper></div>
+          <div class="cell"><span class="body">限购(1-5)</span><af-stepper id="st2" min="1" max="5" value="3"></af-stepper></div>
+          <div class="cell"><span class="body">步长 5</span><af-stepper id="st3" step="5" max="100" value="10"></af-stepper></div>
+        </div>
+```
+<!-- gen:end:scenarios -->
 <!-- gen:start:props -->
+## API
+
 | 属性 | 类型 | 说明 |
 | --- | --- | --- |
 | value | `number` | 当前值 |

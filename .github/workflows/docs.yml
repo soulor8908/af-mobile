@@ -45,6 +45,7 @@ jobs:
       - uses: actions/configure-pages@v5
         with:
           static_site_generator: vitepress
+          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:

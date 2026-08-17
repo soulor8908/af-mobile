@@ -85,8 +85,8 @@ Object.assign(plugin.configs, {
       'aiflow/wc-block-no-internal-ref': 'error',
       'aiflow/wc-block-props-count': 'error',
       'aiflow/wc-block-states': 'error',
-      // L3.5 warn（引导性/启发式）
-      'aiflow/no-register-all': 'warn',
+      // L3.5 error（按需引入铁律：registerAll 全量注册 = 全局引入，一律禁止）
+      'aiflow/no-register-all': 'error',
       'aiflow/wc-block-variant-enum': 'warn',
     },
   },

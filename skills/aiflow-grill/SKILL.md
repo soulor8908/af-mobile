@@ -47,9 +47,10 @@ description: "Conversational AI scaffold for AIFlow mobile H5 apps. Grills the u
 ## Phase 3 — Demo 页生成（单文件 HTML）
 
 - 移动端 375px，完整 `<!doctype html>` 单文件，每页一个文件（核心页优先）
-- 独立预览用 CDN（无需安装）：
-  - CSS：`https://unpkg.com/@af-mobile/ui/dist/index.css`
-  - JS：`https://unpkg.com/@af-mobile/ui/dist/aiflow-ui.umd.js`（自动注册全组件，无需 import）
+- **组件必须按需引入**（铁律，禁止 UMD / 禁止 registerAll / 禁止全局引入）：
+  - CSS：`<link rel="stylesheet" href="node_modules/@af-mobile/ui/src/index.css">`
+  - JS：`<script type="module">` 内 `import { AfList, AfDialog } from 'node_modules/@af-mobile/ui/src/index.js'; customElements.define('af-list', AfList); ...`（或 `register('af-list', 'af-dialog')`），只引页面用到的组件
+  - ❌ 禁止 `<script src=".../aiflow-ui.umd.js">`、禁止 `registerAll()`、禁止全局对象
 - 工程内预览用 `node_modules/@af-mobile/ui/src/index.css` + ESM import
 - **交互行为真实**（点击/切换/弹窗可用），数据用静态假数据，不做持久化
 - 严格遵循下方规范速查；生成后校验：项目内 `npm run lint`（若在 aiflow 库仓库内，改用 `node scripts/lint-flywheel.mjs <路径>` 或 MCP `check_compliance`），违规按建议修正至全绿
@@ -143,6 +144,7 @@ description: "Conversational AI scaffold for AIFlow mobile H5 apps. Grills the u
 - 原子：`p-0..10 m-0..4 g-0..4 f fc aic jcc jcsb jce flex-1 w-full r-0/s/m/l/f t-xs..xl t-b t-m text-brand text-muted text-danger text-success bg-brand bg-muted shadow-sm/md/lg t-left t-center t-right ws-nowrap`
 
 **核心禁令：**
+- **组件一律按需引入（铁律）**：ESM `import { AfX }` + `customElements.define` 或 `register('af-x', ...)`；**禁止 UMD**（`<script src=".../aiflow-ui.umd.js">`）、**禁止 `registerAll()`**（全量注册 = 全局引入）、**禁止全局对象**（`window.AiflowUI` 等）
 - 禁止白名单外 class、禁止内联 style 设视觉属性、禁止 Tailwind/任意值语法
 - 用户输入插 innerHTML 前必须转义；事件名 `af-{组件}:{动作}`
 - 颜色/间距/字号必须 `var(--c-*)` 等 L1 token，禁止硬编码

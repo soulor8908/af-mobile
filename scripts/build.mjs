@@ -2,11 +2,11 @@
 // AIFlow UI —— 构建脚本：生成 dist/ 产物
 // 产物：
 //   dist/index.js         ESM bundle（全量组件，Tree Shaking 友好的源码已支持，此处给个全量 bundle 入口）
-//   dist/aiflow-ui.umd.js UMD bundle（CDN/unpkg 直引，含全部组件 + 自动注册）
 //   dist/index.css        全量 CSS（tokens+recipes+atomic，@import 内联）
 //   dist/index.d.ts       类型声明（复制 src/index.d.ts）
+// 铁律：不生成 UMD 产物（组件一律按需引入，禁止 CDN/unpkg 直引）
 import { build, transform } from 'esbuild';
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -34,44 +34,14 @@ await build({
   legalComments: 'none',
   sourcemap: false,
   minify: true, // 生产产物压缩；ESM minify 不影响打包器 Tree Shaking
-  keepNames: true, // 保留类原始 name，registerAll/toTag 依赖 C.name 派生 af-* 标签名，minify 会重命名类
+  keepNames: true, // 保留类原始 name（调试友好；注册走 REGISTRY 字面量，不依赖类名）
   absWorkingDir: ROOT,
 });
 console.log('✓ dist/index.js (ESM bundle)');
 
-// ---------- 2. dist/aiflow-ui.umd.js（IIFE bundle，自动注册全组件） ----------
-// 命名 UMD 沿用历史习惯（unpkg/jsdelivr 字段指向此文件）；实为 IIFE（esbuild 无 UMD，IIFE 足够 CDN 直引场景）
-// 入口：bundle 全部组件并自动调用 registerAll()
-const umdEntryCode = `
-import { registerAll } from '${join(SRC, 'index.js').replace(/\\/g, '/')}';
-if (typeof window !== 'undefined') {
-  registerAll();
-}
-`;
-const umdEntryPath = join(DIST, '_umd-entry.js');
-writeFileSync(umdEntryPath, umdEntryCode);
-try {
-  await build({
-    entryPoints: [umdEntryPath],
-    bundle: true,
-    outfile: join(DIST, 'aiflow-ui.umd.js'),
-    format: 'iife',
-    globalName: 'AiflowUI',
-    platform: 'browser',
-    target: ['es2020'],
-    legalComments: 'none',
-    sourcemap: false,
-    minify: true,
-    keepNames: true, // 保留类原始 name，registerAll/toTag 依赖 C.name 派生 af-* 标签名，minify 会重命名类
-    absWorkingDir: ROOT,
-  });
-} finally {
-  // 同步清理临时 UMD 入口，构建失败也保证不残留
-  rmSync(umdEntryPath, { force: true });
-}
-console.log('✓ dist/aiflow-ui.umd.js (UMD, auto-register)');
+// 注：不再生成 dist/aiflow-ui.umd.js（UMD = 全局引入，违反按需引入铁律，已移除）
 
-// ---------- 3. dist/index.css（内联 @import 的全量 CSS） ----------
+// ---------- 2. dist/index.css（内联 @import 的全量 CSS） ----------
 // 把 tokens.css + recipes.css + atomic.css 拼接内联为单文件
 const cssFiles = ['tokens.css', 'recipes.css', 'atomic.css'];
 let cssConcat = '/* AIFlow UI —— dist/index.css（构建产物，勿手改。源码见 src/*.css） */\n';
@@ -104,4 +74,4 @@ copyFileSync(join(SRC, 'index.d.ts'), join(DIST, 'index.d.ts'));
 console.log('✓ dist/index.d.ts (types)');
 
 console.log('\n──────────────────────────────────────────────');
-console.log('✓ 构建完成：dist/index.js, dist/aiflow-ui.umd.js, dist/index.css, dist/index.d.ts');
+console.log('✓ 构建完成：dist/index.js, dist/index.css, dist/index.d.ts');

@@ -81,13 +81,15 @@ function pkgCheck() {
   check('type: module', pkg.type === 'module');
   check('exports 配置存在', !!pkg.exports);
   check('files 含 dist/', Array.isArray(pkg.files) && pkg.files.includes('dist'));
-  check('unpkg 指向 UMD', pkg.unpkg && pkg.unpkg.includes('umd'));
+  // 铁律：无 unpkg/jsdelivr/browser 字段、无 ./dist/umd 导出（组件一律按需引入，禁止 UMD 直引）
+  check('无 unpkg/jsdelivr/browser（禁 UMD 直引）', !pkg.unpkg && !pkg.jsdelivr && !pkg.browser);
+  check('无 ./dist/umd 导出', !(pkg.exports && pkg.exports['./dist/umd']));
 }
 
 // 5. dist 产物检查（若缺失先自动 build，再验证产物存在）
 console.log('\n── 5. dist 产物 ──');
 function distCheck() {
-  const distFiles = ['dist/index.js', 'dist/aiflow-ui.umd.js', 'dist/index.css', 'dist/index.d.ts'];
+  const distFiles = ['dist/index.js', 'dist/index.css', 'dist/index.d.ts'];
   // 任一缺失则先构建（CI 不跑 prepublishOnly，需自包含）
   const anyMissing = distFiles.some(f => !existsSync(join(ROOT, f)));
   if (anyMissing) {

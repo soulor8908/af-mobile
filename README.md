@@ -47,7 +47,7 @@ npm update @af-mobile/ui && npx create-af-mobile skill add   # 库升级 + skill
 npm install @af-mobile/ui
 ```
 
-> **消费端需有打包器**：`package.json` 的 `main`/`module` 指向 `src/index.js`（源码分发，裸 ESM + CSS import）。直接在浏览器 `<script type="module">` 引用未经打包的源码会因裸模块解析失败。用 Vite/webpack/Rollup 等打包器处理 `import '@af-mobile/ui'` 即可；若需 CDN 直引，用 `dist/aiflow-ui.umd.js`（`unpkg`/`jsdelivr` 字段已指向）。
+> **消费端需有打包器 + 组件一律按需引入（铁律）**：`package.json` 的 `main`/`module` 指向 `src/index.js`（源码分发，裸 ESM + CSS import）。直接用 Vite/webpack/Rollup 等打包器处理 `import { AfList, AfDialog } from '@af-mobile/ui'` 并 `customElements.define`（或 `register('af-list', 'af-dialog')`），**只引入页面用到的组件**。**禁止 UMD 直引**（`dist/aiflow-ui.umd.js`）、**禁止 `registerAll()`**（全量注册 = 全局引入）、**禁止全局对象**——所有项目与 demo 一律按需引入。
 
 ## 快速上手
 
@@ -189,16 +189,17 @@ registerChart('af-chart-line');   // 或 registerCharts() 全量 5 个
 仅在浏览器环境注册组件，避免服务端执行 `customElements.define`：
 
 ```js
-// 仅在浏览器环境注册组件
+// 仅在浏览器环境按需注册页面用到的组件（禁止 registerAll）
 if (typeof window !== 'undefined') {
-  const { registerAll } = await import('@af-mobile/ui');
-  registerAll();
+  const { AfList, AfDialog, register } = await import('@af-mobile/ui');
+  customElements.define('af-list', AfList);
+  register('af-dialog');
 }
 ```
 
 ### 2. SSR 预渲染 Light DOM（首屏占位）
 
-Light DOM 组件的结构（含 L2 class）可由服务端直接渲染到 HTML 作为**首屏占位**。客户端 `registerAll()` 后组件 `connectedCallback` 触发，**会用组件内部模板重建 DOM 并接管交互**——这不是增量 hydration，SSR 子节点会被覆盖。因此 SSR 预渲染的价值是「避免白屏」，而非「复用服务端 DOM」。Shadow DOM 组件默认仅客户端挂载；实现了 `shadowHTML()` 的组件支持 **DSD（Declarative Shadow DOM）预渲染**——服务端调用 `el.dsdTemplate()` 输出 `<template shadowrootmode="open">`，无 JS 时结构/样式即刻可见，客户端 upgrade 接管交互（见 §3 矩阵）。
+Light DOM 组件的结构（含 L2 class）可由服务端直接渲染到 HTML 作为**首屏占位**。客户端按需注册组件后 `connectedCallback` 触发，**会用组件内部模板重建 DOM 并接管交互**——这不是增量 hydration，SSR 子节点会被覆盖。因此 SSR 预渲染的价值是「避免白屏」，而非「复用服务端 DOM」。Shadow DOM 组件默认仅客户端挂载；实现了 `shadowHTML()` 的组件支持 **DSD（Declarative Shadow DOM）预渲染**——服务端调用 `el.dsdTemplate()` 输出 `<template shadowrootmode="open">`，无 JS 时结构/样式即刻可见，客户端 upgrade 接管交互（见 §3 矩阵）。
 
 > ⚠️ **非增量 hydrate**：组件 `mounted()` 会用 `innerHTML` 重建内部结构（虚拟列表的 `.list` 外壳、tabbar 等）。SSR 输出的子节点仅作首屏占位，客户端 upgrade 后即被替换。若对首屏闪烁敏感，可在组件外加 `style="visibility:hidden"` 占位，upgrade 后再显隐。
 
@@ -217,15 +218,19 @@ function ProductList({ items }) {
           ))}
         </div>
       </af-list>
-      {/* 客户端 lazy 加载组件库并注册 */}
-      <Script src="/aiflow-ui.umd.js" strategy="lazyOnload"
-        onLoad={() => window.AiflowUI?.registerAll()} />
+      {/* 客户端 lazy 加载组件库并按需注册（禁止 UMD 直引 / registerAll） */}
+      <Script strategy="lazyOnload">
+        {`import('@af-mobile/ui').then(({ AfList, register }) => {
+          customElements.define('af-list', AfList);
+          register('af-dialog');
+        })`}
+      </Script>
     </>
   );
 }
 ```
 
-Nuxt / Remix 同理：服务端输出 Light DOM + L2 class 作首屏占位，客户端 hydration 阶段动态 `import('@af-mobile/ui')` 并注册，组件 `connectedCallback` 重建内部结构并接管交互。
+Nuxt / Remix 同理：服务端输出 Light DOM + L2 class 作首屏占位，客户端 hydration 阶段动态 `import('@af-mobile/ui')` 并按需注册，组件 `connectedCallback` 重建内部结构并接管交互。
 
 ### 3. 组件 SSR 兼容性矩阵
 
@@ -320,7 +325,7 @@ function App() {
 
 > 曾有的 `@af-mobile/vue` / `@af-mobile/react` 适配器包已移除：它们从未发布、无外部消费者，且 React 19 / Vue 3 已原生支持 Web Components，薄包装失去价值。
 
-## 注册方式
+## 注册方式（一律按需引入，铁律）
 
 ```js
 // A. 按需注册（推荐，Tree Shaking 友好）
@@ -332,11 +337,9 @@ customElements.define('af-dialog', AfDialog);
 import { register } from '@af-mobile/ui';
 register('af-list');
 register('af-dialog');
-
-// C. 全量注册（不推荐，会失去 Tree Shaking）
-import { registerAll } from '@af-mobile/ui';
-registerAll();
 ```
+
+**禁止** `registerAll()`（全量注册 = 全局引入）、**禁止** UMD 直引（`dist/aiflow-ui.umd.js`）、**禁止** 全局对象（`window.AiflowUI`）。所有项目与 demo 的组件必须按需引入。
 
 ## 路由与部署
 

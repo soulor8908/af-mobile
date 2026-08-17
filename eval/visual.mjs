@@ -16,15 +16,14 @@ const DIST = join(ROOT, 'dist');
 const ROUTES = {
   '/aiflow-ui.css': 'index.css',
   '/aiflow-ui.js': 'index.js',
-  '/aiflow-ui.umd.js': 'aiflow-ui.umd.js',
   '/aiflow-ui': 'index.js',
   '/index.js': 'index.js',
 };
 
-// /aiflow-ui.js 的包装模块：同步注册所有组件后 re-export。
+// /aiflow-ui.js 的包装模块：按需注册所有组件后 re-export（registerAll/UMD 已移除，铁律：只按需引入）。
 // 生成页面只 import 原语（signal/effect），不负责注册组件；这里模拟真实接入，
 // 使 af-* 元素在页面脚本执行前 upgrade，属性 setter 才能生效。
-const WRAP_MOD = (name) => `import * as m from '${name}';try{(m.registerAll||m.default?.registerAll)?.()}catch(e){console.error('aiflow registerAll',e)}export * from '${name}';`;
+const WRAP_MOD = (name) => `import * as m from '${name}';try{(m.REGISTRY||[]).forEach(([tag])=>m.register(tag))}catch(e){console.error('aiflow register',e)}export * from '${name}';`;
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',

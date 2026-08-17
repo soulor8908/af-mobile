@@ -1,12 +1,10 @@
 // AIFlow UI —— L3 组件汇总导出
 // ESM 命名导出 + Tree Shaking + sideEffects:false
-// 使用方式 A：按需注册（推荐）
+// 使用方式：按需注册（唯一合法方式，禁止全量注册 / UMD / 全局对象）
 //   import { AfList, AfDialog } from '@af-mobile/ui';
 //   customElements.define('af-list', AfList);
 //   customElements.define('af-dialog', AfDialog);
-// 使用方式 B：全量注册
-//   import { registerAll } from '@af-mobile/ui';
-//   registerAll();
+// 或：register('af-list', 'af-dialog')
 
 export { AfElement, escapeHtml, html } from './lib/af-element.js';
 export { getTheme, setTheme, toggleTheme, initTheme } from './lib/theme.js';
@@ -75,13 +73,8 @@ export const REGISTRY = [
   ['af-countdown', AfCountdown],
 ];
 
-export function registerAll() {
-  for (const [name, Ctor] of REGISTRY) {
-    if (!customElements.get(name)) customElements.define(name, Ctor);
-  }
-}
-
-// 变参：register('af-list') 或 register('af-list', 'af-dialog')，与 no-register-all 规则推荐用法一致
+// 变参按需注册：register('af-list') 或 register('af-list', 'af-dialog')，与 no-register-all 规则推荐用法一致
+// 铁律：禁止全量注册（原 registerAll 已移除）——只注册页面实际用到的组件，保证 Tree Shaking
 export function register(...names) {
   for (const name of names) {
     const entry = REGISTRY.find(([tag]) => tag === name);

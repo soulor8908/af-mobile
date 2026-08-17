@@ -238,32 +238,31 @@ export { AfDropdown } from './components/af-dropdown.js';
 export { AfImg } from './components/af-img.js';
 export { AfBacktop } from './components/af-backtop.js';
 
-export function registerAll() {
-  customElements.define('af-list', AfList);
-  customElements.define('af-swiper', AfSwiper);
-  customElements.define('af-tabs', AfTabs);
-  customElements.define('af-dialog', AfDialog);
-  customElements.define('af-toast', AfToast);
-  customElements.define('af-action-sheet', AfActionSheet);
-  customElements.define('af-picker', AfPicker);
-  customElements.define('af-dropdown', AfDropdown);
-  customElements.define('af-img', AfImg);
-  customElements.define('af-backtop', AfBacktop);
+// 变参按需注册（唯一合法方式，禁止全量注册 / UMD / 全局对象）
+// register('af-list') 或 register('af-list', 'af-dialog') —— 只注册页面实际用到的组件，保证 Tree Shaking
+export function register(...names) {
+  for (const name of names) {
+    const entry = REGISTRY.find(([tag]) => tag === name);
+    if (!entry) throw new Error(`[@af-mobile/ui] unknown component: ${name}`);
+    if (!customElements.get(name)) customElements.define(name, entry[1]);
+  }
 }
 ```
 
 **用户使用（决策 D3）**：
 
 ```javascript
-// 方式 A：按需注册（Tree Shake，推荐）
+// 按需注册（唯一合法方式，Tree Shake 友好）：
 import { AfList, AfDialog } from '@af-mobile/ui';
 customElements.define('af-list', AfList);
 customElements.define('af-dialog', AfDialog);
 
-// 方式 B：全量注册（便利，不 Tree Shake）
-import { registerAll } from '@af-mobile/ui';
-registerAll();
+// 或：register 辅助函数按需注册
+import { register } from '@af-mobile/ui';
+register('af-list', 'af-dialog');
 ```
+
+> **铁律**：禁止 `registerAll()`（全量注册 = 全局引入）、禁止 UMD 直引、禁止全局对象（`window.AiflowUI`）——组件一律按需引入。
 
 ### 2.4 组件文件结构
 

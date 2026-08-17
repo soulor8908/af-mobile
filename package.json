@@ -30,12 +30,8 @@
     "./components/*": "./src/components/*",
     "./lib/*": "./src/lib/*",
     "./dist": "./dist/index.js",
-    "./dist/css": "./dist/index.css",
-    "./dist/umd": "./dist/aiflow-ui.umd.js"
+    "./dist/css": "./dist/index.css"
   },
-  "unpkg": "./dist/aiflow-ui.umd.js",
-  "jsdelivr": "./dist/aiflow-ui.umd.js",
-  "browser": "./dist/aiflow-ui.umd.js",
   "bin": {
     "aiflow": "./scripts/aiflow.mjs"
   },

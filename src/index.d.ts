@@ -1,5 +1,5 @@
 // AIFlow UI —— TypeScript 类型声明
-// 公开 API：28 组件类 + AfElement 基类 + 主题 API + escapeHtml + register/registerAll
+// 公开 API：28 组件类 + AfElement 基类 + 主题 API + escapeHtml + register（按需注册，无 registerAll/UMD）
 // ⚠️ 手工维护：新增组件时须同步追加 class 声明，CI 的 types-sync 检查会校验一致
 
 /// <reference lib="dom" />
@@ -889,8 +889,7 @@ export class AfCountdown extends AfElement {
 /** 按需注册组件（变参，传入一个或多个标签名，与 no-register-all 规则推荐用法一致） */
 export function register(...names: string[]): void;
 
-/** 全量注册 28 个组件 */
-export function registerAll(): void;
+// 铁律：禁止全量注册（registerAll 已移除）与 UMD 直引——组件一律按需引入
 
 // ============================================================
 // 核心运行时：state（响应式原语）

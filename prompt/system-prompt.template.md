@@ -496,7 +496,7 @@ export default function listPage(params, ctx) {
 
 **app-shell 范式要点：**
 - `index.html`：`#app`（路由 outlet）+ `<af-tabbar>`（常驻底部导航，在 outlet 外避免路由销毁）
-- `main.js`：显式 `customElements.define`（registerAll 在 minify 下会失效）→ `route()` → `start({ hash: true })`
+- `main.js`：显式 `customElements.define` 或 `register('af-x', ...)` 按需注册（**禁止 registerAll / 禁止 UMD 直引**）→ `route()` → `start({ hash: true })`
 - 页面用 `.page-col` + `.scroll-y` + `.navbar-fixed` 组建骨架（不私建 class）
 - tabbar 高亮用 `afterEach` 同步，不依赖路由内部状态
 - 事件委托挂在常驻容器上，`innerHTML` 重建不影响监听

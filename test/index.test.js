@@ -23,28 +23,11 @@ describe('index.js 汇总导出', () => {
     expect(typeof AiflowUI.toggleTheme).toBe('function');
   });
 
-  it('导出 registerAll 函数', () => {
-    expect(typeof AiflowUI.registerAll).toBe('function');
-  });
-
-  it('导出 register 单组件注册函数', () => {
+  it('导出 register 按需注册函数', () => {
     expect(typeof AiflowUI.register).toBe('function');
   });
 
-  it('registerAll 注册所有 10 个组件到 customElements', () => {
-    // 先清理已注册（无法真正撤销 define，所以用 try/catch 检测）
-    AiflowUI.registerAll();
-    const tags = [
-      'af-list', 'af-swiper', 'af-tabs', 'af-dialog', 'af-toast',
-      'af-action-sheet', 'af-picker', 'af-dropdown', 'af-img', 'af-backtop',
-    ];
-    tags.forEach(tag => {
-      expect(customElements.get(tag)).toBeDefined();
-    });
-  });
-
   it('register(name) 注册单个组件', () => {
-    // registerAll 已注册过 af-list，register 应幂等返回已注册的构造器
     expect(() => AiflowUI.register('af-list')).not.toThrow();
     expect(customElements.get('af-list')).toBe(AiflowUI.AfList);
   });
@@ -58,16 +41,9 @@ describe('index.js 汇总导出', () => {
   it('register(未知名) 抛错', () => {
     expect(() => AiflowUI.register('af-unknown')).toThrow(/unknown component/);
   });
-
-  it('registerAll 幂等：多次调用不报错', () => {
-    expect(() => {
-      AiflowUI.registerAll();
-      AiflowUI.registerAll();
-    }).not.toThrow();
-  });
 });
 
-// minify 安全性验证：registerAll/register 不应依赖 Function.name（类名压缩后失效）
+// minify 安全性验证：register 不应依赖 Function.name（类名压缩后失效）
 describe('minify 安全注册', () => {
   // 模拟打包器类名压缩：把类名改短，旧实现基于 Ctor.name 推导 tag 会失效
   it('REGISTRY 用字面量 tag，与类名解耦', () => {
@@ -81,11 +57,10 @@ describe('minify 安全注册', () => {
     }
   });
 
-  it('registerAll 注册的 tag 全部来自 REGISTRY 字面量（即使类名被压缩）', () => {
-    // 取一个未注册的 tag 验证：先确保 registerAll 跑过
-    AiflowUI.registerAll();
-    // 全部 28 个 tag 都应被注册
+  it('register 全部 28 个 tag 均来自 REGISTRY 字面量（即使类名被压缩）', () => {
+    // 逐个按需注册（registerAll 已移除），所有 tag 应能被注册
     for (const [tag] of AiflowUI.REGISTRY) {
+      expect(() => AiflowUI.register(tag)).not.toThrow();
       expect(customElements.get(tag)).toBeDefined();
     }
   });

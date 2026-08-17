@@ -2,7 +2,7 @@
 // 多工具目标（TRAE / Claude Code / AGENTS.md 标准读者），幂等，重复执行安全。
 // 用法：node scripts/skill-add.mjs [目标目录=.]
 //   库仓库内自举：node scripts/skill-add.mjs .
-//   已发布包消费端：npx aiflow skill add（bin 别名）
+//   已发布包消费端：npx -p @af-mobile/ui aiflow skill add（bin 别名）
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';

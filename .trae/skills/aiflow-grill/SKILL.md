@@ -76,7 +76,7 @@ my-app/
     └── pages/*.js        # 每页一个文件，异步路由处理函数
 ```
 
-规则：页面逻辑从 demo 迁移，假数据换成真实数据层（per 拆分表）；事件名 `af-{组件}:{动作}`；分页判停 `endLoadMore`；暗色 FOUC 用 `<head>` 内联同步脚本设 `data-theme`；安装器跑 `node node_modules/@af-mobile/ui/scripts/skill-add.mjs .`（或 `npx aiflow skill add`）把本 skill 装进新工程，形成迭代闭环。
+规则：页面逻辑从 demo 迁移，假数据换成真实数据层（per 拆分表）；事件名 `af-{组件}:{动作}`；分页判停 `endLoadMore`；暗色 FOUC 用 `<head>` 内联同步脚本设 `data-theme`；安装器跑 `node node_modules/@af-mobile/ui/scripts/skill-add.mjs .`（或 `npx -p @af-mobile/ui aiflow skill add`）把本 skill 装进新工程，形成迭代闭环。
 
 **交付前自检（全绿才算完成）：**
 1. `npm install && npm run dev` 能启动

@@ -12,22 +12,24 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 > 面向小白：**一条命令生成可运行工程，然后用对话完成开发**，无需手工配置路由/打包器/ESLint。
 
 ```bash
-npx aiflow create my-app
+npx -p @af-mobile/ui aiflow create my-app
 cd my-app && npm install && npm run dev
 ```
+
+> ⚠️ `npx aiflow` 必须带 `-p @af-mobile/ui`：npm 上存在同名第三方包 `aiflow`，裸 `npx aiflow` 会装错包（报 `could not determine executable to run`）。`-p` 让 npx 按需下载 `@af-mobile/ui` 并执行其 `aiflow` bin，无需先手动 `npm install`；第二步的 `npm install` 才是把库装进生成的工程。
 
 生成工程自带 `aiflow-grill` skill（对话式脚手架）与消费端 ESLint 约束。打开任一 AI 编码工具（TRAE / Claude Code / Cursor 等），说一句"我想做一个习惯打卡应用"，skill 会引导你：**拷问需求 → 需求拆分 → demo 确认 → 一次性生成页面**。
 
 ### CLI 用法
 
 ```bash
-npx aiflow create <目录名>       # 生成新工程（脚手架 + skill 自举）
-npx aiflow skill add [目录]      # 已建项目补装 / 升级 skill（幂等，默认当前目录）
+npx -p @af-mobile/ui aiflow create <目录名>       # 生成新工程（脚手架 + skill 自举）
+npx -p @af-mobile/ui aiflow skill add [目录]      # 已建项目补装 / 升级 skill（幂等，默认当前目录）
 ```
 
 ### aiflow-grill skill 装到哪里
 
-skill 是单文件 `SKILL.md`，随 `@af-mobile/ui` npm 包分发。`npx aiflow create` / `npx aiflow skill add` 会把它同步到三类目标，各 AI 编码工具自动发现、无需 IDE 插件或配置：
+skill 是单文件 `SKILL.md`，随 `@af-mobile/ui` npm 包分发。`npx -p @af-mobile/ui aiflow create` / `npx -p @af-mobile/ui aiflow skill add` 会把它同步到三类目标，各 AI 编码工具自动发现、无需 IDE 插件或配置：
 
 | 同步目标 | 消费方 |
 |---|---|
@@ -38,7 +40,7 @@ skill 是单文件 `SKILL.md`，随 `@af-mobile/ui` npm 包分发。`npx aiflow 
 ### 升级
 
 ```bash
-npm update @af-mobile/ui && npx aiflow skill add   # 库升级 + skill 同步
+npm update @af-mobile/ui && npx -p @af-mobile/ui aiflow skill add   # 库升级 + skill 同步
 ```
 
 > 工程依赖 npm 包版本（非内嵌源码），升级只换库版本，业务代码不动。
@@ -515,7 +517,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 
 | 包 | 用途 | 安装/接入 |
 |---|---|---|
-| `@af-mobile/ui` | 主包：28 组件 + 路由/状态/主题/i18n + charts 图表子库（`/charts` 入口，5 图表组件）+ CLI（`aiflow`） | `npm i @af-mobile/ui` / `npx aiflow create` |
+| `@af-mobile/ui` | 主包：28 组件 + 路由/状态/主题/i18n + charts 图表子库（`/charts` 入口，5 图表组件）+ CLI（`aiflow`） | `npm i @af-mobile/ui` / `npx -p @af-mobile/ui aiflow create` |
 | `@af-mobile/eslint-plugin` | 20 条 AI 约束规则（白名单/禁令/组件质量） | devDependency + flat config |
 | `@af-mobile/mcp` | MCP Server：`get_prompt` / `check_compliance` / `fix_code` / `generate_page` / `flywheel_report` | `npx @af-mobile/mcp`（注册进 TRAE / Claude Code / Cursor） |
 | `@af-mobile/prompt` | System Prompt 构建器（按需求裁剪白名单+组件 API+few-shot） | `import { buildPrompt } from '@af-mobile/prompt'` |

@@ -531,6 +531,25 @@ describe('router hash 模式', () => {
   });
 });
 
+// 防御：误用 start('#app', { hash: true }) 时第一参被当 options，hash 静默丢失
+describe('router start() 字符串 outlet 归一化', () => {
+  it('start(stringOutlet) 等价 { outlet }，正常渲染', async () => {
+    const fn = vi.fn();
+    route('/so', fn);
+    start('#app');
+    await go('/so');
+    expect(fn).toHaveBeenCalledOnce();
+  });
+
+  it('start(stringOutlet) 默认走 History 模式（不退化、不报错）', async () => {
+    route('/sh', () => {});
+    start('#app');
+    await go('/sh');
+    expect(window.location.pathname).toBe('/sh');
+    expect(window.location.hash).toBe('');
+  });
+});
+
 describe('router 路由懒加载 + meta', () => {
   it('handler 返回懒加载模块（default 为渲染函数）', async () => {
     const render = vi.fn((p, ctx) => { ctx.outlet.innerHTML = 'heavy page'; });

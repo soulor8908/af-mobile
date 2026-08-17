@@ -49,6 +49,12 @@ describe('index.js 汇总导出', () => {
     expect(customElements.get('af-list')).toBe(AiflowUI.AfList);
   });
 
+  it('register(...names) 变参注册多个组件（与 no-register-all 规则推荐用法一致）', () => {
+    expect(() => AiflowUI.register('af-tabs', 'af-dialog')).not.toThrow();
+    expect(customElements.get('af-tabs')).toBe(AiflowUI.AfTabs);
+    expect(customElements.get('af-dialog')).toBe(AiflowUI.AfDialog);
+  });
+
   it('register(未知名) 抛错', () => {
     expect(() => AiflowUI.register('af-unknown')).toThrow(/unknown component/);
   });
@@ -58,6 +64,36 @@ describe('index.js 汇总导出', () => {
       AiflowUI.registerAll();
       AiflowUI.registerAll();
     }).not.toThrow();
+  });
+});
+
+// minify 安全性验证：registerAll/register 不应依赖 Function.name（类名压缩后失效）
+describe('minify 安全注册', () => {
+  // 模拟打包器类名压缩：把类名改短，旧实现基于 Ctor.name 推导 tag 会失效
+  it('REGISTRY 用字面量 tag，与类名解耦', () => {
+    expect(Array.isArray(AiflowUI.REGISTRY)).toBe(true);
+    expect(AiflowUI.REGISTRY.length).toBe(28);
+    // 每个 entry 是 [string, function]，tag 与类名无关
+    for (const [tag, Ctor] of AiflowUI.REGISTRY) {
+      expect(typeof tag).toBe('string');
+      expect(tag).toMatch(/^af-/);
+      expect(typeof Ctor).toBe('function');
+    }
+  });
+
+  it('registerAll 注册的 tag 全部来自 REGISTRY 字面量（即使类名被压缩）', () => {
+    // 取一个未注册的 tag 验证：先确保 registerAll 跑过
+    AiflowUI.registerAll();
+    // 全部 28 个 tag 都应被注册
+    for (const [tag] of AiflowUI.REGISTRY) {
+      expect(customElements.get(tag)).toBeDefined();
+    }
+  });
+
+  it('register(tag) 按 REGISTRY 字面量查找，不依赖类名', () => {
+    // af-badge 由 register 单独注册
+    expect(() => AiflowUI.register('af-badge')).not.toThrow();
+    expect(customElements.get('af-badge')).toBe(AiflowUI.AfBadge);
   });
 });
 

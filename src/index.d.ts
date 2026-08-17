@@ -886,8 +886,8 @@ export class AfCountdown extends AfElement {
 // 注册接口
 // ============================================================
 
-/** 按需注册单个组件（传入标签名） */
-export function register(name: string): void;
+/** 按需注册组件（变参，传入一个或多个标签名，与 no-register-all 规则推荐用法一致） */
+export function register(...names: string[]): void;
 
 /** 全量注册 28 个组件 */
 export function registerAll(): void;
@@ -1066,8 +1066,10 @@ export function notFound(handler: (path: string) => void): void;
 /** 获取当前路由信息 */
 export function current(): { path: string; params: Record<string, string>; route: any; outlet: HTMLElement; meta: Record<string, unknown> } | null;
 
-/** 启动路由 */
-export function start(options?: {
+/** 启动路由
+ *  options 为字符串时视为 outlet 选择器（等价 { outlet }），兼容 start('#app') 调用形式；
+ *  其余选项走对象形式 start({ hash: true }) */
+export function start(options?: string | {
   outlet?: string;
   scrollRestoration?: boolean;
   keepAliveMax?: number;

@@ -42,21 +42,53 @@ import { AfCountdown } from './components/af-countdown.js';
 
 export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfCascadePicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfCalendar, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate, AfNoticeBar, AfProgress, AfSteps, AfCountdown };
 
-const ALL = [AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfCascadePicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfCalendar, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate, AfNoticeBar, AfProgress, AfSteps, AfCountdown];
-// AfList → af-list, AfActionSheet → af-action-sheet
-const toTag = (C) => 'af-' + C.name.slice(2).replace(/[A-Z]/g, (c, i) => (i ? '-' : '') + c.toLowerCase());
+// 显式 tag→Ctor 注册表：不依赖 Function.name（minify 下类名会被压缩为 a/b/c，
+// 基于 name 的推导会失效）。改用字面量 tag 字符串，任何打包器压缩下都稳定。
+export const REGISTRY = [
+  ['af-list', AfList],
+  ['af-swiper', AfSwiper],
+  ['af-tabs', AfTabs],
+  ['af-dialog', AfDialog],
+  ['af-toast', AfToast],
+  ['af-action-sheet', AfActionSheet],
+  ['af-picker', AfPicker],
+  ['af-cascade-picker', AfCascadePicker],
+  ['af-dropdown', AfDropdown],
+  ['af-img', AfImg],
+  ['af-backtop', AfBacktop],
+  ['af-badge', AfBadge],
+  ['af-calendar', AfCalendar],
+  ['af-switch', AfSwitch],
+  ['af-search-bar', AfSearchBar],
+  ['af-skeleton-page', AfSkeletonPage],
+  ['af-upload', AfUpload],
+  ['af-navbar', AfNavbar],
+  ['af-tabbar', AfTabbar],
+  ['af-stepper', AfStepper],
+  ['af-field', AfField],
+  ['af-pull-refresh', AfPullRefresh],
+  ['af-swipe-cell', AfSwipeCell],
+  ['af-rate', AfRate],
+  ['af-notice-bar', AfNoticeBar],
+  ['af-progress', AfProgress],
+  ['af-steps', AfSteps],
+  ['af-countdown', AfCountdown],
+];
 
 export function registerAll() {
-  for (const Ctor of ALL) {
-    const name = toTag(Ctor);
+  for (const [name, Ctor] of REGISTRY) {
     if (!customElements.get(name)) customElements.define(name, Ctor);
   }
 }
 
-export function register(name) {
-  const Ctor = ALL.find(c => toTag(c) === name);
-  if (!Ctor) throw new Error(`[@af-mobile/ui] unknown component: ${name}`);
-  if (!customElements.get(name)) customElements.define(name, Ctor);
+// 变参：register('af-list') 或 register('af-list', 'af-dialog')，与 no-register-all 规则推荐用法一致
+export function register(...names) {
+  for (const name of names) {
+    const entry = REGISTRY.find(([tag]) => tag === name);
+    if (!entry) throw new Error(`[@af-mobile/ui] unknown component: ${name}`);
+    const Ctor = entry[1];
+    if (!customElements.get(name)) customElements.define(name, Ctor);
+  }
 }
 
 // ============================================================

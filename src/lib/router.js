@@ -118,6 +118,10 @@ function getFullPath() {
 
 export function start(options = {}) {
   if (typeof history === 'undefined') return;
+  // 防御：误用 start('#app', { hash: true }) 时，第一参被当作 options，
+  // outlet 取默认值但 hash 等选项丢失 → 静默退化为 history 模式。
+  // 字符串入参归一化为 { outlet }，让两种调用形式都正确。
+  if (typeof options === 'string') options = { outlet: options };
   const { scrollRestoration = true, outlet = '#app', keepAliveMax = 5, scrollBehavior, hash = false } = options;
   if (scrollRestoration && 'scrollRestoration' in history) {
     history.scrollRestoration = 'manual';

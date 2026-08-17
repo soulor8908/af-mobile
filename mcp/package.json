@@ -15,7 +15,7 @@
     "assets/"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "*",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "@af-mobile/eslint-plugin": "^2.0.0"
   },
   "peerDependencies": {

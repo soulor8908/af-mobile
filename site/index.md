@@ -1,6 +1,7 @@
 ---
 layout: home
 title: '@af-mobile/ui'
+lastUpdated: true
 
 hero:
   name: '@af-mobile/ui'
@@ -21,4 +22,6 @@ features:
     details: L1 token → L2 recipe → L3 组件 → L3.5 block，清晰可定制。
   - title: AI-first
     details: 内置 MCP 与 system-prompt，让 AI 与你用同一套语言协作。
+
+status: docs 站点已上线（GitHub Pages，base /v/）
 ---

@@ -170,9 +170,9 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 | 维度 | 库开发（src/） | 消费端（用户页面） |
 |---|---|---|
 | **ESLint 规则集** | COMPONENT_RULES（L3 的 6 条 wc-* 规则） | AI_RULES（L1+L2+L3 全部 15 条） |
-| **白名单约束** | 不约束（`token-whitelist: off`） | 严格约束（154 class 封闭集） |
+| **白名单约束** | 不约束（`token-whitelist: off`） | 严格约束（156 class 封闭集） |
 | **内联 style** | Light DOM 组件禁止（`wc-light-no-style`），Shadow DOM 允许 | 完全禁止（`no-inline-style`） |
-| **自定义 class** | 允许（库源码自有设计约束） | 禁止（只能用 154 白名单 class） |
+| **自定义 class** | 允许（库源码自有设计约束） | 禁止（只能用 156 白名单 class） |
 | **Tailwind 语法** | 不约束 | 禁止（`no-tailwind-syntax`） |
 | **任意值语法** | 不约束 | 禁止（`no-arbitrary-value`） |
 | **配方破坏** | 不约束 | 禁止（`no-recipe-break`） |
@@ -202,7 +202,7 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 
 **场景 B：在消费端误用库开发自由度**
 - 错误：在用户页面 HTML 中写 `<div class="my-custom-card">`（非白名单 class）
-- 事实：消费端只能用 154 白名单 class，自定义 class 会触发 ESLint error
+- 事实：消费端只能用 156 白名单 class，自定义 class 会触发 ESLint error
 
 **场景 C：在 Light DOM 组件中写内联 style**
 - 错误：在 `af-img.js`（Light DOM）中写 `this.style.width = '100%'`
@@ -231,7 +231,28 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 │  └─ 受完整 AI 规则约束（白名单 / 禁内联 style / 禁 Tailwind 语法）
 │
 └─ 消费端页面（本仓库外）
-   └─ 只能用 154 白名单 class + 20 个 af-* 组件标签
+   └─ 只能用 156 白名单 class + 20 个 af-* 组件标签
+```
+
+### 3.5 消费端项目必须用脚手架生成（铁律）
+
+> **AI 在仓库外创建基于 @af-mobile/ui 的项目时，必须先跑脚手架，禁止直接手写基础文件。** 违反 = AGENTS.md/skills 缺失 = 后续 AI 无上下文 = 积分浪费。
+
+**正确流程**：
+1. 库仓库开发态：`node scripts/create-app.mjs <dir>`
+2. 已发布包消费端：`npm create af-mobile <dir>`（等价 `npx create-af-mobile <dir>`）
+
+脚手架一次性生成项目骨架 + 自举安装 `AGENTS.md` / `skills/aiflow-grill/SKILL.md` / `eslint.config.js`，是项目骨架的**单一真相源**。AI 在 Phase 5（一次性生成工程）中只能覆盖 `src/pages/*.js`、`src/main.js`、`src/styles.css`、`src/store.js` 等业务文件，**禁止手写** `package.json` / `index.html` / `vite.config.js` / `eslint.config.js` / `.gitignore` 等基础文件。
+
+**已发生的反例**：基于 aiflow-ui 开发的 todo 项目（`.workbuddy/基于aiflow-ui开发待办应用/aiflow-todo/`）AI 直接手写所有文件，导致 `AGENTS.md` / `skills/` 全部缺失；且 `eslint.config.js` 用 `extraClass` 私登了 `page-col`（已在主库白名单）和 `todo-scroll`（可改用 `scroll-y`），`styles.css` 重复定义了主库 recipes.css 已有的 `.page-col` / `.scroll-y` 等价规则。
+
+**判断流程**：
+```
+AI 要创建/扩展一个 @af-mobile/ui 项目？
+├─ 项目目录已存在且含 AGENTS.md/skills/ → 直接进入业务文件覆盖
+└─ 项目目录为空或不存在
+   └─ 必须先跑 node scripts/create-app.mjs <dir> 或 npm create af-mobile <dir>
+      （禁止 mkdir + 手写 package.json/index.html 等基础文件）
 ```
 
 ---

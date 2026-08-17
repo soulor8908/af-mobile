@@ -3,7 +3,7 @@
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
 
 - **L1 Token**：43 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
-- **L2 配方 + 原子**：154 个白名单封闭集 class（102 配方 + 52 原子，`btn`/`card`/`p-4`/...）
+- **L2 配方 + 原子**：156 个白名单封闭集 class（104 配方 + 52 原子，`btn`/`card`/`p-4`/...）
 - **L3 真组件**：28 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 20 规则兜底 + CI 保护
 
@@ -29,13 +29,9 @@ npx create-af-mobile skill add [目录]   # 已建项目补装 / 升级 skill（
 
 ### aiflow-grill skill 装到哪里
 
-skill 是单文件 `SKILL.md`，随 `@af-mobile/ui` npm 包分发。`npm create af-mobile` / `npx create-af-mobile skill add` 会把它同步到三类目标，各 AI 编码工具自动发现、无需 IDE 插件或配置：
+skill 是单文件 `SKILL.md`，随 `@af-mobile/ui` npm 包分发。`npm create af-mobile` / `npx create-af-mobile skill add` 把它写到**中立路径** `skills/aiflow-grill/SKILL.md`，并在 `AGENTS.md` 追加指引段（marker 守卫，幂等）。
 
-| 同步目标 | 消费方 |
-|---|---|
-| `.trae/skills/aiflow-grill/SKILL.md` | TRAE 自动发现 |
-| `.claude/skills/aiflow-grill/SKILL.md` | Claude Code 自动发现 |
-| `skills/aiflow-grill/SKILL.md` + 追加 `AGENTS.md` 指引段 | Cursor 等 AGENTS.md 标准读者 |
+不写 `.trae/skills/` / `.claude/skills/` 等工具特定目录——任何读 `AGENTS.md` 的 AI 工具（TRAE / Claude Code / Cursor / Codex / Copilot / Windsurf 等）都能通过 `AGENTS.md` 找到 skill，避免假设用户用某工具而污染项目。
 
 ### 升级
 
@@ -437,7 +433,7 @@ toggleTheme();            // 切换并持久化
 
 1. `tokens.css` 以外不可重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 2. `style=""` 不可设置 `color/background*/padding*/margin*/font-size/border-radius/box-shadow`
-3. 不可使用 154 白名单外的 class 名或自定义组件标签
+3. 不可使用 156 白名单外的 class 名或自定义组件标签
 4. `.btn`（非 ghost）不可叠加 `text-brand/text-danger/text-success`
 5. `.input` 不可叠加 `t-sm/t-xs`（iOS 聚焦 < 16px 自动放大页面）
 6. `.cell/.list-item` 不可叠加 `f/fc` 原子

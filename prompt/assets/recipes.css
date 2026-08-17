@@ -416,6 +416,19 @@
     box-shadow: var(--shadow-md);
   }
 
+  /* App 骨架：页面级纵向布局 + 可滚动内容区（所有 App 都需要的通用结构） */
+  .page-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .scroll-y {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
   .tabbar {
     display: flex;
     background: var(--c-card);

@@ -61,22 +61,30 @@ description: "Conversational AI scaffold for AIFlow mobile H5 apps. Grills the u
 
 ## Phase 5 — 一次性生成工程
 
-用户确认后按以下结构**一次交付，不分批**：
+用户确认后**按以下两步执行，不可跳过 Step 1**：
 
-```
-my-app/
-├── index.html
-├── package.json          # "@af-mobile/ui": "^x.y.z"（npm 版本，禁 file: 本地路径）
-├── vite.config.js
-├── eslint.config.js      # 接入 @af-mobile/eslint-plugin
-├── AGENTS.md             # 含 aiflow-grill skill 指引（跑 skill 安装器生成）
-└── src/
-    ├── main.js           # registerAll + route(...) + start('#app', { hash: true }) + initTheme()
-    ├── styles.css
-    └── pages/*.js        # 每页一个文件，异步路由处理函数
+### Step 1：跑脚手架生成基础骨架（强制）
+
+```bash
+# 库仓库开发态：node scripts/create-app.mjs <dir>
+# 已发布包消费端：npm create af-mobile <dir>（等价 npx create-af-mobile <dir>）
 ```
 
-规则：页面逻辑从 demo 迁移，假数据换成真实数据层（per 拆分表）；事件名 `af-{组件}:{动作}`；分页判停 `endLoadMore`；暗色 FOUC 用 `<head>` 内联同步脚本设 `data-theme`；安装器跑 `node node_modules/@af-mobile/ui/scripts/skill-add.mjs .`（或 `npx create-af-mobile skill add`）把本 skill 装进新工程，形成迭代闭环。
+脚手架会一次性生成 `package.json` / `index.html` / `vite.config.js` / `eslint.config.js` / `.gitignore` / `src/main.js` / `src/styles.css` / `src/pages/home.js` / `src/pages/docs.js`，并自动调用 `skill-add.mjs` 装 `AGENTS.md` + `skills/aiflow-grill/SKILL.md`（中立路径，任何 AI 工具读 AGENTS.md 都能找到），形成迭代闭环。
+
+**禁止 AI 直接手写上述基础文件**——脚手架是项目骨架的单一真相源，手写会绕过 AGENTS.md/skills 自举、ESLint 接入、`extraClass` 登记、`start('#app', { hash: true })` 入口规范等约束。若 AI 嫌"脚手架生成的 home/docs 是示例没用"而绕过，正是 AGENTS/skills 缺失的根因。
+
+### Step 2：覆盖业务文件（pages + store + tabs 等）
+
+脚手架默认 `home/docs` 是占位示例，按 demo 拆分表覆盖：
+
+- `src/pages/home.js` → 实际首页（按 demo 迁移业务逻辑）
+- `src/pages/<name>.js` → 新增页面（每页一文件）
+- `src/main.js` → 替换路由表（保留 `registerAll/initTheme/start('#app', { hash: true })` 三件套，可改用显式 `customElements.define` 列表以兼容 minify）
+- `src/styles.css` → 项目级自定义样式（只用 `var(--*)` token；白名单外 class 必须在 `eslint.config.js` 用 `extraClass` 登记）
+- 数据层（如 `src/store.js`）：按拆分表 localStorage 或 Supabase
+
+规则：事件名 `af-{组件}:{动作}`；分页判停 `endLoadMore`；暗色 FOUC 用 `<head>` 内联同步脚本设 `data-theme`；假数据换成真实数据层（per 拆分表）。
 
 **交付前自检（全绿才算完成）：**
 1. `npm install && npm run dev` 能启动

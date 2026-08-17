@@ -1,5 +1,7 @@
 // AIFlow skill 安装器：把对话式脚手架 skill（aiflow-grill）装进任意项目
-// 多工具目标（TRAE / Claude Code / AGENTS.md 标准读者），幂等，重复执行安全。
+// 工具无关：只写中立路径 skills/，AGENTS.md 指向它作为单一真相源。
+// 任何读 AGENTS.md 的 AI 工具（TRAE / Claude Code / Cursor / Codex / Copilot / Windsurf 等）
+// 都能通过 AGENTS.md 找到 skill；不写 .trae/skills/ 或 .claude/skills/ 避免假设用户用某工具。
 // 用法：node scripts/skill-add.mjs [目标目录=.]
 //   库仓库内自举：node scripts/skill-add.mjs .
 //   已发布包消费端：npx @af-mobile/ui skill add
@@ -10,11 +12,9 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'skills/aiflow-grill/SKILL.md');
 
-// 中立路径 skills/ 是 AGENTS.md 指向的真相源；.trae/.claude 各自自动发现
+// 中立路径 skills/ 是 AGENTS.md 指向的真相源；不写工具特定目录避免污染
 const TARGETS = [
   'skills/aiflow-grill/SKILL.md',
-  '.trae/skills/aiflow-grill/SKILL.md',
-  '.claude/skills/aiflow-grill/SKILL.md',
 ];
 
 const AGENTS_MARK = '<!-- aiflow:skill-grill -->';

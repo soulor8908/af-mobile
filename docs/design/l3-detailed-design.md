@@ -879,7 +879,7 @@ export class AfToast extends AfElement {
 |---|---|---|
 | 单组件（JS）gzip | ≤ 2.8KB | PR 阻断 |
 | 基类 AfElement gzip | ≤ 2.0KB | PR 阻断 |
-| 全部 28 组件 + 基类 gzip | ≤ 20.0KB | PR 阻断 |
+| 全部 28 组件 + 基类 gzip | ≤ 20.1KB | PR 阻断 |
 | 按需引入 2 组件 gzip | ≤ 6.5KB | warn |
 | 核心运行时（state+fetch+router+i18n+page+bind）gzip | ≤ 6.8KB | PR 阻断（独立预算，不计入 total） |
 

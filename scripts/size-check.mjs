@@ -3,7 +3,7 @@
 // 依据 docs/design/l3-detailed-design.md §8.5 CI 体积监控（数字与下方 BUDGET 一致）
 //   单组件 JS gzip ≤ 2.8KB   PR 阻断（CSS 计入 L1+L2 总预算，不单测）
 //   基类 AfElement gzip     ≤ 2.0KB  PR 阻断
-//   全部 28 组件 + 基类 gzip ≤ 20.0KB PR 阻断
+//   全部 28 组件 + 基类 gzip ≤ 20.1KB PR 阻断
 //   按需引入 2 组件 gzip    ≤ 6.5KB   warn
 //   (核心运行时 state+fetch+router+i18n+page+bind ≤ 6.8KB，独立预算不计入 total)
 // 实现：esbuild 打包+minify，Node zlib 测 gzip（原生，无 gzip-size 依赖）
@@ -69,11 +69,15 @@ const SRC = join(ROOT, 'src');
 //   total 23.8→20.0KB：泄漏修复 + defineProp 紧凑签名 + _listen 删手写解绑（实测 19.982KB，锚定 20KB 红线）
 //   coreRuntime 5.4→6.8KB：新增 page.js+bind.js（createPage 页面运行时，实测 6.591KB）
 //   onDemand2 5.5→6.5KB：i18n 泄漏修复后按需场景实测 6.041KB（warn 级）
+// v3.10 调整（App 骨架 + register minify-safe，用户已确认）：
+//   CSS 8.2→8.3KB：新增 .page-col/.scroll-y App 骨架配方（解决多页面应用布局缺口，AI 反复违规私建 class 的根因）
+//   total 20.0→20.1KB：ea9f365 register/registerAll 改用显式 REGISTRY 字面量数组（minify-safe，P0 修复——
+//     旧实现依赖 Function.name 推导 tag，esbuild 压缩类名后生产构建组件无法注册），实测 20.090KB
 const BUDGET = {
-  css: 8.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式）
+  css: 8.3,            // KB，L1+L2 CSS（tokens+recipes+atomic，含 v1.5.0 新增 8 个纯 CSS 配方 + 6 个组件宿主样式 + v3.10 App 骨架配方）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
-  total: 20.0,         // KB，28 组件 + 基类（测量泄漏修复 + 紧凑化后实测 19.982KB，20KB 红线）
+  total: 20.1,         // KB，28 组件 + 基类（v3.10：register minify-safe REGISTRY 后实测 20.090KB）
   onDemand2: 6.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 6.8,    // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind）
   // charts 子库（charts-sublibrary-detailed-design.md §7）：独立入口 ./charts，不计入 total

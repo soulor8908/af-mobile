@@ -10,7 +10,7 @@
 # 设计体系速查
 
 - **L1 Token（58 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
-- **L2 配方（102）+ 原子（52）= 154 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
+- **L2 配方（104）+ 原子（52）= 156 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
 - **L3 真组件（33 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 20 规则（13 error + 7 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
@@ -18,7 +18,7 @@
 
 # L2 白名单（构建时注入）
 
-## L2 配方（102 个，按用途分组）
+## L2 配方（104 个，按用途分组）
 
 **按钮（7）：** `btn` `btn-sm` `btn-lg` `btn-ghost` `btn-danger` `btn-success` `btn-block`
 **容器（5）：** `page` `card` `cell` `center` `sheet`
@@ -26,7 +26,7 @@
 **表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-loading` `switch-thumb` `search-bar-wrap` `search-bar-icon` `search-bar-clear` `input-err` `upload-trigger` `upload-grid`
 **列表（6）：** `list` `list-item` `list-item-compact` `divider` `thumb` `avatar`
 **反馈（17）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast`
-**导航（5）：** `navbar` `navbar-fixed` `tabbar` `tabbar-fixed` `tab-item`
+**导航（7）：** `navbar` `navbar-fixed` `page-col` `scroll-y` `tabbar` `tabbar-fixed` `tab-item`
 **布局（5）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar`
 **Checkbox / Radio（4）：** `checkbox` `radio` `checkbox-sm` `radio-sm`
 **加载指示器（3）：** `spinner` `spinner-sm` `spinner-lg`
@@ -111,7 +111,7 @@
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-03. 禁止使用 154 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
+03. 禁止使用 156 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success`（破坏 onbrand 对比度）
 05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fc` 原子（自带 `display:flex`，再设会破坏布局）
@@ -166,6 +166,7 @@
   搜索|筛选 → page-search
   个人中心|设置|我的 → page-profile
   空态|无权限|网络错误|404 → page-empty
+  待办|任务|多页面应用|tabbar 导航 → app-shell
 
 规则：
 - 一个页面只能选一个主模式
@@ -450,6 +451,134 @@ document.getElementById('search').addEventListener('af-search-bar:search', async
 
 ---
 
+## 示例 8：app-shell（多页面应用骨架）
+
+输入：待办应用，底部 tabbar 导航，列表页增删改查+左滑删除，统计页完成率
+
+输出（3 文件）：
+
+index.html：
+```html
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<div id="app"></div>
+<af-tabbar id="tabbar"></af-tabbar>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
+```
+
+src/main.js（入口：注册→路由→tabbar→启动）：
+```javascript
+import './styles.css';
+import { AfTabbar, AfSearchBar, AfSwitch, AfSwipeCell, AfDialog, AfField, AfProgress, AfToast,
+  route, start, go, afterEach, initTheme, effect } from '@af-mobile/ui';
+import { todos } from './store.js';
+import listPage from './pages/list.js';
+import statsPage from './pages/stats.js';
+
+const DEFINE = [
+  [AfTabbar,'af-tabbar'],[AfSearchBar,'af-search-bar'],[AfSwitch,'af-switch'],
+  [AfSwipeCell,'af-swipe-cell'],[AfDialog,'af-dialog'],[AfField,'af-field'],
+  [AfProgress,'af-progress'],[AfToast,'af-toast'],
+];
+for (const [cls,tag] of DEFINE) if (!customElements.get(tag)) customElements.define(tag, cls);
+
+initTheme();
+
+const TABS = [
+  { label: '待办', value: '/', icon: '📋' },
+  { label: '统计', value: '/stats', icon: '📊' },
+];
+
+route('/', listPage);
+route('/stats', statsPage);
+
+const tabbar = document.querySelector('#tabbar');
+tabbar.tabs = TABS;
+tabbar.addEventListener('af-tabbar:change', e => go(TABS[e.detail.index].value));
+
+// tabbar 高亮同步
+afterEach((r, p, path) => {
+  const idx = TABS.findIndex(t => t.value === path.split('?')[0]);
+  if (idx >= 0) tabbar.activeIndex = idx;
+});
+
+start({ hash: true });
+```
+
+src/pages/list.js（列表页骨架：page-col + scroll-y + 事件委托）：
+```javascript
+import { escapeHtml } from '@af-mobile/ui';
+import { todos, addTodo, toggleTodo, removeTodo } from '../store.js';
+
+export default function listPage(params, ctx) {
+  ctx.outlet.innerHTML = `
+    <main class="page-col">
+      <header class="navbar navbar-fixed">
+        <h1 class="title flex-1">待办</h1>
+      </header>
+      <div class="scroll-y" id="rows"></div>
+      <div class="input-bar">
+        <input class="input flex-1" id="add" placeholder="添加待办，回车确认">
+        <button class="btn" id="add-btn">添加</button>
+      </div>
+    </main>`;
+
+  const rows = ctx.outlet.querySelector('#rows');
+  const input = ctx.outlet.querySelector('#add');
+
+  function render() {
+    const list = todos();
+    rows.innerHTML = list.map(t => `
+      <af-swipe-cell data-id="${t.id}">
+        <div slot="content" class="list-item">
+          <af-switch ${t.done ? 'checked' : ''}></af-switch>
+          <span class="body flex-1">${escapeHtml(t.title)}</span>
+        </div>
+        <div slot="right"><button class="btn btn-sm btn-danger" data-act="del">删除</button></div>
+      </af-swipe-cell>`).join('');
+  }
+
+  rows.addEventListener('af-switch:change', e => {
+    const cell = e.target.closest('af-swipe-cell');
+    if (cell) { toggleTodo(cell.dataset.id); render(); }
+  });
+  rows.addEventListener('af-swipe-cell:action', e => {
+    if (e.detail.action !== 'del') return;
+    const cell = e.target.closest('af-swipe-cell');
+    if (cell) { removeTodo(cell.dataset.id); render(); }
+  });
+
+  function add() {
+    const v = input.value.trim();
+    if (!v) return;
+    addTodo(v);
+    input.value = '';
+    render();
+  }
+  ctx.outlet.querySelector('#add-btn').addEventListener('click', add);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
+
+  render();
+}
+```
+
+**app-shell 范式要点：**
+- `index.html`：`#app`（路由 outlet）+ `<af-tabbar>`（常驻底部导航，在 outlet 外避免路由销毁）
+- `main.js`：显式 `customElements.define`（registerAll 在 minify 下会失效）→ `route()` → `start({ hash: true })`
+- 页面用 `.page-col` + `.scroll-y` + `.navbar-fixed` 组建骨架（不私建 class）
+- tabbar 高亮用 `afterEach` 同步，不依赖路由内部状态
+- 事件委托挂在常驻容器上，`innerHTML` 重建不影响监听
+
+---
+
 # 错误恢复（ESLint 报错后如何修正）
 
 | ESLint 规则 | 报错原因 | 修正方案 |
@@ -468,6 +597,22 @@ document.getElementById('search').addEventListener('af-search-bar:search', async
 - 组件能解决的不用原子类堆砌
 - 内联 style 一律改 class，布局属性（display/width）例外
 - 校验用原生 Constraint Validation，不手写状态变量
+- **白名单确实缺的布局缺口**（如业务专属容器）：在 `eslint.config.js` 的 `extraClass` 数组登记，而非反复猜类名死循环。仅限结构性 class（无视觉属性），视觉样式仍走 token/原子类
+
+### extraClass 逃生舱
+当白名单 156 个 class 确实无法表达所需布局时，`eslint.config.js` 可登记项目级扩展 class：
+```javascript
+// eslint.config.js
+import aiflow from '@af-mobile/eslint-plugin';
+export default [
+  { files: ['src/**/*.js'], plugins: { aiflow }, rules: {
+    'aiflow/token-whitelist': ['error', { extraClass: ['my-container'] }]
+  }}
+];
+```
+- **仅限结构性 class**（display/flex/overflow 等布局属性，不含 color/font-size 等视觉属性）
+- 视觉属性仍必须用 token 变量或原子类
+- 登记后无需反复试错，一次通过
 
 ---
 

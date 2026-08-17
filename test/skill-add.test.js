@@ -14,18 +14,14 @@ function runInstall(dir) {
 }
 
 describe('skill-add installer', () => {
-  it('安装到三个目标路径且内容与源一致', () => {
+  it('安装到中立路径 skills/ 且内容与源一致', () => {
     const dir = mkdtempSync(join(tmpdir(), 'aiflow-skill-'));
     runInstall(dir);
     const src = readFileSync(join(ROOT, 'skills/aiflow-grill/SKILL.md'), 'utf8');
-    for (const rel of [
-      'skills/aiflow-grill/SKILL.md',
-      '.trae/skills/aiflow-grill/SKILL.md',
-      '.claude/skills/aiflow-grill/SKILL.md',
-    ]) {
-      expect(existsSync(join(dir, rel)), rel).toBe(true);
-      expect(readFileSync(join(dir, rel), 'utf8')).toBe(src);
-    }
+    expect(readFileSync(join(dir, 'skills/aiflow-grill/SKILL.md'), 'utf8')).toBe(src);
+    // 不再写工具特定目录（用户可能用 Cursor/Codex/Copilot 等而非 TRAE/Claude Code）
+    expect(existsSync(join(dir, '.trae/skills/aiflow-grill/SKILL.md'))).toBe(false);
+    expect(existsSync(join(dir, '.claude/skills/aiflow-grill/SKILL.md'))).toBe(false);
   });
 
   it('生成 AGENTS.md 指引段且重复执行幂等', () => {

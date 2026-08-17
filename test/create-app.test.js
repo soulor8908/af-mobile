@@ -45,19 +45,16 @@ describe('create-app scaffold', () => {
     expect(main).toContain("start('#app', { hash: true })");
   });
 
-  it('自举安装 aiflow-grill skill 到三个目标 + AGENTS.md', () => {
+  it('自举安装 aiflow-grill skill 到中立路径 + AGENTS.md', () => {
     const parent = mkdtempSync(join(tmpdir(), 'aiflow-create-'));
     const dir = join(parent, 'app');
     scaffold(dir);
 
     const src = readFileSync(join(ROOT, 'skills/aiflow-grill/SKILL.md'), 'utf8');
-    for (const rel of [
-      'skills/aiflow-grill/SKILL.md',
-      '.trae/skills/aiflow-grill/SKILL.md',
-      '.claude/skills/aiflow-grill/SKILL.md',
-    ]) {
-      expect(readFileSync(join(dir, rel), 'utf8')).toBe(src);
-    }
+    expect(readFileSync(join(dir, 'skills/aiflow-grill/SKILL.md'), 'utf8')).toBe(src);
+    // 不再写工具特定目录（用户可能用 Cursor/Codex/Copilot 等而非 TRAE/Claude Code）
+    expect(existsSync(join(dir, '.trae/skills/aiflow-grill/SKILL.md'))).toBe(false);
+    expect(existsSync(join(dir, '.claude/skills/aiflow-grill/SKILL.md'))).toBe(false);
     expect(readFileSync(join(dir, 'AGENTS.md'), 'utf8')).toContain('<!-- aiflow:skill-grill -->');
   });
 

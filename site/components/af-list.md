@@ -2,6 +2,10 @@
 
 > P0 · 长列表虚拟滚动
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-list" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 长列表

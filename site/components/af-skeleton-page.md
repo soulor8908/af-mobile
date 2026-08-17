@@ -2,6 +2,10 @@
 
 > v1.2.0 · 整页骨架屏
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-skeleton-page" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## API
 
 <!-- gen:start:api -->

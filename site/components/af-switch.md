@@ -2,6 +2,10 @@
 
 > v1.2.0 · 开关切换
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-switch" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 开关列表

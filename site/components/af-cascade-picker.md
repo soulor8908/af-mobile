@@ -2,6 +2,10 @@
 
 > v1.3.0 · 级联选择器，复用 af-picker 滚轮内核
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-cascade-picker" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## API
 
 <!-- gen:start:api -->

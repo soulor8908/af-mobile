@@ -2,6 +2,10 @@
 
 > v1.5.0 · 顶部导航栏
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-navbar" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 基础导航栏

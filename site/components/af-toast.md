@@ -2,6 +2,10 @@
 
 > P1 · 轻提示
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-toast" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 四种类型

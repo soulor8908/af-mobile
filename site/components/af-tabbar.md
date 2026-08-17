@@ -2,6 +2,10 @@
 
 > v1.5.0 · 底部标签栏
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-tabbar" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## API
 
 <!-- gen:start:api -->

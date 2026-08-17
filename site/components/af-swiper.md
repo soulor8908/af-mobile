@@ -2,6 +2,10 @@
 
 > P0 · 轮播/滑动卡片
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-swiper" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 轮播滑动

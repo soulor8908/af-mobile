@@ -2,6 +2,10 @@
 
 > P0 · 模态框
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-dialog" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 基础用法

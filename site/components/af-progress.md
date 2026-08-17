@@ -2,6 +2,10 @@
 
 > v1.3.0 · 进度条
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-progress" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## API
 
 <!-- gen:start:api -->

@@ -2,6 +2,10 @@
 
 > v1.5.0 · 数量选择器
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-stepper" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 数量选择

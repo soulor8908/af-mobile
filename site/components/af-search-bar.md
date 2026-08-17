@@ -2,6 +2,10 @@
 
 > v1.2.0 · 搜索栏
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-search-bar" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 搜索栏

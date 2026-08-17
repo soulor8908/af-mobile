@@ -2,6 +2,10 @@
 
 > v1.3.0 · 日历
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-calendar" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 日期选择

@@ -2,6 +2,10 @@
 
 > v1.3.0 · 公告通知栏
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-notice-bar" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## API
 
 <!-- gen:start:api -->

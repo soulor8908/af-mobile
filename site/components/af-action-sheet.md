@@ -2,6 +2,10 @@
 
 > P1 · 底部操作面板
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-action-sheet" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 基础操作

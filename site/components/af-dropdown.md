@@ -2,6 +2,10 @@
 
 > P2 · 下拉菜单
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-dropdown" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 城市选择

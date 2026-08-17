@@ -2,6 +2,10 @@
 
 > P0 · 标签页切换
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-tabs" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 基础标签页

@@ -88,7 +88,9 @@ export function renderMarkdown(c) {
   // 示例段：demo/scenarios/{tag}.js 存在时，把每个场景的 html 原样嵌入（主流程已挂到 c.scenarios）
   const examples = (c.scenarios || []).map((s) => `### ${s.name}\n\n\`\`\`html\n${s.html.trim()}\n\`\`\``).join('\n\n');
   const exampleSection = examples ? `## 示例\n\n${examples}\n\n` : '';
-  return `# ${c.tag}\n\n> ${c.desc}\n\n${exampleSection}## API\n\n<!-- gen:start:api -->\n### 属性\n\n| 属性 | 类型 | 默认值 | 说明 |\n| --- | --- | --- | --- |\n${propRows}\n\n### 事件\n\n| 事件名 | 说明 |\n| --- | --- |\n${evtRows}\n\n### 方法\n\n| 签名 | 说明 |\n| --- | --- |\n${mtdRows}\n<!-- gen:end:api -->\n`;
+  // 在线调试：相对路径 ../demo/playground/，从 /v/components/{tag}.html 解析到 /v/demo/playground/
+  const playground = `## 在线调试\n\n<iframe src="../demo/playground/?c=${c.tag}" width="100%" height="600" frameborder="0" loading="lazy"></iframe>\n\n`;
+  return `# ${c.tag}\n\n> ${c.desc}\n\n${playground}${exampleSection}## API\n\n<!-- gen:start:api -->\n### 属性\n\n| 属性 | 类型 | 默认值 | 说明 |\n| --- | --- | --- | --- |\n${propRows}\n\n### 事件\n\n| 事件名 | 说明 |\n| --- | --- |\n${evtRows}\n\n### 方法\n\n| 签名 | 说明 |\n| --- | --- |\n${mtdRows}\n<!-- gen:end:api -->\n`;
 }
 
 // —— 主流程：遍历 src/components/af-*.js，按段头定位 d.ts 段并生成文档页 ——

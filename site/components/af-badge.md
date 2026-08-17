@@ -2,6 +2,10 @@
 
 > v1.3.0 · 徽标角标
 
+## 在线调试
+
+<iframe src="../demo/playground/?c=af-badge" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## API
 
 <!-- gen:start:api -->

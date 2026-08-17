@@ -2,6 +2,7 @@
 // 契约见 af-dialog.js 顶部注释；props 控件复用 demo/props-panel.js schema
 export default {
   tag: 'af-tabs',
+  name: '标签页',
   scenarios: [
     {
       name: '基础标签页',
@@ -13,8 +14,8 @@ export default {
         { prop: 'activeIndex', label: '激活索引', type: 'number', min: 0, max: 3, step: 1 },
         { prop: 'fixed', label: '吸顶', type: 'boolean' },
       ],
-      evts: ['af-tabs:change'],
-      tokens: [
+      events: ['af-tabs:change'],
+      styleTokens: [
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
       ],
       init: () => {

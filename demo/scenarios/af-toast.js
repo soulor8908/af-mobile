@@ -2,6 +2,7 @@
 // 契约见 af-dialog.js 顶部注释；props 控件复用 demo/props-panel.js schema
 export default {
   tag: 'af-toast',
+  name: '轻提示',
   scenarios: [
     {
       name: '四种类型',
@@ -18,8 +19,8 @@ export default {
       props: [
         { prop: 'duration', label: '显示时长(ms)', type: 'number', min: 0, max: 5000, step: 500 },
       ],
-      evts: ['af-toast:dismiss'],
-      tokens: [
+      events: ['af-toast:dismiss'],
+      styleTokens: [
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
         { token: '--radius-lg', label: '圆角', type: 'range', min: 0, max: 24, default: 12 },
       ],

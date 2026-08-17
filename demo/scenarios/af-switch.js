@@ -2,6 +2,7 @@
 // 契约见 af-dialog.js 顶部注释；props 控件复用 demo/props-panel.js schema
 export default {
   tag: 'af-switch',
+  name: '开关',
   scenarios: [
     {
       name: '开关列表',
@@ -20,8 +21,8 @@ export default {
         { prop: 'disabled', label: '禁用', type: 'boolean' },
         { prop: 'size', label: '尺寸', type: 'select', options: ['md', 'sm'] },
       ],
-      evts: ['af-switch:change'],
-      tokens: [
+      events: ['af-switch:change'],
+      styleTokens: [
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
       ],
     },

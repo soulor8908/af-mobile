@@ -2,6 +2,7 @@
 // 契约见 af-dialog.js 顶部注释；props 控件复用 demo/props-panel.js schema
 export default {
   tag: 'af-stepper',
+  name: '步进器',
   scenarios: [
     {
       name: '数量选择',
@@ -20,8 +21,8 @@ export default {
         { prop: 'step', label: '步长', type: 'number', min: 1, max: 10, step: 1 },
         { prop: 'disabled', label: '禁用', type: 'boolean' },
       ],
-      evts: ['af-stepper:change'],
-      tokens: [
+      events: ['af-stepper:change'],
+      styleTokens: [
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
       ],
     },

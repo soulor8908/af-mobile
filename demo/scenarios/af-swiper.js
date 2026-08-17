@@ -2,6 +2,7 @@
 // 契约见 af-dialog.js 顶部注释；props 控件复用 demo/props-panel.js schema
 export default {
   tag: 'af-swiper',
+  name: '轮播',
   scenarios: [
     {
       name: '轮播滑动',
@@ -20,8 +21,8 @@ export default {
         { prop: 'showDots', label: '指示点', type: 'boolean' },
         { prop: 'duration', label: '过渡(ms)', type: 'number', min: 0, max: 1000, step: 50 },
       ],
-      evts: ['af-swiper:change'],
-      tokens: [
+      events: ['af-swiper:change'],
+      styleTokens: [
         { token: '--c-onbrand', label: '指示点色', type: 'color' },
       ],
     },

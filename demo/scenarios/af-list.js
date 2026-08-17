@@ -2,6 +2,7 @@
 // 契约见 af-dialog.js 顶部注释；props 控件复用 demo/props-panel.js schema
 export default {
   tag: 'af-list',
+  name: '长列表',
   scenarios: [
     {
       name: '长列表',
@@ -11,8 +12,8 @@ export default {
         { prop: 'refresh', label: '下拉刷新', type: 'boolean' },
         { prop: 'pageSize', label: '每页条数', type: 'number', min: 5, max: 50, step: 5 },
       ],
-      evts: ['af-list:itemclick', 'af-list:loadmore'],
-      tokens: [
+      events: ['af-list:itemclick', 'af-list:loadmore'],
+      styleTokens: [
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
       ],
       init: () => {

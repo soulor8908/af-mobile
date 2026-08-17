@@ -2,6 +2,7 @@
 // 契约见 af-dialog.js 顶部注释；props 控件复用 demo/props-panel.js schema
 export default {
   tag: 'af-action-sheet',
+  name: '操作菜单',
   scenarios: [
     {
       name: '基础操作',
@@ -16,8 +17,8 @@ export default {
         { prop: 'showCancel', label: '显示取消', type: 'boolean' },
         { prop: 'title', label: '标题', type: 'string' },
       ],
-      evts: ['af-action-sheet:open', 'af-action-sheet:select', 'af-action-sheet:close'],
-      tokens: [
+      events: ['af-action-sheet:open', 'af-action-sheet:select', 'af-action-sheet:close'],
+      styleTokens: [
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
         { token: '--radius-lg', label: '顶部圆角', type: 'range', min: 0, max: 24, default: 12 },
       ],

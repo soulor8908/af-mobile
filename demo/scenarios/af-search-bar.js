@@ -2,6 +2,7 @@
 // 契约见 af-dialog.js 顶部注释；props 控件复用 demo/props-panel.js schema
 export default {
   tag: 'af-search-bar',
+  name: '搜索栏',
   scenarios: [
     {
       name: '搜索栏',
@@ -17,8 +18,8 @@ export default {
         { prop: 'placeholder', label: '占位文字', type: 'string' },
         { prop: 'debounce', label: '防抖(ms)', type: 'number', min: 0, max: 2000, step: 100 },
       ],
-      evts: ['af-search-bar:input', 'af-search-bar:search', 'af-search-bar:clear'],
-      tokens: [
+      events: ['af-search-bar:input', 'af-search-bar:search', 'af-search-bar:clear'],
+      styleTokens: [
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
         { token: '--radius-m', label: '圆角', type: 'range', min: 0, max: 24, default: 8 },
       ],

@@ -20,7 +20,7 @@ export default defineConfig({
     nav: [
       { text: '指南', link: '/guide/quick-start' },
       { text: '组件', link: '/components/af-dialog' },
-      { text: 'Demo', link: '/demo/index.html' },
+      { text: 'Demo', link: 'https://soulor8908.github.io/af-mobile-docs/demo/index.html' },
     ],
     sidebar: {
       '/guide/': [

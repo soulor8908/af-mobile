@@ -13,7 +13,7 @@ hero:
       link: /guide/quick-start
     - theme: alt
       text: Demo 演示
-      link: /demo/index.html
+      link: https://soulor8908.github.io/af-mobile-docs/demo/index.html
 
 features:
   - title: 原生优先

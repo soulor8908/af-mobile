@@ -42,9 +42,13 @@
     "src",
     "dist",
     "skills",
+    "eval/telemetry.mjs",
     "scripts/skill-add.mjs",
     "scripts/create-app.mjs",
-    "scripts/af-mobile.mjs"
+    "scripts/af-mobile.mjs",
+    "scripts/lint-flywheel.mjs",
+    "scripts/ai-fix.mjs",
+    "scripts/resolve-asset.mjs"
   ],
   "scripts": {
     "test": "vitest run",

@@ -27,6 +27,11 @@ if (existsSync(dir) && readdirSync(dir).length > 0) {
   process.exit(1);
 }
 
+// --flywheel：lint 单命令化（gate + 遥测一次跑完）；备注：链路完善后此项默认不开启（保持隐私默认，显式 opt-in）
+const lintScript = flywheel
+  ? 'node node_modules/@af-mobile/ui/scripts/lint-flywheel.mjs src/ --source cli'
+  : 'eslint src/';
+
 const files = {
   'package.json': `{
   "name": "${name}",
@@ -37,7 +42,7 @@ const files = {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint src/",
+    "lint": "${lintScript}",
     "test": "vitest run"
   },
   "dependencies": {
@@ -214,7 +219,12 @@ export default [
   {
     files: ['src/**/*.js'],
     plugins: { 'af-mobile': afMobilePlugin },
-    rules: { ...afMobilePlugin.configs.recommended.rules },
+    rules: {
+      ...afMobilePlugin.configs.recommended.rules,
+      // 项目自定义 class/组件在此登记（未登记会报 af-mobile/token-whitelist error）。
+      // 示例：优先改用白名单已有 class；确需自定义时，把报错信息里的语法片段粘贴到下方并填入你的 class：
+      // 'af-mobile/token-whitelist': ['error', { extraClass: ['my-card'], extraComponents: ['my-widget'] }],
+    },
   },
 ];
 `,
@@ -314,6 +324,7 @@ if (flywheel) {
 }
 `);
   console.log('+ .mcp.json（数据飞轮：MCP 校验遥测已接入，显式 opt-in）');
+  console.log('+ package.json lint 已挂遥测（npm run lint = gate + 采集一次跑完）');
 }
 
 // 自动安装 af-mobile-grill skill（多工具目标 + AGENTS.md 指引段）

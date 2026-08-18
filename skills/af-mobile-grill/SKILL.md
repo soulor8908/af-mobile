@@ -44,15 +44,18 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 
 数据模型（字段 + 存储键名）一并列出。
 
-## Phase 3 — Demo 页生成（单文件 HTML）
+## Phase 3 — Demo 页生成（工程同构写法，单文件 HTML）
 
 - 移动端 375px，完整 `<!doctype html>` 单文件，每页一个文件（核心页优先）
+- **demo 按工程同构写法写**（铁律：demo 即工程雏形，Phase 5 复制替换而非重写）：
+  - 页面逻辑写成 page 函数（与脚手架 `src/pages/*.js` 同构）：`async function xxxPage(params, ctx) { ctx.outlet.innerHTML = ...; /* 事件绑定 */ }`，在 demo 的 `<script type="module">` 内定义并调用，渲染到 `#app`
+  - 数据层写成假 store（内存对象 + 读写函数），函数签名与拆分表数据模型一致——Phase 5 只换函数体实现（localStorage/Supabase），页面调用代码零改动
 - **组件必须按需引入**（铁律，禁止 UMD / 禁止 registerAll / 禁止全局引入）：
   - CSS：`<link rel="stylesheet" href="node_modules/@af-mobile/ui/src/index.css">`
   - JS：`<script type="module">` 内 `import { AfList, AfDialog } from 'node_modules/@af-mobile/ui/src/index.js'; customElements.define('af-list', AfList); ...`（或 `register('af-list', 'af-dialog')`），只引页面用到的组件
   - ❌ 禁止 `<script src=".../af-mobile.umd.js">`、禁止 `registerAll()`、禁止全局对象
 - 工程内预览用 `node_modules/@af-mobile/ui/src/index.css` + ESM import
-- **交互行为真实**（点击/切换/弹窗可用），数据用静态假数据，不做持久化
+- **交互行为真实**（点击/切换/弹窗可用），数据走假 store，不做持久化
 - 严格遵循下方规范速查；生成后校验：项目内 `npm run lint`（若在 af-mobile 库仓库内，改用 `node scripts/lint-flywheel.mjs <路径>` 或 MCP `check_compliance`），违规按建议修正至全绿
 
 ## Phase 4 — Demo 确认循环
@@ -90,15 +93,14 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 
 **禁止 AI 直接手写上述基础文件**——脚手架是项目骨架的单一真相源，手写会绕过 AGENTS.md/skills 自举、ESLint 接入、`extraClass` 登记、`start('#app', { hash: true })` 入口规范等约束。若 AI 嫌"脚手架生成的 home/docs 是示例没用"而绕过，正是 AGENTS/skills 缺失的根因。
 
-### Step 2：覆盖业务文件（pages + store + tabs 等）
+### Step 2：复制 demo 进业务文件（pages + store，复制替换而非重写）
 
-脚手架默认 `home/docs` 是占位示例，按 demo 拆分表覆盖：
+脚手架默认 `home/docs` 是占位示例。demo 已是工程同构写法（Phase 3），按拆分表**复制替换**：
 
-- `src/pages/home.js` → 实际首页（按 demo 迁移业务逻辑）
-- `src/pages/<name>.js` → 新增页面（每页一文件）
+- `src/pages/<name>.js` ← demo 的 page 函数原样复制，仅改 import 来源为 `@af-mobile/ui`（`node_modules/@af-mobile/ui/src/index.js` → 包名），其余逻辑不动
+- 数据层（如 `src/store.js`）← demo 假 store 原样复制，**只替换读写函数体**为真实实现（localStorage / Supabase，per 拆分表），函数签名与页面调用不动
 - `src/main.js` → 替换路由表（保留 `initTheme/start('#app', { hash: true })` 两件套；**组件注册用显式 `register(...names)`**，禁止 `registerAll()`，否则触发 `af-mobile/no-register-all` 且失去 Tree Shaking）
 - `src/styles.css` → 项目级自定义样式（只用 `var(--*)` token；白名单外 class 必须在 `eslint.config.js` 用 `extraClass` 登记）
-- 数据层（如 `src/store.js`）：按拆分表 localStorage 或 Supabase
 
 规则：事件名 `af-{组件}:{动作}`；分页判停 `endLoadMore`；暗色 FOUC 用 `<head>` 内联同步脚本设 `data-theme`；假数据换成真实数据层（per 拆分表）。
 
@@ -132,11 +134,11 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 - 反馈：`af-dialog` `af-action-sheet` `af-toast` `af-notice-bar` `af-badge` `af-progress` `af-steps` `af-countdown`
 - 展示：`af-swiper` `af-img` `af-skeleton-page` `af-backtop` `af-pull-refresh`
 
-完整属性/事件表：已安装项目读 `node_modules/@af-mobile/ui/README.md`。
+完整属性/事件表：已安装项目读 `node_modules/@af-mobile/ui/src/index.d.ts`——全部方法签名与事件 payload 的单一真相源，**一次读全**（单文件约 1 次读取即得全部 API），**禁止逐个读 `src/components/` 组件源码**（高成本零增量信息）。
 
 **L2 白名单 class（封闭集，只用这些）：**
 - 按钮：`btn btn-sm btn-lg btn-ghost btn-danger btn-success btn-block`
-- 容器：`page card cell center sheet hero eyebrow section section-title`；文本：`display title subtitle body caption meta price price-del`
+- 容器：`page card cell center sheet hero eyebrow section section-title`；安全区：`safe-top safe-bottom`；文本：`display title subtitle body caption meta price price-del`
 - 列表：`list list-item list-item-compact divider thumb avatar`
 - 导航：`navbar navbar-fixed tabbar tabbar-fixed tab-item`；布局：`stats-grid actions input-bar checkout-bar`
 - 表单：`label input textarea form-row form-row-h form-err search-input switch switch-sm switch-on switch-loading switch-thumb search-bar-wrap search-bar-icon search-bar-clear input-err upload-trigger upload-grid`

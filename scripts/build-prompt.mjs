@@ -190,6 +190,9 @@ export function buildComponentTableSection(meta = COMPONENT_META, components = [
   for (const c of rows) {
     lines.push(`| \`<${c.tag}>\` | ${c.purpose} | ${c.props} | ${c.events} |`);
   }
+  // 表尾注脚：方法签名与事件 payload 不进简表（防膨胀），指路包内类型声明单一真相源
+  lines.push('');
+  lines.push('注：方法签名与事件 payload 见包内 `src/index.d.ts`（已安装项目读 `node_modules/@af-mobile/ui/src/index.d.ts`，一次读全，禁止逐个读组件源码）。');
   return lines.join('\n');
 }
 

@@ -619,6 +619,12 @@
     padding-bottom: var(--s-3);
   }
 
+  /* 安全区工具类：消费端自定义 fixed/sticky 元素规避刘海与 Home Indicator
+     （viewport-fit=cover 时 env() 非零；库内 .tabbar-fixed/.input-bar 等已内置，
+     消费端自建固定元素此前只能手写 env()，而内联 style 又被禁止） */
+  .safe-top    { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
   /* === Checkbox / Radio（4） === */
   /* v5：删 appearance:none + ::after 自绘勾选（魔数 + 对齐 bug）
      改用原生 accent-color（2022+ 浏览器原生支持，无障碍自动处理，跨平台一致体验） */

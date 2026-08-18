@@ -15,8 +15,8 @@ export default {
       additionalProperties: false,
     }],
     messages: {
-      unknownClass: "Class '{{name}}' not in whitelist. Use recipe/atomic or register in 'af-mobile/token-whitelist' rule's extraClass",
-      unknownComponent: "Component '{{name}}' not in whitelist. Register in 'af-mobile/token-whitelist' rule's extraComponents",
+      unknownClass: "Class '{{name}}' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['{{name}}'] }]",
+      unknownComponent: "Component '{{name}}' not in whitelist. Paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraComponents: ['{{name}}'] }]",
     },
   },
   create(context) {

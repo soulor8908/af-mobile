@@ -12,7 +12,11 @@ import { extractCode, RULE_HINTS } from './ai-fix.mjs';
 import { recordRun } from '../eval/telemetry.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const TMP_DIR = join(ROOT, '.cache/lint-flywheel');
+// 发布态判定：npm 包 files 不含仓库根 eslint.config.js → 运行于消费端项目（pkg-publish 设计 §3.5 同源思路）
+// 发布态 lint 基准 = 消费端项目自身 flat config（尊重 extraClass 登记）；开发态 = 仓库根 config（.cache 片段走 AI_RULES）
+const IS_PKG = !existsSync(join(ROOT, 'eslint.config.js'));
+const LINT_CWD = IS_PKG ? process.cwd() : ROOT;
+const TMP_DIR = IS_PKG ? join(process.cwd(), 'node_modules', '.af-mobile-lint') : join(ROOT, '.cache/lint-flywheel');
 const LINT_EXT = new Set(['.js', '.mjs', '.html']);
 
 // 递归展开路径 → 待 lint 文件列表
@@ -44,17 +48,21 @@ export async function lintAndHarvest(inputs, opts = {}) {
   mkdirSync(TMP_DIR, { recursive: true });
   const snippets = files.map((f, i) => {
     const ext = extname(f).toLowerCase();
-    const js = ext === '.html' ? extractCode(f).js : readFileSync(f, 'utf8');
+    const isHtml = ext === '.html';
+    const js = isHtml ? extractCode(f).js : readFileSync(f, 'utf8');
     const snippetPath = join(TMP_DIR, `${i}.js`);
     writeFileSync(snippetPath, js || ' ');
-    return { file: f, snippetPath };
+    return { file: f, snippetPath, isHtml };
   });
 
   const { ESLint } = await import('eslint');
-  const engine = new ESLint({ cwd: ROOT });
+  const engine = new ESLint({ cwd: LINT_CWD });
+  // 发布态：JS/MJS 直接 lint 原文件（套消费端 flat config，extraClass 生效）；
+  // 仅 HTML 走抽取片段（片段位于消费端 node_modules 下不被 files 匹配 → HTML 检测以开发态/MCP 为主）
+  const target = (s) => (IS_PKG && !s.isHtml ? s.file : s.snippetPath);
   let results;
   try {
-    results = await engine.lintFiles(snippets.map(s => s.snippetPath));
+    results = await engine.lintFiles(snippets.map(target));
   } finally {
     rmSync(TMP_DIR, { recursive: true, force: true });
   }
@@ -62,14 +70,14 @@ export async function lintAndHarvest(inputs, opts = {}) {
 
   const byFile = [];
   for (const s of snippets) {
-    const r = bySnippet.get(s.snippetPath);
+    const r = bySnippet.get(target(s));
     const messages = (r?.messages || []).map(m => ({
       line: m.line,
       rule: m.ruleId || '(no-rule)',
       severity: m.severity === 2 ? 'error' : 'warn',
       message: m.message,
     }));
-    byFile.push({ file: relative(ROOT, s.file), messages });
+    byFile.push({ file: relative(LINT_CWD, s.file), messages });
   }
 
   // 遥测：默认只记违规文件（防本地/CI 重复膨胀）；--record-clean 记全部

@@ -44,8 +44,11 @@ jobs:
       - name: Build vitepress docs
         run: npm run docs:build
 
+      - name: Stage under /v/ base
+        run: mkdir -p pages/v && cp -r site/.vitepress/dist/* pages/v/
+
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: site/.vitepress/dist
+          path: pages/v
 
       - uses: actions/deploy-pages@v5

@@ -3,7 +3,7 @@
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
 
 - **L1 Token**：43 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
-- **L2 配方 + 原子**：156 个白名单封闭集 class（104 配方 + 52 原子，`btn`/`card`/`p-4`/...）
+- **L2 配方 + 原子**：173 个白名单封闭集 class（111 配方 + 62 原子，`btn`/`card`/`p-4`/...）
 - **L3 真组件**：28 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 20 规则兜底 + CI 保护
 
@@ -436,7 +436,7 @@ toggleTheme();            // 切换并持久化
 
 1. `tokens.css` 以外不可重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 2. `style=""` 不可设置 `color/background*/padding*/margin*/font-size/border-radius/box-shadow`
-3. 不可使用 156 白名单外的 class 名或自定义组件标签
+3. 不可使用 173 白名单外的 class 名或自定义组件标签
 4. `.btn`（非 ghost）不可叠加 `text-brand/text-danger/text-success`
 5. `.input` 不可叠加 `t-sm/t-xs`（iOS 聚焦 < 16px 自动放大页面）
 6. `.cell/.list-item` 不可叠加 `f/fc` 原子
@@ -498,7 +498,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 |---|---|---|
 | 1 | 白名单三源同步（CSS/JS ↔ whitelist.json ↔ Prompt 注入） | `npm run whitelist:check` |
 | 1b | d.ts 与源码组件数同步（防类型声明漂移） | `npm run types:check` |
-| 2 | 体积预算（L1+L2 CSS ≤ 8.2KB / 全量 28 组件+基类 ≤ 23.7KB / 按需2组件 ≤ 5.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 1.5KB） | `npm run size` |
+| 2 | 体积预算（L1+L2 CSS ≤ 6.0KB / 全量 28 组件+基类 ≤ 20.4KB / 按需2组件 ≤ 6.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 2.0KB / 核心运行时 ≤ 6.8KB） | `npm run size` |
 | 3 | 单元测试（jsdom） | `npm test` |
 | 4 | ESLint 20 规则（13 error + 7 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
 | 5 | 发布前检查（build + Tree Shaking + sideEffects + types-sync + npm pack） | `npm run publish:check` |
@@ -562,6 +562,7 @@ npm run prompt:build
 - [L3 真组件详细设计](docs/design/l3-detailed-design.md)
 - [L4 AI 约束层详细设计](docs/design/l4-detailed-design.md)（Prompt / ESLint / CI 三层约束）
 - [Charts 图表子库详细设计](docs/design/charts-sublibrary-detailed-design.md)（SVG 原生图表 / 独立入口 / 体积预算）
+- [Charts Demo 详细设计](docs/design/charts-demo-detailed-design.md)（5 组件 demo + 联动场景页 / `demo/index.html` 接入）
 
 **运行时与迁移**
 

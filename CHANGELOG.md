@@ -13,6 +13,10 @@
 - **布局配方 `.page-col` / `.scroll-y`**：`src/recipes.css` 新增两布局 class，白名单同步扩至 156（recipe 104 + atomic 52）
 - **消费端 AI 开发体验**：`mcp/assets` 与 `prompt/assets` 的 system-prompt 增补完整 App 骨架示例（index.html / main.js / list.js / 设计范式）
 
+### Docs
+- 新增 charts demo 详细设计文档（`docs/design/charts-demo-detailed-design.md`：5 组件 demo + 联动场景页 / `demo/index.html` 接入）
+- 文档站补齐 5 个 chart 组件文档（`site/components/af-chart-{line,bar,pie,radar,funnel}.md`）与 `component-list.json` 登记
+
 ### Published
 - `@af-mobile/ui@1.4.2`（含上述 register 修复与布局配方）、`@af-mobile/eslint-plugin@2.0.1`（白名单 +2）、`@af-mobile/prompt@2.0.2`、`@af-mobile/mcp@1.0.2`（assets 同步）
 - **`create-af-mobile@1.4.1` 首发**：含 skill 安装修复与 `@af-mobile/ui@^1.4.1` 依赖

@@ -7,7 +7,7 @@ const ROOT = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   root: 'demo',
-  base: '/af-mobile-docs/',
+  base: '/af-mobile-docs/demo/',
   server: {
     port: 5180,
     open: '/index.html',

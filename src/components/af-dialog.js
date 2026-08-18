@@ -11,8 +11,7 @@ const CSS = `
     color: var(--c-text); padding: 0; max-width: 90vw;
     box-shadow: var(--shadow-lg);
   }
-  dialog::backdrop { background: rgba(0,0,0,.5); }
-  dialog::backdrop { backdrop-filter: blur(2px); }
+  dialog::backdrop { background: rgba(0,0,0,.4); backdrop-filter: blur(8px); }
   header { padding: var(--s-4); border-bottom: 1px solid var(--c-border); position: relative; }
   .title { font-size: var(--t-xl); font-weight: var(--fw-bold); line-height: var(--lh-tight); }
   .close-btn {

@@ -32,13 +32,18 @@ export default {
           .toLowerCase();
         // 如果不含冒号，尝试在组件名后插入冒号
         if (!fixed.includes(':')) {
-          // 检测 af- 前缀
           if (fixed.startsWith('af-')) {
-            // 在 af-xxx 后插入 : （xxx 是第一个单词）
-            fixed = fixed.replace(/^af-([a-z0-9]+)/, 'af-$1:');
+            // af-xxx-yyy → af-xxx:yyy（首个 - 起视为动作；动作段的 - 去除，保证 [a-z]+ 格式）
+            const rest = fixed.slice(3);
+            const dash = rest.indexOf('-');
+            if (dash > 0) {
+              fixed = `af-${rest.slice(0, dash)}:${rest.slice(dash + 1).replace(/-/g, '')}`;
+            } else {
+              fixed = 'af-component:' + rest;
+            }
           } else {
             // 无 af- 前缀，添加 af- 前缀 + 冒号
-            fixed = 'af-component:' + fixed;
+            fixed = 'af-component:' + fixed.replace(/-/g, '');
           }
         }
         context.report({

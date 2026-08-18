@@ -110,6 +110,24 @@ describe('L2-2 af-mobile/no-recipe-break', () => {
       invalid: [],
     });
   });
+  it('.cell + fi 报错（inline-flex 同样破坏布局）', () => {
+    ruleTester.run('no-recipe-break', noRecipeBreak, {
+      valid: [],
+      invalid: [{ code: 'const html = `<div class="cell fi">x</div>`;', errors: [{ messageId: 'cellFlex' }] }],
+    });
+  });
+  it('.btn + bg-card 报错（白底白字不可见）', () => {
+    ruleTester.run('no-recipe-break', noRecipeBreak, {
+      valid: [],
+      invalid: [{ code: 'const html = `<button class="btn bg-card">x</button>`;', errors: [{ messageId: 'btnBg' }] }],
+    });
+  });
+  it('.btn-ghost + bg-muted 放行（透明底可叠背景）', () => {
+    ruleTester.run('no-recipe-break', noRecipeBreak, {
+      valid: [{ code: 'const html = `<button class="btn btn-ghost bg-muted">x</button>`;' }],
+      invalid: [],
+    });
+  });
   it('.input + t-sm 报错', () => {
     ruleTester.run('no-recipe-break', noRecipeBreak, {
       valid: [],
@@ -122,7 +140,11 @@ describe('L2-3 af-mobile/no-variant-conflict', () => {
   it('btn-sm + btn-lg 报错', () => {
     ruleTester.run('no-variant-conflict', noVariantConflict, {
       valid: [],
-      invalid: [{ code: 'const html = `<button class="btn-sm btn-lg">x</button>`;', errors: [{ messageId: 'conflict' }] }],
+      invalid: [{
+        code: 'const html = `<button class="btn-sm btn-lg">x</button>`;',
+        output: 'const html = `<button class="btn-lg">x</button>`;',
+        errors: [{ messageId: 'conflict' }],
+      }],
     });
   });
   it('无冲突放行', () => {
@@ -134,7 +156,41 @@ describe('L2-3 af-mobile/no-variant-conflict', () => {
   it('tag-ok + tag-warn 报错', () => {
     ruleTester.run('no-variant-conflict', noVariantConflict, {
       valid: [],
-      invalid: [{ code: 'const html = `<span class="tag-ok tag-warn">x</span>`;', errors: [{ messageId: 'conflict' }] }],
+      invalid: [{
+        code: 'const html = `<span class="tag-ok tag-warn">x</span>`;',
+        output: 'const html = `<span class="tag-warn">x</span>`;',
+        errors: [{ messageId: 'conflict' }],
+      }],
+    });
+  });
+  it('f + fi display 冲突报错', () => {
+    ruleTester.run('no-variant-conflict', noVariantConflict, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<div class="f fi">x</div>`;',
+        output: 'const html = `<div class="fi">x</div>`;',
+        errors: [{ messageId: 'conflict' }],
+      }],
+    });
+  });
+  it('lh-tight + lh-normal 行高冲突报错', () => {
+    ruleTester.run('no-variant-conflict', noVariantConflict, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<p class="lh-tight lh-normal">x</p>`;',
+        output: 'const html = `<p class="lh-normal">x</p>`;',
+        errors: [{ messageId: 'conflict' }],
+      }],
+    });
+  });
+  it('bg-card + bg-muted 背景冲突报错', () => {
+    ruleTester.run('no-variant-conflict', noVariantConflict, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<div class="bg-card bg-muted">x</div>`;',
+        output: 'const html = `<div class="bg-muted">x</div>`;',
+        errors: [{ messageId: 'conflict' }],
+      }],
     });
   });
 });
@@ -146,10 +202,16 @@ describe('L2-4 af-mobile/no-arbitrary-value', () => {
       invalid: [{ code: 'const html = `<div class="p-[13px]">x</div>`;', errors: [{ messageId: 'arbitrary' }] }],
     });
   });
-  it('p-7 档位越界报错', () => {
+  it('p-9 档位越界报错', () => {
     ruleTester.run('no-arbitrary-value', noArbitraryValue, {
       valid: [],
-      invalid: [{ code: 'const html = `<div class="p-7">x</div>`;', errors: [{ messageId: 'outOfRange' }] }],
+      invalid: [{ code: 'const html = `<div class="p-9">x</div>`;', errors: [{ messageId: 'outOfRange' }] }],
+    });
+  });
+  it('p-7 白名单档位放行', () => {
+    ruleTester.run('no-arbitrary-value', noArbitraryValue, {
+      valid: [{ code: 'const html = `<div class="p-7">x</div>`;' }],
+      invalid: [],
     });
   });
   it('p-4 合法档位放行', () => {
@@ -215,13 +277,21 @@ describe('L2-7 af-mobile/atomic-duplicate', () => {
   it('p-4 p-2 报 warn', () => {
     ruleTester.run('atomic-duplicate', atomicDuplicate, {
       valid: [],
-      invalid: [{ code: 'const html = `<div class="p-4 p-2">x</div>`;', errors: [{ messageId: 'duplicate' }] }],
+      invalid: [{
+        code: 'const html = `<div class="p-4 p-2">x</div>`;',
+        output: 'const html = `<div class="p-2">x</div>`;',
+        errors: [{ messageId: 'duplicate' }],
+      }],
     });
   });
   it('t-md t-lg 报 warn', () => {
     ruleTester.run('atomic-duplicate', atomicDuplicate, {
       valid: [],
-      invalid: [{ code: 'const html = `<div class="t-md t-lg">x</div>`;', errors: [{ messageId: 'duplicate' }] }],
+      invalid: [{
+        code: 'const html = `<span class="t-md t-lg">x</span>`;',
+        output: 'const html = `<span class="t-lg">x</span>`;',
+        errors: [{ messageId: 'duplicate' }],
+      }],
     });
   });
   it('不同属性放行', () => {

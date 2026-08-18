@@ -34,15 +34,15 @@ export default {
             messageId: 'duplicate',
             data: { prop: PROP_LABELS[prefix] || prefix, a: prev.cls, b: cls },
             fix(fixer) {
+              // 删除被覆盖的 class + 其后的空格（保留的类在后面，必有空格可吃）
               const sourceCode = context.sourceCode || context.getSourceCode();
               const text = sourceCode.getText(node);
               const idx = text.indexOf(raw);
               if (idx < 0) return null;
               const classIdx = idx + raw.indexOf(prev.cls);
               const before = text.slice(0, classIdx);
-              const after = text.slice(classIdx + prev.cls.length);
-              const trimmedBefore = before.replace(/\s+$/, '');
-              return fixer.replaceText(node, trimmedBefore + after);
+              const after = text.slice(classIdx + prev.cls.length).replace(/^\s+/, '');
+              return fixer.replaceText(node, before + after);
             },
           });
         }

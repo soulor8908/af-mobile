@@ -531,7 +531,7 @@ describe('router hash 模式', () => {
   });
 });
 
-// 防御：误用 start('#app', { hash: true }) 时第一参被当 options，hash 静默丢失
+// start('#app') / start('#app', { hash: true }) 字符串 outlet 归一化（双参形式合并选项）
 describe('router start() 字符串 outlet 归一化', () => {
   it('start(stringOutlet) 等价 { outlet }，正常渲染', async () => {
     const fn = vi.fn();
@@ -547,6 +547,28 @@ describe('router start() 字符串 outlet 归一化', () => {
     await go('/sh');
     expect(window.location.pathname).toBe('/sh');
     expect(window.location.hash).toBe('');
+  });
+
+  it('start(stringOutlet, options) 双参合并：hash 选项生效', async () => {
+    route('/sd', () => {});
+    start('#app', { hash: true });
+    await go('/sd');
+    expect(window.location.hash).toBe('#/sd');
+    expect(window.location.pathname).toBe('/');
+  });
+
+  it('start(stringOutlet, options) 双参合并：从 location.hash 读初始路径渲染', () => {
+    window.location.hash = '#/sd2';
+    const fn = vi.fn();
+    route('/sd2', fn);
+    start('#app', { hash: true });
+    expect(fn).toHaveBeenCalledOnce();
+  });
+
+  it('start(stringOutlet, options) 双参合并：outlet 取第一参字符串', () => {
+    window.history.replaceState({}, '', '/');
+    route('/sd3', () => {});
+    expect(() => start('#app', { hash: true })).not.toThrow();
   });
 });
 

@@ -1079,10 +1079,8 @@ export function notFound(handler: (path: string) => void): void;
 /** 获取当前路由信息 */
 export function current(): { path: string; params: Record<string, string>; route: any; outlet: HTMLElement; meta: Record<string, unknown> } | null;
 
-/** 启动路由
- *  options 为字符串时视为 outlet 选择器（等价 { outlet }），兼容 start('#app') 调用形式；
- *  其余选项走对象形式 start({ hash: true }) */
-export function start(options?: string | {
+/** start() 选项 */
+export interface RouterStartOptions {
   outlet?: string;
   scrollRestoration?: boolean;
   keepAliveMax?: number;
@@ -1096,7 +1094,12 @@ export function start(options?: string | {
     savedPosition: { x: number; y: number } | null
   ) => ({ x?: number; y?: number } | { el: string | Element; top?: number } | false | null)
     | Promise<{ x?: number; y?: number } | { el: string | Element; top?: number } | false | null>;
-}): void;
+}
+
+/** 启动路由
+ *  options 为字符串时视为 outlet 选择器（等价 { outlet }），extra 与之合并，
+ *  兼容 start('#app') / start('#app', { hash: true }) / start({ hash: true }) 三种形式 */
+export function start(options?: string | RouterStartOptions, extra?: RouterStartOptions): void;
 
 /** 路由错误：outlet 选择器未命中时抛出 */
 export class RouterError extends Error {}

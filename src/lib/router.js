@@ -116,12 +116,11 @@ function getFullPath() {
   return location.pathname + location.search + location.hash;
 }
 
-export function start(options = {}) {
+export function start(options = {}, extra) {
   if (typeof history === 'undefined') return;
-  // 防御：误用 start('#app', { hash: true }) 时，第一参被当作 options，
-  // outlet 取默认值但 hash 等选项丢失 → 静默退化为 history 模式。
-  // 字符串入参归一化为 { outlet }，让两种调用形式都正确。
-  if (typeof options === 'string') options = { outlet: options };
+  // 防御：start('#app', { hash: true }) 双参形式——字符串为 outlet，第二参为选项。
+  // 归一化为 { outlet, ...extra }，start('#app') / start('#app', { hash: true }) / start({ hash: true }) 三种形式都正确。
+  if (typeof options === 'string') options = { outlet: options, ...extra };
   const { scrollRestoration = true, outlet = '#app', keepAliveMax = 5, scrollBehavior, hash = false } = options;
   if (scrollRestoration && 'scrollRestoration' in history) {
     history.scrollRestoration = 'manual';

@@ -1,6 +1,6 @@
-/* af-mobile UI —— L2 原子工具类：56 个，白名单封闭集 */
+/* af-mobile UI —— L2 原子工具类：62 个，白名单封闭集 */
 @layer utilities {
-  /* === 间距 padding（9） === */
+  /* === 间距 padding（10） === */
   .p-0  { padding: 0; }
   .p-1  { padding: var(--s-1); }
   .p-2  { padding: var(--s-2); }
@@ -12,7 +12,7 @@
   .p-8  { padding: var(--s-8); }
   .p-10 { padding: calc(var(--s-6) * 2.5); }
 
-  /* === 间距 margin（5） === */
+  /* === 间距 margin（6） === */
   .m-0 { margin: 0; }
   .m-1 { margin: var(--s-1); }
   .m-2 { margin: var(--s-2); }
@@ -27,15 +27,17 @@
   .g-3 { gap: var(--s-3); }
   .g-4 { gap: var(--s-4); }
 
-  /* === Flex/Grid 布局（8） === */
-  .f      { display: flex; }
-  .fc     { display: flex; flex-direction: column; }
-  .aic    { align-items: center; }
-  .jcc    { justify-content: center; }
-  .jcsb   { justify-content: space-between; }
-  .jce    { justify-content: flex-end; }
-  .flex-1 { flex: 1; }
-  .w-full { width: 100%; }
+  /* === Flex/Grid 布局（10） === */
+  .f         { display: flex; }
+  .fi        { display: inline-flex; }
+  .fc        { display: flex; flex-direction: column; }
+  .aic       { align-items: center; }
+  .jcc       { justify-content: center; }
+  .jcsb      { justify-content: space-between; }
+  .jce       { justify-content: flex-end; }
+  .flex-1    { flex: 1; }
+  .shrink-0  { flex-shrink: 0; }
+  .w-full    { width: 100%; }
 
   /* === 圆角（5） === */
   .r-0 { border-radius: 0; }
@@ -57,12 +59,17 @@
   .t-m  { font-weight: var(--fw-medium); }
   .t-semibold { font-weight: var(--fw-semibold); }
 
-  /* === 颜色（6） === */
+  /* === 行高（2） === */
+  .lh-tight  { line-height: var(--lh-tight); }
+  .lh-normal { line-height: var(--lh-normal); }
+
+  /* === 颜色（7） === */
   .text-brand   { color: var(--c-brand); }
   .text-muted   { color: var(--c-muted); }
   .text-danger  { color: var(--c-danger); }
   .text-success { color: var(--c-success); }
   .bg-brand     { background: var(--c-brand); }
+  .bg-card      { background: var(--c-card); }
   .bg-muted     { background: var(--c-muted-bg); }
 
   /* === 阴影（3） === */
@@ -70,9 +77,10 @@
   .shadow-md { box-shadow: var(--shadow-md); }
   .shadow-lg { box-shadow: var(--shadow-lg); }
 
-  /* === 文本对齐（4，补齐至 52） === */
+  /* === 文本对齐与溢出（5） === */
   .t-left   { text-align: left; }
   .t-center { text-align: center; }
   .t-right  { text-align: right; }
   .ws-nowrap{ white-space: nowrap; }
+  .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }

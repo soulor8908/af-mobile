@@ -7,7 +7,7 @@
 //   按需引入 2 组件 gzip    ≤ 6.5KB   warn
 //   (核心运行时 state+fetch+router+i18n+page+bind ≤ 6.8KB，独立预算不计入 total)
 // 实现：esbuild 打包+minify，Node zlib 测 gzip（原生，无 gzip-size 依赖）
-import { build } from 'esbuild';
+import { build, transform } from 'esbuild';
 import { gzipSync } from 'node:zlib';
 import { readFileSync, readdirSync, writeFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -76,8 +76,12 @@ const SRC = join(ROOT, 'src');
 // v4.0 调整（Quiet Precision 设计刷新，用户已确认）：
 //   CSS 8.3→9.0KB：token 体系升级（品牌色阶/display 字号/10px+圆角/双层阴影）+ 新配方（.display/.eyebrow/.section/.section-title）
 //     + 控件精修（按钮渐变辉光/输入框 focus ring/卡片边框），实测 8.909KB
+// v4.1 调整（原子类缺口补齐 + CSS 预算口径修正，用户已确认）：
+//   新增 6 个缺口原子类：fi/shrink-0/lh-tight/lh-normal/bg-card/ellipsis（消费端高频，原先只能违规私建）
+//   CSS 预算口径修正：raw 拼接 gzip → esbuild minify 后 gzip（与消费端 vite 构建一致，原口径虚高约 3.3KB 掩盖真实增长）
+//   预算 9.0→6.0KB（minify 口径），原子类补齐后实测 ~5.6KB
 const BUDGET = {
-  css: 9.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，v4.0 Quiet Precision 设计刷新实测 8.909KB）
+  css: 6.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径，v4.1 实测 ~5.6KB）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
   total: 20.1,         // KB，28 组件 + 基类（v3.10：register minify-safe REGISTRY 后实测 20.090KB）
@@ -218,10 +222,11 @@ async function main() {
   // af-cascade-picker 复用 af-picker（子类继承滚轮内核）：af-picker 单独测一次，级联组件只测增量
   const external = [...CORE_EXT, '../lib/af-element.js', './af-element.js', './af-picker.js', '../components/af-picker.js'];
 
-  // 0. L1+L2 CSS（tokens+recipes+atomic 拼接后 gzip）
+  // 0. L1+L2 CSS（tokens+recipes+atomic 拼接后 minify + gzip，与消费端 vite 构建口径一致）
   const cssFiles = ['tokens.css', 'recipes.css', 'atomic.css'];
   const cssConcat = cssFiles.map(f => readFileSync(join(SRC, f))).join('\n');
-  const cssGz = gzipSync(cssConcat).length;
+  const { code: cssMin } = await transform(cssConcat, { loader: 'css', minify: true });
+  const cssGz = gzipSync(Buffer.from(cssMin)).length;
 
   // 1. 基类（核心运行时模块 external，见 CORE_EXT）
   const baseGz = (await minifyGz(join(SRC, 'lib/af-element.js'), CORE_EXT)).gz;

@@ -10,7 +10,7 @@
 # 设计体系速查
 
 - **L1 Token（72 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
-- **L2 配方（111）+ 原子（56）= 167 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
+- **L2 配方（111）+ 原子（62）= 173 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
 - **L3 真组件（33 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 20 规则（13 error + 7 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
@@ -37,18 +37,19 @@
 **步骤条（6）：** `steps` `step` `step-done` `step-active` `step-circle` `step-label`
 **分段控制器（3）：** `segmented` `segmented-item` `segmented-block`
 
-## L2 原子（56 个，按用途分组）
+## L2 原子（62 个，按用途分组）
 
 **间距 padding（10）：** `p-0` `p-1` `p-2` `p-3` `p-4` `p-5` `p-6` `p-7` `p-8` `p-10`
 **间距 margin（6）：** `m-0` `m-1` `m-2` `m-3` `m-4` `m-5`
 **间距 gap（5）：** `g-0` `g-1` `g-2` `g-3` `g-4`
-**Flex/Grid 布局（8）：** `f` `fc` `aic` `jcc` `jcsb` `jce` `flex-1` `w-full`
+**Flex/Grid 布局（10）：** `f` `fi` `fc` `aic` `jcc` `jcsb` `jce` `flex-1` `shrink-0` `w-full`
 **圆角（5）：** `r-0` `r-s` `r-m` `r-l` `r-f`
 **文本字号（6）：** `t-display` `t-xs` `t-sm` `t-md` `t-lg` `t-xl`
 **字重（3）：** `t-b` `t-m` `t-semibold`
-**颜色（6）：** `text-brand` `text-muted` `text-danger` `text-success` `bg-brand` `bg-muted`
+**行高（2）：** `lh-tight` `lh-normal`
+**颜色（7）：** `text-brand` `text-muted` `text-danger` `text-success` `bg-brand` `bg-card` `bg-muted`
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
-**文本对齐（4，补齐至 52）（4）：** `t-left` `t-center` `t-right` `ws-nowrap`
+**文本对齐与溢出（5）：** `t-left` `t-center` `t-right` `ws-nowrap` `ellipsis`
 
 ## L3 真组件标签（33 个）
 
@@ -111,7 +112,7 @@
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-03. 禁止使用 167 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
+03. 禁止使用 173 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success`（破坏 onbrand 对比度）
 05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fc` 原子（自带 `display:flex`，再设会破坏布局）

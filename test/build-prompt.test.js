@@ -34,8 +34,9 @@ describe('build-prompt / extractGroupsFromCss', () => {
   it('从 atomic.css 提取分组', () => {
     const groups = extractGroupsFromCss(ATOMIC_CSS);
     const names = groups.map(g => g.name);
-    expect(names).toContain('间距 padding（9）');
-    expect(names).toContain('颜色（6）');
+    expect(names).toContain('间距 padding（10）');
+    expect(names).toContain('颜色（7）');
+    expect(names).toContain('行高（2）');
   });
 
   it('排除后代组合选择器里的 class（避免误归类）', () => {

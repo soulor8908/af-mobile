@@ -29,7 +29,7 @@ export default {
         document.getElementById('t-success')?.addEventListener('click', () => toast.show('操作成功', { type: 'success' }));
         document.getElementById('t-warning')?.addEventListener('click', () => toast.show('请注意资产风险', { type: 'warning' }));
         document.getElementById('t-error')?.addEventListener('click', () => toast.show('操作失败，请重试', { type: 'error' }));
-        document.getElementById('t-loading')?.addEventListener('click', () => toast.show('加载中…', { type: 'loading', duration: 0 }));
+        document.getElementById('t-loading')?.addEventListener('click', () => toast.show('加载中…', { type: 'loading', duration: 0, closeOnClick: true }));
       },
     },
   ],

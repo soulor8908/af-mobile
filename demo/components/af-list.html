@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-list demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <style>
+    /* subtitle 拆段配色：货币符号 muted，价格品牌色高亮（data-role 选择器绕开白名单；var(--*) 不硬编码） */
+    .subtitle [data-role="currency"] { color: var(--c-muted); }
+    .subtitle [data-role="price"] { color: var(--c-brand); font-weight: var(--fw-medium); }
+  </style>
 </head>
 <body>
   <main class="page">
@@ -13,7 +18,7 @@
       <h1 class="display">af-list 长列表</h1>
     </section>
 
-    <af-list id="list"></af-list>
+    <af-list id="list" height="600px"></af-list>
 
     <p class="caption" id="log">点击列表项查看 index</p>
 
@@ -22,32 +27,50 @@
 
   <script type="module">
     import { AfList } from '../../src/components/af-list.js';
+    import { html } from '../../src/lib/af-element.js';
     customElements.define('af-list', AfList);
     import { createPropsPanel } from '../props-panel.js';
 
     const totalItems = 100;
     list.totalCount = totalItems;
-    // 先给一页数据，滚动到底触发 loadmore 追加，直到 totalCount 上限显示"没有更多了"
-    list.data = Array.from({ length: 20 }, (_, i) => ({
-      title: `商品 ${i + 1}`,
-      subtitle: `¥${((i + 1) * 9.9).toFixed(2)}`,
-    }));
+
+    // 自定义 renderItem：拆 currency + price 两段渲染
+    // - html 模板自动 esc 不可信字段，防 XSS（AGENTS.md #1）
+    // - data-role 绕开白名单（白名单只约束 class，§3.1）；配色用 var(--*) 不硬编码
+    list.renderItem = (item, idx) => html`<div class="list-item" data-list-index="${idx}">
+      <div class="flex-1">
+        <div class="body">${item.title}</div>
+        <div class="subtitle">
+          <span data-role="currency">${item.currency}</span><span data-role="price">${item.price}</span>
+        </div>
+      </div>
+    </div>`;
 
     list.addEventListener('af-list:itemclick', (e) => {
       document.getElementById('log').textContent = `点击 index=${e.detail.index}`;
     });
+    // loadmore 监听须在 data 赋值前注册：data 设置触发首次 _updateViewport，
+    // 若此时无监听器则 loadmore 事件丢失、_isLoadingMore 永久 true → 卡"加载中"
     list.addEventListener('af-list:loadmore', () => {
       document.getElementById('log').textContent = '触发 loadmore...';
       setTimeout(() => {
         const start = list.data.length;
         list.data = [...list.data, ...Array.from({ length: 20 }, (_, i) => ({
           title: `商品 ${start + i + 1}`,
-          subtitle: `¥${((start + i + 1) * 9.9).toFixed(2)}`,
+          currency: '¥',
+          price: ((start + i + 1) * 9.9).toFixed(2),
         }))];
         list.totalCount = list.data.length;
         list.endLoadMore(true);
       }, 500);
     });
+
+    // 先给一页数据，滚动到底触发 loadmore 追加，直到 totalCount 上限显示"没有更多了"
+    list.data = Array.from({ length: 20 }, (_, i) => ({
+      title: `商品 ${i + 1}`,
+      currency: '¥',
+      price: ((i + 1) * 9.9).toFixed(2),
+    }));
 
     createPropsPanel(document.getElementById('props'), [
       { prop: 'refresh', label: '下拉刷新', type: 'boolean' },

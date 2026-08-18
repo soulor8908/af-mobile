@@ -108,6 +108,40 @@ describe('af-toast', () => {
     vi.useRealTimers();
   });
 
+  it('duration: 0 表示常驻，不自动消失（loading 场景）', () => {
+    vi.useFakeTimers();
+    const el = makeToast();
+    el.show('加载中…', { type: 'loading', duration: 0 });
+    expect(el.$('.toast-loading')).not.toBeNull();
+    // 即使推进很久，toast 仍存在
+    vi.advanceTimersByTime(60000);
+    expect(el.$('.toast-loading')).not.toBeNull();
+    // 仍可手动 dismiss
+    el.dismiss();
+    vi.advanceTimersByTime(200);
+    expect(el.$('.toast')).toBeNull();
+    vi.useRealTimers();
+  });
+
+  it('closeOnClick 默认关闭：不拦截点击，pointer-events 为 none', () => {
+    const el = makeToast();
+    el.show('已保存', 2000);
+    expect(el.$('.toast').style.getPropertyValue('--toast-pointer-events')).toBe('none');
+  });
+
+  it('closeOnClick: 点击 toast 主体即关闭', () => {
+    vi.useFakeTimers();
+    const el = makeToast();
+    el.show('加载中…', { type: 'loading', duration: 0, closeOnClick: true });
+    const toast = el.$('.toast');
+    expect(toast.style.getPropertyValue('--toast-pointer-events')).toBe('auto');
+    // 点击 toast 冒泡到宿主 → dismiss
+    toast.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }));
+    vi.advanceTimersByTime(200);
+    expect(el.$('.toast')).toBeNull();
+    vi.useRealTimers();
+  });
+
   it('XSS：type 含 HTML 被转义，不注入额外节点', () => {
     const el = makeToast();
     el.show('hi', { type: '<img src=x onerror=alert(1)>' });

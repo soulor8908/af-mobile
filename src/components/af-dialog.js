@@ -13,7 +13,7 @@ const CSS = `
   }
   dialog::backdrop { background: rgba(0,0,0,.4); backdrop-filter: blur(8px); }
   header { padding: var(--s-4); border-bottom: 1px solid var(--c-border); position: relative; }
-  .title { font-size: var(--t-xl); font-weight: var(--fw-bold); line-height: var(--lh-tight); }
+  .title { margin: 0; font-size: var(--t-lg); font-weight: var(--fw-bold); line-height: var(--lh-tight); }
   .close-btn {
     position: absolute; top: var(--s-2); right: var(--s-2);
     background: none; border: none; color: var(--c-muted);
@@ -21,7 +21,7 @@ const CSS = `
   }
   .body { padding: var(--s-4); }
   footer { display: flex; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-top: 1px solid var(--c-border); }
-  footer > ::slotted(.btn) { flex: 1; }
+  footer > ::slotted(*) { flex: 1; display: flex; gap: var(--s-2); width: 100%; }
   :host([variant="bottom"]) dialog {
     border-radius: var(--r-l) var(--r-l) 0 0;
     max-width: 100vw; width: 100%;

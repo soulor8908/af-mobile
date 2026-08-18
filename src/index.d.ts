@@ -295,14 +295,28 @@ export interface ToastDismissDetail extends AfEventDetail {
   message: string;
 }
 
+export interface ToastShowOptions {
+  /** 提示类型 */
+  type?: 'success' | 'error' | 'warning' | 'info' | 'loading';
+  /** 显示时长（ms）；传 0 表示常驻（loading 等场景），需手动 dismiss() */
+  duration?: number;
+  /** 是否点击 toast 即关闭（loading 常驻场景常用），默认 false */
+  closeOnClick?: boolean;
+}
+
 export class AfToast extends AfElement {
   static useShadow: false;
-  /** 显示时长（ms） */
+  /** 显示时长（ms）；传 0 表示常驻，需手动 dismiss() */
   duration: number;
   /** 当前消息（只读） */
   readonly message: string;
-  /** 显示提示 */
+  /**
+   * 显示提示
+   * @param duration 显示时长（ms）；传 0 表示常驻（loading 等场景），需手动 dismiss()
+   */
   show(message: string, duration?: number): void;
+  /** 显示提示（对象形式，可指定 type / duration / closeOnClick） */
+  show(message: string, options?: ToastShowOptions): void;
   /** 关闭提示 */
   dismiss(): void;
   addEventListener(type: 'af-toast:dismiss', listener: (e: CustomEvent<ToastDismissDetail>) => void, options?: boolean | AddEventListenerOptions): void;

@@ -122,12 +122,15 @@ export class AfList extends withI18n(AfElement) {
   _updateViewport() {
     const scroller = this._scroller;
     const total = this.totalCount;
+    const dataLen = this.data.length;
     const itemH = this.itemHeight;
     const viewportTop = scroller.scrollTop;
     const viewportH = scroller.clientHeight;
     const visibleCount = Math.ceil(viewportH / itemH);
     let startIndex = Math.max(0, Math.floor(viewportTop / itemH) - this.buffer);
-    let endIndex = Math.min(total, startIndex + visibleCount + 2 * this.buffer);
+    // endIndex 以实际数据长度为界：totalCount 仅用于 aria 提示与"是否还有更多"判断，
+    // 不参与视窗裁剪，否则 totalCount>data.length 时 slice 越界返回空、viewport 空白
+    let endIndex = Math.min(dataLen, startIndex + visibleCount + 2 * this.buffer);
 
     if (startIndex === this._prevStart && endIndex === this._prevEnd) {
       this._checkLoadmore(scroller, total);
@@ -137,12 +140,10 @@ export class AfList extends withI18n(AfElement) {
     this._prevEnd = endIndex;
 
     this._spacerBefore.style.setProperty('--af-spacer-before-h', (startIndex * itemH) + 'px');
-    // totalCount 未显式设置（Infinity）时不设 spacerAfter，避免写出非法 "Infinitypx"
-    if (Number.isFinite(total)) {
-      this._spacerAfter.style.setProperty('--af-spacer-after-h', ((total - endIndex) * itemH) + 'px');
-    } else {
-      this._spacerAfter.style.setProperty('--af-spacer-after-h', '0px');
-    }
+    // 尾部 spacer 基于实际已有数据长度，使滚动条总高反映真实数据：
+    // 滚到真实数据末尾即触发 loadmore；避免 totalCount>data.length 时撑出大段空白
+    // 导致 viewport 空白且 distanceToBottom 始终过大、loadmore 永不触发
+    this._spacerAfter.style.setProperty('--af-spacer-after-h', (Math.max(0, dataLen - endIndex) * itemH) + 'px');
 
     const render = this._renderItem || ((item, idx) => this._defaultRender(item, idx));
     const slice = this.data.slice(startIndex, endIndex);

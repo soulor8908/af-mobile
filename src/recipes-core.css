@@ -103,6 +103,9 @@
     position: fixed;
     left: 0; right: 0; bottom: 0;
     width: 100%;
+    /* popover UA 在 dark 模式下强制 color: canvastext（白色），导致子树文本变白
+       显式 inherit 让 .sheet 跟随 host（body 的 --c-text），覆盖 UA 默认 */
+    color: inherit;
     background: var(--c-card);
     border-radius: var(--r-l) var(--r-l) 0 0;
     padding: var(--s-4);
@@ -146,6 +149,15 @@
     background: var(--c-card);
     padding: var(--s-3) var(--s-4);
     min-height: 52px;
+    /* button 宿主需显式覆盖 UA 默认样式（border / color / font / text-align / width / appearance）
+       div 宿主这些属性的默认值与显式覆盖等价，不受影响 */
+    border: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
     transition: background var(--dur-fast) var(--ease-out);
   }
   .list-item:active { background: var(--c-muted-bg); }
@@ -323,11 +335,15 @@
   af-backtop[position="left-bottom"] { left: calc(var(--s-4) + env(safe-area-inset-left)); }
   af-backtop:not([position="left-bottom"]) { right: calc(var(--s-4) + env(safe-area-inset-right)); }
 
-  /* af-navbar：sticky 顶部导航 + 顶部安全区 */
+  /* af-navbar：sticky 顶部导航 + 顶部安全区
+     注意：display 必须 flex —— auto margin 仅在 flex 容器的 flex item 上生效
+     （CSS 2.1 §10.3.1：inline-level 元素的 auto 左右外边距计算为 0） */
   af-navbar {
-    display: block; position: sticky; top: 0; z-index: var(--z-sticky);
+    display: flex; align-items: center; gap: var(--s-3);
+    position: sticky; top: 0; z-index: var(--z-sticky);
     background: var(--c-card); box-shadow: var(--shadow-sm);
     padding-top: env(safe-area-inset-top);
+    min-height: 48px;
   }
   af-navbar [data-role="left"], af-navbar [data-role="right"] {
     display: inline-flex; align-items: center; gap: var(--s-2);

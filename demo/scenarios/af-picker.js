@@ -34,7 +34,7 @@ export default {
           ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
           ['1日', '15日', '28日'],
         ];
-        picker.values = [1, 0, 0];
+        picker.values = ['2025', '1月', '1日'];
         document.getElementById('pk-open')?.addEventListener('click', () => picker.open());
         picker.addEventListener('af-picker:confirm', (e) => {
           const log = document.getElementById('pk-log');

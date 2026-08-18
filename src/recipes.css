@@ -101,6 +101,9 @@
     position: fixed;
     left: 0; right: 0; bottom: 0;
     width: 100%; /* 覆盖 popover UA 的 width:fit-content，避免底部面板只撑内容宽 */
+    /* popover UA 在 dark 模式下强制 color: canvastext（白色），导致子树文本变白
+       显式 inherit 让 .sheet 跟随 host（body 的 --c-text），覆盖 UA 默认 */
+    color: inherit;
     background: var(--c-card);
     border-radius: var(--r-l) var(--r-l) 0 0;
     padding: var(--s-4);
@@ -322,6 +325,15 @@
     background: var(--c-card);
     padding: var(--s-3) var(--s-4);
     min-height: 52px;
+    /* button 宿主需显式覆盖 UA 默认样式（border / color / font / text-align / width / appearance）
+       div 宿主这些属性的默认值与显式覆盖等价，不受影响 */
+    border: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
     transition: background var(--dur-fast) var(--ease-out);
   }
   .list-item:active { background: var(--c-muted-bg); }
@@ -460,7 +472,7 @@
     z-index: var(--z-modal);
     opacity: var(--toast-opacity, 1);
     transition: var(--toast-transition, none);
-    pointer-events: none;
+    pointer-events: var(--toast-pointer-events, none);
     max-width: 80%;
     text-align: center;
   }
@@ -888,6 +900,8 @@
 
   /* === Light DOM 组件宿主样式（替代 JS setProperty，遵守 wc-light-no-style） === */
   af-list, af-img, af-tabs, af-dropdown { display: block; }
+  /* af-progress：默认 inline 无宽度，内部 .progress 的 width:100% 在 auto 宽度下解析为 0 → 不可见；宿主撑满 */
+  af-progress { display: block; width: 100%; }
   /* af-tabs 顶部标签：与内容留出间距 + 标题字号加大（仅作用 af-tabs，不影响底部 af-tabbar） */
   af-tabs .tabbar { margin-bottom: var(--s-4); }
   af-tabs .tab-item { font-size: var(--t-md); font-weight: var(--fw-medium); }
@@ -921,11 +935,15 @@
   af-backtop[position="left-bottom"] { left: calc(var(--s-4) + env(safe-area-inset-left)); }
   af-backtop:not([position="left-bottom"]) { right: calc(var(--s-4) + env(safe-area-inset-right)); }
 
-  /* af-navbar：sticky 顶部导航 + 顶部安全区 */
+  /* af-navbar：sticky 顶部导航 + 顶部安全区
+     注意：display 必须 flex —— auto margin 仅在 flex 容器的 flex item 上生效
+     （CSS 2.1 §10.3.1：inline-level 元素的 auto 左右外边距计算为 0） */
   af-navbar {
-    display: block; position: sticky; top: 0; z-index: var(--z-sticky);
+    display: flex; align-items: center; gap: var(--s-3);
+    position: sticky; top: 0; z-index: var(--z-sticky);
     background: var(--c-card); box-shadow: var(--shadow-sm);
     padding-top: env(safe-area-inset-top);
+    min-height: 48px;
   }
   af-navbar [data-role="left"], af-navbar [data-role="right"] {
     display: inline-flex; align-items: center; gap: var(--s-2);
@@ -940,6 +958,14 @@
   /* af-stepper：横向紧凑布局 + 居中数字输入 */
   af-stepper { display: inline-flex; align-items: center; gap: var(--s-1); }
   af-stepper [data-role="input"] { width: 64px; text-align: center; }
+  /* ±按钮加大到 40px 方形触点（覆盖 btn-sm 的 32px），字号提到 t-lg 更醒目 */
+  af-stepper [data-role="minus"],
+  af-stepper [data-role="plus"] {
+    width: var(--s-7);
+    height: var(--s-7);
+    padding: 0;
+    font-size: var(--t-lg);
+  }
 
   /* af-field：图标绝对定位 + 控件容器相对定位 */
   af-field { display: block; }

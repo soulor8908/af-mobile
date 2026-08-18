@@ -185,6 +185,40 @@ describe('af-list 虚拟滚动', () => {
     expect(target).not.toBeNull();
     expect(Number(target.dataset.listIndex)).toBe(20);
   });
+
+  // P0 回归：totalCount>data.length（典型分页：告知总数、当前只加载一页）
+  // 旧逻辑尾部 spacer 基于 totalCount 撑开，导致 viewport 空白 + loadmore 永不触发
+  it('totalCount>data.length 时尾部 spacer 基于实际数据长度而非 totalCount', () => {
+    const el = makeList({ data: makeData(20), itemHeight: 48, height: '400px' });
+    el.totalCount = 100;
+    const scroller = el.$('.list');
+    Object.defineProperty(scroller, 'clientHeight', { value: 400 });
+    el._updateViewport();
+    // clientHeight=400 → visibleCount=ceil(400/48)=9, buffer=5
+    // startIndex=0, endIndex=min(20, 0+9+10)=19
+    // 修复后 spacerAfter=(20-19)*48=48；旧逻辑会撑到 (100-19)*48=3888
+    const afterH = parseFloat(el.$('[data-role="spacer-after"]').style.getPropertyValue('--af-spacer-after-h'));
+    expect(afterH).toBe(48);
+  });
+
+  it('totalCount>data.length 时滚到真实数据末尾触发 af-list:loadmore', () => {
+    const el = makeList({ data: makeData(20), itemHeight: 48, height: '400px' });
+    el.totalCount = 100;
+    const scroller = el.$('.list');
+    Object.defineProperty(scroller, 'clientHeight', { value: 400 });
+    // jsdom 无 layout，scrollHeight 需 mock 为修复后真实数据总高（20*48=960）
+    Object.defineProperty(scroller, 'scrollHeight', { value: 960 });
+    // 抵消 mounted 时 jsdom clientHeight=0 导致 distanceToBottom=0 误触发的 loadmore 状态
+    el._isLoadingMore = false;
+    el._hasMore = true;
+    el._prevStart = -1; el._prevEnd = -1;
+    const handler = vi.fn();
+    el.addEventListener('af-list:loadmore', handler);
+    // 修复后 scrollHeight 反映真实 20 项=960px；距底<96px(48*2)触发
+    scroller.scrollTop = 960 - 400 - 48; // =512, 距底=48<96
+    el._updateViewport();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('af-list 属性变更与下拉刷新（补充分支）', () => {

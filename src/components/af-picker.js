@@ -7,11 +7,11 @@ import { withI18n } from '../lib/with-i18n.js';
 const CSS = `
   :host { display: contents; }
   .picker {
-    position: fixed; left: 0; right: 0; bottom: 0;
-    width: 100%; /* 覆盖 popover UA 的 width:fit-content，底部滚轮面板撑满全宽 */
-    background: var(--c-card); border-radius: var(--r-l) var(--r-l) 0 0;
+    position: fixed; inset: auto 0 0 0;
+    margin: 0; width: auto; border: none;
+    padding: 0 0 env(safe-area-inset-bottom);
+    background: var(--c-card); border-radius: var(--r-l) var(--r-l) 0;
     box-shadow: var(--shadow-lg); z-index: var(--z-dropdown);
-    padding-bottom: env(safe-area-inset-bottom);
   }
   .header {
     display: flex; align-items: center; justify-content: space-between;
@@ -23,10 +23,11 @@ const CSS = `
   .title { font-size: var(--t-md); font-weight: var(--fw-medium); color: var(--c-text); }
   .columns { display: flex; position: relative; }
   .column {
-    flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory;
+    flex: 1; position: relative; overflow-y: scroll; scroll-snap-type: y mandatory;
     scrollbar-width: none; touch-action: pan-y;
   }
-  .column:focus { outline: 2px solid var(--c-brand); outline-offset: -2px; }
+  .column:focus-visible { outline: 2px solid var(--c-brand); outline-offset: -2px; }
+  .column::-webkit-scrollbar { display: none; }
   .item {
     height: var(--af-item-h); line-height: var(--af-item-h);
     scroll-snap-align: center; text-align: center;
@@ -41,9 +42,11 @@ const CSS = `
   .indicator {
     position: absolute; left: var(--s-3); right: var(--s-3);
     top: 50%; height: var(--af-item-h); transform: translateY(-50%);
-    border-top: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border);
+    border-top: 1px solid var(--c-border);
+    border-bottom: 1px solid var(--c-border);
     pointer-events: none;
   }
+  .column::before, .column::after { content: ''; display: block; height: var(--af-spacer-h); }
 `;
 
 // 将 string 项归一化为 {label, value}，使 API 同时支持 string[] 和 PickerItem[]
@@ -72,39 +75,37 @@ export class AfPicker extends withI18n(AfElement) {
   }
 
   mounted() {
-    // DSD 已在解析阶段挂载 shadow root 时不再覆盖，仅接管事件（hydrate）
     this.shadowRoot.innerHTML ||= this.shadowHTML();
     this._picker = this.$('.picker');
     this._columnsEl = this.$('.columns');
 
     // popover=auto 的 light dismiss（点遮罩/Esc）会绕过 close()，用 toggle 事件兜底解锁 + 焦点还原
-    this._onPickerToggle = (e) => {
+    this._listen(this._picker, 'toggle', (e) => {
       if (e.newState !== 'closed') return;
       this._unlockScroll();
       this.restoreFocus();
-    };
-    this._listen(this._picker, 'toggle', this._onPickerToggle);
+    });
 
     this._applyItemHeight();
     this._renderColumns();
 
-    this._onCancelClick = () => {
+    this._listen(this.$('.btn-cancel'), 'click', () => {
       this.emit('af-picker:cancel', {});
       this.close();
-    };
-    this._listen(this.$('.btn-cancel'), 'click', this._onCancelClick);
-    this._onConfirmClick = () => {
+    });
+    this._listen(this.$('.btn-confirm'), 'click', () => {
       this.emit('af-picker:confirm', { values: this.values });
       this.close();
-    };
-    this._listen(this.$('.btn-confirm'), 'click', this._onConfirmClick);
+    });
 
     // 初始滚动到选中项
-    this._rafIds.push(requestAnimationFrame(() => this._scrollToValues(true)));
+    this._rafIds.push(requestAnimationFrame(() => this._scrollToValues()));
   }
 
   _applyItemHeight() {
     this.style.setProperty('--af-item-h', this.itemHeight + 'px');
+    // 上下 spacer 高度 = (visibleCount-1)/2 * itemHeight，让首尾 item 也能滚到中心
+    this.style.setProperty('--af-spacer-h', Math.floor((this.visibleCount - 1) / 2) * this.itemHeight + 'px');
     if (this._columnsEl) this._columnsEl.style.height = this.itemHeight * this.visibleCount + 'px';
   }
 
@@ -119,24 +120,21 @@ export class AfPicker extends withI18n(AfElement) {
       colEl.className = 'column';
       colEl.setAttribute('part', 'column');
       colEl.setAttribute('role', 'listbox');
-      colEl.setAttribute('tabindex', '0');
-      colEl.dataset.col = String(c);
-      // aria-label 由 _applyI18n 设置（t('pk.col', { n: c + 1 })）
+      colEl.tabIndex = 0;
+      colEl.dataset.col = c;
 
       const items = (col || []).map(_ni).map((item, i) => {
         const selected = this.values[c] != null && item.value === this.values[c];
         return `<div class="item${selected ? ' active' : ''}" role="option" data-idx="${i}" aria-selected="${selected}">${esc(item.label)}</div>`;
       }).join('');
+      // 上下 spacer 由 .column::before/::after 提供（CSS 伪元素，让首尾 item 也能滚到中心）
       colEl.innerHTML = items;
       this._columnsEl.appendChild(colEl);
       this._scrollers.push(colEl);
 
-      // scroll 防抖
-      const onScroll = () => this._onColumnScroll(c);
-      this._listen(colEl, 'scroll', onScroll);
-      // 键盘 ↑↓
-      const onKeydown = (e) => this._onColumnKeydown(c, e);
-      this._listen(colEl, 'keydown', onKeydown);
+      // scroll 防抖 + 键盘 ↑↓
+      this._listen(colEl, 'scroll', () => this._onColumnScroll(c));
+      this._listen(colEl, 'keydown', (e) => this._onColumnKeydown(c, e));
     });
   }
 
@@ -152,11 +150,10 @@ export class AfPicker extends withI18n(AfElement) {
     if (!col) return;
     const idx = Math.round(col.scrollTop / this.itemHeight);
     const colData = (this.columns[c] || []).map(_ni);
-    if (!colData || !colData[idx]) return;
+    if (!colData[idx]) return;
 
     const newValues = [...this.values];
     newValues[c] = colData[idx].value;
-    // defineProp 的 Array setter 会自动 setAttribute('values', ...)，无需手动同步
     this.values = newValues;
 
     this._updateActive(c, idx);
@@ -180,22 +177,20 @@ export class AfPicker extends withI18n(AfElement) {
     col.querySelectorAll('.item').forEach((it, i) => {
       const selected = i === idx;
       it.classList.toggle('active', selected);
-      it.setAttribute('aria-selected', String(selected));
+      it.setAttribute('aria-selected', selected);
     });
     col.setAttribute('aria-activedescendant', `pk-${c}-${idx}`);
-    // 给 item 设 id 以便 aria-activedescendant 引用
     const target = col.querySelector(`[data-idx="${idx}"]`);
     if (target) target.id = `pk-${c}-${idx}`;
   }
 
   _findIndex(c, value) {
     const colData = (this.columns[c] || []).map(_ni);
-    if (!colData) return 0;
     const idx = colData.findIndex(item => item.value === value);
     return idx >= 0 ? idx : 0;
   }
 
-  _scrollToValues(silent = false) {
+  _scrollToValues() {
     this._scrollers.forEach((col, c) => {
       const idx = this._findIndex(c, this.values[c]);
       col.scrollTop = idx * this.itemHeight;
@@ -213,27 +208,22 @@ export class AfPicker extends withI18n(AfElement) {
       this.values = newValues;
     }
     this._renderColumns();
-    this._applyI18n(); // 新建 column 后重新应用 aria-label
-    this._rafIds.push(requestAnimationFrame(() => {
-      const col = this._scrollers[colIdx];
-      if (!col) return;
-      const idx = this._findIndex(colIdx, this.values[colIdx]);
-      col.scrollTop = idx * this.itemHeight;
-      this._updateActive(colIdx, idx);
-    }));
+    this._applyI18n();
+    this._rafIds.push(requestAnimationFrame(() => this._scrollToValues()));
   }
 
   open() {
     this._picker?.showPopover();
     this._lockScroll();
-    // 焦点管理：保存触发元素 + 聚焦首列以便键盘操作
     this.saveFocus();
-    this._rafIds.push(requestAnimationFrame(() => this._scrollers[0]?.focus()));
+    this._rafIds.push(requestAnimationFrame(() => {
+      this._scrollToValues();
+      this._scrollers[0]?.focus();
+    }));
   }
   close() {
     this._picker?.hidePopover();
     this._unlockScroll();
-    // 焦点还原到触发元素
     this.restoreFocus();
   }
 
@@ -241,13 +231,11 @@ export class AfPicker extends withI18n(AfElement) {
     if (!this._picker) return;
     if (name === 'columns') {
       this._renderColumns();
-      this._rafIds.push(requestAnimationFrame(() => this._scrollToValues(true)));
-      // 新建 column 后需重新应用 i18n（aria-label 由 _applyI18n 设置）
+      this._rafIds.push(requestAnimationFrame(() => this._scrollToValues()));
       this._applyI18n();
     } else if (name === 'values') {
-      this._rafIds.push(requestAnimationFrame(() => this._scrollToValues(true)));
+      this._rafIds.push(requestAnimationFrame(() => this._scrollToValues()));
     } else if (name === 'title' || name === 'confirm-text' || name === 'cancel-text') {
-      // textContent 由 _applyI18n 重新计算（fallback=对应属性）
       this._applyI18n();
     } else if (name === 'item-height' || name === 'visible-count') {
       this._applyItemHeight();

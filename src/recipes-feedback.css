@@ -101,7 +101,7 @@
     z-index: var(--z-modal);
     opacity: var(--toast-opacity, 1);
     transition: var(--toast-transition, none);
-    pointer-events: none;
+    pointer-events: var(--toast-pointer-events, none);
     max-width: 80%;
     text-align: center;
   }

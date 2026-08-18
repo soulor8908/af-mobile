@@ -17,14 +17,28 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 
 ## 快速开始（AI 对话式脚手架）
 
-> 面向小白：**一条命令生成可运行工程，然后用对话完成开发**，无需手工配置路由/打包器/ESLint。
+> 面向小白：**先装 skill → 一条命令生成工程 → 用对话完成开发**，无需手工配置路由/打包器/ESLint。
+
+### 第 1 步：安装 skill（告诉 AI 执行一次）
+
+打开任一 AI 编码工具（TRAE / Claude Code / Cursor 等），直接让它执行：
+
+```bash
+npx @af-mobile/ui skill add
+```
+
+把 `af-mobile-grill`（对话式脚手架 skill）装进**当前项目**：写入 `skills/af-mobile-grill/SKILL.md` 并在 `AGENTS.md` 追加指引段（见下文「skill 装到哪里」），AI 工具读 `AGENTS.md` 即能找到 skill。命令幂等，已装项目可随时补装 / 升级。
+
+### 第 2 步：命令行安装（生成工程）
 
 ```bash
 npm create af-mobile@latest my-app
 cd my-app && npm install && npm run dev
 ```
 
-> `npm create af-mobile` 等价于 `npx create-af-mobile`（npm init 约定，vite/astro 同款）：按需下载并执行脚手架，无需先手动 `npm install`；第二步的 `npm install` 才是把库装进生成的工程。切勿写裸 `npx af-mobile`——npm 上存在同名第三方包，会装错。
+> `npm create af-mobile` 等价于 `npx create-af-mobile`（npm init 约定，vite/astro 同款）：按需下载并执行脚手架，无需先手动 `npm install`；第二步的 `npm install` 才是把库装进生成的工程。切勿写裸 `npx af-mobile`——npm 上存在同名第三方包，会装错。脚手架生成的工程已自带 skill（与第 1 步幂等，新项目二选一即可）。
+
+### 第 3 步：用 skill 开始开发
 
 生成工程自带 `af-mobile-grill` skill（对话式脚手架）与消费端 ESLint 约束。打开任一 AI 编码工具（TRAE / Claude Code / Cursor 等），说一句"我想做一个习惯打卡应用"，skill 会引导你：**拷问需求 → 需求拆分 → demo 确认 → 一次性生成页面**。
 
@@ -32,19 +46,20 @@ cd my-app && npm install && npm run dev
 
 ```bash
 npm create af-mobile@latest <目录名>    # 生成新工程（脚手架 + skill 自举）
-npx create-af-mobile skill add [目录]   # 已建项目补装 / 升级 skill（幂等，默认当前目录）
+npx @af-mobile/ui skill add [目录]      # 已建项目补装 / 升级 skill（幂等，默认当前目录）
+npx create-af-mobile skill add [目录]   # 同上（create-af-mobile 薄壳转发）
 ```
 
 ### af-mobile-grill skill 装到哪里
 
-skill 是单文件 `SKILL.md`，随 `@af-mobile/ui` npm 包分发。`npm create af-mobile` / `npx create-af-mobile skill add` 把它写到**中立路径** `skills/af-mobile-grill/SKILL.md`，并在 `AGENTS.md` 追加指引段（marker 守卫，幂等）。
+skill 是单文件 `SKILL.md`，随 `@af-mobile/ui` npm 包分发。`npm create af-mobile` / `npx @af-mobile/ui skill add` 把它写到**中立路径** `skills/af-mobile-grill/SKILL.md`，并在 `AGENTS.md` 追加指引段（marker 守卫，幂等）。注意：skill 是**按项目安装**（写进当前项目目录，而非系统级全局注册），每个项目需各执行一次。
 
 不写 `.trae/skills/` / `.claude/skills/` 等工具特定目录——任何读 `AGENTS.md` 的 AI 工具（TRAE / Claude Code / Cursor / Codex / Copilot / Windsurf 等）都能通过 `AGENTS.md` 找到 skill，避免假设用户用某工具而污染项目。
 
 ### 升级
 
 ```bash
-npm update @af-mobile/ui && npx create-af-mobile skill add   # 库升级 + skill 同步
+npm update @af-mobile/ui && npx @af-mobile/ui skill add   # 库升级 + skill 同步
 ```
 
 > 工程依赖 npm 包版本（非内嵌源码），升级只换库版本，业务代码不动。

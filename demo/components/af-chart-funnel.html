@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-chart-funnel demo - af-mobile</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <p class="eyebrow"><a href="../index.html" class="subtitle">← 返回</a></p>
+      <h1 class="display">af-chart-funnel 转化漏斗</h1>
+    </section>
+
+    <!-- 焦点组件 -->
+    <p class="caption">焦点组件 · 切换下方 props 即时生效</p>
+    <div class="card">
+      <af-chart-funnel id="focus" show-rate legend></af-chart-funnel>
+    </div>
+    <p class="caption" id="log">点击层查看 select 事件</p>
+
+    <!-- variant 矩阵 -->
+    <p class="caption">A · 默认带转化率（5 步电商）</p>
+    <div class="card"><af-chart-funnel class="demo" data-funnel="ec_conversion"></af-chart-funnel></div>
+
+    <p class="caption">B · 无转化率（showRate=false）</p>
+    <div class="card"><af-chart-funnel class="demo" data-funnel="ec_conversion" show-rate="false"></af-chart-funnel></div>
+
+    <p class="caption">C · 招聘漏斗（4 步）</p>
+    <div class="card"><af-chart-funnel class="demo" data-funnel="hr_funnel"></af-chart-funnel></div>
+
+    <p class="caption">D · 自动降序（乱序输入）</p>
+    <div class="card"><af-chart-funnel class="demo" data-funnel="unsorted"></af-chart-funnel></div>
+
+    <p class="caption">E · 3 层（最短可读）</p>
+    <div class="card"><af-chart-funnel class="demo" data-funnel="funnel_3_step"></af-chart-funnel></div>
+
+    <p class="caption">F · 8 层（最长上限，标签密集）</p>
+    <div class="card"><af-chart-funnel class="demo" data-funnel="funnel_8_step"></af-chart-funnel></div>
+
+    <p class="caption">G · 自定义颜色覆盖（data 项 color 字段）</p>
+    <div class="card"><af-chart-funnel class="demo" data-funnel="funnel_custom_color"></af-chart-funnel></div>
+
+    <!-- 五态 -->
+    <p class="caption">H/I/J · 五态：loading / error（含重试）/ empty</p>
+    <div class="card" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <af-chart-funnel id="h-loading" loading></af-chart-funnel>
+      <af-chart-funnel id="i-error" error="加载失败，请重试"></af-chart-funnel>
+      <af-chart-funnel id="j-empty"></af-chart-funnel>
+    </div>
+
+    <div class="card">
+      <button class="btn btn-ghost btn-block" id="retry-btn">手动触发 retry 事件（I 区）</button>
+    </div>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfChartFunnel } from '../../src/charts/components/af-chart-funnel.js';
+    customElements.define('af-chart-funnel', AfChartFunnel);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const MOCK = {
+      ec_conversion:      [{ label:'浏览', value:12000 },{ label:'加购', value:4800 },
+                           { label:'下单', value:2400 },{ label:'支付', value:1500 },
+                           { label:'复购', value:600 }],
+      hr_funnel:          [{ label:'投递', value:800 },{ label:'初筛', value:400 },
+                           { label:'面试', value:120 },{ label:'offer', value:30 }],
+      unsorted:           [{ label:'下单', value:2400 },{ label:'浏览', value:12000 },
+                           { label:'支付', value:1500 },{ label:'加购', value:4800 }],
+      funnel_3_step:      [{ label:'浏览', value:12000 },{ label:'下单', value:2400 },
+                           { label:'支付', value:1500 }],
+      funnel_8_step:      [{ label:'曝光', value:50000 },{ label:'点击', value:28000 },
+                           { label:'访问', value:18000 },{ label:'加购', value:4800 },
+                           { label:'下单', value:2400 },{ label:'支付', value:1500 },
+                           { label:'复购', value:600 },{ label:'分享', value:180 }],
+      funnel_custom_color:[{ label:'浏览', value:12000, color:'#FF6B6B' },
+                           { label:'加购', value:4800, color:'#FFA94D' },
+                           { label:'下单', value:2400, color:'#FFD93D' },
+                           { label:'支付', value:1500, color:'#4ECDC4' },
+                           { label:'复购', value:600, color:'#95E1D3' }],
+      empty:              [],
+    };
+
+    // 焦点组件
+    const focus = document.getElementById('focus');
+    focus.data = MOCK.ec_conversion;
+
+    // 实例化
+    document.querySelectorAll('af-chart-funnel.demo[data-funnel]').forEach(el => {
+      el.data = MOCK[el.dataset.funnel];
+    });
+    document.getElementById('h-loading').data = MOCK.ec_conversion;
+
+    // 事件日志
+    focus.addEventListener('af-chart-funnel:select', (e) => {
+      document.getElementById('log').textContent =
+        `select: index=${e.detail.index} label=${e.detail.label} value=${e.detail.value}`;
+    });
+    document.getElementById('i-error').addEventListener('af-chart-funnel:retry', () => {
+      document.getElementById('log').textContent = 'I 区派发 af-chart-funnel:retry';
+    });
+    document.getElementById('retry-btn').addEventListener('click', () => {
+      const i = document.getElementById('i-error');
+      i.error = ''; i.loading = true;
+      setTimeout(() => { i.loading = false; i.data = MOCK.ec_conversion; }, 800);
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'showRate', label: '转化率标注', type: 'boolean' },
+      { prop: 'legend', label: '图例', type: 'boolean' },
+      { prop: 'height', label: '高度(px)', type: 'number', min: 200, max: 400, step: 10 },
+      { prop: 'loading', label: 'loading 态', type: 'boolean' },
+      { prop: 'error', label: 'error 文案', type: 'string' },
+    ], focus);
+  </script>
+</body>
+</html>

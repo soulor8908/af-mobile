@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-chart-pie demo - af-mobile</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <p class="eyebrow"><a href="../index.html" class="subtitle">← 返回</a></p>
+      <h1 class="display">af-chart-pie 饼/环形/玫瑰</h1>
+    </section>
+
+    <!-- 焦点组件 -->
+    <p class="caption">焦点组件 · 切换下方 props 即时生效</p>
+    <div class="card">
+      <af-chart-pie id="focus" variant="pie" legend></af-chart-pie>
+    </div>
+    <p class="caption" id="log">点击扇区查看 select 事件</p>
+
+    <!-- variant 矩阵 -->
+    <p class="caption">A · 饼图（5 渠道流量）</p>
+    <div class="card"><af-chart-pie class="demo" variant="pie" data-pie="traffic"></af-chart-pie></div>
+
+    <p class="caption">B · 环形 + 中心 KPI（{total} 占位符替换）</p>
+    <div class="card"><af-chart-pie class="demo" variant="donut" center-text="合计 {total}" data-pie="traffic"></af-chart-pie></div>
+
+    <p class="caption">C · 半环完成度（center-text 自定义）</p>
+    <div class="card"><af-chart-pie class="demo" variant="half" center-text="75%" data-pie="completion"></af-chart-pie></div>
+
+    <p class="caption">D · 玫瑰图（数值差异强调，面积正比）</p>
+    <div class="card"><af-chart-pie class="demo" variant="rose" data-pie="category_diff"></af-chart-pie></div>
+
+    <p class="caption">E · >6 项自动聚合为"其他"</p>
+    <div class="card"><af-chart-pie class="demo" variant="pie" data-pie="over_10"></af-chart-pie></div>
+
+    <p class="caption">F · innerRadius 多值对比（30 / 60 / 90，同数据 donut）</p>
+    <div class="card" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <af-chart-pie class="demo" variant="donut" inner-radius="30" data-pie="traffic"></af-chart-pie>
+      <af-chart-pie class="demo" variant="donut" inner-radius="60" data-pie="traffic"></af-chart-pie>
+      <af-chart-pie class="demo" variant="donut" inner-radius="90" data-pie="traffic"></af-chart-pie>
+    </div>
+
+    <p class="caption">G · 自定义颜色覆盖（data 项 color 字段，绕过 seriesColor 轮转）</p>
+    <div class="card"><af-chart-pie class="demo" variant="pie" data-pie="custom_color"></af-chart-pie></div>
+
+    <!-- 五态 -->
+    <p class="caption">H/I/J · 五态：loading / error（含重试）/ empty</p>
+    <div class="card" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <af-chart-pie id="h-loading" loading></af-chart-pie>
+      <af-chart-pie id="i-error" error="加载失败，请重试" data-pie="empty"></af-chart-pie>
+      <af-chart-pie id="j-empty" data-pie="empty"></af-chart-pie>
+    </div>
+
+    <div class="card">
+      <button class="btn btn-ghost btn-block" id="retry-btn">手动触发 retry 事件（I 区）</button>
+    </div>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfChartPie } from '../../src/charts/components/af-chart-pie.js';
+    customElements.define('af-chart-pie', AfChartPie);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const MOCK = {
+      traffic:       [{ label:'自然搜索', value:4200 },{ label:'付费广告', value:2800 },
+                      { label:'社交媒体', value:1900 },{ label:'直接访问', value:1200 },
+                      { label:'邮件营销', value:600 }],
+      completion:    [{ label:'已完成', value:75 },{ label:'待办', value:25 }],
+      category_diff: [{ label:'手机', value:1280 },{ label:'笔记本', value:960 },
+                      { label:'平板', value:540 },{ label:'手表', value:120 },
+                      { label:'耳机', value:680 },{ label:'音箱', value:80 }],
+      over_10:       Array.from({length:10},(_,i)=>({ label:`渠道${i+1}`, value: 100 + i*30 + (i%3)*40 })),
+      // 自定义颜色覆盖 seriesColor：每个 data 项带 color 字段（hex/var 皆可）
+      custom_color:  [{ label:'iOS', value:5400, color:'#FF6B6B' },
+                      { label:'Android', value:7200, color:'#4ECDC4' },
+                      { label:'H5', value:3100, color:'#FFD93D' },
+                      { label:'小程序', value:2400, color:'#95E1D3' },
+                      { label:'其他', value:900, color:'#A8DADC' }],
+      empty:         [],
+    };
+
+    // 焦点组件
+    const focus = document.getElementById('focus');
+    focus.data = MOCK.traffic;
+
+    // 实例化
+    document.querySelectorAll('af-chart-pie.demo[data-pie]').forEach(el => {
+      el.data = MOCK[el.dataset.pie];
+    });
+
+    // 事件日志
+    focus.addEventListener('af-chart-pie:select', (e) => {
+      document.getElementById('log').textContent =
+        `select: index=${e.detail.index} label=${e.detail.label} value=${e.detail.value}`;
+    });
+    document.getElementById('i-error').addEventListener('af-chart-pie:retry', () => {
+      document.getElementById('log').textContent = 'I 区派发 af-chart-pie:retry';
+    });
+    document.getElementById('retry-btn').addEventListener('click', () => {
+      const i = document.getElementById('i-error');
+      i.error = '';
+      i.loading = true;
+      setTimeout(() => { i.loading = false; i.data = MOCK.traffic; }, 800);
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'variant', label: '形态', type: 'select', options: ['pie','donut','half','rose'] },
+      { prop: 'innerRadius', label: '内径(%)', type: 'number', min: 0, max: 99, step: 5 },
+      { prop: 'centerText', label: '中心文案', type: 'string' },
+      { prop: 'legend', label: '图例', type: 'boolean' },
+      { prop: 'height', label: '高度(px)', type: 'number', min: 120, max: 400, step: 10 },
+      { prop: 'loading', label: 'loading 态', type: 'boolean' },
+      { prop: 'error', label: 'error 文案', type: 'string' },
+    ], focus);
+  </script>
+</body>
+</html>

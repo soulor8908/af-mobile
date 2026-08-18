@@ -23,7 +23,7 @@ import wcBlockStates from './rules/wc-block-states.js';
 import wcBlockVariantEnum from './rules/wc-block-variant-enum.js';
 
 const plugin = {
-  meta: { name: 'eslint-plugin-af-mobile', version: '2.0.2' },
+  meta: { name: 'eslint-plugin-af-mobile', version: '2.0.3' },
   rules: {
     // L1（2 条，全部 error；tokens-css-locked 由 CODEOWNERS + 分支保护，非 ESLint 规则）
     'no-token-modification': noTokenModification,

@@ -2,6 +2,7 @@
 // af-mobile CLI 入口（bin）：子命令分发
 //   af-mobile create <dir>    生成新工程（脚手架 + skill 自举）
 //   af-mobile skill add [dir] 把 af-mobile-grill skill 装进已有项目（默认当前目录）
+//   af-mobile lint <路径>...  ESLint 校验 + 数据飞轮遥测（转发 lint-flywheel.mjs）
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
@@ -18,9 +19,12 @@ if (cmd === 'create') {
   run('create-app.mjs', args);
 } else if (cmd === 'skill' && args[0] === 'add') {
   run('skill-add.mjs', args.slice(1));
+} else if (cmd === 'lint') {
+  run('lint-flywheel.mjs', args);
 } else {
   console.log(`用法：
   af-mobile create <目录名>      生成新工程
-  af-mobile skill add [目录]     安装 af-mobile-grill skill（默认当前目录）`);
+  af-mobile skill add [目录]     安装 af-mobile-grill skill（默认当前目录）
+  af-mobile lint <路径>...       ESLint 校验 + 遥测（如 af-mobile lint src/ --source cli）`);
   process.exit(cmd ? 1 : 0);
 }

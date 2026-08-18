@@ -24,6 +24,27 @@ console.log('\n╔════════════════════�
 console.log('║     af-mobile UI —— 发布前检查                 ║');
 console.log('╚══════════════════════════════════════════════╝\n');
 
+// 0. 版本闸门：repo version 必须大于 npm 已发布版本
+// 防再犯：脚手架/模板引用包内新增文件，但版本号与已发布版相同 → 消费端装到旧包（278efd4 教训）
+console.log('\n── 0. 版本闸门 ──');
+function versionGate() {
+  const local = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
+  let published;
+  try {
+    published = execSync('npm view @af-mobile/ui version', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+  } catch {
+    check('npm registry 可达', false, '无法查询已发布版本（离线时也无法 publish）');
+    return;
+  }
+  const gt = (a, b) => {
+    const [a1, a2, a3] = a.split('.').map(Number);
+    const [b1, b2, b3] = b.split('.').map(Number);
+    return a1 !== b1 ? a1 > b1 : a2 !== b2 ? a2 > b2 : a3 > b3;
+  };
+  check(`本地版本 ${local} 高于已发布 ${published}`, gt(local, published), gt(local, published) ? '' : '需 bump version（同号两内容，消费端会装到旧包）');
+}
+versionGate();
+
 // 1. npm pack 内容检查
 console.log('── 1. npm pack 内容 ──');
 const packFiles = execSync('npm pack --dry-run 2>&1', { cwd: ROOT, encoding: 'utf8' })

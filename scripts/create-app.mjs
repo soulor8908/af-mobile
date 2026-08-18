@@ -28,8 +28,9 @@ if (existsSync(dir) && readdirSync(dir).length > 0) {
 }
 
 // --flywheel：lint 单命令化（gate + 遥测一次跑完）；备注：链路完善后此项默认不开启（保持隐私默认，显式 opt-in）
+// 走 bin（af-mobile lint）而非包内路径：npm run 会把 node_modules/.bin 加进 PATH，对包内文件重构免疫
 const lintScript = flywheel
-  ? 'node node_modules/@af-mobile/ui/scripts/lint-flywheel.mjs src/ --source cli'
+  ? 'af-mobile lint src/ --source cli'
   : 'eslint src/';
 
 const files = {
@@ -231,6 +232,7 @@ export default [
 
   '.gitignore': `node_modules/
 dist/
+.af-mobile/
 `,
 
   'src/main.js': `// 应用入口：注册组件 → 声明路由 → 启动（hash 模式，静态托管零配置）
@@ -290,7 +292,7 @@ export default async function docsPage(params, ctx) {
       </section>
       <section class="card">
         <h3 class="section-title">组件 API</h3>
-        <p class="body">见 node_modules/@af-mobile/ui/README.md。</p>
+        <p class="body">见 node_modules/@af-mobile/ui/src/index.d.ts（方法签名与事件 payload，一次读全）。</p>
       </section>
       <div class="actions">
         <button class="btn btn-ghost" data-role="back">返回首页</button>

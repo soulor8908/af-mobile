@@ -13,7 +13,7 @@ hero:
       link: /guide/quick-start
     - theme: alt
       text: Demo 演示
-      link: https://soulor8908.github.io/af-mobile-docs/demo/index.html
+      link: https://soulor8908.github.io/af-mobile/demo/index.html
 
 features:
   - title: 原生优先
@@ -23,5 +23,5 @@ features:
   - title: AI-first
     details: 内置 MCP 与 system-prompt，让 AI 与你用同一套语言协作。
 
-status: docs 站点已上线（GitHub Pages，base /af-mobile-docs/）
+status: docs 站点已上线（GitHub Pages，base /af-mobile/）
 ---

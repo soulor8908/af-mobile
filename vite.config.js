@@ -18,7 +18,7 @@ function componentInputs() {
 
 export default defineConfig({
   root: 'demo',
-  base: '/af-mobile-docs/demo/',
+  base: '/af-mobile/demo/',
   server: {
     port: 5180,
     open: '/index.html',

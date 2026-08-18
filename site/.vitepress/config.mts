@@ -12,7 +12,7 @@ function componentSidebar() {
 }
 
 export default defineConfig({
-  base: '/af-mobile-docs/',
+  base: '/af-mobile/',
   lang: 'zh-CN',
   title: '@af-mobile/ui',
   description: 'AI-first mobile Web Components 组件库',
@@ -20,7 +20,7 @@ export default defineConfig({
     nav: [
       { text: '指南', link: '/guide/quick-start' },
       { text: '组件', link: '/components/af-dialog' },
-      { text: 'Demo', link: 'https://soulor8908.github.io/af-mobile-docs/demo/index.html' },
+      { text: 'Demo', link: 'https://soulor8908.github.io/af-mobile/demo/index.html' },
     ],
     sidebar: {
       '/guide/': [

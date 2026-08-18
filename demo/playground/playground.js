@@ -3,7 +3,7 @@
 // main: { selector } 用于定位组件实例（缺省回退 html 首元素）；init: 渲染后调用（注入数据/绑定按钮）
 // props 控件：boolean=开关按钮 / select=下拉 / number=数字 / string=文本，赋值 el[prop] 实时生效
 // styleTokens 控件：color=取色器 / range=滑杆，以 CSS 变量覆盖到 #pg-screen，并展示覆盖代码
-import { registerAll } from '../../src/index.js';
+import { register } from '../../src/index.js';
 
 const $ = (s, el = document) => el.querySelector(s);
 const screen = $('#pg-screen');
@@ -137,7 +137,7 @@ COMPONENTS.forEach((tag) => {
 });
 const initial = new URLSearchParams(location.search).get('c') || 'af-dialog';
 sel.value = initial;
-registerAll();
+register('af-dialog', 'af-list', 'af-swiper', 'af-tabs', 'af-toast', 'af-action-sheet', 'af-picker', 'af-dropdown', 'af-switch', 'af-navbar');
 loadComponent(initial).then((spec) => { if (spec) renderScenario(spec, spec.scenarios[0]); });
 
 // 组件下拉切换

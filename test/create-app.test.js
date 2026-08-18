@@ -42,7 +42,7 @@ describe('create-app scaffold', () => {
     expect(html).toContain('localStorage.getItem(\'theme\')'); // 暗色 FOUC 内联脚本
 
     const main = readFileSync(join(dir, 'src/main.js'), 'utf8');
-    expect(main).toContain("start('#app', { hash: true })");
+    expect(main).toContain("start({ outlet: '#app', hash: true })");
   });
 
   it('自举安装 af-mobile-grill skill 到中立路径 + AGENTS.md', () => {

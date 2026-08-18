@@ -126,7 +126,7 @@ Web Components + 原生能力（Popover API、scroll-snap、Declarative Shadow D
 
 **问题**：History 模式要服务器配置（刷新即 404），hash 模式零配置但 URL 丑——默认哪个？
 
-**决策**：默认 History（`/goods/123`，SEO 友好），`start('#app', { hash: true })` 一行切 hash。
+**决策**：默认 History（`/goods/123`，SEO 友好），`start({ outlet: '#app', hash: true })` 一行切 hash。
 
 这个选型的实现成本极低（净增约 15 行 + 38B gzip），但它背后是一次角色认知的修正：**部署配置是落地链的一部分，库引入的坑库要负责给出填坑说明。** 所以 README 部署速查表现在覆盖六个平台（nginx / Vercel / Netlify / Express / Caddy / Cloudflare Pages），每条都是三行以内。
 

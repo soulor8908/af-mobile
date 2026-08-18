@@ -874,7 +874,7 @@
   .segmented-item {
     flex: 1;
     min-width: 0;
-    padding: var(--s-1) var(--s-3);
+    padding: var(--s-1) var(--s-2);
     border: none;
     background: none;
     border-radius: var(--r-s);

@@ -110,7 +110,7 @@ initTheme();
 route('/', homePage);
 route('/docs', docsPage);
 
-start('#app', { hash: true });
+start({ outlet: '#app', hash: true });
 `,
 
   'src/styles.css': `/* 项目级自定义样式：只用 var(--*) token；新增 class 需登记项目白名单 */

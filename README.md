@@ -373,7 +373,7 @@ register('af-dialog');
 ```js
 import { route, start } from '@af-mobile/ui';
 route('/', homeHandler);
-start('#app', { hash: true });
+start({ outlet: '#app', hash: true });
 ```
 
 | | History 模式（默认） | hash 模式 |

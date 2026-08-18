@@ -88,7 +88,7 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 
 脚手架会一次性生成 `package.json` / `index.html` / `vite.config.js` / `eslint.config.js` / `.gitignore` / `src/main.js` / `src/styles.css` / `src/pages/home.js` / `src/pages/docs.js`，并自动调用 `skill-add.mjs` 装 `AGENTS.md` + `skills/af-mobile-grill/SKILL.md`（中立路径，任何 AI 工具读 AGENTS.md 都能找到），形成迭代闭环。
 
-**禁止 AI 直接手写上述基础文件**——脚手架是项目骨架的单一真相源，手写会绕过 AGENTS.md/skills 自举、ESLint 接入、`extraClass` 登记、`start('#app', { hash: true })` 入口规范等约束。若 AI 嫌"脚手架生成的 home/docs 是示例没用"而绕过，正是 AGENTS/skills 缺失的根因。
+**禁止 AI 直接手写上述基础文件**——脚手架是项目骨架的单一真相源，手写会绕过 AGENTS.md/skills 自举、ESLint 接入、`extraClass` 登记、`start({ outlet: '#app', hash: true })` 入口规范等约束。若 AI 嫌"脚手架生成的 home/docs 是示例没用"而绕过，正是 AGENTS/skills 缺失的根因。
 
 ### Step 2：覆盖业务文件（pages + store + tabs 等）
 
@@ -96,7 +96,7 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 
 - `src/pages/home.js` → 实际首页（按 demo 迁移业务逻辑）
 - `src/pages/<name>.js` → 新增页面（每页一文件）
-- `src/main.js` → 替换路由表（保留 `initTheme/start('#app', { hash: true })` 两件套；**组件注册用显式 `register(...names)`**，禁止 `registerAll()`，否则触发 `af-mobile/no-register-all` 且失去 Tree Shaking）
+- `src/main.js` → 替换路由表（保留 `initTheme/start({ outlet: '#app', hash: true })` 两件套；**组件注册用显式 `register(...names)`**，禁止 `registerAll()`，否则触发 `af-mobile/no-register-all` 且失去 Tree Shaking）
 - `src/styles.css` → 项目级自定义样式（只用 `var(--*)` token；白名单外 class 必须在 `eslint.config.js` 用 `extraClass` 登记）
 - 数据层（如 `src/store.js`）：按拆分表 localStorage 或 Supabase
 

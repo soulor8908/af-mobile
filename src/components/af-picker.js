@@ -23,7 +23,7 @@ const CSS = `
   .columns { display: flex; position: relative; }
   .column {
     flex: 1; overflow-y: scroll; scroll-snap-type: y mandatory;
-    scrollbar-width: none;
+    scrollbar-width: none; touch-action: pan-y;
   }
   .column:focus { outline: 2px solid var(--c-brand); outline-offset: -2px; }
   .item {

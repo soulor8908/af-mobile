@@ -4,10 +4,11 @@ import { AfElement } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';
 
 const TEMPLATES = {
-  list: '<div class="skeleton-line"></div>'.repeat(6),
+  list: '<div class="skeleton skeleton-line"></div>'.repeat(6),
   detail: '<div class="skeleton skeleton-block skeleton-block-h-md"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line skeleton-w-60"></div>',
   profile: '<div class="skeleton skeleton-block skeleton-circle"></div><div class="skeleton skeleton-line skeleton-w-40"></div><div class="skeleton skeleton-line skeleton-w-80"></div>',
   card: '<div class="skeleton skeleton-block skeleton-block-h-sm"></div>'.repeat(2) + '<div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line skeleton-w-60"></div>',
+  article: '<div class="skeleton skeleton-line skeleton-w-80"></div><div class="skeleton skeleton-block skeleton-block-h-md"></div>'.repeat(2) + '<div class="skeleton skeleton-line"></div>',
 };
 
 export class AfSkeletonPage extends withI18n(AfElement) {

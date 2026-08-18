@@ -10,7 +10,7 @@
 # 设计体系速查
 
 - **L1 Token（72 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
-- **L2 配方（108）+ 原子（56）= 164 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
+- **L2 配方（111）+ 原子（56）= 167 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
 - **L3 真组件（33 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 20 规则（13 error + 7 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
@@ -18,14 +18,14 @@
 
 # L2 白名单（构建时注入）
 
-## L2 配方（108 个，按用途分组）
+## L2 配方（111 个，按用途分组）
 
 **按钮（7）：** `btn` `btn-sm` `btn-lg` `btn-ghost` `btn-danger` `btn-success` `btn-block`
 **容器（8）：** `page` `card` `cell` `center` `sheet` `eyebrow` `section` `section-title`
 **文本（8）：** `display` `title` `subtitle` `body` `caption` `meta` `price` `price-del`
 **表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-loading` `switch-thumb` `search-bar-wrap` `search-bar-icon` `search-bar-clear` `input-err` `upload-trigger` `upload-grid`
 **列表（6）：** `list` `list-item` `list-item-compact` `divider` `thumb` `avatar`
-**反馈（17）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast`
+**反馈（20）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast` `toast-success` `toast-danger` `toast-warn`
 **导航（7）：** `navbar` `navbar-fixed` `page-col` `scroll-y` `tabbar` `tabbar-fixed` `tab-item`
 **布局（5）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar`
 **Checkbox / Radio（4）：** `checkbox` `radio` `checkbox-sm` `radio-sm`
@@ -111,7 +111,7 @@
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-03. 禁止使用 164 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
+03. 禁止使用 167 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success`（破坏 onbrand 对比度）
 05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fc` 原子（自带 `display:flex`，再设会破坏布局）

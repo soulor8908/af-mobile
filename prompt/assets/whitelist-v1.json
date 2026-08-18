@@ -109,6 +109,9 @@
       "thumb",
       "title",
       "toast",
+      "toast-danger",
+      "toast-success",
+      "toast-warn",
       "upload-grid",
       "upload-trigger"
     ],

@@ -70,6 +70,7 @@ export class AfCalendar extends AfElement {
   }
 
   _render() {
+    if (!this.shadowRoot) return;
     const { y, m } = this._ym();
     const monthLabel = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'long' }).format(new Date(y, m, 1));
     const weekdays = Array.from({ length: 7 }, (_, i) =>
@@ -107,7 +108,7 @@ export class AfCalendar extends AfElement {
   }
 
   onAttributeChange(name) {
-    if (this.$('.calendar') && (name === 'month' || name === 'value' || name === 'min' || name === 'max')) {
+    if (name === 'month' || name === 'value' || name === 'min' || name === 'max') {
       this._render();
     }
   }

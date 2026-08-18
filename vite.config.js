@@ -2,8 +2,19 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { readdirSync } from 'node:fs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
+
+// demo/components/*.html 每个组件一个静态 demo 页，全部作为多页入口打包
+function componentInputs() {
+  const dir = resolve(ROOT, 'demo/components');
+  const inputs = {};
+  for (const f of readdirSync(dir).filter((f) => f.endsWith('.html'))) {
+    inputs[f.replace(/\.html$/, '')] = resolve(dir, f);
+  }
+  return inputs;
+}
 
 export default defineConfig({
   root: 'demo',
@@ -20,6 +31,7 @@ export default defineConfig({
       input: {
         index: resolve(ROOT, 'demo/index.html'),
         playground: resolve(ROOT, 'demo/playground/index.html'),
+        ...componentInputs(),
       },
     },
   },

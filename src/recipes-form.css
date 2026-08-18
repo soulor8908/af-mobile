@@ -3,6 +3,7 @@
    表单页按需引：import 'af-mobile/css/form'; */
 @layer components {
   /* === 表单（8） === */
+  /* v5：focus 态 box-shadow 改用 --ring-focus（color-mix 派生，主题切换自动跟随） */
   .label {
     display: block;
     margin-bottom: var(--s-1);
@@ -19,11 +20,13 @@
     font-size: var(--t-md);
     color: var(--c-text);
     line-height: var(--lh-tight);
-    transition: border-color var(--dur-fast) var(--ease-out);
+    transition: border-color var(--dur-fast) var(--ease-out),
+                box-shadow var(--dur-fast) var(--ease-out);
   }
   .input:focus, .textarea:focus {
     outline: none;
     border-color: var(--c-brand);
+    box-shadow: var(--ring-focus);
   }
   .input::placeholder, .textarea::placeholder { color: var(--c-muted); }
   .textarea {
@@ -56,14 +59,21 @@
     width: 100%;
     padding: var(--s-2) var(--s-3) var(--s-2) var(--s-5);
     background: var(--c-muted-bg);
-    border: none;
+    border: 1px solid transparent;
     border-radius: var(--r-f);
     font-size: var(--t-md);
     color: var(--c-text);
+    transition: border-color var(--dur-fast) var(--ease-out),
+                box-shadow var(--dur-fast) var(--ease-out);
   }
-  .search-input:focus { outline: none; }
+  .search-input:focus {
+    outline: none;
+    border-color: var(--c-brand);
+    box-shadow: var(--ring-focus);
+  }
   .search-input::placeholder { color: var(--c-muted); }
 
+  /* v5：switch-thumb 阴影改 color-mix 派生，主题切换自动跟随；环形描边替代黑色投影 */
   .switch {
     position: relative;
     display: inline-flex;
@@ -87,8 +97,8 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: var(--c-bg);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    background: var(--c-card);
+    box-shadow: var(--shadow-sm), 0 0 0 1px color-mix(in srgb, var(--c-text) 4%, transparent);
     transition: transform var(--dur-base) var(--ease-out);
     margin: 0 2px;
     flex-shrink: 0;
@@ -129,14 +139,9 @@
   }
   .search-bar-clear[hidden] { display: none; }
 
-  .input-err {
-    border-color: var(--c-danger);
-  }
-  .input-err:focus { border-color: var(--c-danger); }
+  .input-err, .input-err:focus { border-color: var(--c-danger); }
 
-  /* 原生 Constraint Validation API 联动：用户输入过且校验失败时自动错误态
-     AI 只需 <input class="input" required type="email">，无需写 JS 校验逻辑
-     :user-invalid 仅在用户交互过才触发，比 :invalid 更克制（首帧不报红） */
+  /* :user-invalid 仅在用户交互过才触发，首帧不报红 */
   .input:user-invalid, .textarea:user-invalid { border-color: var(--c-danger); }
   .input:user-invalid:focus, .textarea:user-invalid:focus { border-color: var(--c-danger); }
 
@@ -150,8 +155,8 @@
   .upload-grid:empty { display: none; }
 
   /* === Checkbox / Radio（4） === */
-  /* 纯 CSS：appearance:none + :checked::after 自绘勾选/圆点
-     用法：<label class="checkbox"><input type="checkbox"><span>文本</span></label> */
+  /* v5：删 appearance:none + ::after 自绘勾选（魔数 + 对齐 bug）
+     改用原生 accent-color（2022+ 浏览器原生支持，无障碍自动处理，跨平台一致体验） */
   .checkbox, .radio {
     display: inline-flex;
     align-items: center;
@@ -162,39 +167,12 @@
   }
   .checkbox-sm, .radio-sm { gap: var(--s-1); }
   .checkbox input, .radio input {
-    appearance: none;
-    -webkit-appearance: none;
+    accent-color: var(--c-brand);
     width: 20px;
     height: 20px;
-    border: 1px solid var(--c-border);
-    background: var(--c-card);
     cursor: pointer;
     flex-shrink: 0;
     margin: 0;
-    transition: background var(--dur-fast) var(--ease-out),
-                border-color var(--dur-fast) var(--ease-out);
-  }
-  .checkbox input { border-radius: var(--r-s); }
-  .radio input { border-radius: 50%; }
-  .checkbox input:checked { background: var(--c-brand); border-color: var(--c-brand); }
-  .radio input:checked { border-color: var(--c-brand); }
-  .checkbox input:checked::after {
-    content: '';
-    display: block;
-    width: 5px;
-    height: 10px;
-    border: solid var(--c-onbrand);
-    border-width: 0 2px 2px 0;
-    transform: translate(6px, 3px) rotate(45deg);
-  }
-  .radio input:checked::after {
-    content: '';
-    display: block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--c-brand);
-    transform: translate(4px, 4px);
   }
   .checkbox input:focus-visible, .radio input:focus-visible {
     outline: 2px solid var(--c-brand);
@@ -207,14 +185,6 @@
   .checkbox-sm input, .radio-sm input {
     width: 16px;
     height: 16px;
-  }
-  .checkbox-sm input:checked::after {
-    width: 4px; height: 8px;
-    transform: translate(4px, 2px) rotate(45deg);
-  }
-  .radio-sm input:checked::after {
-    width: 8px; height: 8px;
-    transform: translate(3px, 3px);
   }
 
   /* === af-stepper / af-field 宿主样式（form 子集，表单页才引） === */
@@ -232,4 +202,6 @@
     color: var(--c-muted); pointer-events: none; font-size: var(--t-md);
   }
   af-field [data-role="icon"] ~ [data-role="input"] { padding-left: var(--s-6); }
+  af-field [data-role="help"], af-field [data-role="error"] { margin-top: var(--s-1); }
+  af-field [data-role="error"] { font-weight: var(--fw-medium); }
 }

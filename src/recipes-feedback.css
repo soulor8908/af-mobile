@@ -14,12 +14,13 @@
     text-align: center;
   }
 
+  /* v5：shimmer 加强——三色饱和度提升 + 中段宽度收窄，"光扫过"更清晰可见 */
   .skeleton {
     background: linear-gradient(
       90deg,
-      var(--c-muted-bg) 25%,
-      var(--c-border) 50%,
-      var(--c-muted-bg) 75%
+      var(--c-muted-bg) 0%,
+      color-mix(in srgb, var(--c-muted) 32%, var(--c-muted-bg)) 50%,
+      var(--c-muted-bg) 100%
     );
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.5s infinite var(--ease-in-out);
@@ -55,11 +56,13 @@
     padding: var(--s-3);
   }
 
+  /* v5：tag padding 3px → var(--s-1)（修魔数，4px 间距体系内） */
   .tag {
     display: inline-flex;
     align-items: center;
-    padding: 2px var(--s-2);
+    padding: var(--s-1) var(--s-2);
     font-size: var(--t-xs);
+    font-weight: var(--fw-medium);
     line-height: var(--lh-tight);
     border-radius: var(--r-s);
     background: var(--c-muted-bg);
@@ -69,13 +72,14 @@
   .tag-warn   { background: var(--c-warn);    color: var(--c-onbrand); }
   .tag-danger { background: var(--c-danger);  color: var(--c-onbrand); }
 
+  /* v5：badge padding 5px → var(--s-1)（修魔数） */
   .badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 18px;
     height: 18px;
-    padding: 0 5px;
+    padding: 0 var(--s-1);
     font-size: var(--t-xs);
     font-weight: var(--fw-bold);
     line-height: 1;
@@ -101,6 +105,9 @@
     max-width: 80%;
     text-align: center;
   }
+  .toast-success { background: var(--c-success); }
+  .toast-error { background: var(--c-danger); }
+  .toast-warning { background: var(--c-warn); color: var(--c-text); }
 
   /* === 加载指示器（3） === */
   /* 纯 CSS：@keyframes border 旋转
@@ -120,9 +127,8 @@
   @keyframes spinner-rotate { to { transform: rotate(360deg); } }
 
   /* === 进度条（5） === */
-  /* 纯 CSS：<progress> 原生元素 + ::-webkit-progress-value
-     用法：<progress class="progress" value="60" max="100"></progress>
-     颜色变体：.progress-success / .progress-danger 通过 --progress-color 覆盖 */
+  /* v5：新增 accent-color（2022+ 浏览器原生），保留 ::-webkit-progress-value / ::-moz-progress-bar 双写兜底
+     颜色变体通过 --progress-color 覆盖 */
   .progress {
     display: block;
     width: 100%;
@@ -132,6 +138,9 @@
     background: var(--c-muted-bg);
     overflow: hidden;
     --progress-color: var(--c-brand);
+    accent-color: var(--progress-color);
+    -webkit-appearance: none;
+    appearance: none;
   }
   .progress-sm { height: 4px; }
   .progress-lg { height: 12px; }

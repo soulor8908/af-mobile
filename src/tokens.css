@@ -18,10 +18,11 @@
     font-size: var(--t-md);
     line-height: var(--lh-normal);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   [popover] { border: none; background: none; padding: 0; }
-  [popover]::backdrop { background: rgba(0,0,0,.5); backdrop-filter: blur(4px); }
-  dialog::backdrop { background: rgba(0,0,0,.5); }
+  [popover]::backdrop { background: rgba(0,0,0,.4); backdrop-filter: blur(8px); }
+  dialog::backdrop { background: rgba(0,0,0,.4); backdrop-filter: blur(8px); }
 }
 
 /* === 无障碍：prefers-reduced-motion 降级（骨架 shimmer / 过渡动画归零） === */
@@ -37,47 +38,70 @@
 }
 
 @layer tokens {
-  /* === 主题调色板（二次抽象：单处定义，light/dark 共享） === */
+  /* === 主题调色板（二次抽象：单处定义，light/dark 共享）
+     v5 设计基线：OKLCH 感知均匀色彩空间（更精准的明度/饱和度控制）
+     品牌色从 Material #2B5CE6 → 现代靛紫（hue 275），沉稳有立场 === */
   :root {
-    --palette-brand: #2B5CE6;  --palette-brand-strong: #1F46C8;  --palette-onbrand: #fff;
-    --palette-brand-soft: #EAF0FE;
-    --palette-text: #1B2434;   --palette-muted: #6B7893;
-    --palette-card: #fff;      --palette-bg: #F6F7F9;   --palette-muted-bg: #EEF1F6;
-    --palette-border: #E2E7F0;
-    --palette-danger: #E5484D; --palette-success: #1A9E5A; --palette-warn: #E58F18;
-    --palette-shadow-sm: 0 1px 2px rgba(17,24,39,.05), 0 1px 3px rgba(17,24,39,.06);
-    --palette-shadow-md: 0 4px 8px rgba(17,24,39,.05), 0 8px 24px rgba(17,24,39,.07);
-    --palette-shadow-lg: 0 8px 16px rgba(17,24,39,.08), 0 24px 48px rgba(17,24,39,.12);
+    --palette-brand: oklch(54% 0.22 275);
+    --palette-brand-strong: oklch(47% 0.22 275);
+    --palette-onbrand: oklch(100% 0 0);
+    --palette-brand-soft: oklch(96% 0.04 275);
+    --palette-text: oklch(28% 0.03 270);
+    --palette-muted: oklch(55% 0.02 270);
+    --palette-card: oklch(100% 0 0);
+    --palette-bg: oklch(98% 0.005 270);
+    --palette-muted-bg: oklch(96% 0.005 270);
+    --palette-border: oklch(92% 0.005 270);
+    --palette-danger: oklch(60% 0.22 25);
+    --palette-success: oklch(58% 0.16 145);
+    --palette-warn: oklch(78% 0.16 75);
+    --palette-shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.03);
+    --palette-shadow-md: 0 2px 4px rgba(15,23,42,.04), 0 4px 12px rgba(15,23,42,.05);
+    --palette-shadow-lg: 0 4px 12px rgba(15,23,42,.06), 0 16px 48px rgba(15,23,42,.08);
     --palette-color-scheme: light;
   }
 
   /* === 系统暗黑自动跟随：仅当未显式设 light 时生效 === */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --palette-brand: #4F7BEF;  --palette-brand-strong: #6B8FF0;  --palette-onbrand: #fff;
-      --palette-brand-soft: rgba(79,123,239,.16);
-      --palette-text: #E8ECF4;   --palette-muted: #9AA6BD;
-      --palette-card: #1C2333;   --palette-bg: #10141E;   --palette-muted-bg: #262E41;
-      --palette-border: #2E3852;
-      --palette-danger: #EF6A6E; --palette-success: #3BB574; --palette-warn: #F0A73C;
-      --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.32), 0 1px 3px rgba(0,0,0,.36);
-      --palette-shadow-md: 0 4px 8px rgba(0,0,0,.36), 0 8px 24px rgba(0,0,0,.42);
-      --palette-shadow-lg: 0 8px 16px rgba(0,0,0,.42), 0 24px 48px rgba(0,0,0,.5);
+      --palette-brand: oklch(72% 0.16 275);
+      --palette-brand-strong: oklch(78% 0.16 275);
+      --palette-onbrand: oklch(20% 0.03 270);
+      --palette-brand-soft: oklch(28% 0.06 275);
+      --palette-text: oklch(94% 0.01 270);
+      --palette-muted: oklch(68% 0.02 270);
+      --palette-card: oklch(22% 0.015 270);
+      --palette-bg: oklch(15% 0.015 270);
+      --palette-muted-bg: oklch(26% 0.015 270);
+      --palette-border: oklch(32% 0.02 270);
+      --palette-danger: oklch(68% 0.21 25);
+      --palette-success: oklch(70% 0.17 145);
+      --palette-warn: oklch(82% 0.16 75);
+      --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px rgba(0,0,0,.4);
+      --palette-shadow-md: 0 2px 4px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.5);
+      --palette-shadow-lg: 0 4px 12px rgba(0,0,0,.5), 0 16px 48px rgba(0,0,0,.6);
       --palette-color-scheme: dark;
     }
   }
 
   /* === 手动切换 dark：覆盖系统 light（无需 :root[data-theme="light"]，:root 默认即 light） === */
   :root[data-theme="dark"] {
-    --palette-brand: #4F7BEF;  --palette-brand-strong: #6B8FF0;  --palette-onbrand: #fff;
-    --palette-brand-soft: rgba(79,123,239,.16);
-    --palette-text: #E8ECF4;   --palette-muted: #9AA6BD;
-    --palette-card: #1C2333;   --palette-bg: #10141E;   --palette-muted-bg: #262E41;
-    --palette-border: #2E3852;
-    --palette-danger: #EF6A6E; --palette-success: #3BB574; --palette-warn: #F0A73C;
-    --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.32), 0 1px 3px rgba(0,0,0,.36);
-    --palette-shadow-md: 0 4px 8px rgba(0,0,0,.36), 0 8px 24px rgba(0,0,0,.42);
-    --palette-shadow-lg: 0 8px 16px rgba(0,0,0,.42), 0 24px 48px rgba(0,0,0,.5);
+    --palette-brand: oklch(72% 0.16 275);
+    --palette-brand-strong: oklch(78% 0.16 275);
+    --palette-onbrand: oklch(20% 0.03 270);
+    --palette-brand-soft: oklch(28% 0.06 275);
+    --palette-text: oklch(94% 0.01 270);
+    --palette-muted: oklch(68% 0.02 270);
+    --palette-card: oklch(22% 0.015 270);
+    --palette-bg: oklch(15% 0.015 270);
+    --palette-muted-bg: oklch(26% 0.015 270);
+    --palette-border: oklch(32% 0.02 270);
+    --palette-danger: oklch(68% 0.21 25);
+    --palette-success: oklch(70% 0.17 145);
+    --palette-warn: oklch(82% 0.16 75);
+    --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px rgba(0,0,0,.4);
+    --palette-shadow-md: 0 2px 4px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.5);
+    --palette-shadow-lg: 0 4px 12px rgba(0,0,0,.5), 0 16px 48px rgba(0,0,0,.6);
     --palette-color-scheme: dark;
   }
 
@@ -95,21 +119,23 @@
     --s-1: 4px;  --s-2: 8px;  --s-3: 12px;  --s-4: 16px;
     --s-5: 24px; --s-6: 32px; --s-7: 40px; --s-8: 56px;
 
-    /* === 字号 / 行高 / 字重 / 字距 === */
-    --t-display: 28px; --t-xl: 20px; --t-lg: 17px; --t-md: 15px; --t-sm: 13px; --t-xs: 11px;
+    /* === 字号 / 行高 / 字重 / 字距
+       v5：display 28→32、xl 20→22、lg 17→18，拉大标题层级梯度 === */
+    --t-display: 32px; --t-xl: 22px; --t-lg: 18px; --t-md: 15px; --t-sm: 13px; --t-xs: 11px;
     --lh-display: 1.15; --lh-tight: 1.3;  --lh-normal: 1.55;
     --fw-normal: 400;  --fw-medium: 500;  --fw-semibold: 600;  --fw-bold: 700;
     --ls-display: -0.02em;  --ls-caption: 0.01em;
 
-    /* === 圆角 === */
-    --r-xs: 6px; --r-s: 10px; --r-m: 14px; --r-l: 20px; --r-f: 9999px;
+    /* === 圆角：v5 收紧（10→8、14→12、20→16），更现代 === */
+    --r-xs: 6px; --r-s: 8px; --r-m: 12px; --r-l: 16px; --r-f: 9999px;
 
     /* === 阴影（从调色板派生） === */
     --shadow-sm: var(--palette-shadow-sm);
     --shadow-md: var(--palette-shadow-md);
     --shadow-lg: var(--palette-shadow-lg);
-    --shadow-brand: 0 4px 14px rgba(43,92,230,.28);
-    --ring-focus: 0 0 0 3px rgba(43,92,230,.15);
+    /* brand 色阴影：用 color-mix 派生，主题切换自动跟随 */
+    --shadow-brand: 0 4px 14px color-mix(in srgb, var(--c-brand) 28%, transparent);
+    --ring-focus: 0 0 0 3px color-mix(in srgb, var(--c-brand) 18%, transparent);
 
     /* === z-index === */
     --z-base: 0; --z-sticky: 200; --z-dropdown: 1000; --z-modal: 1100;

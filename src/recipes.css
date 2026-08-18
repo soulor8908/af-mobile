@@ -1,6 +1,8 @@
 /* af-mobile UI —— L2 配方层：74 个复合视觉单元 */
 @layer components {
   /* === 按钮（7） === */
+  /* v5：删 180° 线性渐变（Web 2.0 遗物），改纯色 + 精细层叠阴影 + 内描边高光
+     悬停用 color-mix 派生（主题切换自动跟随），按下 translateY(1px) 触觉感 */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -8,22 +10,27 @@
     gap: var(--s-2);
     min-height: 44px;
     padding: 0 var(--s-5);
-    background: linear-gradient(180deg, var(--c-brand), var(--c-brand-strong));
+    background: var(--c-brand);
     color: var(--c-onbrand);
     font-size: var(--t-md);
     font-weight: var(--fw-semibold);
     line-height: var(--lh-tight);
     border: none;
-    border-radius: var(--r-s);
-    box-shadow: var(--shadow-brand);
+    border-radius: var(--r-m);
+    box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, var(--c-onbrand) 18%, transparent);
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    transition: opacity var(--dur-fast) var(--ease-out),
+    transition: background var(--dur-fast) var(--ease-out),
                 transform var(--dur-fast) var(--ease-out),
                 box-shadow var(--dur-fast) var(--ease-out);
   }
-  .btn:active { opacity: 0.85; transform: translateY(1px) scale(0.99); box-shadow: none; }
+  .btn:hover { background: color-mix(in srgb, var(--c-brand) 92%, white); }
+  .btn:active {
+    background: var(--c-brand-strong);
+    transform: translateY(1px);
+    box-shadow: 0 1px 1px color-mix(in srgb, var(--c-text) 6%, transparent);
+  }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
   .btn-sm  { min-height: 32px; padding: 0 var(--s-3); font-size: var(--t-sm); }
@@ -34,19 +41,22 @@
     color: var(--c-brand);
     box-shadow: none;
   }
-  .btn-ghost:active { background: var(--c-brand-soft); box-shadow: none; }
+  .btn-ghost:hover { background: var(--c-brand-soft); }
+  .btn-ghost:active { background: color-mix(in srgb, var(--c-brand) 14%, transparent); box-shadow: none; }
   .btn-ghost:disabled { background: transparent; }
 
   .btn-danger  {
-    background: linear-gradient(180deg, var(--c-danger), #C93A3F);
-    box-shadow: 0 4px 14px rgba(229,72,77,.24);
+    background: var(--c-danger);
+    box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, var(--c-onbrand) 18%, transparent);
   }
-  .btn-danger:active { box-shadow: none; }
+  .btn-danger:hover { background: color-mix(in srgb, var(--c-danger) 92%, white); }
+  .btn-danger:active { box-shadow: 0 1px 1px color-mix(in srgb, var(--c-text) 6%, transparent); }
   .btn-success {
-    background: linear-gradient(180deg, var(--c-success), #157F47);
-    box-shadow: 0 4px 14px rgba(26,158,90,.24);
+    background: var(--c-success);
+    box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, var(--c-onbrand) 18%, transparent);
   }
-  .btn-success:active { box-shadow: none; }
+  .btn-success:hover { background: color-mix(in srgb, var(--c-success) 92%, white); }
+  .btn-success:active { box-shadow: 0 1px 1px color-mix(in srgb, var(--c-text) 6%, transparent); }
 
   .btn-block { display: flex; width: 100%; }
 
@@ -143,6 +153,7 @@
                color: var(--c-muted); text-decoration: line-through; }
 
   /* === 表单（8） === */
+  /* v5：focus 态 box-shadow 改用 --ring-focus（color-mix 派生，主题切换自动跟随） */
   .label {
     display: block;
     margin-bottom: var(--s-1);
@@ -155,7 +166,7 @@
     padding: var(--s-2) var(--s-3);
     background: var(--c-card);
     border: 1px solid var(--c-border);
-    border-radius: var(--r-s);
+    border-radius: var(--r-m);
     font-size: var(--t-md);
     color: var(--c-text);
     line-height: var(--lh-tight);
@@ -235,8 +246,8 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: var(--c-bg);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    background: var(--c-card);
+    box-shadow: var(--shadow-sm), 0 0 0 1px color-mix(in srgb, var(--c-text) 4%, transparent);
     transition: transform var(--dur-base) var(--ease-out);
     margin: 0 2px;
     flex-shrink: 0;
@@ -362,12 +373,13 @@
     text-align: center;
   }
 
+  /* v5：shimmer 加强——三色饱和度提升 + 中段宽度收窄，"光扫过"更清晰可见 */
   .skeleton {
     background: linear-gradient(
       90deg,
-      var(--c-muted-bg) 25%,
-      var(--c-border) 50%,
-      var(--c-muted-bg) 75%
+      var(--c-muted-bg) 0%,
+      color-mix(in srgb, var(--c-muted) 32%, var(--c-muted-bg)) 50%,
+      var(--c-muted-bg) 100%
     );
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.5s infinite var(--ease-in-out);
@@ -403,14 +415,15 @@
     padding: var(--s-3);
   }
 
+  /* v5：tag padding 3px → var(--s-1)（修魔数，4px 间距体系内） */
   .tag {
     display: inline-flex;
     align-items: center;
-    padding: 3px var(--s-2);
+    padding: var(--s-1) var(--s-2);
     font-size: var(--t-xs);
     font-weight: var(--fw-medium);
     line-height: var(--lh-tight);
-    border-radius: var(--r-f);
+    border-radius: var(--r-s);
     background: var(--c-muted-bg);
     color: var(--c-muted);
   }
@@ -418,13 +431,14 @@
   .tag-warn   { background: var(--c-warn);    color: var(--c-onbrand); }
   .tag-danger { background: var(--c-danger);  color: var(--c-onbrand); }
 
+  /* v5：badge padding 5px → var(--s-1)（修魔数） */
   .badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-width: 18px;
     height: 18px;
-    padding: 0 5px;
+    padding: 0 var(--s-1);
     font-size: var(--t-xs);
     font-weight: var(--fw-bold);
     line-height: 1;
@@ -520,13 +534,24 @@
   }
 
   /* === 布局（5） === */
+  /* v5：hero 用 brand-soft 单色 + radial 光晕（替代灰蓝渐变），更精致 */
   .hero {
+    position: relative;
     padding: var(--s-6) var(--s-5);
-    background: linear-gradient(135deg, var(--c-brand-soft), var(--c-muted-bg));
+    background: var(--c-brand-soft);
     text-align: center;
     border-radius: var(--r-l);
     margin-bottom: var(--s-4);
+    overflow: hidden;
   }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--c-brand) 18%, transparent), transparent 60%);
+    pointer-events: none;
+  }
+  .hero > * { position: relative; }
 
   .stats-grid {
     display: grid;
@@ -564,8 +589,8 @@
   }
 
   /* === Checkbox / Radio（4） === */
-  /* 纯 CSS：appearance:none + :checked::after 自绘勾选/圆点
-     用法：<label class="checkbox"><input type="checkbox"><span>文本</span></label> */
+  /* v5：删 appearance:none + ::after 自绘勾选（魔数 + 对齐 bug）
+     改用原生 accent-color（2022+ 浏览器原生支持，无障碍自动处理，跨平台一致体验） */
   .checkbox, .radio {
     display: inline-flex;
     align-items: center;
@@ -576,34 +601,12 @@
   }
   .checkbox-sm, .radio-sm { gap: var(--s-1); }
   .checkbox input, .radio input {
-    appearance: none;
-    -webkit-appearance: none;
+    accent-color: var(--c-brand);
     width: 20px;
     height: 20px;
-    border: 1px solid var(--c-border);
-    background: var(--c-card);
     cursor: pointer;
     flex-shrink: 0;
     margin: 0;
-    transition: background var(--dur-fast) var(--ease-out),
-                border-color var(--dur-fast) var(--ease-out);
-  }
-  .checkbox input { border-radius: var(--r-xs); }
-  .radio input { border-radius: 50%; }
-  .checkbox input:checked { background: var(--c-brand); border-color: var(--c-brand); }
-  .radio input:checked { border-color: var(--c-brand); }
-  .checkbox input:checked::after, .radio input:checked::after { content: ''; display: block; }
-  .checkbox input:checked::after {
-    width: 5px; height: 10px;
-    border: solid var(--c-onbrand);
-    border-width: 0 2px 2px 0;
-    transform: translate(6px, 3px) rotate(45deg);
-  }
-  .radio input:checked::after {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--c-brand);
-    transform: translate(4px, 4px);
   }
   .checkbox input:focus-visible, .radio input:focus-visible {
     outline: 2px solid var(--c-brand);
@@ -616,14 +619,6 @@
   .checkbox-sm input, .radio-sm input {
     width: 16px;
     height: 16px;
-  }
-  .checkbox-sm input:checked::after {
-    width: 4px; height: 8px;
-    transform: translate(4px, 2px) rotate(45deg);
-  }
-  .radio-sm input:checked::after {
-    width: 8px; height: 8px;
-    transform: translate(3px, 3px);
   }
 
   /* === 加载指示器（3） === */
@@ -644,9 +639,8 @@
   @keyframes spinner-rotate { to { transform: rotate(360deg); } }
 
   /* === 进度条（5） === */
-  /* 纯 CSS：<progress> 原生元素 + ::-webkit-progress-value
-     用法：<progress class="progress" value="60" max="100"></progress>
-     颜色变体：.progress-success / .progress-danger 通过 --progress-color 覆盖 */
+  /* v5：删 ::-webkit-progress-value / ::-moz-progress-bar 双写 hack
+     改用 accent-color（2022+ 浏览器原生），color 变体通过 --progress-color 覆盖 */
   .progress {
     display: block;
     width: 100%;
@@ -656,6 +650,7 @@
     background: var(--c-muted-bg);
     overflow: hidden;
     --progress-color: var(--c-brand);
+    accent-color: var(--progress-color);
     -webkit-appearance: none;
     appearance: none;
   }
@@ -870,7 +865,7 @@
     padding: var(--s-1) var(--s-3);
     border: none;
     background: none;
-    border-radius: var(--r-xs);
+    border-radius: var(--r-s);
     font-size: var(--t-sm);
     color: var(--c-muted);
     cursor: pointer;

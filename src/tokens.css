@@ -6,6 +6,10 @@
 @layer reset {
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { -webkit-text-size-adjust: 100%; }
+  /* hidden 属性全局守卫：作者样式（如 .empty 的 display:flex）按 cascade origin 压过 UA 默认，
+     必须在 reset 层用 !important 兜底，否则组件/配方内任意 display 声明都会使 hidden 失效。
+     :not 排除 hidden="until-found"（Chrome 102+ 内容找回归显语义） */
+  [hidden]:not([hidden="until-found"]) { display: none !important; }
 }
 
 @layer base {
@@ -52,9 +56,11 @@
     --palette-bg: oklch(98% 0.005 270);
     --palette-muted-bg: oklch(96% 0.005 270);
     --palette-border: oklch(92% 0.005 270);
-    --palette-danger: oklch(60% 0.22 25);
-    --palette-success: oklch(58% 0.16 145);
+    --palette-danger: oklch(58% 0.22 25);
+    --palette-success: oklch(55% 0.16 145);
     --palette-warn: oklch(78% 0.16 75);
+    /* warn 底上的文字：暖深棕，双主题恒深（黄底配白字/亮字对比度不足，AA 不达标） */
+    --palette-onwarn: oklch(22% 0.04 75);
     --palette-shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.03);
     --palette-shadow-md: 0 2px 4px rgba(15,23,42,.04), 0 4px 12px rgba(15,23,42,.05);
     --palette-shadow-lg: 0 4px 12px rgba(15,23,42,.06), 0 16px 48px rgba(15,23,42,.08);
@@ -110,6 +116,7 @@
     --c-brand: var(--palette-brand);  --c-brand-strong: var(--palette-brand-strong);
     --c-brand-soft: var(--palette-brand-soft);
     --c-onbrand: var(--palette-onbrand);
+    --c-onwarn: var(--palette-onwarn);
     --c-text: var(--palette-text);    --c-muted: var(--palette-muted);
     --c-card: var(--palette-card);    --c-bg: var(--palette-bg);    --c-muted-bg: var(--palette-muted-bg);
     --c-border: var(--palette-border);
@@ -118,6 +125,10 @@
     /* === 间距 === */
     --s-1: 4px;  --s-2: 8px;  --s-3: 12px;  --s-4: 16px;
     --s-5: 24px; --s-6: 32px; --s-7: 40px; --s-8: 56px;
+
+    /* === 结构尺寸 === */
+    /* 底部标签栏高度（.tab-item min-height）：.input-bar-fixed / .checkout-bar-fixed 的避让基准 */
+    --tabbar-h: 48px;
 
     /* === 字号 / 行高 / 字重 / 字距
        v5：display 28→32、xl 20→22、lg 17→18，拉大标题层级梯度 === */

@@ -289,7 +289,6 @@
     color: var(--c-muted);
     padding: 0;
   }
-  .search-bar-clear[hidden] { display: none; }
 
   .input-err, .input-err:focus { border-color: var(--c-danger); }
 
@@ -440,7 +439,7 @@
     color: var(--c-muted);
   }
   .tag-ok     { background: var(--c-success); color: var(--c-onbrand); }
-  .tag-warn   { background: var(--c-warn);    color: var(--c-onbrand); }
+  .tag-warn   { background: var(--c-warn);    color: var(--c-onwarn); }
   .tag-danger { background: var(--c-danger);  color: var(--c-onbrand); }
 
   /* v5：badge padding 5px → var(--s-1)（修魔数） */
@@ -478,7 +477,7 @@
   }
   .toast-success { background: var(--c-success); }
   .toast-error { background: var(--c-danger); }
-  .toast-warning { background: var(--c-warn); color: var(--c-text); }
+  .toast-warning { background: var(--c-warn); color: var(--c-onwarn); }
 
   /* === 导航（5） === */
   .navbar {
@@ -537,7 +536,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    min-height: 48px;
+    min-height: var(--tabbar-h);
     -webkit-tap-highlight-color: transparent;
     transition: color var(--dur-fast) var(--ease-out);
   }
@@ -598,6 +597,26 @@
     border-top: 1px solid var(--c-border);
     box-shadow: var(--shadow-sm);
     padding-bottom: calc(var(--s-3) + env(safe-area-inset-bottom));
+  }
+
+  /* fixed 底部操作栏：叠在 af-tabbar（.tabbar-fixed）之上，避让 = 标签栏高度 + 安全区
+     （.tabbar-fixed 自带 padding-bottom safe-area，故此处 bottom 需含安全区；
+     操作栏自身不再叠加 safe-area padding，改回基础间距） */
+  .input-bar-fixed {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    z-index: var(--z-sticky);
+    padding-bottom: var(--s-2);
+  }
+  .checkout-bar-fixed {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+    z-index: var(--z-sticky);
+    padding-bottom: var(--s-3);
   }
 
   /* === Checkbox / Radio（4） === */
@@ -735,7 +754,7 @@
     gap: var(--s-2);
     padding: var(--s-2) var(--s-3);
     background: var(--c-warn);
-    color: var(--c-onbrand);
+    color: var(--c-onwarn);
     font-size: var(--t-sm);
     line-height: var(--lh-tight);
     overflow: hidden;
@@ -872,9 +891,11 @@
     gap: 2px;
   }
   .segmented-item {
-    flex: 1;
+    /* 按内容分配空间（flex:1 等宽会惩罚长标签，375px 下三标签截断），
+       空间不足时按内容比例收缩，ellipsis 兜底 */
+    flex: 1 1 auto;
     min-width: 0;
-    padding: var(--s-1) var(--s-3);
+    padding: var(--s-1) clamp(6px, 2.5vw, var(--s-3));
     border: none;
     background: none;
     border-radius: var(--r-s);
@@ -930,8 +951,6 @@
     display: block; position: fixed; z-index: var(--z-dropdown);
     bottom: calc(var(--s-4) + env(safe-area-inset-bottom));
   }
-  /* hidden 属性控制显隐：覆盖上面的 display:block，否则 hidden 失效 */
-  af-backtop[hidden] { display: none; }
   af-backtop[position="left-bottom"] { left: calc(var(--s-4) + env(safe-area-inset-left)); }
   af-backtop:not([position="left-bottom"]) { right: calc(var(--s-4) + env(safe-area-inset-right)); }
 
@@ -1011,7 +1030,7 @@
     box-shadow: 0 0 0 2px var(--c-card);
   }
   af-badge[dot] [data-role="badge"] { min-width: 10px; height: 10px; padding: 0; }
-  af-badge[data-color="warn"]  [data-role="badge"] { background: var(--c-warn);    color: var(--c-onbrand); }
+  af-badge[data-color="warn"]  [data-role="badge"] { background: var(--c-warn);    color: var(--c-onwarn); }
   af-badge[data-color="ok"]    [data-role="badge"] { background: var(--c-success); color: var(--c-onbrand); }
   af-badge[data-color="muted"] [data-role="badge"] { background: var(--c-muted);   color: var(--c-onbrand); }
 }

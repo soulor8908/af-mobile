@@ -9,8 +9,8 @@
 
 # 设计体系速查
 
-- **L1 Token（72 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
-- **L2 配方（111）+ 原子（62）= 173 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
+- **L1 Token（75 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
+- **L2 配方（113）+ 原子（62）= 175 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
 - **L3 真组件（33 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 20 规则（13 error + 7 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
@@ -18,7 +18,7 @@
 
 # L2 白名单（构建时注入）
 
-## L2 配方（111 个，按用途分组）
+## L2 配方（113 个，按用途分组）
 
 **按钮（7）：** `btn` `btn-sm` `btn-lg` `btn-ghost` `btn-danger` `btn-success` `btn-block`
 **容器（8）：** `page` `card` `cell` `center` `sheet` `eyebrow` `section` `section-title`
@@ -27,7 +27,7 @@
 **列表（6）：** `list` `list-item` `list-item-compact` `divider` `thumb` `avatar`
 **反馈（20）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast` `toast-success` `toast-error` `toast-warning`
 **导航（7）：** `navbar` `navbar-fixed` `page-col` `scroll-y` `tabbar` `tabbar-fixed` `tab-item`
-**布局（5）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar`
+**布局（7）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar` `input-bar-fixed` `checkout-bar-fixed`
 **Checkbox / Radio（4）：** `checkbox` `radio` `checkbox-sm` `radio-sm`
 **加载指示器（3）：** `spinner` `spinner-sm` `spinner-lg`
 **进度条（5）：** `progress` `progress-sm` `progress-lg` `progress-success` `progress-danger`
@@ -55,9 +55,9 @@
 
 `<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-calendar>` `<af-cascade-picker>` `<af-chart-bar>` `<af-chart-funnel>` `<af-chart-line>` `<af-chart-pie>` `<af-chart-radar>` `<af-countdown>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-notice-bar>` `<af-picker>` `<af-progress>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-steps>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
-## L1 Token 变量（72 个，必须用 var(--*) 引用）
+## L1 Token 变量（75 个，必须用 var(--*) 引用）
 
-`--c-bg` `--c-border` `--c-brand` `--c-brand-soft` `--c-brand-strong` `--c-card` `--c-danger` `--c-muted` `--c-muted-bg` `--c-onbrand` `--c-success` `--c-text` `--c-warn` `--dur-base` `--dur-fast` `--dur-slow` `--ease-in-out` `--ease-out` `--fw-bold` `--fw-medium` `--fw-normal` `--fw-semibold` `--lh-display` `--lh-normal` `--lh-tight` `--ls-caption` `--ls-display` `--palette-bg` `--palette-border` `--palette-brand` `--palette-brand-soft` `--palette-brand-strong` `--palette-card` `--palette-color-scheme` `--palette-danger` `--palette-muted` `--palette-muted-bg` `--palette-onbrand` `--palette-shadow-lg` `--palette-shadow-md` `--palette-shadow-sm` `--palette-success` `--palette-text` `--palette-warn` `--r-f` `--r-l` `--r-m` `--r-s` `--r-xs` `--ring-focus` `--s-1` `--s-2` `--s-3` `--s-4` `--s-5` `--s-6` `--s-7` `--s-8` `--shadow-brand` `--shadow-lg` `--shadow-md` `--shadow-sm` `--t-display` `--t-lg` `--t-md` `--t-sm` `--t-xl` `--t-xs` `--z-base` `--z-dropdown` `--z-modal` `--z-sticky`
+`--c-bg` `--c-border` `--c-brand` `--c-brand-soft` `--c-brand-strong` `--c-card` `--c-danger` `--c-muted` `--c-muted-bg` `--c-onbrand` `--c-onwarn` `--c-success` `--c-text` `--c-warn` `--dur-base` `--dur-fast` `--dur-slow` `--ease-in-out` `--ease-out` `--fw-bold` `--fw-medium` `--fw-normal` `--fw-semibold` `--lh-display` `--lh-normal` `--lh-tight` `--ls-caption` `--ls-display` `--palette-bg` `--palette-border` `--palette-brand` `--palette-brand-soft` `--palette-brand-strong` `--palette-card` `--palette-color-scheme` `--palette-danger` `--palette-muted` `--palette-muted-bg` `--palette-onbrand` `--palette-onwarn` `--palette-shadow-lg` `--palette-shadow-md` `--palette-shadow-sm` `--palette-success` `--palette-text` `--palette-warn` `--r-f` `--r-l` `--r-m` `--r-s` `--r-xs` `--ring-focus` `--s-1` `--s-2` `--s-3` `--s-4` `--s-5` `--s-6` `--s-7` `--s-8` `--shadow-brand` `--shadow-lg` `--shadow-md` `--shadow-sm` `--t-display` `--t-lg` `--t-md` `--t-sm` `--t-xl` `--t-xs` `--tabbar-h` `--z-base` `--z-dropdown` `--z-modal` `--z-sticky`
 
 ## 禁止内联 style 的属性（17 个）
 
@@ -112,7 +112,7 @@
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-03. 禁止使用 173 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
+03. 禁止使用 175 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success` 或 `bg-card`/`bg-muted`（破坏 onbrand 对比度）
 05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fi`/`fc` 原子（自带 `display:flex`，再设会破坏布局）
@@ -601,7 +601,7 @@ export default function listPage(params, ctx) {
 - **白名单确实缺的布局缺口**（如业务专属容器）：在 `eslint.config.js` 的 `extraClass` 数组登记，而非反复猜类名死循环。仅限结构性 class（无视觉属性），视觉样式仍走 token/原子类
 
 ### extraClass 逃生舱
-当白名单 173 个 class 确实无法表达所需布局时，`eslint.config.js` 可登记项目级扩展 class：
+当白名单 175 个 class 确实无法表达所需布局时，`eslint.config.js` 可登记项目级扩展 class：
 ```javascript
 // eslint.config.js
 import afMobilePlugin from '@af-mobile/eslint-plugin';

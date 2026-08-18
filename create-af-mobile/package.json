@@ -1,6 +1,6 @@
 {
   "name": "create-af-mobile",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "af-mobile app scaffolder — npm create af-mobile my-app（转发 @af-mobile/ui CLI，脚手架 + af-mobile-grill skill 自举）",
   "type": "module",
   "bin": {

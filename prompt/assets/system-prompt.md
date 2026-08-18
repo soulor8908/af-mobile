@@ -25,7 +25,7 @@
 **文本（8）：** `display` `title` `subtitle` `body` `caption` `meta` `price` `price-del`
 **表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-loading` `switch-thumb` `search-bar-wrap` `search-bar-icon` `search-bar-clear` `input-err` `upload-trigger` `upload-grid`
 **列表（6）：** `list` `list-item` `list-item-compact` `divider` `thumb` `avatar`
-**反馈（20）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast` `toast-success` `toast-danger` `toast-warn`
+**反馈（20）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `badge` `toast` `toast-success` `toast-error` `toast-warning`
 **导航（7）：** `navbar` `navbar-fixed` `page-col` `scroll-y` `tabbar` `tabbar-fixed` `tab-item`
 **布局（5）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar`
 **Checkbox / Radio（4）：** `checkbox` `radio` `checkbox-sm` `radio-sm`

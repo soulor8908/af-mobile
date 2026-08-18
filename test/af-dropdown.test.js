@@ -187,3 +187,28 @@ describe('af-dropdown 键盘导航与属性变更（补充分支）', () => {
     expect(el.$('.af-dropdown-trigger').hasAttribute('disabled')).toBe(true);
   });
 });
+
+describe('af-dropdown 字符串数组支持', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('string[] 渲染 label 为字符串本身', () => {
+    const el = makeDropdown({ options: ['北京', '上海', '广州'] });
+    expect(el.$$('.list-item').map(i => i.textContent.trim())).toEqual(['北京', '上海', '广州']);
+  });
+
+  it('string[] 点击派发 select 且 value 为字符串本身', () => {
+    const el = makeDropdown({ options: ['北京', '上海', '广州'] });
+    const handler = vi.fn();
+    el.addEventListener('af-dropdown:select', handler);
+    el.$$('.list-item')[0].click();
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail).toEqual({ index: 0, value: '北京' });
+    expect(el.value).toBe('北京');
+  });
+
+  it('string[] selectedLabel 返回选中字符串', () => {
+    const el = makeDropdown({ options: ['北京', '上海', '广州'], value: '上海' });
+    expect(el.selectedLabel).toBe('上海');
+    expect(el.$('.af-dropdown-trigger > .flex-1').textContent).toBe('上海');
+  });
+});

@@ -3,6 +3,9 @@
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';
 
+// 将 string 项归一化为 {label, value}，使 API 同时支持 string[] 和 DropdownOption[]
+const _ni = item => typeof item === 'string' ? { label: item, value: item } : item;
+
 export class AfDropdown extends withI18n(AfElement) {
   static useShadow = false;
   // i18n 映射表：trigger 内 .flex-1 textContent，selectedLabel > placeholder > 字典兜底
@@ -17,7 +20,7 @@ export class AfDropdown extends withI18n(AfElement) {
   }
 
   get selectedLabel() {
-    const opt = (this.options || []).find(o => String(o.value) === String(this.value));
+    const opt = (this.options || []).map(_ni).find(o => String(o.value) === String(this.value));
     return opt ? opt.label : '';
   }
 
@@ -37,7 +40,7 @@ export class AfDropdown extends withI18n(AfElement) {
       const item = e.target.closest('.list-item');
       if (!item || item.disabled) return;
       const idx = Number(item.dataset.idx);
-      const option = this.options[idx];
+      const option = (this.options || []).map(_ni)[idx];
       if (!option) return;
       this.value = option.value;
       this._updateTrigger();
@@ -100,7 +103,7 @@ export class AfDropdown extends withI18n(AfElement) {
   //   但移动端无 Tab 键、原生 button 的点击/禁用语义更可靠，且 ↑↓ 键导航已自实现
   _renderList() {
     if (!this._list) return;
-    const opts = this.options || [];
+    const opts = (this.options || []).map(_ni);
     const itemsHtml = opts.map((opt, i) => {
       const selected = String(opt.value) === String(this.value);
       const disabled = opt.disabled ? ' disabled' : '';

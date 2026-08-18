@@ -90,6 +90,7 @@
   .sheet {
     position: fixed;
     left: 0; right: 0; bottom: 0;
+    width: 100%; /* 覆盖 popover UA 的 width:fit-content，避免底部面板只撑内容宽 */
     background: var(--c-card);
     border-radius: var(--r-l) var(--r-l) 0 0;
     padding: var(--s-4);
@@ -278,9 +279,7 @@
 
   .input-err, .input-err:focus { border-color: var(--c-danger); }
 
-  /* 原生 Constraint Validation API 联动：用户输入过且校验失败时自动错误态
-     AI 只需 <input class="input" required type="email">，无需写 JS 校验逻辑
-     :user-invalid 仅在用户交互过才触发，比 :invalid 更克制（首帧不报红） */
+  /* :user-invalid 仅在用户交互过才触发，首帧不报红 */
   .input:user-invalid, .textarea:user-invalid,
   .input:user-invalid:focus, .textarea:user-invalid:focus { border-color: var(--c-danger); }
 
@@ -893,7 +892,12 @@
   .segmented-block { display: flex; width: 100%; }
 
   /* === Light DOM 组件宿主样式（替代 JS setProperty，遵守 wc-light-no-style） === */
-  af-list, af-img { display: block; }
+  af-list, af-img, af-tabs, af-dropdown { display: block; }
+  /* af-tabs 顶部标签：与内容留出间距 + 标题字号加大（仅作用 af-tabs，不影响底部 af-tabbar） */
+  af-tabs .tabbar { margin-bottom: var(--s-4); }
+  af-tabs .tab-item { font-size: var(--t-md); font-weight: var(--fw-medium); }
+  /* af-dropdown 弹层：popover 默认 fit-content 居中，定宽对齐页面容器 */
+  af-dropdown .list[popover] { width: min(100%, 640px); }
   af-list { height: var(--af-list-h, auto); }
   af-list > .list { overflow: auto; height: 100%; }
   af-list [data-role="spacer-before"] { height: var(--af-spacer-before-h, 0px); }
@@ -963,7 +967,7 @@
     transition: height var(--dur-fast) var(--ease-out);
   }
 
-  /* af-swipe-cell：content 占满 track，right 隐藏于溢出区，滑动后露出 */
+  /* af-swipe-cell：track flex 布局，right 藏于溢出区 */
   af-swipe-cell { display: block; overflow: hidden; position: relative; }
   af-swipe-cell [data-role="track"] {
     position: relative; display: flex;

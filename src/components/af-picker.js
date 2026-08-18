@@ -8,6 +8,7 @@ const CSS = `
   :host { display: contents; }
   .picker {
     position: fixed; left: 0; right: 0; bottom: 0;
+    width: 100%; /* 覆盖 popover UA 的 width:fit-content，底部滚轮面板撑满全宽 */
     background: var(--c-card); border-radius: var(--r-l) var(--r-l) 0 0;
     box-shadow: var(--shadow-lg); z-index: var(--z-dropdown);
     padding-bottom: env(safe-area-inset-bottom);
@@ -44,6 +45,9 @@ const CSS = `
     pointer-events: none;
   }
 `;
+
+// 将 string 项归一化为 {label, value}，使 API 同时支持 string[] 和 PickerItem[]
+const _ni = item => typeof item === 'string' ? { label: item, value: item } : item;
 
 export class AfPicker extends withI18n(AfElement) {
   static useShadow = true;
@@ -119,7 +123,7 @@ export class AfPicker extends withI18n(AfElement) {
       colEl.dataset.col = String(c);
       // aria-label 由 _applyI18n 设置（t('pk.col', { n: c + 1 })）
 
-      const items = (col || []).map((item, i) => {
+      const items = (col || []).map(_ni).map((item, i) => {
         const selected = this.values[c] != null && item.value === this.values[c];
         return `<div class="item${selected ? ' active' : ''}" role="option" data-idx="${i}" aria-selected="${selected}">${esc(item.label)}</div>`;
       }).join('');
@@ -147,7 +151,7 @@ export class AfPicker extends withI18n(AfElement) {
     const col = this._scrollers[c];
     if (!col) return;
     const idx = Math.round(col.scrollTop / this.itemHeight);
-    const colData = this.columns[c];
+    const colData = (this.columns[c] || []).map(_ni);
     if (!colData || !colData[idx]) return;
 
     const newValues = [...this.values];
@@ -185,7 +189,7 @@ export class AfPicker extends withI18n(AfElement) {
   }
 
   _findIndex(c, value) {
-    const colData = this.columns[c];
+    const colData = (this.columns[c] || []).map(_ni);
     if (!colData) return 0;
     const idx = colData.findIndex(item => item.value === value);
     return idx >= 0 ? idx : 0;
@@ -202,7 +206,7 @@ export class AfPicker extends withI18n(AfElement) {
   // 联动后重新渲染某列（用户在 change 事件中调）
   setColumn(colIdx, items, value) {
     if (!this.columns[colIdx]) return;
-    this.columns[colIdx] = items;
+    this.columns[colIdx] = items.map(_ni);
     if (value != null) {
       const newValues = [...this.values];
       newValues[colIdx] = value;

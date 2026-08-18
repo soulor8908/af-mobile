@@ -126,6 +126,24 @@ describe('af-action-sheet', () => {
   });
 });
 
+describe('af-action-sheet 字符串数组支持', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('string[] 渲染 label 为字符串本身', () => {
+    const el = makeSheet({ options: ['微信', '朋友圈', 'QQ', '微博'] });
+    expect(el.$$('.list-item').map(i => i.textContent.trim())).toEqual(['微信', '朋友圈', 'QQ', '微博']);
+  });
+
+  it('string[] 点击派发 select 且 value 为字符串本身', () => {
+    const el = makeSheet({ options: ['微信', '朋友圈', 'QQ', '微博'] });
+    const handler = vi.fn();
+    el.addEventListener('af-action-sheet:select', handler);
+    el.$$('.list-item')[0].click();
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail).toEqual({ index: 0, value: '微信' });
+  });
+});
+
 describe('af-action-sheet 焦点陷阱（禁令 #15）', () => {
   beforeEach(() => {
     document.body.innerHTML = '';

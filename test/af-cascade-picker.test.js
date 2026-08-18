@@ -88,7 +88,7 @@ describe('af-cascade-picker（复用 af-picker 内核）', () => {
     expect(typeof el.close).toBe('function');
     expect(typeof el.setColumn).toBe('function');
     const picker = el.$('.picker');
-    const showSpy = vi.spyOn(picker, 'showPopover');
+    const showSpy = vi.spyOn(picker, 'showModal');
     el.open();
     expect(showSpy).toHaveBeenCalledTimes(1);
   });

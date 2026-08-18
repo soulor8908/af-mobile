@@ -7,6 +7,14 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 - **L3 真组件**：28 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 20 规则兜底 + CI 保护
 
+## 在线 Demo
+
+33 个核心/交互组件 + 5 个图表组件的可交互 demo，每个组件一页，含属性配置、事件演示与源码对照，覆盖核心组件、交互组件、图表组件与联动场景：
+
+👉 **<https://soulor8908.github.io/af-mobile/demo/index.html>**
+
+本地跑 demo：`npm run demo`（详见 [本地开发](#本地开发)）。
+
 ## 快速开始（AI 对话式脚手架）
 
 > 面向小白：**一条命令生成可运行工程，然后用对话完成开发**，无需手工配置路由/打包器/ESLint。

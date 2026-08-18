@@ -9,8 +9,9 @@ export class AfNoticeBar extends AfElement {
 
   _render() {
     const t = esc(this.text);
-    // scroll=true 用 .notice-scroll（marquee 滚动），否则 .notice-text（ellipsis 截断）
-    this.innerHTML = `<div class="notice" role="status"><span class="notice-${this.scroll ? 'scroll' : 'text'}">${t}</span></div>`;
+    // 结构须匹配 recipes.css：.notice > .notice-text > (.notice-scroll)?
+    // scroll 模式嵌套 .notice-scroll（marquee），否则 .notice-text 直接承载文本（ellipsis 截断）
+    this.innerHTML = `<div class="notice" role="status"><span class="notice-text">${this.scroll ? `<span class="notice-scroll">${t}</span>` : t}</span></div>`;
   }
 
   // 仅 text/scroll 两个属性，任一变化整体重渲染（幂等）

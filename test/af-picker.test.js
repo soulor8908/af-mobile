@@ -58,18 +58,18 @@ describe('af-picker Shadow DOM', () => {
     });
   });
 
-  it('open() 调用 showPopover', () => {
+  it('open() 调用 showModal', () => {
     const el = makePicker({ columns: COLUMNS });
     const picker = el.$('.picker');
-    const spy = vi.spyOn(picker, 'showPopover');
+    const spy = vi.spyOn(picker, 'showModal');
     el.open();
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it('close() 调用 hidePopover', () => {
+  it('close() 调用 dialog.close', () => {
     const el = makePicker({ columns: COLUMNS });
     const picker = el.$('.picker');
-    const spy = vi.spyOn(picker, 'hidePopover');
+    const spy = vi.spyOn(picker, 'close');
     el.close();
     expect(spy).toHaveBeenCalledTimes(1);
   });
@@ -247,8 +247,8 @@ describe('af-picker DSD 水合', () => {
     el.shadowRoot.innerHTML = el.shadowHTML();
     document.body.appendChild(el);
     const picker = el.$('.picker');
-    const showSpy = vi.spyOn(picker, 'showPopover');
-    const hideSpy = vi.spyOn(picker, 'hidePopover');
+    const showSpy = vi.spyOn(picker, 'showModal');
+    const hideSpy = vi.spyOn(picker, 'close');
     const handler = vi.fn();
     el.addEventListener('af-picker:confirm', handler);
     el.open();

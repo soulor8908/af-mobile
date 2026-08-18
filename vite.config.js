@@ -67,6 +67,8 @@ export default defineConfig({
       input: {
         index: resolve(ROOT, 'demo/index.html'),
         playground: resolve(ROOT, 'demo/playground/index.html'),
+        kitchenSink: resolve(ROOT, 'demo/kitchen-sink.html'),
+        perf: resolve(ROOT, 'demo/perf.html'),
         ...componentInputs(),
       },
     },

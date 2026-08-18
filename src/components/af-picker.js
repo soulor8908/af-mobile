@@ -7,12 +7,15 @@ import { withI18n } from '../lib/with-i18n.js';
 const CSS = `
   :host { display: contents; }
   .picker {
-    position: fixed; inset: auto 0 0 0;
-    margin: 0; width: auto; border: none;
+    border: none;
+    border-radius: var(--r-l) var(--r-l) 0;
+    max-width: 100vw; width: 100%;
+    margin: auto 0 0 0;
     padding: 0 0 env(safe-area-inset-bottom);
-    background: var(--c-card); border-radius: var(--r-l) var(--r-l) 0;
-    box-shadow: var(--shadow-lg); z-index: var(--z-dropdown);
+    background: var(--c-card);
+    box-shadow: var(--shadow-lg);
   }
+  .picker::backdrop { background: rgba(0,0,0,.4); }
   .header {
     display: flex; align-items: center; justify-content: space-between;
     padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--c-border);
@@ -71,7 +74,7 @@ export class AfPicker extends withI18n(AfElement) {
 
   // 完整 shadow 模板（DSD 声明式封装 + mounted 动态渲染共用同一结构）
   shadowHTML() {
-    return `${AfElement.cssTag(CSS, 'af-picker')}<div class="picker" part="picker" popover="auto"><div class="header" part="header"><button class="btn-cancel" part="cancel" type="button"></button><div class="title"></div><button class="btn-confirm" part="confirm" type="button"></button></div><div class="columns" part="columns"><div class="mask"></div><div class="indicator"></div></div></div>`;
+    return `${AfElement.cssTag(CSS, 'af-picker')}<dialog class="picker" part="picker"><div class="header" part="header"><button class="btn-cancel" part="cancel" type="button"></button><div class="title"></div><button class="btn-confirm" part="confirm" type="button"></button></div><div class="columns" part="columns"><div class="mask"></div><div class="indicator"></div></div></dialog>`;
   }
 
   mounted() {
@@ -79,11 +82,13 @@ export class AfPicker extends withI18n(AfElement) {
     this._picker = this.$('.picker');
     this._columnsEl = this.$('.columns');
 
-    // popover=auto 的 light dismiss（点遮罩/Esc）会绕过 close()，用 toggle 事件兜底解锁 + 焦点还原
-    this._listen(this._picker, 'toggle', (e) => {
-      if (e.newState !== 'closed') return;
-      this._unlockScroll();
-      this.restoreFocus();
+    // dialog showModal 的 light dismiss：Esc 触发 cancel，backdrop 点击 target===dialog
+    this._listen(this._picker, 'cancel', (e) => {
+      e.preventDefault();
+      this.close();
+    });
+    this._listen(this._picker, 'click', (e) => {
+      if (e.target === this._picker) this.close();
     });
 
     this._applyItemHeight();
@@ -213,7 +218,8 @@ export class AfPicker extends withI18n(AfElement) {
   }
 
   open() {
-    this._picker?.showPopover();
+    if (!this._picker || this._picker.open) return;
+    this._picker.showModal();
     this._lockScroll();
     this.saveFocus();
     this._rafIds.push(requestAnimationFrame(() => {
@@ -222,7 +228,8 @@ export class AfPicker extends withI18n(AfElement) {
     }));
   }
   close() {
-    this._picker?.hidePopover();
+    if (!this._picker) return;
+    this._picker.close();
     this._unlockScroll();
     this.restoreFocus();
   }

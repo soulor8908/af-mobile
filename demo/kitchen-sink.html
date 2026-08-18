@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>云境咖啡 · af-mobile UI 全量范式页</title>
   <link rel="stylesheet" href="../src/index.css">
+  <!-- app-shell：fixed tabbar 遮挡兜底——.page 底部留出 tabbar(≈s-8) + 安全区，框架未提供该变体 -->
+  <style>
+    .page { padding-bottom: calc(var(--s-4) + var(--s-8) + env(safe-area-inset-bottom)); }
+    /* af-backtop 抬高到 fixed tabbar 之上（框架默认 bottom=s-4 落在 tabbar 区内会遮挡） */
+    af-backtop { bottom: calc(var(--s-8) + var(--s-2) + env(safe-area-inset-bottom)); }
+  </style>
   <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
   <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
@@ -37,62 +43,177 @@
 
     /* ============ ② i18n：中英词条 + 即时切换 ============ */
     addMessages('zh-CN', {
+      // 文档
+      'doc.title': '云境咖啡 · af-mobile UI 全量范式页', 'doc.aria': '主导航',
+      // tab
       'tab.menu': '菜单', 'tab.cart': '点单', 'tab.orders': '订单', 'tab.stats': '看板',
+      // menu
       'menu.search': '搜索咖啡 / 茶饮', 'menu.flash': '云南雨季批次限时 9 折，售完即止',
+      'menu.banner1.t': '云南雨季批次', 'menu.banner1.s': '日晒处理 · 限时 9 折',
+      'menu.banner2.t': '手冲实验室', 'menu.banner2.s': '本周豆单已更新',
+      'menu.banner3.t': '会员日', 'menu.banner3.s': '每周三积分享双倍',
+      'menu.discount': '限时折扣',
+      'menu.sort.rec': '推荐', 'menu.sort.price': '价格优先', 'menu.sort.sold': '销量优先',
+      'menu.cat.all': '全部', 'menu.cat.coffee': '咖啡', 'menu.cat.tea': '茶饮', 'menu.cat.bake': '烘焙',
+      'menu.cup.M': '中杯 12oz', 'menu.cup.L': '大杯 16oz', 'menu.cup.XL': '超大杯 20oz',
+      // 商品名（按 key 引用，PRODUCTS 存 nameKey）
+      'prod.1': '云南日晒拿铁', 'prod.2': '哥伦比亚手冲', 'prod.3': '燕麦馥芮白', 'prod.4': '危地马拉冷萃',
+      'prod.5': '茉莉初雪奶绿', 'prod.6': '鸭屎香柠檬茶', 'prod.7': '炙烤乌龙纯茶', 'prod.8': '桂花米乳茶',
+      'prod.9': '可颂·海盐黄油', 'prod.10': '生巧熔岩挞', 'prod.11': '碱水结·原味', 'prod.12': '开心果巴斯克',
+      // pd
+      'pd.cup': '杯型', 'pd.cream': '加奶油', 'pd.add': '加入购物车', 'pd.qty': '数量',
+      // cart
       'cart.title': '点单台', 'cart.empty': '购物车是空的', 'cart.goMenu': '去点单',
       'cart.date': '预约自取', 'cart.addr': '送出地址', 'cart.addrBtn': '选择省市区',
       'cart.note': '备注', 'cart.notePh': '口味偏好、免咖啡因等（选填）', 'cart.utensil': '附带餐具',
       'cart.clear': '清空', 'cart.checkout': '去结算', 'cart.pay': '合计',
+      'cart.confirm.body': '确认提交本单？提交后将开始制作。',
+      'cart.confirm.ok': '确认', 'cart.confirm.cancel': '取消', 'cart.del': '删除',
+      // orders
       'orders.title': '我的订单', 'orders.empty': '还没有订单',
+      'orders.pay': '立即支付', 'orders.review': '提交评价', 'orders.upload': '晒图',
+      'orders.tag.reviewed': '已评价', 'orders.tag.waiting': '待取餐', 'orders.tag.done': '已完成',
+      'orders.items': '{n} 件', 'orders.note': '备注：{note}',
+      'orders.sheet.service': '联系客服', 'orders.sheet.cancel': '取消订单',
+      'orders.step.0': '已下单', 'orders.step.1': '制作中', 'orders.step.2': '待取餐', 'orders.step.3': '已完成',
+      // stats
       'stats.title': '经营看板', 'stats.dark': '暗色模式', 'stats.lang': 'English',
+      'stats.kpi.cups': '今日杯数', 'stats.kpi.revenue': '今日营收', 'stats.kpi.avg': '客单价',
+      'stats.target': '本月营收目标 68%',
+      'stats.chart.line': '近 7 日销量', 'stats.chart.bar': '品类销量', 'stats.chart.pie': '营收构成',
+      'stats.chart.radar': '招牌豆风味画像', 'stats.chart.funnel': '下单转化漏斗', 'stats.pref': '偏好',
+      'stats.tip': '点击数据点查看数值',
+      'stats.pie.center': '合计 {total} 元',
+      'stats.select.line': '{label} · 第 {series} 序列 · {value} 杯',
+      'stats.select.pie': '{label}：{value} 元',
+      'stats.day.1': '周一', 'stats.day.2': '周二', 'stats.day.3': '周三', 'stats.day.4': '周四',
+      'stats.day.5': '周五', 'stats.day.6': '周六', 'stats.day.7': '周日',
+      'stats.cat.coffee': '咖啡', 'stats.cat.tea': '茶饮', 'stats.cat.bake': '烘焙',
+      'stats.flavor.mellow': '醇厚', 'stats.flavor.acid': '果酸', 'stats.flavor.aroma': '香气',
+      'stats.flavor.sweet': '回甘', 'stats.flavor.sugar': '甜感',
+      'stats.funnel.enter': '进店', 'stats.funnel.cart': '加购', 'stats.funnel.order': '下单',
+      'stats.funnel.pay': '支付', 'stats.funnel.rebuy': '复购',
+      'stats.series.latte': '奶咖', 'stats.series.pour': '手冲', 'stats.series.cups': '杯数',
+      'stats.series.yunnan': '云南日晒', 'stats.series.geisha': '瑰夏',
+      // region
+      'region.yn': '云南省', 'region.km': '昆明市', 'region.wh': '五华区', 'region.pl': '盘龙区',
+      'region.dl': '大理州', 'region.dls': '大理市',
+      'region.sh': '上海市', 'region.ja': '静安区', 'region.xh': '徐汇区',
+      'region.gd': '广东省', 'region.gz': '广州市', 'region.th': '天河区',
+      // common
       'common.back': '返回', 'common.more': '更多', 'common.reorder': '再来一单',
+      'common.confirm': '确认', 'common.cancel': '取消',
+      // msg
       'msg.added': '已加入购物车', 'msg.done': '已完成', 'msg.needCart': '请先选购商品',
-      'pd.cup': '杯型', 'pd.cream': '加奶油', 'pd.add': '加入购物车', 'pd.qty': '数量',
+      'msg.pay.ok': '支付成功', 'msg.review.first': '请先打分',
+      'msg.service': '客服小云已接入', 'msg.order.cancel': '订单已取消',
+      'msg.upload.ignore': '已忽略 {n} 个不合规文件',
+      // 404
+      'nf.back': '返回首页',
     });
     addMessages('en-US', {
+      // doc
+      'doc.title': 'YunJing Coffee · af-mobile UI kitchen-sink', 'doc.aria': 'Main navigation',
+      // tab
       'tab.menu': 'Menu', 'tab.cart': 'Cart', 'tab.orders': 'Orders', 'tab.stats': 'Stats',
+      // menu
       'menu.search': 'Search coffee / tea', 'menu.flash': 'Yunnan batch 10% off, while stocks last',
+      'menu.banner1.t': 'Yunnan Rainy Batch', 'menu.banner1.s': 'Sun-dried · 10% off',
+      'menu.banner2.t': 'Pour-over Lab', 'menu.banner2.s': 'This week beans updated',
+      'menu.banner3.t': 'Member Day', 'menu.banner3.s': 'Double points every Wed',
+      'menu.discount': 'Limited-time offer',
+      'menu.sort.rec': 'Recommended', 'menu.sort.price': 'Price first', 'menu.sort.sold': 'Top sold',
+      'menu.cat.all': 'All', 'menu.cat.coffee': 'Coffee', 'menu.cat.tea': 'Tea', 'menu.cat.bake': 'Bakery',
+      'menu.cup.M': 'Medium 12oz', 'menu.cup.L': 'Large 16oz', 'menu.cup.XL': 'X-Large 20oz',
+      // prod
+      'prod.1': 'Yunnan Sun-dried Latte', 'prod.2': 'Colombia Pour-over', 'prod.3': 'Oat Flat White', 'prod.4': 'Guatemala Cold Brew',
+      'prod.5': 'Jasmine Snow Milk Tea', 'prod.6': 'Duck-Shit Lemon Tea', 'prod.7': 'Roasted Oolong', 'prod.8': 'Osmanthus Milk Tea',
+      'prod.9': 'Croissant · Sea Salt', 'prod.10': 'Chocolate Lava Tart', 'prod.11': 'Pretzel · Original', 'prod.12': 'Pistachio Basque',
+      // pd
+      'pd.cup': 'Cup', 'pd.cream': 'Cream', 'pd.add': 'Add to cart', 'pd.qty': 'Qty',
+      // cart
       'cart.title': 'Cart', 'cart.empty': 'Cart is empty', 'cart.goMenu': 'Browse menu',
       'cart.date': 'Pickup date', 'cart.addr': 'Address', 'cart.addrBtn': 'Choose region',
       'cart.note': 'Note', 'cart.notePh': 'Preferences, decaf… (optional)', 'cart.utensil': 'Utensils',
       'cart.clear': 'Clear', 'cart.checkout': 'Checkout', 'cart.pay': 'Total',
+      'cart.confirm.body': 'Confirm submission? Production will start after submission.',
+      'cart.confirm.ok': 'Confirm', 'cart.confirm.cancel': 'Cancel', 'cart.del': 'Delete',
+      // orders
       'orders.title': 'Orders', 'orders.empty': 'No orders yet',
-      'stats.title': 'Dashboard', 'stats.dark': 'Dark mode', 'stats.lang': 'English',
+      'orders.pay': 'Pay now', 'orders.review': 'Submit review', 'orders.upload': 'Photos',
+      'orders.tag.reviewed': 'Reviewed', 'orders.tag.waiting': 'Waiting', 'orders.tag.done': 'Done',
+      'orders.items': '{n} items', 'orders.note': 'Note: {note}',
+      'orders.sheet.service': 'Customer service', 'orders.sheet.cancel': 'Cancel order',
+      'orders.step.0': 'Placed', 'orders.step.1': 'Preparing', 'orders.step.2': 'Ready', 'orders.step.3': 'Done',
+      // stats
+      'stats.title': 'Dashboard', 'stats.dark': 'Dark mode', 'stats.lang': '中文',
+      'stats.kpi.cups': 'Cups today', 'stats.kpi.revenue': 'Revenue today', 'stats.kpi.avg': 'Avg order',
+      'stats.target': 'Monthly target 68%',
+      'stats.chart.line': 'Last 7 days', 'stats.chart.bar': 'Category sales', 'stats.chart.pie': 'Revenue mix',
+      'stats.chart.radar': 'Signature bean flavor', 'stats.chart.funnel': 'Conversion funnel', 'stats.pref': 'Preferences',
+      'stats.tip': 'Tap a point to view value',
+      'stats.pie.center': 'Total {total}',
+      'stats.select.line': '{label} · Series {series} · {value} cups',
+      'stats.select.pie': '{label}: {value}',
+      'stats.day.1': 'Mon', 'stats.day.2': 'Tue', 'stats.day.3': 'Wed', 'stats.day.4': 'Thu',
+      'stats.day.5': 'Fri', 'stats.day.6': 'Sat', 'stats.day.7': 'Sun',
+      'stats.cat.coffee': 'Coffee', 'stats.cat.tea': 'Tea', 'stats.cat.bake': 'Bakery',
+      'stats.flavor.mellow': 'Mellow', 'stats.flavor.acid': 'Acidity', 'stats.flavor.aroma': 'Aroma',
+      'stats.flavor.sweet': 'Aftertaste', 'stats.flavor.sugar': 'Sweetness',
+      'stats.funnel.enter': 'Visit', 'stats.funnel.cart': 'Add to cart', 'stats.funnel.order': 'Order',
+      'stats.funnel.pay': 'Pay', 'stats.funnel.rebuy': 'Rebuy',
+      'stats.series.latte': 'Latte', 'stats.series.pour': 'Pour-over', 'stats.series.cups': 'Cups',
+      'stats.series.yunnan': 'Yunnan Sun', 'stats.series.geisha': 'Geisha',
+      // region
+      'region.yn': 'Yunnan', 'region.km': 'Kunming', 'region.wh': 'Wuhua', 'region.pl': 'Panlong',
+      'region.dl': 'Dali', 'region.dls': 'Dali City',
+      'region.sh': 'Shanghai', 'region.ja': 'Jingan', 'region.xh': 'Xuhui',
+      'region.gd': 'Guangdong', 'region.gz': 'Guangzhou', 'region.th': 'Tianhe',
+      // common
       'common.back': 'Back', 'common.more': 'More', 'common.reorder': 'Reorder',
+      'common.confirm': 'Confirm', 'common.cancel': 'Cancel',
+      // msg
       'msg.added': 'Added to cart', 'msg.done': 'Done', 'msg.needCart': 'Cart is empty',
-      'pd.cup': 'Cup', 'pd.cream': 'Cream', 'pd.add': 'Add to cart', 'pd.qty': 'Qty',
+      'msg.pay.ok': 'Payment successful', 'msg.review.first': 'Please rate first',
+      'msg.service': 'Agent Yun connected', 'msg.order.cancel': 'Order cancelled',
+      'msg.upload.ignore': '{n} invalid file(s) skipped',
+      // 404
+      'nf.back': 'Back home',
     });
 
     /* ============ ③ mock 数据源：registerBackend 注册内存后端，零真实网络 ============ */
-    // 商品插画：内联 SVG data URI，自包含无外部依赖
-    const art = (hue, label) => 'data:image/svg+xml,' + encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="320"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue},42%,72%)"/><stop offset="1" stop-color="hsl(${(hue + 40) % 360},38%,50%)"/></linearGradient></defs><rect width="480" height="320" fill="url(#g)"/><text x="50%" y="52%" font-size="44" fill="rgba(255,252,245,.92)" text-anchor="middle" font-family="serif">${label}</text></svg>`);
+    // 商品插画：内联 SVG data URI，自包含无外部依赖（语言中性，无嵌入文字）
+    const art = (hue) => 'data:image/svg+xml,' + encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="320"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue},42%,72%)"/><stop offset="1" stop-color="hsl(${(hue + 40) % 360},38%,50%)"/></linearGradient></defs><rect width="480" height="320" fill="url(#g)"/></svg>`);
     const BROKEN = 'mock://broken.img';                      // 演示 af-img 加载失败 → failSrc 回退
-    const FAIL = art(28, '图片走丢了');
+    const FAIL = art(28);
 
-    const CATS = [['all', '全部'], ['coffee', '咖啡'], ['tea', '茶饮'], ['bake', '烘焙']];
-    const NAMES = [['云南日晒拿铁', 'coffee'], ['哥伦比亚手冲', 'coffee'], ['燕麦馥芮白', 'coffee'], ['危地马拉冷萃', 'coffee'],
-      ['茉莉初雪奶绿', 'tea'], ['鸭屎香柠檬茶', 'tea'], ['炙烤乌龙纯茶', 'tea'], ['桂花米乳茶', 'tea'],
-      ['可颂·海盐黄油', 'bake'], ['生巧熔岩挞', 'bake'], ['碱水结·原味', 'bake'], ['开心果巴斯克', 'bake']];
+    // 分类/商品名/区域/订单步骤：均以 key 存储，渲染时经 t() 翻译以响应 localechange
+    const CATS = () => [['all', t('menu.cat.all')], ['coffee', t('menu.cat.coffee')], ['tea', t('menu.cat.tea')], ['bake', t('menu.cat.bake')]];
+    const NAME_KEYS = [
+      ['prod.1', 'coffee'], ['prod.2', 'coffee'], ['prod.3', 'coffee'], ['prod.4', 'coffee'],
+      ['prod.5', 'tea'], ['prod.6', 'tea'], ['prod.7', 'tea'], ['prod.8', 'tea'],
+      ['prod.9', 'bake'], ['prod.10', 'bake'], ['prod.11', 'bake'], ['prod.12', 'bake'],
+    ];
     const PRODUCTS = Array.from({ length: 32 }, (_, i) => {
-      const [name, cat] = NAMES[i % NAMES.length];
-      return { id: i + 1, name, cat, price: 12 + (i % 9) * 3, rating: 4.2 + (i % 8) / 10,
-        hot: i % 5 === 0, img: i === 9 ? BROKEN : art((i * 47) % 360, name.slice(0, 2)) };
+      const [nameKey, cat] = NAME_KEYS[i % NAME_KEYS.length];
+      return { id: i + 1, nameKey, cat, price: 12 + (i % 9) * 3, rating: 4.2 + (i % 8) / 10,
+        hot: i % 5 === 0, img: i === 9 ? BROKEN : art((i * 47) % 360) };
     });
 
-    const REGION = [
-      { label: '云南省', value: 'yn', children: [
-        { label: '昆明市', value: 'km', children: [{ label: '五华区', value: 'wh' }, { label: '盘龙区', value: 'pl' }] },
-        { label: '大理州', value: 'dl', children: [{ label: '大理市', value: 'dls' }] },
+    const REGION = () => [
+      { label: t('region.yn'), value: 'yn', children: [
+        { label: t('region.km'), value: 'km', children: [{ label: t('region.wh'), value: 'wh' }, { label: t('region.pl'), value: 'pl' }] },
+        { label: t('region.dl'), value: 'dl', children: [{ label: t('region.dls'), value: 'dls' }] },
       ] },
-      { label: '上海市', value: 'sh', children: [
-        { label: '静安区', value: 'ja' }, { label: '徐汇区', value: 'xh' },
+      { label: t('region.sh'), value: 'sh', children: [
+        { label: t('region.ja'), value: 'ja' }, { label: t('region.xh'), value: 'xh' },
       ] },
-      { label: '广东省', value: 'gd', children: [
-        { label: '广州市', value: 'gz', children: [{ label: '天河区', value: 'th' }] },
+      { label: t('region.gd'), value: 'gd', children: [
+        { label: t('region.gz'), value: 'gz', children: [{ label: t('region.th'), value: 'th' }] },
       ] },
     ];
-    const STEPS = ['已下单', '制作中', '待取餐', '已完成'];
+    const STEPS = () => [t('orders.step.0'), t('orders.step.1'), t('orders.step.2'), t('orders.step.3')];
 
     // scheme 适配器：fetchPage 遇 mock:// URL 分发到此（真实项目替换为 supabase:// 等）
     registerBackend('mock', async (url, opts = {}) => {
@@ -100,9 +221,9 @@
       const q = u.searchParams;
       if (u.pathname === '/products') {
         let list = PRODUCTS;
-        const cat = q.get('cat'); const kw = (q.get('q') || '').trim();
+        const cat = q.get('cat'); const kw = (q.get('q') || '').trim().toLowerCase();
         if (cat && cat !== 'all') list = list.filter(p => p.cat === cat);
-        if (kw) list = list.filter(p => p.name.includes(kw));
+        if (kw) list = list.filter(p => t(p.nameKey).toLowerCase().includes(kw));  // 按 locale 翻译后匹配
         const sort = q.get('sort');
         if (sort === 'price') list = [...list].sort((a, b) => a.price - b.price);
         if (sort === 'sold') list = [...list].sort((a, b) => (b.id % 7) - (a.id % 7));
@@ -110,13 +231,13 @@
         return { data: list.slice((page - 1) * size, page * size), total: list.length };
       }
       if (u.pathname === '/orders') return { data: orders(), total: orders().length };
-      if (u.pathname === '/stats') return { data: {
-        days: ['一', '二', '三', '四', '五', '六', '日'].map(d => '周' + d),
+      if (u.pathname === '/stats') return { data: {                       // 后端只返回 key + 数值，label 由前端 t() 翻译
+        days: ['1', '2', '3', '4', '5', '6', '7'],
         latte: [120, 132, 101, 134, 90, 230, 210], pour: [32, 41, 38, 52, 46, 88, 76],
-        cats: [{ label: '咖啡', value: 864 }, { label: '茶饮', value: 512 }, { label: '烘焙', value: 336 }],
-        flavor: [{ label: '醇厚', value: 9, max: 10 }, { label: '果酸', value: 7, max: 10 }, { label: '香气', value: 8, max: 10 },
-          { label: '回甘', value: 6, max: 10 }, { label: '甜感', value: 7, max: 10 }],
-        funnel: [{ label: '进店', value: 1200 }, { label: '加购', value: 640 }, { label: '下单', value: 320 }, { label: '支付', value: 268 }, { label: '复购', value: 96 }],
+        cats: [{ key: 'coffee', value: 864 }, { key: 'tea', value: 512 }, { key: 'bake', value: 336 }],
+        flavor: [{ key: 'mellow', value: 9, max: 10 }, { key: 'acid', value: 7, max: 10 }, { key: 'aroma', value: 8, max: 10 },
+          { key: 'sweet', value: 6, max: 10 }, { key: 'sugar', value: 7, max: 10 }],
+        funnel: [{ key: 'enter', value: 1200 }, { key: 'cart', value: 640 }, { key: 'order', value: 320 }, { key: 'pay', value: 268 }, { key: 'rebuy', value: 96 }],
       } };
       throw new Error('404: ' + u.pathname);
     });
@@ -127,7 +248,7 @@
     const cart = signal([]);                                   // [{id,name,cup,price,qty,img}]
     const orders = signal([                                    // 初始两条订单，覆盖各状态
       { id: 'A2026081701', items: 2, total: 66, status: 3, progress: 100, payRemain: 0, reviewed: false },
-      { id: 'A2026081702', items: 1, total: 28, status: 1, progress: 45, payRemain: 420, reviewed: false },
+      { id: 'A2026081702', items: 1, total: 28, status: 1, progress: 45, payRemain: 420, payDeadline: Date.now() + 420_000, reviewed: false },
     ]);
     const cartCount = computed(() => cart().reduce((n, it) => n + it.qty, 0));
     const cartTotal = computed(() => cart().reduce((n, it) => n + it.qty * it.price, 0));
@@ -156,34 +277,44 @@
       const idx = TABS().findIndex(x => x.value === path.split('?')[0]);
       if (idx >= 0) tabbar.activeIndex = idx;
     });
-    // 语言切换：重建 tabbar 文案 + 重渲染当前视图
+    // 语言切换：同步 title/lang/aria + 重建 tabbar 文案 + 重渲染当前视图
+    const currentPath = () => location.hash.slice(1).split('?')[0] || '/';
+    const syncDocLocale = () => {
+      document.title = t('doc.title');
+      document.documentElement.lang = getLocale() === 'en-US' ? 'en' : 'zh-CN';
+      tabbar.setAttribute('aria-label', t('doc.aria'));
+    };
     document.documentElement.addEventListener('localechange', () => {
+      syncDocLocale();
       tabbar.tabs = TABS();
       const c = currentPath();
       if (c) go(c, { replace: true });
     });
-    const currentPath = () => location.hash.slice(1).split('?')[0] || '/';
+    syncDocLocale();                                           // 初始化同步静态属性（tabbar.tabs 由下方 effect 驱动）
 
     const today = () => new Date().toISOString().slice(0, 10);
+    let promoDeadline = 0;                                      // 限时折扣截止时刻（跨重渲染稳定，避免 countdown 重置）
 
     /* ============ ⑤ 视图 1：菜单（/）—— 浏览 / 搜索 / 加购 ============ */
     function menuPage(params, ctx) {
+      if (!promoDeadline) promoDeadline = Date.now() + 1800_000;
+      const promoRemain = Math.max(0, Math.round((promoDeadline - Date.now()) / 1000));
       ctx.outlet.innerHTML = `
-        <main class="page">
-          <af-notice-bar text="${esc(t('menu.flash'))} · af-mobile UI kitchen-sink" scroll></af-notice-bar>
+        <main class="page fc g-3">
+          <af-notice-bar text="${esc(t('menu.flash'))}" scroll></af-notice-bar>
           <af-search-bar placeholder="${esc(t('menu.search'))}" clearable debounce="200"></af-search-bar>
           <af-swiper autoplay="4000" loop>
-            <div class="card center fc g-2 p-6"><span class="display">云南雨季批次</span><span class="body text-muted">日晒处理 · 限时 9 折</span></div>
-            <div class="card center fc g-2 p-6"><span class="display">手冲实验室</span><span class="body text-muted">本周豆单已更新</span></div>
-            <div class="card center fc g-2 p-6"><span class="display">会员日</span><span class="body text-muted">每周三积分享双倍</span></div>
+            <div class="card fc aic jcc g-2 p-6"><span class="display">${esc(t('menu.banner1.t'))}</span><span class="body text-muted">${esc(t('menu.banner1.s'))}</span></div>
+            <div class="card fc aic jcc g-2 p-6"><span class="display">${esc(t('menu.banner2.t'))}</span><span class="body text-muted">${esc(t('menu.banner2.s'))}</span></div>
+            <div class="card fc aic jcc g-2 p-6"><span class="display">${esc(t('menu.banner3.t'))}</span><span class="body text-muted">${esc(t('menu.banner3.s'))}</span></div>
           </af-swiper>
-          <div class="f aic g-3 p-3">
+          <div class="f aic g-3">
             <af-tabs class="flex-1"></af-tabs>
-            <af-dropdown placeholder="推荐"></af-dropdown>
+            <af-dropdown placeholder="${esc(t('menu.sort.rec'))}"></af-dropdown>
           </div>
-          <div class="card f aic jcsb p-3">
-            <span class="body t-b">限时折扣</span>
-            <af-countdown time="1800" autostart></af-countdown>
+          <div class="card f aic jcsb">
+            <span class="body t-b">${esc(t('menu.discount'))}</span>
+            <af-countdown time="${promoRemain}" autostart></af-countdown>
           </div>
           <af-pull-refresh>
             <af-list page-size="8" item-height="84" refresh></af-list>
@@ -206,19 +337,19 @@
       const query = { cat: 'all', sort: 'rec', q: '' };
       let page = 1;
 
-      tabs.tabs = CATS.map(([value, label]) => ({ label, value }));
-      sort.options = [{ label: '推荐', value: 'rec' }, { label: '价格优先', value: 'price' }, { label: '销量优先', value: 'sold' }];
+      tabs.tabs = CATS().map(([value, label]) => ({ label, value }));
+      sort.options = [{ label: t('menu.sort.rec'), value: 'rec' }, { label: t('menu.sort.price'), value: 'price' }, { label: t('menu.sort.sold'), value: 'sold' }];
       picker.columns = [[
-        { label: '中杯 12oz', value: 'M' }, { label: '大杯 16oz', value: 'L' }, { label: '超大杯 20oz', value: 'XL' },
+        { label: t('menu.cup.M'), value: 'M' }, { label: t('menu.cup.L'), value: 'L' }, { label: t('menu.cup.XL'), value: 'XL' },
       ]];
 
       // af-list renderItem：根节点必须带 data-list-index（itemclick 键盘/点击委托依赖）；插值必须 esc()（禁令 #1 XSS）
       list.renderItem = (it, idx) => `
-        <div class="list-item g-3 aic p-2" data-list-index="${idx}">
-          <af-img variant="thumb" src="${it.img}" fail-src="${FAIL}" alt="${esc(it.name)}"></af-img>
+        <div class="list-item" data-list-index="${idx}">
+          <af-img variant="thumb" src="${it.img}" fail-src="${FAIL}" alt="${esc(t(it.nameKey))}"></af-img>
           <div class="flex-1 fc g-1">
             <div class="f aic g-2">
-              <span class="body t-b">${esc(it.name)}</span>
+              <span class="body t-b">${esc(t(it.nameKey))}</span>
               ${it.hot ? '<af-badge content="HOT"></af-badge>' : ''}
             </div>
             <span class="caption text-muted">★ ${it.rating.toFixed(1)}</span>
@@ -250,22 +381,22 @@
       list.addEventListener('af-list:itemclick', e => {
         const p = e.detail.item;
         Object.assign(draft, { cup: 'L', qty: 1, cream: false, product: p });
-        pd.title = p.name;
+        pd.title = t(p.nameKey);
         pd.querySelector('[slot="body"]').innerHTML = `
-          <af-img src="${p.img}" fail-src="${FAIL}" alt="${esc(p.name)}"></af-img>
+          <af-img src="${p.img}" fail-src="${FAIL}" alt="${esc(t(p.nameKey))}"></af-img>
           <div class="f aic jcsb">
-            <af-rate value="${p.rating}" readonly size="sm" label="${esc(p.name)}"></af-rate>
+            <af-rate value="${p.rating}" readonly size="sm" label="${esc(t(p.nameKey))}"></af-rate>
             <span class="price">${yuan(p.price)}</span>
           </div>
-          <div class="form-row">
+          <div class="f aic jcsb">
             <span class="label">${esc(t('pd.cup'))}</span>
-            <button class="btn btn-ghost btn-sm" data-role="cup" type="button">大杯 16oz</button>
+            <button class="btn btn-ghost btn-sm" data-role="cup" type="button">${esc(t('menu.cup.' + draft.cup))}</button>
           </div>
-          <div class="form-row">
+          <div class="f aic jcsb">
             <span class="label">${esc(t('pd.qty'))}</span>
             <af-stepper value="1" min="1" max="9"></af-stepper>
           </div>
-          <div class="form-row">
+          <div class="f aic jcsb">
             <span class="label">${esc(t('pd.cream'))}</span>
             <af-switch></af-switch>
           </div>`;
@@ -278,7 +409,7 @@
       picker.addEventListener('af-picker:confirm', e => {
         draft.cup = e.detail.values[0];
         const btn = pd.querySelector('[data-role="cup"]');
-        if (btn) btn.textContent = { M: '中杯 12oz', L: '大杯 16oz', XL: '超大杯 20oz' }[draft.cup];
+        if (btn) btn.textContent = t('menu.cup.' + draft.cup);
       });
       pd.addEventListener('af-stepper:change', e => { draft.qty = e.detail.value; });
       pd.addEventListener('af-switch:change', e => { draft.cream = e.detail.checked; });
@@ -291,7 +422,7 @@
           const hit = cart().find(it => it.key === key);
           cart.set(hit
             ? cart().map(it => it.key === key ? { ...it, qty: Math.min(9, it.qty + qty) } : it)
-            : [...cart(), { key, id: p.id, name: p.name, cup, qty, price: p.price + (cream ? 3 : 0), img: p.img }]);
+            : [...cart(), { key, id: p.id, nameKey: p.nameKey, cup, qty, price: p.price + (cream ? 3 : 0), img: p.img }]);
         });
         toast.show(t('msg.added'), { type: 'success' });
       });
@@ -302,23 +433,23 @@
     /* ============ ⑥ 视图 2：点单台（/order）—— 购物车 / 规格 / 预约 ============ */
     function cartPage(params, ctx) {
       ctx.outlet.innerHTML = `
-        <main class="page">
+        <main class="page fc g-3">
           <header class="navbar">
             <h1 class="title flex-1">${esc(t('cart.title'))}</h1>
             <button class="btn btn-ghost btn-sm" data-role="clear" type="button">${esc(t('cart.clear'))}</button>
           </header>
-          <div data-role="rows" class="fc g-2 p-3"></div>
-          <section class="card fc g-3 p-3">
+          <div data-role="rows" class="fc g-2"></div>
+          <section class="card fc g-3">
             <details class="collapse">
               <summary class="collapse-summary">${esc(t('cart.date'))}</summary>
               <div class="collapse-content"><af-calendar min="${today()}"></af-calendar></div>
             </details>
-            <div class="form-row jcsb">
+            <div class="f aic jcsb">
               <span class="label">${esc(t('cart.addr'))}</span>
               <button class="btn btn-ghost btn-sm" data-role="addr" type="button">${esc(t('cart.addrBtn'))}</button>
             </div>
             <af-field label="${esc(t('cart.note'))}" type="textarea" placeholder="${esc(t('cart.notePh'))}"></af-field>
-            <div class="form-row jcsb">
+            <div class="f aic jcsb">
               <span class="label">${esc(t('cart.utensil'))}</span>
               <af-switch></af-switch>
             </div>
@@ -329,11 +460,11 @@
             <button class="btn" data-role="checkout" type="button">${esc(t('cart.checkout'))}</button>
           </div>
           <af-cascade-picker title="${esc(t('cart.addr'))}"></af-cascade-picker>
-          <af-dialog title="${esc(t('cart.checkout'))}？" close-on-esc>
-            <div slot="body"><p class="body">确认提交本单？提交后将开始制作。</p></div>
+          <af-dialog title="${esc(t('cart.checkout'))}" close-on-esc>
+            <div slot="body"><p class="body">${esc(t('cart.confirm.body'))}</p></div>
             <div slot="footer" class="actions">
-              <button class="btn btn-ghost" data-role="cancel" type="button">取消</button>
-              <button class="btn" data-role="ok" type="button">确认</button>
+              <button class="btn btn-ghost" data-role="cancel" type="button">${esc(t('cart.confirm.cancel'))}</button>
+              <button class="btn" data-role="ok" type="button">${esc(t('cart.confirm.ok'))}</button>
             </div>
           </af-dialog>
         </main>`;
@@ -341,7 +472,7 @@
       const $ = s => ctx.outlet.querySelector(s);
       const rows = $('[data-role="rows"]'), cascade = $('af-cascade-picker'), dlg = $('af-dialog');
       const field = $('af-field');
-      cascade.tree = REGION;
+      cascade.tree = REGION();
 
       // 购物车行：af-swipe-cell 左滑删除 + af-stepper 改数量（事件委托挂常驻容器）
       const dispose = createRoot(() => {
@@ -349,17 +480,17 @@
           const items = cart();
           rows.innerHTML = items.length ? items.map(it => `
             <af-swipe-cell data-key="${esc(it.key)}">
-              <div slot="content" class="list-item g-3 aic p-2">
-                <af-img variant="thumb" src="${it.img}" alt="${esc(it.name)}"></af-img>
+              <div slot="content" class="list-item">
+                <af-img variant="thumb" src="${it.img}" alt="${esc(t(it.nameKey))}"></af-img>
                 <div class="flex-1 fc g-1">
-                  <span class="body t-b">${esc(it.name)} · ${it.cup}</span>
+                  <span class="body t-b">${esc(t(it.nameKey))} · ${esc(t('menu.cup.' + it.cup))}</span>
                   <span class="price">${yuan(it.price)}</span>
                 </div>
-                <af-stepper value="${it.qty}" min="1" max="9" aria-label="${esc(it.name)}"></af-stepper>
+                <af-stepper value="${it.qty}" min="1" max="9" aria-label="${esc(t(it.nameKey))}"></af-stepper>
               </div>
-              <div slot="right"><button class="btn btn-sm btn-danger" data-act="del" type="button">删除</button></div>
+              <div slot="right"><button class="btn btn-sm btn-danger" data-act="del" type="button">${esc(t('cart.del'))}</button></div>
             </af-swipe-cell>`).join('')
-            : `<div class="empty fc g-2"><span class="body text-muted">${esc(t('cart.empty'))}</span>
+            : `<div class="empty"><span class="body text-muted">${esc(t('cart.empty'))}</span>
                <button class="btn btn-ghost" data-role="goMenu" type="button">${esc(t('cart.goMenu'))}</button></div>`;
         });
         effect(() => { $('[data-role="total"]').textContent = yuan(cartTotal()); });
@@ -385,7 +516,7 @@
       $('[data-role="addr"]').addEventListener('click', () => cascade.open());
       cascade.addEventListener('af-picker:confirm', e => {
         // 逐级下钻 tree，把 value 链翻译为 label 链
-        let level = REGION; const labels = [];
+        let level = REGION(); const labels = [];
         for (const v of e.detail.values) {
           const node = level.find(n => n.value === v);
           if (!node) break;
@@ -409,7 +540,7 @@
         if (!e.target.closest('[data-role="ok"]')) return;
         dlg.close();
         const order = { id: 'A' + Date.now(), items: cartCount(), total: cartTotal(), snapshot: cart(),
-          status: 1, progress: 8, payRemain: 600, note: field.value, reviewed: false };
+          status: 1, progress: 8, payRemain: 600, payDeadline: Date.now() + 600_000, note: field.value, reviewed: false };
         batch(() => { orders.set([order, ...orders()]); cart.set([]); });   // 一次导航内合并通知
         toast.show(t('msg.done'), { type: 'success' });
         go('/orders');
@@ -419,10 +550,10 @@
     /* ============ ⑦ 视图 3：订单（/orders）—— 状态 / 进度 / 评价 ============ */
     function ordersPage(params, ctx) {
       ctx.outlet.innerHTML = `
-        <main class="page">
+        <main class="page fc g-3">
           <af-navbar title="${esc(t('orders.title'))}" show-back back-text="${esc(t('common.back'))}"></af-navbar>
           <af-pull-refresh data-role="pr">
-            <div data-role="rows" class="fc g-3 p-3"></div>
+            <div data-role="rows" class="fc g-3"></div>
           </af-pull-refresh>
           <af-action-sheet title="${esc(t('common.more'))}" show-cancel></af-action-sheet>
         </main>`;
@@ -436,27 +567,27 @@
           const list = orders();
           rows.innerHTML = list.length ? list.map(o => {
             const body = o.status < 3 ? `
-              <af-steps steps='${esc(JSON.stringify(STEPS))}' current="${o.status}"></af-steps>
+              <af-steps steps='${esc(JSON.stringify(STEPS()))}' current="${o.status}"></af-steps>
               <af-progress value="${o.progress}" max="100"></af-progress>` : '';
             const pay = o.payRemain > 0 && o.status === 1 ? `
               <div class="f aic jcsb">
-                <af-countdown time="${o.payRemain}" autostart></af-countdown>
-                <button class="btn btn-sm" data-act="pay" type="button">立即支付</button>
+                <af-countdown time="${Math.max(0, Math.round((o.payDeadline - Date.now()) / 1000))}" autostart></af-countdown>
+                <button class="btn btn-sm" data-act="pay" type="button">${esc(t('orders.pay'))}</button>
               </div>` : '';
             const rateBox = o.status === 3 && !o.reviewed ? `
               <af-rate max="5" label="${esc(o.id)}"></af-rate>
-              <af-upload accept="image/*" multiple max-size="2097152" max-count="3" button-text="晒图"></af-upload>
-              <button class="btn btn-sm btn-block" data-act="review" type="button">提交评价</button>` : '';
-            const tag = o.reviewed ? '<span class="tag tag-ok">已评价</span>'
-              : o.status === 2 ? '<span class="tag tag-warn">待取餐</span>'
-              : o.status === 3 ? '<span class="tag">已完成</span>' : '';
+              <af-upload accept="image/*" multiple max-size="2097152" max-count="3" button-text="${esc(t('orders.upload'))}"></af-upload>
+              <button class="btn btn-sm btn-block" data-act="review" type="button">${esc(t('orders.review'))}</button>` : '';
+            const tag = o.reviewed ? `<span class="tag tag-ok">${esc(t('orders.tag.reviewed'))}</span>`
+              : o.status === 2 ? `<span class="tag tag-warn">${esc(t('orders.tag.waiting'))}</span>`
+              : o.status === 3 ? `<span class="tag">${esc(t('orders.tag.done'))}</span>` : '';
             return `
-              <div class="card fc g-3 p-3" data-oid="${esc(o.id)}">
+              <div class="card fc g-3" data-oid="${esc(o.id)}">
                 <div class="f aic jcsb">
-                  <span class="caption text-muted">${esc(o.id)} · ${o.items} 件</span>
+                  <span class="caption text-muted">${esc(o.id)} · ${esc(t('orders.items', { n: o.items }))}</span>
                   ${tag}
                 </div>
-                ${o.note ? `<span class="caption text-muted">备注：${esc(o.note)}</span>` : ''}
+                ${o.note ? `<span class="caption text-muted">${esc(t('orders.note', { note: o.note }))}</span>` : ''}
                 ${body}${pay}${rateBox}
                 <div class="actions">
                   <button class="btn btn-ghost btn-sm" data-act="reorder" type="button">${esc(t('common.reorder'))}</button>
@@ -482,8 +613,8 @@
       ctx.signal.addEventListener('abort', () => clearInterval(timer));
 
       sheet.options = [
-        { label: '联系客服', value: 'service' },
-        { label: '取消订单', value: 'cancel', danger: true },
+        { label: t('orders.sheet.service'), value: 'service' },
+        { label: t('orders.sheet.cancel'), value: 'cancel', danger: true },
         { label: t('common.reorder'), value: 'reorder' },
       ];
       let sheetOid = null;
@@ -497,19 +628,19 @@
         const act = e.target.closest('[data-act]')?.dataset.act;
         if (!oid || !act) return;
         if (act === 'more') { sheetOid = oid; sheet.showPopover(); }
-        if (act === 'pay') { orders.set(orders().map(o => o.id === oid ? { ...o, payRemain: 0 } : o)); toast.show('支付成功', { type: 'success' }); }
+        if (act === 'pay') { orders.set(orders().map(o => o.id === oid ? { ...o, payRemain: 0 } : o)); toast.show(t('msg.pay.ok'), { type: 'success' }); }
         if (act === 'reorder') reOrder(oid);
         if (act === 'review') {
-          if (!review[oid]?.rate) { toast.show('请先打分', { type: 'warning' }); return; }
+          if (!review[oid]?.rate) { toast.show(t('msg.review.first'), { type: 'warning' }); return; }
           orders.set(orders().map(o => o.id === oid ? { ...o, reviewed: true } : o));
           toast.show(t('msg.done'), { type: 'success' });
         }
       });
       sheet.addEventListener('af-action-sheet:select', e => {
-        if (e.detail.value === 'service') toast.show('客服小云已接入');
+        if (e.detail.value === 'service') toast.show(t('msg.service'));
         if (e.detail.value === 'cancel') {
           orders.set(orders().filter(o => o.id !== sheetOid));
-          toast.show('订单已取消');
+          toast.show(t('msg.order.cancel'));
         }
         if (e.detail.value === 'reorder') reOrder(sheetOid);
       });
@@ -524,7 +655,7 @@
         if (oid) review[oid] = { ...(review[oid] || {}), files: e.detail.files?.length || 0 };
       });
       rows.addEventListener('af-upload:error', e => {
-        toast.show(`已忽略 ${e.detail.errors.length} 个不合规文件`, { type: 'warning' });
+        toast.show(t('msg.upload.ignore', { n: e.detail.errors.length }), { type: 'warning' });
       });
 
       // 下拉刷新：重新拉取订单（走 mock 后端完整链路）
@@ -540,42 +671,42 @@
     /* ============ ⑧ 视图 4：看板（/stats）—— 图表 / 偏好 ============ */
     function statsPage(params, ctx) {
       ctx.outlet.innerHTML = `
-        <main class="page">
+        <main class="page fc g-3">
           <header class="navbar"><h1 class="title">${esc(t('stats.title'))}</h1></header>
-          <section class="stats-grid p-3">
-            <div class="card center fc p-3"><span class="title">318</span><span class="caption text-muted">今日杯数</span></div>
-            <div class="card center fc p-3"><span class="title">¥7,842</span><span class="caption text-muted">今日营收</span></div>
-            <div class="card center fc p-3"><span class="title">¥24.6</span><span class="caption text-muted">客单价</span></div>
+          <section class="stats-grid">
+            <div class="card fc aic jcc"><span class="display">318</span><span class="caption text-muted">${esc(t('stats.kpi.cups'))}</span></div>
+            <div class="card fc aic jcc"><span class="display">¥7,842</span><span class="caption text-muted">${esc(t('stats.kpi.revenue'))}</span></div>
+            <div class="card fc aic jcc"><span class="display">¥24.6</span><span class="caption text-muted">${esc(t('stats.kpi.avg'))}</span></div>
           </section>
-          <section class="card fc g-2 p-3">
-            <span class="body t-b">本月营收目标 68%</span>
+          <section class="card fc g-2">
+            <span class="body t-b">${esc(t('stats.target'))}</span>
             <af-progress value="68" max="100"></af-progress>
           </section>
-          <section class="card fc g-2 p-3">
-            <span class="body t-b">近 7 日销量</span>
+          <section class="card fc g-2">
+            <span class="body t-b">${esc(t('stats.chart.line'))}</span>
             <af-chart-line smooth legend></af-chart-line>
-            <span class="caption text-muted" data-role="tip">点击数据点查看数值</span>
+            <span class="caption text-muted" data-role="tip">${esc(t('stats.tip'))}</span>
           </section>
-          <section class="card fc g-2 p-3">
-            <span class="body t-b">品类销量</span>
+          <section class="card fc g-2">
+            <span class="body t-b">${esc(t('stats.chart.bar'))}</span>
             <af-chart-bar variant="column"></af-chart-bar>
           </section>
-          <section class="card fc g-2 p-3">
-            <span class="body t-b">营收构成</span>
-            <af-chart-pie variant="donut" center-text="合计 {total} 元" legend lazy></af-chart-pie>
+          <section class="card fc g-2">
+            <span class="body t-b">${esc(t('stats.chart.pie'))}</span>
+            <af-chart-pie variant="donut" center-text="${esc(t('stats.pie.center'))}" legend lazy></af-chart-pie>
           </section>
-          <section class="card fc g-2 p-3">
-            <span class="body t-b">招牌豆风味画像</span>
+          <section class="card fc g-2">
+            <span class="body t-b">${esc(t('stats.chart.radar'))}</span>
             <af-chart-radar legend lazy></af-chart-radar>
           </section>
-          <section class="card fc g-2 p-3">
-            <span class="body t-b">下单转化漏斗</span>
+          <section class="card fc g-2">
+            <span class="body t-b">${esc(t('stats.chart.funnel'))}</span>
             <af-chart-funnel show-rate lazy></af-chart-funnel>
           </section>
-          <section class="card fc g-3 p-3">
-            <span class="body t-b">偏好</span>
-            <div class="form-row jcsb"><span class="label">${esc(t('stats.dark'))}</span><af-switch data-role="theme"></af-switch></div>
-            <div class="form-row jcsb"><span class="label">${esc(t('stats.lang'))}</span><af-switch data-role="lang"></af-switch></div>
+          <section class="card fc g-3">
+            <span class="body t-b">${esc(t('stats.pref'))}</span>
+            <div class="f aic jcsb"><span class="label">${esc(t('stats.dark'))}</span><af-switch data-role="theme"></af-switch></div>
+            <div class="f aic jcsb"><span class="label">${esc(t('stats.lang'))}</span><af-switch data-role="lang"></af-switch></div>
           </section>
           <af-skeleton-page variant="card" data-role="sk"></af-skeleton-page>
         </main>`;
@@ -587,7 +718,7 @@
       $('[data-role="theme"]').addEventListener('af-switch:change', toggleTheme);
       $('[data-role="lang"]').addEventListener('af-switch:change', e => setLocale(e.detail.checked ? 'en-US' : 'zh-CN'));
 
-      // createResource：source → fetcher，loading/data/error 三态驱动骨架屏与图表
+      // createResource：source → fetcher，loading/data/error 三态驱动骨架屏与图表；后端返回 key，前端按 locale 翻译
       const res = createResource(() => 'mock://stats', u => fetchPage(u));
       const dispose = createRoot(() => {
         effect(() => {
@@ -596,25 +727,25 @@
           if (!d) return;
           sk.hidden = true;
           const line = $('af-chart-line');
-          line.labels = d.days;
-          line.series = [{ name: '奶咖', values: d.latte }, { name: '手冲', values: d.pour }];
+          line.labels = d.days.map(k => t('stats.day.' + k));
+          line.series = [{ name: t('stats.series.latte'), values: d.latte }, { name: t('stats.series.pour'), values: d.pour }];
           const bar = $('af-chart-bar');
-          bar.labels = d.cats.map(c => c.label);
-          bar.series = [{ name: '杯数', values: d.cats.map(c => c.value) }];
-          $('af-chart-pie').data = d.cats;
+          bar.labels = d.cats.map(c => t('stats.cat.' + c.key));
+          bar.series = [{ name: t('stats.series.cups'), values: d.cats.map(c => c.value) }];
+          $('af-chart-pie').data = d.cats.map(c => ({ label: t('stats.cat.' + c.key), value: c.value }));
           const radar = $('af-chart-radar');
-          radar.data = d.flavor;
-          radar.series = [{ name: '云南日晒', values: [9, 7, 8, 6, 7] }, { name: '瑰夏', values: [6, 9, 9, 8, 5] }];
-          $('af-chart-funnel').data = d.funnel;
+          radar.data = d.flavor.map(f => ({ label: t('stats.flavor.' + f.key), value: f.value, max: f.max }));
+          radar.series = [{ name: t('stats.series.yunnan'), values: [9, 7, 8, 6, 7] }, { name: t('stats.series.geisha'), values: [6, 9, 9, 8, 5] }];
+          $('af-chart-funnel').data = d.funnel.map(f => ({ label: t('stats.funnel.' + f.key), value: f.value }));
         });
       });
       ctx.signal.addEventListener('abort', dispose);
 
       $('af-chart-line').addEventListener('af-chart-line:select', e => {
-        $('[data-role="tip"]').textContent = `${e.detail.label} · 第 ${e.detail.seriesIndex + 1} 序列 · ${e.detail.value} 杯`;
+        $('[data-role="tip"]').textContent = t('stats.select.line', { label: e.detail.label, series: e.detail.seriesIndex + 1, value: e.detail.value });
       });
       $('af-chart-pie').addEventListener('af-chart-pie:select', e => {
-        toast.show(`${e.detail.label}：${e.detail.value} 元`);
+        toast.show(t('stats.select.pie', { label: e.detail.label, value: e.detail.value }));
       });
     }
 
@@ -626,10 +757,10 @@
     notFound(path => {
       const app = document.getElementById('app');
       app.innerHTML = `
-        <main class="page center fc g-3 p-4">
+        <main class="page center g-3">
           <span class="display">404</span>
           <span class="body text-muted">${esc(path)}</span>
-          <button class="btn" id="nf-back" type="button">返回首页</button>
+          <button class="btn" id="nf-back" type="button">${esc(t('nf.back'))}</button>
         </main>`;
       app.querySelector('#nf-back').addEventListener('click', () => go('/'));
     });

@@ -3,7 +3,7 @@
 // 依据 docs/design/l3-detailed-design.md §8.5 CI 体积监控（数字与下方 BUDGET 一致）
 //   单组件 JS gzip ≤ 2.8KB   PR 阻断（CSS 计入 L1+L2 总预算，不单测）
 //   基类 AfElement gzip     ≤ 2.0KB  PR 阻断
-//   全部 28 组件 + 基类 gzip ≤ 20.1KB PR 阻断
+//   全部 28 组件 + 基类 gzip ≤ 20.4KB PR 阻断
 //   按需引入 2 组件 gzip    ≤ 6.5KB   warn
 //   (核心运行时 state+fetch+router+i18n+page+bind ≤ 6.8KB，独立预算不计入 total)
 // 实现：esbuild 打包+minify，Node zlib 测 gzip（原生，无 gzip-size 依赖）
@@ -84,7 +84,7 @@ const BUDGET = {
   css: 6.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径，v4.1 实测 ~5.6KB）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
-  total: 20.1,         // KB，28 组件 + 基类（v3.10：register minify-safe REGISTRY 后实测 20.090KB）
+  total: 20.4,         // KB，28 组件 + 基类（v4.2：af-picker/af-action-sheet/af-dropdown 支持 string[] 归一化等功能修复后实测 20.317KB，上调容纳必要增量）
   onDemand2: 6.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 6.8,    // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind）
   // charts 子库（charts-sublibrary-detailed-design.md §7）：独立入口 ./charts，不计入 total

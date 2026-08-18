@@ -23,5 +23,5 @@ features:
   - title: AI-first
     details: 内置 MCP 与 system-prompt，让 AI 与你用同一套语言协作。
 
-status: docs 站点已上线（GitHub Pages，base /v/）
+status: docs 站点已上线（GitHub Pages，base /af-mobile-docs/）
 ---

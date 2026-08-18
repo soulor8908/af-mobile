@@ -12,7 +12,7 @@ function componentSidebar() {
 }
 
 export default defineConfig({
-  base: '/af-mobile-docs/v/',
+  base: '/af-mobile-docs/',
   lang: 'zh-CN',
   title: '@af-mobile/ui',
   description: 'AI-first mobile Web Components 组件库',

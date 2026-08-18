@@ -2,6 +2,20 @@
 
 ## 安装
 
+三步接入：**先装 skill → 命令行生成工程 → 用 skill 开始开发**。
+
+### 第 1 步：安装 skill（告诉 AI 执行一次）
+
+打开任一 AI 编码工具（TRAE / Claude Code / Cursor 等），直接让它执行：
+
+```bash
+npx @af-mobile/ui skill add
+```
+
+把 `af-mobile-grill`（对话式脚手架 skill）装进当前项目：写入 `skills/af-mobile-grill/SKILL.md` 并在 `AGENTS.md` 追加指引段，AI 工具读 `AGENTS.md` 即能找到 skill。命令幂等，已装项目可随时补装 / 升级。
+
+### 第 2 步：命令行安装（生成工程）
+
 推荐用脚手架 `@af-mobile/ui` 专用命令一键生成可运行工程。脚手架会一次性生成项目骨架，并自举安装 `AGENTS.md`、`skills/af-mobile-grill/SKILL.md` 与 `eslint.config.js`（含消费端白名单约束），是项目骨架的单一真相源——
 
 ```bash
@@ -12,7 +26,9 @@ npx create-af-mobile <dir>
 cd <dir> && npm install && npm run dev
 ```
 
-> `npm create af-mobile` 与 `npx create-af-mobile` 等价（npm init 约定，与 vite / astro 同款）：按需下载并执行脚手架，无需先手动 `npm install`。切勿写裸 `npx af-mobile`——npm 上存在同名第三方包，会装错。
+> `npm create af-mobile` 与 `npx create-af-mobile` 等价（npm init 约定，与 vite / astro 同款）：按需下载并执行脚手架，无需先手动 `npm install`。切勿写裸 `npx af-mobile`——npm 上存在同名第三方包，会装错。脚手架生成的工程已自带 skill（与第 1 步幂等，新项目二选一即可）。
+
+### 第 3 步：用 skill 开始开发
 
 生成工程自带 `af-mobile-grill` skill（对话式脚手架）与消费端 ESLint 约束。在任意 AI 编码工具（TRAE / Claude Code / Cursor 等）中打开工程，说一句"我想做一个习惯打卡应用"，skill 会引导你：**拷问需求 → 需求拆分 → demo 确认 → 一次性生成页面**。
 

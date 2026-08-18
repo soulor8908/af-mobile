@@ -112,13 +112,8 @@
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-<<<<<<< HEAD
 03. 禁止使用 173 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
-04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success`（破坏 onbrand 对比度）
-=======
-03. 禁止使用 170 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success` 或 `bg-card`/`bg-muted`（破坏 onbrand 对比度）
->>>>>>> 2211007 (feat: 优化原子类样式设计方案)
 05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fi`/`fc` 原子（自带 `display:flex`，再设会破坏布局）
 07. 禁止 Tailwind 式任意值语法：`p-[13px]`/`bg-[#abc]`/`p-9`（p 仅允许 0/1/2/3/4/5/6/7/8/10）
@@ -606,7 +601,7 @@ export default function listPage(params, ctx) {
 - **白名单确实缺的布局缺口**（如业务专属容器）：在 `eslint.config.js` 的 `extraClass` 数组登记，而非反复猜类名死循环。仅限结构性 class（无视觉属性），视觉样式仍走 token/原子类
 
 ### extraClass 逃生舱
-当白名单 170 个 class 确实无法表达所需布局时，`eslint.config.js` 可登记项目级扩展 class：
+当白名单 173 个 class 确实无法表达所需布局时，`eslint.config.js` 可登记项目级扩展 class：
 ```javascript
 // eslint.config.js
 import afMobilePlugin from '@af-mobile/eslint-plugin';

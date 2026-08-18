@@ -7,6 +7,7 @@ const ROOT = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   root: 'demo',
+  base: './',
   server: {
     port: 5180,
     open: '/index.html',

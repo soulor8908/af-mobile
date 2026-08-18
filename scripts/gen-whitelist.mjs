@@ -5,6 +5,11 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+// 版本戳从 package.json 派生（禁止硬编码：1.4.x 时期曾停在 1.0.0 误导消费端 AI）
+function pkgVersion() {
+  return JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
+}
+
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'src');
 
@@ -52,7 +57,7 @@ export function buildWhitelistFromSources() {
   for (const m of STATE_MODIFIERS) recipeSet.add(m);
   return {
     version: 'v1',
-    'af-mobileVersion': '1.0.0',
+    'af-mobileVersion': pkgVersion(),
     classes: {
       recipe: [...recipeSet].sort(),
       atomic: extractClasses(join(SRC, 'atomic.css')),

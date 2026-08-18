@@ -17,6 +17,16 @@ import { buildPrompt } from '@af-mobile/prompt';
 const system = buildPrompt({ userPrompt: '商品列表页带图，支持搜索' });
 ```
 
+### CLI（MCP 不可达时的降级入口）
+
+```bash
+npx @af-mobile/prompt "商品列表页带图"        # 按需求裁剪，输出到 stdout
+npx @af-mobile/prompt "需求" --full           # 全量 prompt
+npx @af-mobile/prompt "需求" -o prompt.md     # 写入文件
+```
+
+与 MCP `get_prompt` 工具同构，适合未接入 MCP 的 Agent / 脚本环境。
+
 ## API
 
 | 导出 | 说明 |

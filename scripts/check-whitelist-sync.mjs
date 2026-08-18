@@ -50,10 +50,17 @@ export function findMissingInPrompt(B, C) {
   return missing;
 }
 
-// 计算三源同步差异（A↔B + B→C）
+// 计算三源同步差异（A↔B + B→C + 版本戳）
 // 入参：A（源码扫描）、B（whitelist）、C（Prompt 注入结果字符串）
 // 返回：problems 数组（空数组 = 完全同步）
 export function computeSyncProblems(A, B, C) {
+  const problems = [];
+  // 版本戳：whitelist 的 af-mobileVersion 必须等于 package.json（防漂移——
+  // 曾停在 1.0.0 而包已 1.4.x，误导读白名单的消费端 AI）
+  const pkgVer = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
+  if (B['af-mobileVersion'] !== pkgVer) {
+    problems.push(`whitelist af-mobileVersion '${B['af-mobileVersion']}' ≠ package.json '${pkgVer}'（运行 npm run whitelist 重新生成）`);
+  }
   const aMinusB = [
     ...diff(A.classes.recipe, B.classes.recipe).map(c => `recipe class '${c}' 在源码但未登记 whitelist`),
     ...diff(A.classes.atomic, B.classes.atomic).map(c => `atomic class '${c}' 在源码但未登记 whitelist`),
@@ -67,7 +74,7 @@ export function computeSyncProblems(A, B, C) {
     ...diff(B.tokens, A.tokens).map(t => `token '${t}' 在 whitelist 但源码不存在`),
   ];
   const bMinusC = findMissingInPrompt(B, C);
-  return [...aMinusB, ...bMinusA, ...bMinusC];
+  return [...problems, ...aMinusB, ...bMinusA, ...bMinusC];
 }
 
 // 跑 build-prompt.mjs 拿到 C（注入后的 Prompt 字符串）

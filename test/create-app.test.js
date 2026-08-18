@@ -57,6 +57,16 @@ describe('create-app scaffold', () => {
 
     const main = readFileSync(join(dir, 'src/main.js'), 'utf8');
     expect(main).toContain("start('#app', { hash: true })");
+
+    // 页面范式收敛到 createPage（grill 与脚手架同构，AGENTS.md §3.5）
+    const home = readFileSync(join(dir, 'src/pages/home.js'), 'utf8');
+    expect(home).toContain('createPage(');
+    expect(home).toContain(':value="derived.pct"');            // :bind 响应式绑定
+    expect(home).toContain('page.mount(ctx.outlet)');
+    expect(home).toContain("ctx.signal.addEventListener('abort'"); // 路由离开级联清理
+    const docs = readFileSync(join(dir, 'src/pages/docs.js'), 'utf8');
+    expect(docs).toContain('createPage(');
+    expect(docs).toContain('page.mount(ctx.outlet)');
   });
 
   it('--flywheel 生成 .mcp.json（显式 opt-in），默认不生成', () => {

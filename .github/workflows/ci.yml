@@ -35,6 +35,10 @@ jobs:
       - name: ARIA sync (requirements ↔ rule)
         run: npm run aria:check
 
+      # Step 1e: skill 文档代码块可执行性（import 导出名 / register 标签 ↔ 当前包，防 API 漂移）
+      - name: Skill docs API drift check
+        run: npm run skill:check
+
       # Step 2: 体积检查（L1+L2 CSS + L3 JS）
       - name: Size budget check
         run: npm run size

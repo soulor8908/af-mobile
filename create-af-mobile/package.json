@@ -10,7 +10,7 @@
     "bin.mjs"
   ],
   "dependencies": {
-    "@af-mobile/ui": "^1.4.4"
+    "@af-mobile/ui": "^1.4.3"
   },
   "keywords": [
     "create",

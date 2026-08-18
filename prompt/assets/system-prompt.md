@@ -51,6 +51,22 @@
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
 **文本对齐与溢出（5）：** `t-left` `t-center` `t-right` `ws-nowrap` `ellipsis`
 
+### 易漏 class 语义速查
+
+- `segmented`：分段控制器（iOS 风格 N 选一），配 segmented-item / segmented-block
+- `checkout-bar`：底部操作栏（通用：确认/提交/下一步，不限于收银场景），fixed 变体自动适配 tabbar 与 safe-area
+- `input-bar`：底部固定输入栏（评论/聊天），input-bar-fixed 自动适配 safe-area
+- `safe-top`：安全区 padding 工具：自建 fixed/sticky 元素规避刘海
+- `safe-bottom`：安全区 padding 工具：自建固定元素规避 Home Indicator
+- `empty`：空态占位（列表无数据/搜索无结果），勿手写居中提示
+- `actions`：按钮组容器（卡片/表单底部操作区），内部配 .btn
+- `stats-grid`：数据统计网格（数字+标签卡片）
+- `hero`：首屏主视觉区（大标题+副文案），eyebrow 为其上方小标签
+- `tag`：状态标签，配 tag-ok / tag-warn / tag-danger 语义色
+- `spinner`：加载中旋转图标（spinner-sm / spinner-lg），配 .empty 可做加载态
+- `sheet`：底部弹出层容器（自定义 action-sheet 内容时用）
+- `input-err`：输入框错误态红框，form-err 为表单行错误文案
+
 ## L3 真组件标签（33 个）
 
 `<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-calendar>` `<af-cascade-picker>` `<af-chart-bar>` `<af-chart-funnel>` `<af-chart-line>` `<af-chart-pie>` `<af-chart-radar>` `<af-countdown>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-notice-bar>` `<af-picker>` `<af-progress>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-steps>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
@@ -481,7 +497,7 @@ src/main.js（入口：注册→路由→tabbar→启动）：
 ```javascript
 import './styles.css';
 import { AfTabbar, AfSearchBar, AfSwitch, AfSwipeCell, AfDialog, AfField, AfProgress, AfToast,
-  route, start, go, afterEach, initTheme, effect } from '@af-mobile/ui';
+  route, start, go, afterEach, initTheme } from '@af-mobile/ui';
 import { todos } from './store.js';
 import listPage from './pages/list.js';
 import statsPage from './pages/stats.js';
@@ -516,9 +532,9 @@ afterEach((r, p, path) => {
 start({ hash: true });
 ```
 
-src/pages/list.js（列表页骨架：page-col + scroll-y + 事件委托）：
+src/pages/list.js（列表页：createPage 范式 + page-col + scroll-y + 事件委托）：
 ```javascript
-import { escapeHtml } from '@af-mobile/ui';
+import { createPage, escapeHtml, effect } from '@af-mobile/ui';
 import { todos, addTodo, toggleTodo, removeTodo } from '../store.js';
 
 export default function listPage(params, ctx) {
@@ -537,45 +553,53 @@ export default function listPage(params, ctx) {
   const rows = ctx.outlet.querySelector('#rows');
   const input = ctx.outlet.querySelector('#add');
 
-  function render() {
-    const list = todos();
-    rows.innerHTML = list.map(t => `
-      <af-swipe-cell data-id="${t.id}">
-        <div slot="content" class="list-item">
-          <af-switch ${t.done ? 'checked' : ''}></af-switch>
-          <span class="body flex-1">${escapeHtml(t.title)}</span>
-        </div>
-        <div slot="right"><button class="btn btn-sm btn-danger" data-act="del">删除</button></div>
-      </af-swipe-cell>`).join('');
-  }
+  const page = createPage({
+    actions: {
+      add: () => {
+        const v = input.value.trim();
+        if (!v) return;
+        addTodo(v);
+        input.value = '';
+      },
+    },
+    setup: () => {
+      // 响应式渲染：todos() 是 store signal，变化自动重绘（无需手动 render()）
+      effect(() => {
+        rows.innerHTML = todos().map(t => `
+          <af-swipe-cell data-id="${t.id}">
+            <div slot="content" class="list-item">
+              <af-switch ${t.done ? 'checked' : ''}></af-switch>
+              <span class="body flex-1">${escapeHtml(t.title)}</span>
+            </div>
+            <div slot="right"><button class="btn btn-sm btn-danger" data-act="del">删除</button></div>
+          </af-swipe-cell>`).join('');
+      });
+    },
+  });
 
   rows.addEventListener('af-switch:change', e => {
     const cell = e.target.closest('af-swipe-cell');
-    if (cell) { toggleTodo(cell.dataset.id); render(); }
+    if (cell) toggleTodo(cell.dataset.id);
   });
   rows.addEventListener('af-swipe-cell:action', e => {
     if (e.detail.action !== 'del') return;
     const cell = e.target.closest('af-swipe-cell');
-    if (cell) { removeTodo(cell.dataset.id); render(); }
+    if (cell) removeTodo(cell.dataset.id);
   });
 
-  function add() {
-    const v = input.value.trim();
-    if (!v) return;
-    addTodo(v);
-    input.value = '';
-    render();
-  }
-  ctx.outlet.querySelector('#add-btn').addEventListener('click', add);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
+  ctx.outlet.querySelector('#add-btn').addEventListener('click', page.actions.add);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') page.actions.add(); });
 
-  render();
+  page.mount(ctx.outlet);   // 启动 :bind（:attr="state.x / derived.x" 响应式绑定组件属性）
+  ctx.signal.addEventListener('abort', () => page.unmount());   // 路由离开时级联清理
 }
 ```
 
 **app-shell 范式要点：**
 - `index.html`：`#app`（路由 outlet）+ `<af-tabbar>`（常驻底部导航，在 outlet 外避免路由销毁）
 - `main.js`：显式 `customElements.define` 或 `register('af-x', ...)` 按需注册（**禁止 registerAll / 禁止 UMD 直引**）→ `route()` → `start({ hash: true })`
+- 页面统一 createPage 范式：`createPage({ state, computed, actions, setup })` → `ctx.outlet.innerHTML` → `page.mount(ctx.outlet)` → `ctx.signal` abort 时 `page.unmount()` 级联清理
+- 响应式重渲染写在 `setup` 内 `effect()`（归属页面 root，unmount 自动清理）；store signal（如 `todos()`）在 effect 内读取即自动追踪；组件属性用 `:attr="state.x"` / `:attr="derived.x"` 响应式绑定
 - 页面用 `.page-col` + `.scroll-y` + `.navbar-fixed` 组建骨架（不私建 class）
 - tabbar 高亮用 `afterEach` 同步，不依赖路由内部状态
 - 事件委托挂在常驻容器上，`innerHTML` 重建不影响监听

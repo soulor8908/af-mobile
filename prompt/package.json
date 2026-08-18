@@ -3,11 +3,15 @@
   "version": "2.0.2",
   "type": "module",
   "description": "af-mobile UI System Prompt builder — modular (role + whitelist + component API + few-shot + model)",
+  "bin": {
+    "af-mobile-prompt": "./bin.mjs"
+  },
   "exports": {
     ".": "./index.mjs"
   },
   "files": [
     "index.mjs",
+    "bin.mjs",
     "dist/",
     "assets/"
   ],

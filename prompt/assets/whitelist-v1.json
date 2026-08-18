@@ -1,6 +1,6 @@
 {
   "version": "v1",
-  "af-mobileVersion": "1.0.0",
+  "af-mobileVersion": "1.4.4",
   "classes": {
     "recipe": [
       "actions",

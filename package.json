@@ -66,6 +66,7 @@
     "tokens": "node scripts/gen-tokens.mjs",
     "tokens:check": "node scripts/check-tokens-sync.mjs",
     "prompt:check": "node scripts/check-prompt-sync.mjs",
+    "skill:check": "node scripts/check-skill-exports.mjs",
     "types:check": "node scripts/check-types-sync.mjs",
     "prompt": "bash scripts/build-prompt.sh",
     "prompt:build": "node scripts/build-prompt.mjs -o prompt/system-prompt.md",

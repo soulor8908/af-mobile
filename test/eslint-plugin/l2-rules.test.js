@@ -25,7 +25,7 @@ describe('L2-1 af-mobile/token-whitelist', () => {
       valid: [],
       invalid: [{
         code: 'const html = `<div class="custom-btn">x</div>`;',
-        errors: [{ messageId: 'unknownClass', data: { name: 'custom-btn' } }],
+        errors: [{ messageId: 'unknownClass', data: { name: 'custom-btn', suggest: '' } }],
       }],
     });
   });
@@ -40,7 +40,7 @@ describe('L2-1 af-mobile/token-whitelist', () => {
       valid: [],
       invalid: [{
         code: 'const html = `<my-widget></my-widget>`;',
-        errors: [{ messageId: 'unknownComponent', data: { name: 'my-widget' } }],
+        errors: [{ messageId: 'unknownComponent', data: { name: 'my-widget', suggest: '' } }],
       }],
     });
   });
@@ -55,7 +55,7 @@ describe('L2-1 af-mobile/token-whitelist', () => {
       valid: [],
       invalid: [{
         code: 'el.classList.add("custom-btn");',
-        errors: [{ messageId: 'unknownClass', data: { name: 'custom-btn' } }],
+        errors: [{ messageId: 'unknownClass', data: { name: 'custom-btn', suggest: '' } }],
       }],
     });
   });
@@ -70,7 +70,7 @@ describe('L2-1 af-mobile/token-whitelist', () => {
       valid: [],
       invalid: [{
         code: 'el.classList.toggle("my-class");',
-        errors: [{ messageId: 'unknownClass', data: { name: 'my-class' } }],
+        errors: [{ messageId: 'unknownClass', data: { name: 'my-class', suggest: '' } }],
       }],
     });
   });
@@ -79,7 +79,35 @@ describe('L2-1 af-mobile/token-whitelist', () => {
       valid: [],
       invalid: [{
         code: 'el.classList.remove(["btn", "custom-cls"]);',
-        errors: [{ messageId: 'unknownClass', data: { name: 'custom-cls' } }],
+        errors: [{ messageId: 'unknownClass', data: { name: 'custom-cls', suggest: '' } }],
+      }],
+    });
+  });
+  it('含 ${} 插值的 class 报 interpolatedClass（非伪报 unknownClass）', () => {
+    ruleTester.run('token-whitelist', tokenWhitelist, {
+      valid: [],
+      invalid: [{
+        // 单引号字符串不插值：整串作为 Literal 检查，token 含 ${ → 应引导改写而非伪报"不在白名单"
+        code: `const html = '<div class="btn-\${type}">x</div>';`,
+        errors: [{ messageId: 'interpolatedClass', data: { name: 'btn-${type}' } }],
+      }],
+    });
+  });
+  it('typo class 消息带最近邻建议（chekout-bar → checkout-bar）', () => {
+    ruleTester.run('token-whitelist', tokenWhitelist, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<div class="chekout-bar">x</div>`;',
+        errors: [{ messageId: 'unknownClass', data: { name: 'chekout-bar', suggest: " Did you mean 'checkout-bar'?" } }],
+      }],
+    });
+  });
+  it('远离白名单的 class 无建议（suggest 为空串）', () => {
+    ruleTester.run('token-whitelist', tokenWhitelist, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<div class="zzzzzzzzzz">x</div>`;',
+        errors: [{ messageId: 'unknownClass', data: { name: 'zzzzzzzzzz', suggest: '' } }],
       }],
     });
   });

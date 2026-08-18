@@ -402,7 +402,7 @@ src/main.js（入口：注册→路由→tabbar→启动）：
 ```javascript
 import './styles.css';
 import { AfTabbar, AfSearchBar, AfSwitch, AfSwipeCell, AfDialog, AfField, AfProgress, AfToast,
-  route, start, go, afterEach, initTheme, effect } from '@af-mobile/ui';
+  route, start, go, afterEach, initTheme } from '@af-mobile/ui';
 import { todos } from './store.js';
 import listPage from './pages/list.js';
 import statsPage from './pages/stats.js';
@@ -437,9 +437,9 @@ afterEach((r, p, path) => {
 start({ hash: true });
 ```
 
-src/pages/list.js（列表页骨架：page-col + scroll-y + 事件委托）：
+src/pages/list.js（列表页：createPage 范式 + page-col + scroll-y + 事件委托）：
 ```javascript
-import { escapeHtml } from '@af-mobile/ui';
+import { createPage, escapeHtml, effect } from '@af-mobile/ui';
 import { todos, addTodo, toggleTodo, removeTodo } from '../store.js';
 
 export default function listPage(params, ctx) {
@@ -458,45 +458,53 @@ export default function listPage(params, ctx) {
   const rows = ctx.outlet.querySelector('#rows');
   const input = ctx.outlet.querySelector('#add');
 
-  function render() {
-    const list = todos();
-    rows.innerHTML = list.map(t => `
-      <af-swipe-cell data-id="${t.id}">
-        <div slot="content" class="list-item">
-          <af-switch ${t.done ? 'checked' : ''}></af-switch>
-          <span class="body flex-1">${escapeHtml(t.title)}</span>
-        </div>
-        <div slot="right"><button class="btn btn-sm btn-danger" data-act="del">删除</button></div>
-      </af-swipe-cell>`).join('');
-  }
+  const page = createPage({
+    actions: {
+      add: () => {
+        const v = input.value.trim();
+        if (!v) return;
+        addTodo(v);
+        input.value = '';
+      },
+    },
+    setup: () => {
+      // 响应式渲染：todos() 是 store signal，变化自动重绘（无需手动 render()）
+      effect(() => {
+        rows.innerHTML = todos().map(t => `
+          <af-swipe-cell data-id="${t.id}">
+            <div slot="content" class="list-item">
+              <af-switch ${t.done ? 'checked' : ''}></af-switch>
+              <span class="body flex-1">${escapeHtml(t.title)}</span>
+            </div>
+            <div slot="right"><button class="btn btn-sm btn-danger" data-act="del">删除</button></div>
+          </af-swipe-cell>`).join('');
+      });
+    },
+  });
 
   rows.addEventListener('af-switch:change', e => {
     const cell = e.target.closest('af-swipe-cell');
-    if (cell) { toggleTodo(cell.dataset.id); render(); }
+    if (cell) toggleTodo(cell.dataset.id);
   });
   rows.addEventListener('af-swipe-cell:action', e => {
     if (e.detail.action !== 'del') return;
     const cell = e.target.closest('af-swipe-cell');
-    if (cell) { removeTodo(cell.dataset.id); render(); }
+    if (cell) removeTodo(cell.dataset.id);
   });
 
-  function add() {
-    const v = input.value.trim();
-    if (!v) return;
-    addTodo(v);
-    input.value = '';
-    render();
-  }
-  ctx.outlet.querySelector('#add-btn').addEventListener('click', add);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
+  ctx.outlet.querySelector('#add-btn').addEventListener('click', page.actions.add);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') page.actions.add(); });
 
-  render();
+  page.mount(ctx.outlet);   // 启动 :bind（:attr="state.x / derived.x" 响应式绑定组件属性）
+  ctx.signal.addEventListener('abort', () => page.unmount());   // 路由离开时级联清理
 }
 ```
 
 **app-shell 范式要点：**
 - `index.html`：`#app`（路由 outlet）+ `<af-tabbar>`（常驻底部导航，在 outlet 外避免路由销毁）
 - `main.js`：显式 `customElements.define` 或 `register('af-x', ...)` 按需注册（**禁止 registerAll / 禁止 UMD 直引**）→ `route()` → `start({ hash: true })`
+- 页面统一 createPage 范式：`createPage({ state, computed, actions, setup })` → `ctx.outlet.innerHTML` → `page.mount(ctx.outlet)` → `ctx.signal` abort 时 `page.unmount()` 级联清理
+- 响应式重渲染写在 `setup` 内 `effect()`（归属页面 root，unmount 自动清理）；store signal（如 `todos()`）在 effect 内读取即自动追踪；组件属性用 `:attr="state.x"` / `:attr="derived.x"` 响应式绑定
 - 页面用 `.page-col` + `.scroll-y` + `.navbar-fixed` 组建骨架（不私建 class）
 - tabbar 高亮用 `afterEach` 同步，不依赖路由内部状态
 - 事件委托挂在常驻容器上，`innerHTML` 重建不影响监听

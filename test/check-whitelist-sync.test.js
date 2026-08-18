@@ -14,10 +14,11 @@ import { buildWhitelistFromSources } from '../scripts/gen-whitelist.mjs';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const WL_PATH = join(ROOT, 'eslint-plugin-af-mobile/utils/whitelist-v1.json');
 const B = JSON.parse(readFileSync(WL_PATH, 'utf8'));
+const PKG_VER = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
 
-// 构造最小化 whitelist 对象（computeSyncProblems 只用到这些字段）
-function fakeWl({ recipe = [], atomic = [], components = [], tokens = [] } = {}) {
-  return { classes: { recipe, atomic }, components, tokens };
+// 构造最小化 whitelist 对象（computeSyncProblems 只用到这些字段；版本戳默认取真实 package.json）
+function fakeWl({ recipe = [], atomic = [], components = [], tokens = [], version = PKG_VER } = {}) {
+  return { 'af-mobileVersion': version, classes: { recipe, atomic }, components, tokens };
 }
 
 describe('whitelist-sync / diff', () => {
@@ -103,6 +104,15 @@ describe('whitelist-sync / computeSyncProblems', () => {
     const A = fakeWl({ recipe: ['btn'], atomic: ['p-4'], components: ['af-dialog'], tokens: ['--c-brand'] });
     const C = '`btn` `p-4` `<af-dialog>` `--c-brand` | `<af-dialog>` |';
     expect(computeSyncProblems(A, A, C)).toEqual([]);
+  });
+
+  it('whitelist 版本戳 ≠ package.json → 报告（1.4.x 停在 1.0.0 的漂移回归）', () => {
+    const A = fakeWl({ recipe: ['btn'] });
+    const B_ = fakeWl({ recipe: ['btn'], version: '1.0.0' });
+    const problems = computeSyncProblems(A, B_, '`btn`');
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toContain("af-mobileVersion '1.0.0'");
+    expect(problems[0]).toContain(PKG_VER);
   });
 
   it('A 有但 B 无 → 报告 A\\B', () => {

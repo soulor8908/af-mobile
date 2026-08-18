@@ -315,6 +315,7 @@ AI 要创建/扩展一个 @af-mobile/ui 项目？
 ```bash
 node scripts/lint-flywheel.mjs <任意路径>   # lint 即喂数据（HTML/JS/MJS 都行）
 npm run eval:flywheel                      # 输出飞轮分析报告（Top 规则/白名单候选/收敛度）
+npx @af-mobile/prompt "需求描述"           # get_prompt 的 npx 降级入口（MCP 不可达时；--full 全量 / -o 写文件）
 ```
 
 ### 5.3 边界与隐私

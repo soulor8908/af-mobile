@@ -90,6 +90,25 @@ export function extractProjectExtensions(css) {
   return items;
 }
 
+// 语义旁车表：只给"名字不自明/高频漏用"的 class 一行说明（全量 desc 会膨胀 prompt）
+// AI 用例复盘：.segmented 被漏掉重造、.empty 手写居中空态，均为纯语义缺失
+// 注意：class 名必须在 whitelist-v1.json 中存在（CI B→C 同步兜底）
+const CLASS_DESC = [
+  ['segmented', '分段控制器（iOS 风格 N 选一），配 segmented-item / segmented-block'],
+  ['checkout-bar', '底部操作栏（通用：确认/提交/下一步，不限于收银场景），fixed 变体自动适配 tabbar 与 safe-area'],
+  ['input-bar', '底部固定输入栏（评论/聊天），input-bar-fixed 自动适配 safe-area'],
+  ['safe-top', '安全区 padding 工具：自建 fixed/sticky 元素规避刘海'],
+  ['safe-bottom', '安全区 padding 工具：自建固定元素规避 Home Indicator'],
+  ['empty', '空态占位（列表无数据/搜索无结果），勿手写居中提示'],
+  ['actions', '按钮组容器（卡片/表单底部操作区），内部配 .btn'],
+  ['stats-grid', '数据统计网格（数字+标签卡片）'],
+  ['hero', '首屏主视觉区（大标题+副文案），eyebrow 为其上方小标签'],
+  ['tag', '状态标签，配 tag-ok / tag-warn / tag-danger 语义色'],
+  ['spinner', '加载中旋转图标（spinner-sm / spinner-lg），配 .empty 可做加载态'],
+  ['sheet', '底部弹出层容器（自定义 action-sheet 内容时用）'],
+  ['input-err', '输入框错误态红框，form-err 为表单行错误文案'],
+];
+
 // 构造 whitelist 注入段
 // 优先用 CSS 分组（人类可读），再把 whitelist 里有但 CSS 分组没归类的 class
 // （如状态修饰符 .tab-item.active 中的 active）追加到"状态修饰符"分组
@@ -122,6 +141,15 @@ export function buildWhitelistSection(wl, recipeGroups, atomicGroups) {
   }
   if (looseAtomic.length) {
     lines.push('**其他（' + looseAtomic.length + '）：** ' + looseAtomic.map(c => '`' + c + '`').join(' '));
+  }
+  // 语义旁车表：只列 whitelist 内存在的条目（防 CLASS_DESC 与 whitelist 漂移）
+  const known = new Set([...wl.classes.recipe, ...wl.classes.atomic]);
+  const descRows = CLASS_DESC.filter(([c]) => known.has(c));
+  if (descRows.length) {
+    lines.push('');
+    lines.push('### 易漏 class 语义速查');
+    lines.push('');
+    for (const [c, d] of descRows) lines.push('- `' + c + '`：' + d);
   }
   lines.push('');
   lines.push('## L3 真组件标签（' + wl.components.length + ' 个）');

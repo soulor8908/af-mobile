@@ -48,7 +48,7 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 
 - 移动端 375px，完整 `<!doctype html>` 单文件，每页一个文件（核心页优先）
 - **demo 按工程同构写法写**（铁律：demo 即工程雏形，Phase 5 复制替换而非重写）：
-  - 页面逻辑写成 page 函数（与脚手架 `src/pages/*.js` 同构）：`async function xxxPage(params, ctx) { ctx.outlet.innerHTML = ...; /* 事件绑定 */ }`，在 demo 的 `<script type="module">` 内定义并调用，渲染到 `#app`
+  - 页面逻辑写成 createPage 页面函数（与脚手架 `src/pages/*.js` 同构，铁律）：`import { createPage } from '@af-mobile/ui'`（demo 内从 `node_modules/@af-mobile/ui/src/index.js` 引入），骨架固定——`const page = createPage({ state, computed, actions, setup })` → `ctx.outlet.innerHTML = ...`（组件属性用 `:attr="state.x"` 响应式绑定，事件 `addEventListener('click', page.actions.x)`）→ `page.mount(ctx.outlet)` → `ctx.signal.addEventListener('abort', () => page.unmount())`；在 demo 的 `<script type="module">` 内定义并调用，渲染到 `#app`
   - 数据层写成假 store（内存对象 + 读写函数），函数签名与拆分表数据模型一致——Phase 5 只换函数体实现（localStorage/Supabase），页面调用代码零改动
 - **组件必须按需引入**（铁律，禁止 UMD / 禁止 registerAll / 禁止全局引入）：
   - CSS：`<link rel="stylesheet" href="node_modules/@af-mobile/ui/src/index.css">`
@@ -97,7 +97,7 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 
 脚手架默认 `home/docs` 是占位示例。demo 已是工程同构写法（Phase 3），按拆分表**复制替换**：
 
-- `src/pages/<name>.js` ← demo 的 page 函数原样复制，仅改 import 来源为 `@af-mobile/ui`（`node_modules/@af-mobile/ui/src/index.js` → 包名），其余逻辑不动
+- `src/pages/<name>.js` ← demo 的 createPage 页面函数原样复制，仅改 import 来源为 `@af-mobile/ui`（`node_modules/@af-mobile/ui/src/index.js` → 包名），其余逻辑（含 mount/unmount 生命周期）不动
 - 数据层（如 `src/store.js`）← demo 假 store 原样复制，**只替换读写函数体**为真实实现（localStorage / Supabase，per 拆分表），函数签名与页面调用不动
 - `src/main.js` → 替换路由表（保留 `initTheme/start('#app', { hash: true })` 两件套；**组件注册用显式 `register(...names)`**，禁止 `registerAll()`，否则触发 `af-mobile/no-register-all` 且失去 Tree Shaking）
 - `src/styles.css` → 项目级自定义样式（只用 `var(--*)` token；白名单外 class 必须在 `eslint.config.js` 用 `extraClass` 登记）
@@ -135,6 +135,9 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 - 展示：`af-swiper` `af-img` `af-skeleton-page` `af-backtop` `af-pull-refresh`
 
 完整属性/事件表：已安装项目读 `node_modules/@af-mobile/ui/src/index.d.ts`——全部方法签名与事件 payload 的单一真相源，**一次读全**（单文件约 1 次读取即得全部 API），**禁止逐个读 `src/components/` 组件源码**（高成本零增量信息）。
+
+**页面范式（createPage，铁律）：**
+`const page = createPage({ state, computed, actions, setup })` → `ctx.outlet.innerHTML`（组件属性 `:attr="state.x"` / `:attr="derived.x"` 响应式绑定）→ `page.mount(ctx.outlet)`（启动 :bind）→ `ctx.signal` abort 时 `page.unmount()` 级联清理；响应式重渲染写在 `setup` 内 `effect()`（归属页面 root，unmount 自动清理）
 
 **L2 白名单 class（封闭集，只用这些）：**
 - 按钮：`btn btn-sm btn-lg btn-ghost btn-danger btn-success btn-block`

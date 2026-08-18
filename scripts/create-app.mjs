@@ -256,10 +256,16 @@ start('#app', { hash: true });
   'src/styles.css': `/* 项目级自定义样式：只用 var(--*) token；新增 class 需登记项目白名单 */
 `,
 
-  'src/pages/home.js': `// home —— 首页：编辑这里开始你的应用
-import { go } from '@af-mobile/ui';
+  'src/pages/home.js': `// home —— 首页：createPage 范式（state/computed/actions + :bind 响应式绑定）
+import { createPage, go } from '@af-mobile/ui';
 
-export default async function homePage(params, ctx) {
+export default function homePage(params, ctx) {
+  const page = createPage({
+    state: { count: 0 },
+    computed: { pct: (s) => Math.min(100, s.count * 10) },
+    actions: { inc: (s) => { s.count += 1; } },
+  });
+
   ctx.outlet.innerHTML = \`
     <main class="page">
       <section class="hero">
@@ -270,25 +276,40 @@ export default async function homePage(params, ctx) {
       <section class="card">
         <h3 class="section-title">下一步</h3>
         <p class="body">用 TRAE 或任意 AI 编码工具打开本项目，说出你的想法，af-mobile-grill skill 会引导你完成需求确认与页面生成。</p>
+        <progress max="100" :value="derived.pct"></progress>
+        <button class="btn" data-role="inc">点我 +1</button>
       </section>
       <div class="actions">
         <button class="btn btn-block" data-role="go-docs">查看开发指引</button>
       </div>
     </main>\`;
 
+  ctx.outlet.querySelector('[data-role="inc"]')
+    .addEventListener('click', page.actions.inc);
   ctx.outlet.querySelector('[data-role="go-docs"]')
     .addEventListener('click', () => go('/docs'));
+
+  page.mount(ctx.outlet);   // 启动 :bind 扫描（:attr="state.x / derived.x" → 响应式属性）
+  ctx.signal.addEventListener('abort', () => page.unmount());   // 路由离开时级联清理
 }
 `,
 
-  'src/pages/docs.js': `// docs —— 开发指引
-export default async function docsPage(params, ctx) {
+  'src/pages/docs.js': `// docs —— 开发指引（createPage 最小范式）
+import { createPage } from '@af-mobile/ui';
+
+export default function docsPage(params, ctx) {
+  const page = createPage({});
+
   ctx.outlet.innerHTML = \`
     <main class="page">
       <header class="navbar navbar-fixed"><h1 class="title">开发指引</h1></header>
       <section class="card">
         <h3 class="section-title">约束</h3>
         <p class="body">只用白名单 class 和 af-* 组件标签；禁止内联 style 与 Tailwind 语法。</p>
+      </section>
+      <section class="card">
+        <h3 class="section-title">页面范式</h3>
+        <p class="body">createPage({ state, computed, actions }) 声明逻辑；:attr="state.x" 响应式绑定组件属性；page.mount(ctx.outlet) 启动绑定，路由离开时 page.unmount() 级联清理。</p>
       </section>
       <section class="card">
         <h3 class="section-title">组件 API</h3>
@@ -301,6 +322,9 @@ export default async function docsPage(params, ctx) {
 
   ctx.outlet.querySelector('[data-role="back"]')
     .addEventListener('click', () => history.back());
+
+  page.mount(ctx.outlet);
+  ctx.signal.addEventListener('abort', () => page.unmount());
 }
 `,
 };

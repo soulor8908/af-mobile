@@ -35,9 +35,9 @@ describe('create-af-mobile 薄壳', () => {
     const dir = join(mkdtempSync(join(tmpdir(), 'af-shell-')), 'app3');
     const out = runShell(['skill', 'add', dir]);
     expect(out).toContain('+ skills/af-mobile-grill/SKILL.md');
-    // 断言与转发目标的真相源一致（开发态 node_modules 是 registry 发布版，非仓库源）
+    // 断言与工作区真相源一致（monorepo 中 node_modules 可能为 registry 发布版，非仓库源）
     const source = readFileSync(
-      join(ROOT, 'node_modules/@af-mobile/ui/skills/af-mobile-grill/SKILL.md'), 'utf8',
+      join(ROOT, 'skills/af-mobile-grill/SKILL.md'), 'utf8',
     );
     const installed = readFileSync(join(dir, 'skills/af-mobile-grill/SKILL.md'), 'utf8');
     expect(installed).toBe(source);

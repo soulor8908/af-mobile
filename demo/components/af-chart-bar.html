@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-chart-bar demo - af-mobile</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <p class="eyebrow"><a href="../index.html" class="subtitle">← 返回</a></p>
+      <h1 class="display">af-chart-bar 柱状/条形/堆叠</h1>
+    </section>
+
+    <!-- 焦点组件 -->
+    <p class="caption">焦点组件 · 切换下方 props 即时生效</p>
+    <div class="card">
+      <af-chart-bar id="focus" variant="column" legend></af-chart-bar>
+    </div>
+    <p class="caption" id="log">点击柱子查看 select 事件</p>
+
+    <!-- variant 矩阵 -->
+    <p class="caption">A · 垂直柱（6 类目销量）</p>
+    <div class="card"><af-chart-bar class="demo" variant="column" data-bar="cat_sales"></af-chart-bar></div>
+
+    <p class="caption">B · 水平条形（10 个长类目名排行）</p>
+    <div class="card"><af-chart-bar class="demo" variant="bar" data-bar="long_rank"></af-chart-bar></div>
+
+    <p class="caption">C · 堆叠柱（季度 × 产品线）</p>
+    <div class="card"><af-chart-bar class="demo" variant="stacked" legend data-bar="stacked_q"></af-chart-bar></div>
+
+    <p class="caption">D · 分组柱（同数据并排对比）</p>
+    <div class="card"><af-chart-bar class="demo" variant="grouped" legend data-bar="stacked_q"></af-chart-bar></div>
+
+    <p class="caption">E · 水平条形 + max-count 截断（35 类目 → 前 4 + "其他"）</p>
+    <div class="card"><af-chart-bar class="demo" variant="bar" max-count="5" data-bar="over_30"></af-chart-bar></div>
+
+    <p class="caption">F · 水平条形（24 小时访问量分布）</p>
+    <div class="card"><af-chart-bar class="demo" variant="bar" data-bar="hourly"></af-chart-bar></div>
+
+    <p class="caption">G · 垂直柱 max-count 截断（35 类目 → 前 4 + "其他"）</p>
+    <div class="card"><af-chart-bar class="demo" variant="column" max-count="5" data-bar="over_30"></af-chart-bar></div>
+
+    <!-- 五态 -->
+    <p class="caption">H/I/J · 五态：loading / error（含重试）/ empty</p>
+    <div class="card" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <af-chart-bar id="h-loading" loading></af-chart-bar>
+      <af-chart-bar id="i-error" error="加载失败，请重试" data-bar="empty"></af-chart-bar>
+      <af-chart-bar id="j-empty" data-bar="empty"></af-chart-bar>
+    </div>
+
+    <div class="card">
+      <button class="btn btn-ghost btn-block" id="retry-btn">手动触发 retry 事件（I 区）</button>
+    </div>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfChartBar } from '../../src/charts/components/af-chart-bar.js';
+    customElements.define('af-chart-bar', AfChartBar);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const MOCK = {
+      cat_sales:     { labels: ['手机','笔记本','平板','手表','耳机','音箱'],
+                  series: [{ name: '销量', values: [1280,960,540,420,680,310] }] },
+      long_rank:     { labels: ['华东区-上海','华东区-杭州','华东区-南京','华北区-北京','华北区-天津',
+                           '华南区-深圳','华南区-广州','西南区-成都','西南区-重庆','华中区-武汉'],
+                  series: [{ name: 'GMV', values: [980,820,640,1120,540,1080,890,460,420,510] }] },
+      stacked_q:     { labels: ['Q1','Q2','Q3','Q4'],
+                  series: [{ name: '手机', values: [320,360,400,420] },
+                           { name: '笔记本', values: [240,260,280,300] },
+                           { name: '配件', values: [120,140,160,180] }] },
+      hourly:        { labels: Array.from({length:24},(_,i)=>`${i}:00`),
+                  series: [{ name: '访问量', values: [120,80,50,30,20,15,30,80,180,320,420,510,580,620,590,540,480,420,380,340,280,220,180,150] }] },
+      over_30:       { labels: Array.from({length:35},(_,i)=>`SKU-${i+1}`),
+                  series: [{ name: '销量', values: Array.from({length:35},(_,i)=>Math.round(50+Math.random()*200)) }] },
+      empty:         { labels: [], series: [] },
+    };
+
+    // 焦点组件
+    const focus = document.getElementById('focus');
+    focus.labels = MOCK.cat_sales.labels;
+    focus.series = MOCK.cat_sales.series;
+
+    // 实例化
+    document.querySelectorAll('af-chart-bar.demo[data-bar]').forEach(el => {
+      const m = MOCK[el.dataset.bar];
+      el.labels = m.labels;
+      el.series = m.series;
+    });
+
+    // 事件日志
+    focus.addEventListener('af-chart-bar:select', (e) => {
+      document.getElementById('log').textContent =
+        `select: index=${e.detail.index} seriesIndex=${e.detail.seriesIndex} label=${e.detail.label} value=${e.detail.value}`;
+    });
+    document.getElementById('i-error').addEventListener('af-chart-bar:retry', () => {
+      document.getElementById('log').textContent = 'I 区派发 af-chart-bar:retry';
+    });
+    document.getElementById('retry-btn').addEventListener('click', () => {
+      const i = document.getElementById('i-error');
+      i.error = '';
+      i.loading = true;
+      setTimeout(() => { i.loading = false; i.labels = MOCK.cat_sales.labels; i.series = MOCK.cat_sales.series; }, 800);
+    });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'variant', label: '形态', type: 'select', options: ['column','bar','stacked','grouped'] },
+      { prop: 'maxCount', label: '类目上限', type: 'number', min: 3, max: 30, step: 1 },
+      { prop: 'legend', label: '图例', type: 'boolean' },
+      { prop: 'height', label: '高度(px)', type: 'number', min: 120, max: 400, step: 10 },
+      { prop: 'loading', label: 'loading 态', type: 'boolean' },
+      { prop: 'error', label: 'error 文案', type: 'string' },
+    ], focus);
+  </script>
+</body>
+</html>

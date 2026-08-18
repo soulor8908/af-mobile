@@ -429,8 +429,8 @@ charts 子库（`@af-mobile/ui/charts`）已于 2026-08-16 完成 Phase 1-2 全�
 | B · 水平条形（单序列） | `bar` | `LONG_NAME_RANK`（10 个长类目） | 长类目名横向可读 |
 | C · 堆叠柱（多序列） | `stacked` | `STACKED_QUARTERLY`（4 季度 × 3 产品线） | 逐段累加 + 配色阶梯 |
 | D · 分组柱（多序列） | `grouped` | 同 C | 同组并排对比 |
-| E · 水平分组（多序列） | `bar` + `grouped` | 同 C | 长类目 + 多序列并排，对比 D 的垂直形态 |
-| F · 水平堆叠（多序列） | `bar` + `stacked` | 同 C | 长类目 + 逐段累加，对比 C 的垂直形态 |
+| E · 水平条形 + max-count 截断 | `bar` + `maxCount=5` | `OVER_30_CATEGORIES`（35 个长类目） | 水平方向也支持截断，前 4 + "其他"聚合 |
+| F · 水平条形（小时段分布） | `bar` | `HOURLY_TRAFFIC`（24 小时访问量） | 水平条形的长尾分布对比 B 的排行场景 |
 | G · max-count 截断 | `column` + `maxCount=5` | `OVER_30_CATEGORIES`（35 个类目） | 前 4 + "其他"聚合（走 i18n） |
 | H · loading 态 | `column` + `loading` | 任意 | 图表形骨架 + `aria-busy` |
 | I · error 态 | `column` + `error="加载失败"` | 任意 | 错误文案 + 重试按钮 → 派发 `af-chart-bar:retry` |
@@ -442,9 +442,9 @@ charts 子库（`@af-mobile/ui/charts`）已于 2026-08-16 完成 Phase 1-2 全�
 | variant | 单序列 | 多序列 |
 |---|---|---|
 | `column`（垂直） | A | D（grouped） / C（stacked） |
-| `bar`（水平） | B | E（grouped） / F（stacked） |
+| `bar`（水平） | B / F | （源码不支持水平多序列，多序列会重叠，不演示） |
 
-> 普通多序列 `column`/`bar` 不显式声明 grouped/stacked 时，源码会按"每柱居中"渲染导致多序列重叠，**无业务意义**——多序列必须显式选 `grouped` 或 `stacked`。
+> 普通多序列 `column`/`bar` 不显式声明 grouped/stacked 时，源码会按"每柱居中"渲染导致多序列重叠，**无业务意义**——多序列必须显式选 `grouped` 或 `stacked`（两者均为垂直方向，源码未实现水平 grouped/stacked 组合）。
 
 ### 6.2 页面骨架（关键差异点）
 
@@ -465,11 +465,11 @@ charts 子库（`@af-mobile/ui/charts`）已于 2026-08-16 完成 Phase 1-2 全�
 <p class="caption">D · 分组柱（同数据并排对比）</p>
 <div class="card"><af-chart-bar class="demo" variant="grouped" legend data-bar="stacked_q"></af-chart-bar></div>
 
-<p class="caption">E · 水平分组（bar + grouped，长类目 + 多序列并排）</p>
-<div class="card"><af-chart-bar class="demo" variant="bar" data-bar="grouped_long" legend></af-chart-bar></div>
+<p class="caption">E · 水平条形 + max-count 截断（35 类目 → 前 4 + "其他"）</p>
+<div class="card"><af-chart-bar class="demo" variant="bar" max-count="5" data-bar="over_30"></af-chart-bar></div>
 
-<p class="caption">F · 水平堆叠（bar + stacked，长类目 + 逐段累加）</p>
-<div class="card"><af-chart-bar class="demo" variant="bar" data-bar="stacked_long" legend></af-chart-bar></div>
+<p class="caption">F · 水平条形（24 小时访问量分布）</p>
+<div class="card"><af-chart-bar class="demo" variant="bar" data-bar="hourly"></af-chart-bar></div>
 
 <p class="caption">G · max-count 截断（35 类目 → 前 4 + "其他"）</p>
 <div class="card"><af-chart-bar class="demo" variant="column" max-count="5" data-bar="over_30"></af-chart-bar></div>
@@ -508,6 +508,8 @@ const MOCK = {
                   series: [{ name: '手机', values: [320,420,380,260] },
                            { name: '笔记本', values: [240,300,260,180] },
                            { name: '配件', values: [120,180,140,80] }] },
+  hourly:        { labels: Array.from({length:24},(_,i)=>`${i}:00`),
+                  series: [{ name: '访问量', values: [120,80,50,30,20,15,30,80,180,320,420,510,580,620,590,540,480,420,380,340,280,220,180,150] }] },
   over_30:       { labels: Array.from({length:35},(_,i)=>`SKU-${i+1}`),
                   series: [{ name: '销量', values: Array.from({length:35},(_,i)=>Math.round(50+Math.random()*200)) }] },
   empty:         { labels: [], series: [] },
@@ -959,7 +961,7 @@ document.getElementById('retry-btn').addEventListener('click', () => {
     <!-- ② af-tabs 切换 5 种 chart 类型（同数据集不同视角） -->
     <p class="caption">② af-tabs 切换 chart 类型（电商 5 步转化数据的多视角）</p>
     <af-tabs id="tabs"></af-tabs>
-
+    <div id="chart-host" class="card" style="margin-top:8px"></div>
     <p class="caption" id="log">选中：funnel 视角</p>
 
     <!-- ③ lazy 离屏懒加载（IntersectionObserver 首次可见才渲染） -->
@@ -1014,6 +1016,8 @@ document.getElementById('retry-btn').addEventListener('click', () => {
     });
 
     // —— tabs 切换 chart 类型 ——
+    // 用 af-tabs:change 事件驱动 chart 容器重建（比 renderPanel side-effect 更清晰，
+    // 避免 _renderPanels 一次性执行所有 tab 渲染函数导致 5 个 chart 都被实例化）
     const tabs = document.getElementById('tabs');
     tabs.tabs = [
       { label: '漏斗', value: 'funnel' },
@@ -1022,13 +1026,12 @@ document.getElementById('retry-btn').addEventListener('click', () => {
       { label: '饼图', value: 'pie' },
       { label: '雷达', value: 'radar' },
     ];
-    const CHART_HOST = document.createElement('div');
-    tabs.renderPanel = (tab, i) => {
-      // 每次切换都重建 chart 实例（避免 data 残留）
-      CHART_HOST.innerHTML = '';
-      const tag = `af-chart-${tab.value}`;
+    const host = document.getElementById('chart-host');
+
+    function renderChart(value) {
+      host.innerHTML = '';
+      const tag = `af-chart-${value}`;
       const el = document.createElement(tag);
-      el.style.width = '100%';
       if (tag === 'af-chart-funnel') {
         el.data = FUNNEL; el.showRate = true; el.legend = true;
       } else if (tag === 'af-chart-bar') {
@@ -1043,15 +1046,15 @@ document.getElementById('retry-btn').addEventListener('click', () => {
         el.legend = false;
       }
       el.addEventListener(`${tag}:select`, (e) => {
-        document.getElementById('log').textContent = `${tab.value} select: index=${e.detail.index} label=${e.detail.label} value=${e.detail.value}`;
+        document.getElementById('log').textContent = `${value} select: index=${e.detail.index} label=${e.detail.label} value=${e.detail.value}`;
       });
-      CHART_HOST.appendChild(el);
-      return ''; // renderPanel 返回字符串，但 chart 必须 DOM 操作，这里走 side effect
-    };
-    // chart 容器插入到 tabs 之后（renderPanel 调用时已可挂载）
-    tabs.insertAdjacentElement('afterend', CHART_HOST);
+      host.appendChild(el);
+    }
 
+    // 初始渲染：首个 tab（funnel）
+    renderChart('funnel');
     tabs.addEventListener('af-tabs:change', (e) => {
+      renderChart(e.detail.value);
       document.getElementById('log').textContent = `选中：${e.detail.value} 视角`;
     });
 
@@ -1107,7 +1110,7 @@ document.getElementById('retry-btn').addEventListener('click', () => {
 ### 10.4 联动页设计要点
 
 1. **registerCharts() 全量注册**：联动页要用 5 种 chart，失去 Tree Shaking 无所谓（demo 站，非生产）。简化代码 1 行替代 5 行 `customElements.define`。
-2. **renderPanel + side effect 挂 chart**：`af-tabs.renderPanel` 原本返回字符串模板，但 chart 必须 DOM 操作（chart 组件实例化后才能设 `data`/`series`），故采用"side effect 挂载到 CHART_HOST"模式。这是 demo 端 hack，不污染 chart 组件源码。
+2. **af-tabs:change 事件驱动 chart 重建**：原设计曾考虑 `renderPanel` + side-effect 挂 chart，但 `af-tabs._renderPanels` 会在 mounted 时一次性执行所有 tab 的 renderPanel 函数，导致 5 个 chart 都被实例化（虽然只有当前 tab 面板可见，但其他 4 个 chart 也被创建和赋值，浪费性能且 CHART_HOST 只保留最后一个）。改用 `af-tabs:change` 事件驱动：tabs 只负责切换 UI，独立的 `#chart-host` 容器在事件回调中 `innerHTML = ''` + 重建当前 tab 对应 chart，更清晰且只实例化 1 个 chart。
 3. **主题切换验证**：点击按钮 → `toggleTheme()` → `data-theme=dark` → chart-theme.js 监听 `themechange` → 缓存失效 + 重绘，颜色从 `--c-brand` 取 dark 主题值。
 4. **reduced-motion 验证**：devtools 切到 reduce 媒体查询 → chart 内核统一 CSS 覆盖 → 入场动画消失。状态文案实时显示当前 matchMedia 状态。
 5. **联动页 props 面板**：**不接** props 面板（chart 重建会让 props 面板的 target 引用失效）。改放说明文案。

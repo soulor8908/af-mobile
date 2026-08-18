@@ -18,7 +18,8 @@ export default {
     if (/src[\\/]|test[\\/]|scripts[\\/]/.test(filename)) return {};
 
     // af-* 标签选择器（含子代/后代穿透）：af-xxx > 或 af-xxx 空格 后跟其他选择器
-    const PENETRATE_RE = /af-[a-z]+(?:[>+~]|\s+[^,)\]]+)/;
+    // 标签名含连字符（af-auth-form），字符类须含 - 否则匹配不到组合器
+    const PENETRATE_RE = /af-[a-z][a-z0-9-]*(?:[>+~]|\s+[^,)\]]+)/;
 
     return {
       CallExpression(node) {

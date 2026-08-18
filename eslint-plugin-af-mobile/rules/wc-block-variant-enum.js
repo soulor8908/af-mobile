@@ -64,6 +64,15 @@ export default {
           variantEnumDeclared = true;
         }
       },
+      // 赋值形式：AfFoo.prototype.onAttributeChange = function (name) { ... }
+      AssignmentExpression(node) {
+        const left = node.left;
+        if (left?.type !== 'MemberExpression' || left.property?.name !== 'onAttributeChange') return;
+        const bodyText = sourceCode.getText(node.right);
+        if (/variant/.test(bodyText) && /(if|switch)/.test(bodyText)) {
+          variantEnumDeclared = true;
+        }
+      },
       'Program:exit'() {
         if (hasVariantProp && !variantEnumDeclared) {
           context.report({ loc: { line: 1, column: 0 }, messageId: 'noEnum' });

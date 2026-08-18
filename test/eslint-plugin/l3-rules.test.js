@@ -12,7 +12,8 @@ const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
 });
 
-const LIGHT_COMP = `export class AfFoo extends HTMLElement { static useShadow = false; }`;
+// 组件骨架：方法体拼进类内（此前拼在类外是非法 JS，被 RuleTester 假绿掩盖）
+const lightComp = (body) => `export class AfFoo extends HTMLElement { static useShadow = false; ${body} }`;
 const SHADOW_COMP = `export class AfFoo extends HTMLElement { static useShadow = true; }`;
 
 describe('L3-1 af-mobile/wc-light-no-style', () => {
@@ -21,7 +22,7 @@ describe('L3-1 af-mobile/wc-light-no-style', () => {
       valid: [],
       invalid: [{
         filename: 'src/components/af-foo.js',
-        code: `${LIGHT_COMP} mounted() { this.style.color = 'red'; }`,
+        code: lightComp(`mounted() { this.style.color = 'red'; }`),
         errors: [{ messageId: 'styleProp' }],
       }],
     });
@@ -31,7 +32,7 @@ describe('L3-1 af-mobile/wc-light-no-style', () => {
       valid: [],
       invalid: [{
         filename: 'src/components/af-foo.js',
-        code: `${LIGHT_COMP} mounted() { this.innerHTML = '<style>.x{color:red}</style>'; }`,
+        code: lightComp(`mounted() { this.innerHTML = '<style>.x{color:red}</style>'; }`),
         errors: [{ messageId: 'styleTag' }],
       }],
     });
@@ -40,7 +41,7 @@ describe('L3-1 af-mobile/wc-light-no-style', () => {
     ruleTester.run('wc-light-no-style', wcLightNoStyle, {
       valid: [{
         filename: 'src/components/af-foo.js',
-        code: `${LIGHT_COMP} mounted() { this.innerHTML = '<div class="card">x</div>'; }`,
+        code: lightComp(`mounted() { this.innerHTML = '<div class="card">x</div>'; }`),
       }],
       invalid: [],
     });
@@ -50,7 +51,7 @@ describe('L3-1 af-mobile/wc-light-no-style', () => {
       valid: [],
       invalid: [{
         filename: 'src/components/af-foo.js',
-        code: `${LIGHT_COMP} mounted() { this.style.setProperty('color', 'red'); }`,
+        code: lightComp(`mounted() { this.style.setProperty('color', 'red'); }`),
         errors: [{ messageId: 'styleProp' }],
       }],
     });
@@ -59,7 +60,7 @@ describe('L3-1 af-mobile/wc-light-no-style', () => {
     ruleTester.run('wc-light-no-style', wcLightNoStyle, {
       valid: [{
         filename: 'src/components/af-foo.js',
-        code: `${LIGHT_COMP} mounted() { this.style.setProperty('--af-h', '400px'); }`,
+        code: lightComp(`mounted() { this.style.setProperty('--af-h', '400px'); }`),
       }],
       invalid: [],
     });
@@ -69,7 +70,7 @@ describe('L3-1 af-mobile/wc-light-no-style', () => {
       valid: [],
       invalid: [{
         filename: 'src/components/af-foo.js',
-        code: `${LIGHT_COMP} mounted() { this.innerHTML = '<div style="width:80%"></div>'; }`,
+        code: lightComp(`mounted() { this.innerHTML = '<div style="width:80%"></div>'; }`),
         errors: [{ messageId: 'styleAttr' }],
       }],
     });
@@ -79,7 +80,7 @@ describe('L3-1 af-mobile/wc-light-no-style', () => {
       valid: [],
       invalid: [{
         filename: 'src/components/af-foo.js',
-        code: `${LIGHT_COMP} mounted() { const html = \`<div class="skeleton" style="width:80%"></div>\`; this.innerHTML = html; }`,
+        code: lightComp(`mounted() { const html = \`<div class="skeleton" style="width:80%"></div>\`; this.innerHTML = html; }`),
         errors: [{ messageId: 'styleAttr' }],
       }],
     });
@@ -88,7 +89,7 @@ describe('L3-1 af-mobile/wc-light-no-style', () => {
     ruleTester.run('wc-light-no-style', wcLightNoStyle, {
       valid: [{
         filename: 'src/components/af-foo.js',
-        code: `${LIGHT_COMP} mounted() { this.innerHTML = '<div style="--af-h:400px"></div>'; }`,
+        code: lightComp(`mounted() { this.innerHTML = '<div style="--af-h:400px"></div>'; }`),
       }],
       invalid: [],
     });
@@ -97,7 +98,7 @@ describe('L3-1 af-mobile/wc-light-no-style', () => {
     ruleTester.run('wc-light-no-style', wcLightNoStyle, {
       valid: [{
         filename: 'src/components/af-foo.js',
-        code: `${LIGHT_COMP} mounted() { this.innerHTML = '<div class="card skeleton-w-80">x</div>'; }`,
+        code: lightComp(`mounted() { this.innerHTML = '<div class="card skeleton-w-80">x</div>'; }`),
       }],
       invalid: [],
     });

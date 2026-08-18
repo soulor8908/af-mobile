@@ -1,10 +1,10 @@
 // L2-4 af-mobile/no-arbitrary-value（error，部分可自动修）
-// 检测：class 含 [xxx] 任意值语法 / 档位越界（如 p-7）
+// 检测：class 含 [xxx] 任意值语法 / 档位越界（如 p-9）
 import { extractAllClassLists, ALL_CLASSES } from '../utils/helpers.js';
 
 // 合法档位
 const RANGES = {
-  'p': ['0', '1', '2', '3', '4', '5', '6', '8', '10'],
+  'p': ['0', '1', '2', '3', '4', '5', '6', '7', '8', '10'],
   'm': ['0', '1', '2', '3', '4', '5', '6'],
   't': ['xs', 'sm', 'md', 'lg', 'xl'],
   'r': ['s', 'm', 'l', 'f'],

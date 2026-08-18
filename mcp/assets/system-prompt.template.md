@@ -36,11 +36,11 @@
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
 03. 禁止使用 {{{ TOTAL_CLASS_COUNT }}} 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
-04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success`（破坏 onbrand 对比度）
+04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success` 或 `bg-card`/`bg-muted`（破坏 onbrand 对比度）
 05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
-06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fc` 原子（自带 `display:flex`，再设会破坏布局）
-07. 禁止 Tailwind 式任意值语法：`p-[13px]`/`bg-[#abc]`/`p-7`（p 仅允许 0/1/2/3/4/5/6/8/10）
-08. 禁止互斥变体叠加：`btn-sm+btn-lg`、`tag-ok/warn/danger` 任意两个同现、多个圆角类同现、同属性原子重复（如 `p-4 p-2`）
+06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fi`/`fc` 原子（自带 `display:flex`，再设会破坏布局）
+07. 禁止 Tailwind 式任意值语法：`p-[13px]`/`bg-[#abc]`/`p-9`（p 仅允许 0/1/2/3/4/5/6/7/8/10）
+08. 禁止互斥变体叠加：`btn-sm+btn-lg`、`tag-ok/warn/danger` 任意两个同现、多个圆角类同现、同属性原子重复（如 `p-4 p-2`、`f fi`、`lh-tight lh-normal`、`bg-card bg-muted`）
 09. 禁止 `.list-item`/`.list-item-compact` 自带 border-top（分隔线由 `.list` 容器管理）
 10. 禁止 `.sheet` 手动 display 切换（显隐必须走原生 popover API `showPopover`/`hidePopover`）
 11. 禁止 `.tab-item` 用 `active` class 表达选中态（选中态单一真相源是 `aria-selected="true"`，视觉由属性选择器 `.tab-item[aria-selected="true"]` 驱动）
@@ -155,7 +155,7 @@ list.renderItem = (item) => `
         <span class="body t-b">${item.name}</span>
         <span class="caption text-muted">${item.time}</span>
       </div>
-      <span class="caption text-muted ws-nowrap">${item.lastMsg}</span>
+      <span class="caption text-muted ellipsis">${item.lastMsg}</span>
     </div>
     ${item.unread ? `<span class="badge">${item.unread}</span>` : ''}
   </div>
@@ -508,7 +508,7 @@ export default function listPage(params, ctx) {
 | ESLint 规则 | 报错原因 | 修正方案 |
 |---|---|---|
 | no-inline-style | style="..." 设置禁令属性 | 删除 style，改用 token class（如 padding→p-4） |
-| token-whitelist | 白名单外 class | 查 122 白名单，用最近配方替代（如 .my-card → .card） |
+| token-whitelist | 白名单外 class | 查上方白名单清单，用最近配方替代（如 .my-card → .card） |
 | no-tailwind-syntax | p-[13px] 任意值语法 | 用最接近的原子类（p-3=12px 或 p-4=16px） |
 | no-arbitrary-value | 自定义任意值 | 同上，改用预定义原子 |
 | no-recipe-break | .btn + text-brand 叠加 | 删除 text-brand，.btn 文字已是 onbrand 色 |
@@ -524,7 +524,7 @@ export default function listPage(params, ctx) {
 - **白名单确实缺的布局缺口**（如业务专属容器）：在 `eslint.config.js` 的 `extraClass` 数组登记，而非反复猜类名死循环。仅限结构性 class（无视觉属性），视觉样式仍走 token/原子类
 
 ### extraClass 逃生舱
-当白名单 156 个 class 确实无法表达所需布局时，`eslint.config.js` 可登记项目级扩展 class：
+当白名单 {{{ TOTAL_CLASS_COUNT }}} 个 class 确实无法表达所需布局时，`eslint.config.js` 可登记项目级扩展 class：
 ```javascript
 // eslint.config.js
 import afMobilePlugin from '@af-mobile/eslint-plugin';

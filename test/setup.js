@@ -1,6 +1,14 @@
 // 测试环境 polyfill：补 jsdom 缺失的浏览器 API
 import { vi } from 'vitest';
 
+// === ESLint RuleTester 同步执行（防止假绿） ===
+// vitest globals:true 提供全局 it/describe，RuleTester 会把用例注册给全局 it()，
+// 而运行期调用全局 it() 被 vitest 静默忽略 → 断言从未执行（用例永远假绿）。
+// 强制走同步执行器，valid/invalid 断言真实生效。
+import { RuleTester } from 'eslint';
+RuleTester.describe = (name, fn) => fn();
+RuleTester.it = (name, fn) => fn();
+
 // === matchMedia（theme.js 依赖） ===
 if (!window.matchMedia) {
   window.matchMedia = (query) => ({

@@ -9,7 +9,13 @@ const CONFLICT_GROUPS = [
   // 圆角类
   ['r-s', 'r-m', 'r-l', 'r-f'],
   // padding 类
-  ['p-0', 'p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'p-8', 'p-10'],
+  ['p-0', 'p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6', 'p-7', 'p-8', 'p-10'],
+  // display 类（同为 display 属性）
+  ['f', 'fi', 'fc'],
+  // 行高类
+  ['lh-tight', 'lh-normal'],
+  // 背景类
+  ['bg-brand', 'bg-card', 'bg-muted'],
 ];
 
 export default {
@@ -39,19 +45,15 @@ export default {
             messageId: 'conflict',
             data: { a: r, b: keep },
             fix(fixer) {
-              // 删除 class 名（含前导空格）
+              // 删除 class 名 + 其后的一个空格（保留的类在后面，必有空格可吃）
               const sourceCode = context.sourceCode || context.getSourceCode();
               const text = sourceCode.getText(node);
               const idx = text.indexOf(raw);
               if (idx < 0) return null;
               const classIdx = idx + raw.indexOf(r);
-              // 删除 " r" 或 "r " 或 "r"
               const before = text.slice(0, classIdx);
-              const after = text.slice(classIdx + r.length);
-              // 如果前面有空格，连空格一起删
-              const trimmedBefore = before.replace(/\s+$/, '');
-              const newText = trimmedBefore + after;
-              return fixer.replaceText(node, newText);
+              const after = text.slice(classIdx + r.length).replace(/^\s+/, '');
+              return fixer.replaceText(node, before + after);
             },
           });
         }

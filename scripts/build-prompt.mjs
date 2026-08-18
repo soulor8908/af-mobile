@@ -55,12 +55,12 @@ export function extractGroupsFromCss(css) {
     for (const sel of rules) {
       // selector 内可能夹带行内注释 /* ... */，先剥离再做独占 class 判定
       const cleaned = sel.replace(/\/\*[\s\S]*?\*\//g, '');
-      // selector 列表按 , 分割
+      // selector 列表按 , 分割；允许 :pseudo 后缀（如 .input-err:focus），取基类归类
       const parts2 = cleaned.split(',');
-      const allSimple = parts2.every(p => /^\s*\.[a-z][a-z0-9-]*\s*$/.test(p));
+      const allSimple = parts2.every(p => /^\s*\.[a-z][a-z0-9-]*(?::[a-z-]+(?:\([^)]*\))?)?\s*$/.test(p));
       if (!allSimple) continue;
       for (const p of parts2) {
-        const c = p.trim().slice(1);
+        const c = p.trim().slice(1).split(':')[0];
         if (c) classes.push(c);
       }
     }

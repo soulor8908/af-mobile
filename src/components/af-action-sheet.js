@@ -3,6 +3,9 @@
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';
 
+// 将 string 项归一化为 {label, value}，使 API 同时支持 string[] 和 ActionSheetItem[]
+const _ni = item => typeof item === 'string' ? { label: item, value: item } : item;
+
 export class AfActionSheet extends withI18n(AfElement) {
   static useShadow = false;
   // i18n 映射表：.sheet aria-label 优先用 title，否则字典；取消按钮 textContent 优先用 cancelText，否则字典
@@ -27,7 +30,7 @@ export class AfActionSheet extends withI18n(AfElement) {
       const item = e.target.closest('.list-item');
       if (!item || item.disabled) return;
       const idx = Number(item.dataset.idx);
-      const option = this.options[idx];
+      const option = (this.options || []).map(_ni)[idx];
       if (!option) return;
       this._isSelecting = true;
       this.hidePopover();
@@ -81,7 +84,7 @@ export class AfActionSheet extends withI18n(AfElement) {
   // 与 af-dropdown._renderList 对称：避免属性变化时整树重建导致 popover 关闭、焦点丢失
   _renderContent() {
     if (!this._sheet) return;
-    const opts = this.options || [];
+    const opts = (this.options || []).map(_ni);
     // 危险项用 text-danger 原子类着色（.danger 无 CSS 定义，已移除）
     const itemsHtml = opts.map((opt, i) => {
       const labelCls = opt.danger ? 'flex-1 text-danger' : 'flex-1';

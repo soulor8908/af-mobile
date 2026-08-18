@@ -25,8 +25,10 @@
     customElements.define('af-list', AfList);
     import { createPropsPanel } from '../props-panel.js';
 
-    const list = document.getElementById('list');
-    list.data = Array.from({ length: 100 }, (_, i) => ({
+    const totalItems = 100;
+    list.totalCount = totalItems;
+    // 先给一页数据，滚动到底触发 loadmore 追加，直到 totalCount 上限显示"没有更多了"
+    list.data = Array.from({ length: 20 }, (_, i) => ({
       title: `商品 ${i + 1}`,
       subtitle: `¥${((i + 1) * 9.9).toFixed(2)}`,
     }));
@@ -42,6 +44,7 @@
           title: `商品 ${start + i + 1}`,
           subtitle: `¥${((start + i + 1) * 9.9).toFixed(2)}`,
         }))];
+        list.totalCount = list.data.length;
         list.endLoadMore(true);
       }, 500);
     });

@@ -1,6 +1,7 @@
-// af-mobile 脚手架：node scripts/create-app.mjs <dir>
-// 生成最小可运行工程（npm 版本依赖 + hash 路由 + FOUC 防闪 + ESLint 约束），
+// af-mobile 脚手架：node scripts/create-app.mjs <dir> [--flywheel]
+// 生成最小可运行工程（npm 版本依赖 + hash 路由 + FOUC 防闪 + ESLint 约束 + vitest 测试链路），
 // 并自动安装 af-mobile-grill skill（多工具目标），形成迭代闭环。
+// --flywheel：生成 .mcp.json（@af-mobile/mcp 数据飞轮，显式 opt-in，默认不开启以尊重隐私）
 // 用法等价：npx @af-mobile/ui create <dir>
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve, dirname, basename } from 'node:path';
@@ -10,9 +11,11 @@ import { spawnSync } from 'node:child_process';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const { version } = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
 
-const dirArg = process.argv[2];
+const args = process.argv.slice(2);
+const flywheel = args.includes('--flywheel');
+const dirArg = args.find((a) => !a.startsWith('--'));
 if (!dirArg) {
-  console.error('用法：node scripts/create-app.mjs <目录名>');
+  console.error('用法：node scripts/create-app.mjs <目录名> [--flywheel]');
   process.exit(1);
 }
 
@@ -34,13 +37,16 @@ const files = {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "test": "vitest run"
   },
   "dependencies": {
     "@af-mobile/ui": "^${version}"
   },
   "devDependencies": {
     "vite": "^5.4.0",
+    "vitest": "^1.6.0",
+    "jsdom": "^24.0.0",
     "eslint": "^9.0.0",
     "@af-mobile/eslint-plugin": "^2.0.0"
   }
@@ -68,15 +74,137 @@ const files = {
 </html>
 `,
 
-  'vite.config.js': `// Vite 仅作打包器，零框架零插件
+  'vite.config.js': `// Vite 仅作打包器，零框架零插件；test 段供 vitest 复用（jsdom 环境 + setup 桩）
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 
 export default defineConfig({
   build: { target: 'es2022' },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./test/setup.js'],
+  },
 });
 `,
 
-  'eslint.config.js': `// AI 代码约束：保存即受 164 白名单 + 15 规则约束
+  'test/setup.js': `// 测试环境 polyfill：补 jsdom 缺失的浏览器 API（af-* 组件依赖的通用桩）
+// 缺的桩按需在此追加（jsdom 不支持的 API 默认按"未实现"假设）
+
+// === matchMedia（initTheme 依赖） ===
+if (!window.matchMedia) {
+  window.matchMedia = (query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  });
+}
+
+// === <dialog> showModal / close（af-dialog 依赖） ===
+if (!HTMLDialogElement.prototype.showModal) {
+  HTMLDialogElement.prototype.showModal = function () { this.open = true; };
+}
+if (!HTMLDialogElement.prototype.close) {
+  HTMLDialogElement.prototype.close = function (returnValue) {
+    this.open = false;
+    if (returnValue !== undefined) this.returnValue = returnValue;
+    this.dispatchEvent(new Event('close'));
+  };
+}
+
+// === popover API（af-action-sheet / af-dropdown / af-picker 依赖） ===
+if (!HTMLElement.prototype.showPopover) {
+  HTMLElement.prototype.showPopover = function () {
+    this.dataset.popoverOpen = 'true';
+    this.dispatchEvent(new ToggleEvent({ newState: 'open', oldState: 'closed' }));
+  };
+}
+if (!HTMLElement.prototype.hidePopover) {
+  HTMLElement.prototype.hidePopover = function () {
+    this.dataset.popoverOpen = 'false';
+    this.dispatchEvent(new ToggleEvent({ newState: 'closed', oldState: 'open' }));
+  };
+}
+if (typeof ToggleEvent === 'undefined') {
+  window.ToggleEvent = class ToggleEvent extends Event {
+    constructor(init = {}) {
+      super('toggle', { bubbles: false });
+      this.newState = init.newState || 'open';
+      this.oldState = init.oldState || 'closed';
+    }
+  };
+}
+
+// === IntersectionObserver（af-img 依赖） ===
+class MockIntersectionObserver {
+  constructor(callback) { this.callback = callback; }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() { return []; }
+}
+window.IntersectionObserver = MockIntersectionObserver;
+global.IntersectionObserver = MockIntersectionObserver;
+
+// === ResizeObserver（af-swiper 依赖） ===
+class MockResizeObserver {
+  constructor(callback) { this.callback = callback; }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+window.ResizeObserver = MockResizeObserver;
+global.ResizeObserver = MockResizeObserver;
+
+// === 滚动：jsdom 的 window.scrollTo 会打 not-implemented 噪音，静默替换 ===
+window.scrollTo = () => {};
+
+// === HTMLSlotElement.assignedElements（jsdom 未实现 slot 分配，af-swiper 依赖） ===
+if (!HTMLSlotElement.prototype.assignedElements) {
+  HTMLSlotElement.prototype.assignedElements = function () {
+    const host = this.getRootNode()?.host;
+    return host ? [...host.children] : [];
+  };
+}
+
+// === URL.createObjectURL / revokeObjectURL（af-upload 依赖） ===
+if (!URL.createObjectURL) {
+  URL.createObjectURL = () => 'blob:mock://' + Math.random().toString(36).slice(2);
+}
+if (!URL.revokeObjectURL) {
+  URL.revokeObjectURL = () => {};
+}
+
+// === TouchEvent / Touch（af-pull-refresh / af-swipe-cell 依赖） ===
+if (typeof global.Touch === 'undefined') {
+  global.Touch = class Touch {
+    constructor(init = {}) { Object.assign(this, init); }
+  };
+}
+if (typeof global.TouchEvent === 'undefined') {
+  global.TouchEvent = class TouchEvent extends Event {
+    constructor(type, init = {}) {
+      super(type, { bubbles: init.bubbles ?? false, cancelable: init.cancelable ?? false });
+      this.touches = init.touches || [];
+      this.targetTouches = init.targetTouches || [];
+      this.changedTouches = init.changedTouches || [];
+    }
+  };
+}
+
+// 全局清理：每个测试之间隔离
+beforeEach(() => {
+  document.body.innerHTML = '';
+  localStorage.clear();
+});
+`,
+
+  'eslint.config.js': `// AI 代码约束：保存即受白名单 class 封闭集 + 规则集约束
 import afMobilePlugin from '@af-mobile/eslint-plugin';
 
 export default [
@@ -148,7 +276,7 @@ export default async function docsPage(params, ctx) {
       <header class="navbar navbar-fixed"><h1 class="title">开发指引</h1></header>
       <section class="card">
         <h3 class="section-title">约束</h3>
-        <p class="body">只用 164 白名单 class 和 af-* 组件标签；禁止内联 style 与 Tailwind 语法。</p>
+        <p class="body">只用白名单 class 和 af-* 组件标签；禁止内联 style 与 Tailwind 语法。</p>
       </section>
       <section class="card">
         <h3 class="section-title">组件 API</h3>
@@ -172,6 +300,22 @@ for (const [rel, content] of Object.entries(files)) {
   console.log(`+ ${rel}`);
 }
 
+// 数据飞轮（显式 opt-in）：生成 .mcp.json，MCP 客户端（TRAE / Claude Code / Cursor）自动注册
+// @af-mobile/mcp。check_compliance 校验遥测自动落盘 .af-mobile/（本地、不含代码内容），
+// 开发踩坑回流白名单/Prompt 迭代。不传 --flywheel 则完全不生成，尊重隐私敏感项目。
+if (flywheel) {
+  writeFileSync(join(dir, '.mcp.json'), `{
+  "mcpServers": {
+    "af-mobile": {
+      "command": "npx",
+      "args": ["-y", "@af-mobile/mcp"]
+    }
+  }
+}
+`);
+  console.log('+ .mcp.json（数据飞轮：MCP 校验遥测已接入，显式 opt-in）');
+}
+
 // 自动安装 af-mobile-grill skill（多工具目标 + AGENTS.md 指引段）
 const skill = spawnSync(process.execPath, [join(ROOT, 'scripts/skill-add.mjs'), dir], {
   stdio: 'inherit',
@@ -184,8 +328,9 @@ console.log(`
 下一步：
   cd ${basename(dir)}
   npm install
-  npm run dev
+  npm run dev${flywheel ? '\n  # 数据飞轮已接入：用 MCP 客户端打开项目，check_compliance 校验遥测自动回流' : ''}
 
 然后用 AI 编码工具（TRAE / Claude Code / Cursor 等）打开项目，
 说一句你的想法（如"我想做一个习惯打卡应用"），skill 会引导你完成后续开发。
+测试：npm test（vitest + jsdom，桩见 test/setup.js；缺的浏览器 API 桩在此追加）
 `);

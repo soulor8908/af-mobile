@@ -9,8 +9,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SCRIPT = join(ROOT, 'scripts/create-app.mjs');
 
-function scaffold(dir) {
-  return execFileSync('node', [SCRIPT, dir], { encoding: 'utf8' });
+function scaffold(dir, ...flags) {
+  return execFileSync('node', [SCRIPT, dir, ...flags], { encoding: 'utf8' });
 }
 
 describe('create-app scaffold', () => {
@@ -29,6 +29,7 @@ describe('create-app scaffold', () => {
       'src/styles.css',
       'src/pages/home.js',
       'src/pages/docs.js',
+      'test/setup.js',
     ]) {
       expect(existsSync(join(dir, rel)), rel).toBe(true);
     }
@@ -37,12 +38,37 @@ describe('create-app scaffold', () => {
     expect(pkg.name).toBe('my-habit-app');
     expect(pkg.dependencies['@af-mobile/ui']).toMatch(/^\^/); // 禁 file: 本地依赖
     expect(pkg.dependencies['@af-mobile/ui']).not.toContain('file:');
+    // 测试链路开箱即用：test script + vitest/jsdom 依赖 + setup 桩
+    expect(pkg.scripts.test).toBe('vitest run');
+    expect(pkg.devDependencies.vitest).toBeDefined();
+    expect(pkg.devDependencies.jsdom).toBeDefined();
+
+    const vite = readFileSync(join(dir, 'vite.config.js'), 'utf8');
+    expect(vite).toContain("environment: 'jsdom'");
+    expect(vite).toContain("setupFiles: ['./test/setup.js']");
+
+    const setup = readFileSync(join(dir, 'test/setup.js'), 'utf8');
+    expect(setup).toContain('IntersectionObserver');
+    expect(setup).toContain('ResizeObserver');
+    expect(setup).toContain('showModal');
 
     const html = readFileSync(join(dir, 'index.html'), 'utf8');
     expect(html).toContain('localStorage.getItem(\'theme\')'); // 暗色 FOUC 内联脚本
 
     const main = readFileSync(join(dir, 'src/main.js'), 'utf8');
     expect(main).toContain("start('#app', { hash: true })");
+  });
+
+  it('--flywheel 生成 .mcp.json（显式 opt-in），默认不生成', () => {
+    const parent = mkdtempSync(join(tmpdir(), 'af-mobile-create-'));
+    const withFw = join(parent, 'app-fw');
+    const withoutFw = join(parent, 'app-plain');
+    scaffold(withoutFw);
+    scaffold(withFw, '--flywheel');
+
+    expect(existsSync(join(withoutFw, '.mcp.json'))).toBe(false);
+    const mcp = JSON.parse(readFileSync(join(withFw, '.mcp.json'), 'utf8'));
+    expect(mcp.mcpServers['af-mobile'].args).toContain('@af-mobile/mcp');
   });
 
   it('自举安装 af-mobile-grill skill 到中立路径 + AGENTS.md', () => {

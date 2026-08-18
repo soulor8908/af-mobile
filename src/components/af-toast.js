@@ -17,12 +17,18 @@ export class AfToast extends AfElement {
 
   get message() { return this._message; }
 
-  show(message, duration = this.duration || 2000) {
+  show(message, options) {
     if (instance && instance !== this) instance.dismiss();
     instance = this;
     this._exiting = false;
     this._message = message;
+    const opts = options && typeof options === 'object' ? options : { duration: options };
+    const type = opts.type || 'info';
+    const duration = opts.duration ?? this.duration;
+    // type 经 setAttribute 写入（不做 HTML 解析），esc 后的字面 &lt; 等保留在 className 中，
+    // 即使 type 含 <img> 也无法注入节点或逃逸 class 属性
     this.innerHTML = `<div class="toast" role="status" aria-live="polite">${esc(message)}</div>`;
+    this.$('.toast').setAttribute('class', 'toast toast-' + esc(type));
     clearTimeout(this._timer);
     this._timer = setTimeout(() => this.dismiss(), duration);
   }
@@ -60,4 +66,4 @@ export class AfToast extends AfElement {
 }
 
 // 属性定义（必须在 customElements.define 之前）
-AfElement.defineProp(AfToast.prototype, 'duration', 2000);
+AfElement.defineProp(AfToast.prototype, 'duration', 2500);

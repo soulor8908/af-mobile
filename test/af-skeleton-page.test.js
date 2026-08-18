@@ -38,6 +38,21 @@ describe('af-skeleton-page 基础渲染', () => {
     expect(el.$$('.skeleton-block').length).toBeGreaterThanOrEqual(2);
   });
 
+  it('variant=article 含标题行 + 图片块', () => {
+    const el = makeSkeleton({ variant: 'article' });
+    expect(el.$$('.skeleton-line').length).toBeGreaterThanOrEqual(3);
+    expect(el.$$('.skeleton-block').length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('list 骨架所有元素都带 skeleton 基类（可见性：无基类则无 shimmer 背景）', () => {
+    const el = makeSkeleton({ variant: 'list' });
+    const lines = el.$$('.skeleton-line');
+    expect(lines.length).toBe(6);
+    for (const node of lines) {
+      expect(node.classList.contains('skeleton')).toBe(true);
+    }
+  });
+
   it('所有 skeleton 元素都有 skeleton class', () => {
     const el = makeSkeleton({ variant: 'detail' });
     const all = el.$$('.skeleton');

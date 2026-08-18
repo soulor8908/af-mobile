@@ -56,9 +56,9 @@ describe('af-toast', () => {
     vi.useRealTimers();
   });
 
-  it('duration 默认 2000ms', () => {
+  it('duration 默认 2500ms', () => {
     const el = makeToast();
-    expect(el.duration).toBe(2000);
+    expect(el.duration).toBe(2500);
   });
 
   it('XSS：message 含 HTML 被转义，不执行脚本', () => {
@@ -80,6 +80,39 @@ describe('af-toast', () => {
     vi.advanceTimersByTime(200);
     expect(el.$('.toast')).toBeNull();
     vi.useRealTimers();
+  });
+
+  it('show(msg, {type}) 渲染对应类型类名', () => {
+    const el = makeToast();
+    el.show('成功', { type: 'success' });
+    expect(el.$('.toast-success')).not.toBeNull();
+    el.dismiss();
+    el.show('失败', { type: 'error' });
+    expect(el.$('.toast-error')).not.toBeNull();
+    el.dismiss();
+    el.show('警告', { type: 'warning' });
+    expect(el.$('.toast-warning')).not.toBeNull();
+    el.dismiss();
+  });
+
+  it('show(msg, {type, duration}) 对象形式同时生效', () => {
+    vi.useFakeTimers();
+    const el = makeToast();
+    el.show('带时长', { type: 'success', duration: 500 });
+    expect(el.$('.toast-success')).not.toBeNull();
+    vi.advanceTimersByTime(499);
+    expect(el.$('.toast')).not.toBeNull();
+    vi.advanceTimersByTime(2);
+    vi.advanceTimersByTime(200);
+    expect(el.$('.toast')).toBeNull();
+    vi.useRealTimers();
+  });
+
+  it('XSS：type 含 HTML 被转义，不注入额外节点', () => {
+    const el = makeToast();
+    el.show('hi', { type: '<img src=x onerror=alert(1)>' });
+    expect(el.$('.toast').querySelector('img[onerror]')).toBeNull();
+    expect(el.$('.toast').className).toContain('toast-&lt;img');
   });
 
   it('unmounted：清理 timer + 重置单例', () => {

@@ -38,7 +38,7 @@
     import { createPropsPanel } from '../props-panel.js';
 
     const dialog = document.getElementById('dialog');
-    document.getElementById('open').addEventListener('click', () => dialog.show());
+    document.getElementById('open').addEventListener('click', () => dialog.open());
     document.getElementById('cancel').addEventListener('click', () => dialog.close());
     document.getElementById('ok').addEventListener('click', () => {
       dialog.close();

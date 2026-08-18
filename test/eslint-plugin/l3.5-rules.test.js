@@ -1,18 +1,18 @@
-// eslint-plugin-aiflow L3.5 规则测试（5 条：Block 层 + register 引导）
+// eslint-plugin-af-mobile L3.5 规则测试（5 条：Block 层 + register 引导）
 // （definePage 消费端 7 条规则已随 definePage 全局单例移除）
 import { describe, it } from 'vitest';
 import { RuleTester } from 'eslint';
-import wcBlockPropsCount from '../../eslint-plugin-aiflow/rules/wc-block-props-count.js';
-import wcBlockNoInternalRef from '../../eslint-plugin-aiflow/rules/wc-block-no-internal-ref.js';
-import wcBlockStates from '../../eslint-plugin-aiflow/rules/wc-block-states.js';
-import wcBlockVariantEnum from '../../eslint-plugin-aiflow/rules/wc-block-variant-enum.js';
-import noRegisterAll from '../../eslint-plugin-aiflow/rules/no-register-all.js';
+import wcBlockPropsCount from '../../eslint-plugin-af-mobile/rules/wc-block-props-count.js';
+import wcBlockNoInternalRef from '../../eslint-plugin-af-mobile/rules/wc-block-no-internal-ref.js';
+import wcBlockStates from '../../eslint-plugin-af-mobile/rules/wc-block-states.js';
+import wcBlockVariantEnum from '../../eslint-plugin-af-mobile/rules/wc-block-variant-enum.js';
+import noRegisterAll from '../../eslint-plugin-af-mobile/rules/no-register-all.js';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
 });
 
-describe('L3.5-1 aiflow/wc-block-props-count', () => {
+describe('L3.5-1 af-mobile/wc-block-props-count', () => {
   const BLOCK_HEAD = `import { AfElement } from '../lib/af-element.js'; export class AfAuthForm extends AfElement {}`;
   it('props 数在 2-5 放行', () => {
     ruleTester.run('wc-block-props-count', wcBlockPropsCount, {
@@ -77,7 +77,7 @@ describe('L3.5-1 aiflow/wc-block-props-count', () => {
   });
 });
 
-describe('L3.5-2 aiflow/wc-block-no-internal-ref', () => {
+describe('L3.5-2 af-mobile/wc-block-no-internal-ref', () => {
   it('根标签选择器放行', () => {
     ruleTester.run('wc-block-no-internal-ref', wcBlockNoInternalRef, {
       valid: [{
@@ -128,7 +128,7 @@ describe('L3.5-2 aiflow/wc-block-no-internal-ref', () => {
   });
 });
 
-describe('L3.5-3 aiflow/wc-block-states', () => {
+describe('L3.5-3 af-mobile/wc-block-states', () => {
   const BLOCK_HEAD = `import { AfElement } from '../lib/af-element.js'; export class AfFoo extends AfElement {`;
   const BLOCK_TAIL = `}`;
   it('五态完整放行', () => {
@@ -184,7 +184,7 @@ describe('L3.5-3 aiflow/wc-block-states', () => {
   });
 });
 
-describe('L3.5-4 aiflow/wc-block-variant-enum', () => {
+describe('L3.5-4 af-mobile/wc-block-variant-enum', () => {
   const HEAD = `import { AfElement } from '../lib/af-element.js'; export class AfFoo extends AfElement {}`;
   it('defineProp 第三参数含 enum 字段放行', () => {
     ruleTester.run('wc-block-variant-enum', wcBlockVariantEnum, {
@@ -231,7 +231,7 @@ describe('L3.5-4 aiflow/wc-block-variant-enum', () => {
   });
 });
 
-describe('L3.5-5 aiflow/no-register-all', () => {
+describe('L3.5-5 af-mobile/no-register-all', () => {
   it('无 registerAll 放行', () => {
     ruleTester.run('no-register-all', noRegisterAll, {
       valid: [{ code: `register('af-list', 'af-dialog');` }],
@@ -251,7 +251,7 @@ describe('L3.5-5 aiflow/no-register-all', () => {
     ruleTester.run('no-register-all', noRegisterAll, {
       valid: [],
       invalid: [{
-        code: `aiflow.registerAll();`,
+        code: `afMobile.registerAll();`,
         errors: [{ messageId: 'registerAll' }],
       }],
     });

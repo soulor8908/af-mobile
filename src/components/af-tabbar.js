@@ -1,4 +1,4 @@
-// AIFlow UI —— af-tabbar：底部标签栏
+// af-mobile UI —— af-tabbar：底部标签栏
 // Light DOM，复用 L2 .tabbar/.tab-item 配方；active 状态管理 + badge 支持 + 路由联动
 // 职责：active 索引管理 + 选中态 ARIA + 数值徽标 + 键盘导航（Home/End/Arrow）
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

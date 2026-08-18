@@ -1,4 +1,4 @@
-# aiflow-ui 迭代计划
+# af-mobile 迭代计划
 
 > 基于 v1.0.2 审查报告，P0/P1 已全部修复，剩余 P2 项与新组件缺口列入后续迭代。
 > 每个迭代项标注：优先级、预估工作量、所属层级、依赖关系。
@@ -174,5 +174,5 @@
 - ✅ P1-6 主题持久化（initTheme）
 - ✅ P1-7 白名单 .active 不一致（移出 L2 白名单）
 - ✅ P1-8 af-dropdown 打开移焦
-- ✅ P2-3 CSS 导出路径别名（./aiflow-ui.css）
+- ✅ P2-3 CSS 导出路径别名（./af-mobile.css）
 - ✅ P2-5 af-swiper slotchange 监听

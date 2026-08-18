@@ -1,5 +1,5 @@
-// AIFlow Starter —— AI 代码约束（设计 §4.5）：保存即受 164 白名单 + 15 规则约束
-import aiflow from '@af-mobile/eslint-plugin';
+// af-mobile Starter —— AI 代码约束（设计 §4.5）：保存即受 164 白名单 + 15 规则约束
+import afMobilePlugin from '@af-mobile/eslint-plugin';
 
 export default [
   {
@@ -7,7 +7,7 @@ export default [
   },
   {
     files: ['src/**/*.js'],
-    plugins: { aiflow },
-    rules: { ...aiflow.configs.recommended.rules },
+    plugins: { 'af-mobile': afMobilePlugin },
+    rules: { ...afMobilePlugin.configs.recommended.rules },
   },
 ];

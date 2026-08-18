@@ -1,4 +1,4 @@
-// AIFlow UI —— af-dialog Playground 场景（单一真相源：playground / gen-docs / AI 直读）
+// af-mobile UI —— af-dialog Playground 场景（单一真相源：playground / gen-docs / AI 直读）
 // 契约：{ tag, name, scenarios: [{ name, html, props[], events[], styleTokens[] }] }
 // props 控件类型：boolean | number | select | string；styleTokens 控件类型：color | range
 // 说明：场景 html 首元素必须是组件实例（playground 取 screen.firstElementChild 绑定面板）；

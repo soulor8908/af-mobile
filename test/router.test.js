@@ -58,8 +58,8 @@ describe('router 注册与匹配', () => {
     let received = null;
     route('/search', (params) => { received = params; });
     start({ outlet: '#app' });
-    await go('/search?q=aiflow&page=2');
-    expect(received).toEqual({ q: 'aiflow', page: '2' });
+    await go('/search?q=af-mobile&page=2');
+    expect(received).toEqual({ q: 'af-mobile', page: '2' });
   });
 
   it('query 与 :param 并存，path 参数不受影响', async () => {

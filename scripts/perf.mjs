@@ -1,4 +1,4 @@
-// AIFlow UI —— 性能基线脚本
+// af-mobile UI —— 性能基线脚本
 // 职责：拉起 demo vite → Lighthouse 跑核心页面 → 提取 Core Web Vitals + 体积
 // 用法：node scripts/perf.mjs [--budget]
 //   --budget  对比 .perf-budget.json，任一指标劣化超阈值则退出码 1（CI 闸门）
@@ -138,7 +138,7 @@ function checkPageBudget(path, m) {
 
 async function main() {
   console.log('╔══════════════════════════════════════════════╗');
-  console.log('║     AIFlow UI —— Lighthouse 性能基线         ║');
+  console.log('║     af-mobile UI —— Lighthouse 性能基线         ║');
   console.log('╚══════════════════════════════════════════════╝\n');
 
   // 确认 lighthouse 已装

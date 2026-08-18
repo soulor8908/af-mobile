@@ -1,4 +1,4 @@
-// AIFlow UI —— af-data 数据源组件
+// af-mobile UI —— af-data 数据源组件
 // 声明式数据获取：<af-data src="/api/list" ref="ds"></af-data>
 // 内部用 fetch.js 获取，通过 :bind 下发数据（refName.field 引用）
 // data-path / total-field：适配对象形响应（如 { data: [...], total: 100 } 或 { list: [...], meta: {...} }）

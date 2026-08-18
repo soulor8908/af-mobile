@@ -1,4 +1,4 @@
-// AIFlow UI charts —— af-chart-bar：柱状/条形/堆叠/分组
+// af-mobile UI charts —— af-chart-bar：柱状/条形/堆叠/分组
 // 详见 docs/design/charts-sublibrary-detailed-design.md §5.2
 // variant: column（垂直柱）| bar（水平条形）| stacked（堆叠柱）| grouped（分组柱）
 // 无障碍：svg 的 role="img" 与 aria-label 由 AfChart 基类统一注入（chart-base.js _render）

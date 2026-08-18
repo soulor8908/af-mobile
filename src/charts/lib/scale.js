@@ -1,4 +1,4 @@
-// AIFlow UI charts —— 线性刻度 + nice-ticks（详见 docs/design/charts-sublibrary-detailed-design.md §3.1）
+// af-mobile UI charts —— 线性刻度 + nice-ticks（详见 docs/design/charts-sublibrary-detailed-design.md §3.1）
 
 // nice-ticks：把 [min,max] 归整为"好看"的刻度序列（步长 1/2/5 × 10^n，经典算法）
 // 返回 { ticks: 数值数组（升序），min, max }

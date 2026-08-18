@@ -58,8 +58,8 @@ describe('tokens / buildTokensFromCss（DTCG 映射）', () => {
     expect(t.palette.brand).toEqual({ $type: 'color', $value: '#2563eb' });
     expect(t.palette['shadow-sm'].$value).toBe('0 1px 2px rgba(0,0,0,.05)');
     expect(t.palette['color-scheme']).toEqual({ $type: 'other', $value: 'light' });
-    expect(t.palette.$extensions.aiflow.theme.dark.brand).toBe('#3b82f6');
-    expect(t.palette.$extensions.aiflow.theme.dark['color-scheme']).toBe('dark');
+    expect(t.palette.$extensions['af-mobile'].theme.dark.brand).toBe('#3b82f6');
+    expect(t.palette.$extensions['af-mobile'].theme.dark['color-scheme']).toBe('dark');
   });
 
   it('派生 token：var() 引用转为 DTCG 别名 {group.name}', () => {

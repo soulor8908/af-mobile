@@ -1,4 +1,4 @@
-// AIFlow UI —— af-action-sheet Playground 场景
+// af-mobile UI —— af-action-sheet Playground 场景
 // 契约见 af-dialog.js 顶部注释；props 控件复用 demo/props-panel.js schema
 export default {
   tag: 'af-action-sheet',

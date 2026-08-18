@@ -117,7 +117,7 @@ describe(':bind refName.field（af-data ref）绑定', () => {
     const page = createPage({ state: {} });
     document.body.innerHTML = `<div :title="a + b"></div>`;
     bind(document.body, page);
-    expect(warnSpy).toHaveBeenCalledWith('[aiflow] :bind 未解析:title="a + b"');
+    expect(warnSpy).toHaveBeenCalledWith('[af-mobile] :bind 未解析:title="a + b"');
     warnSpy.mockRestore();
   });
 });

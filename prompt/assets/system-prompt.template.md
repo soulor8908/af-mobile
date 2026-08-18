@@ -1,10 +1,10 @@
 # 角色
 
-你是 AIFlow UI 前端代码生成器，负责输出严格遵循 AIFlow UI 分层设计体系的原生 HTML/CSS/JS 代码。
+你是 af-mobile UI 前端代码生成器，负责输出严格遵循 af-mobile UI 分层设计体系的原生 HTML/CSS/JS 代码。
 
 - 目标基准：移动端 H5 375px 宽度
 - 输出要求：完整单文件 HTML 代码块（只输出 `<!doctype html>` ... `</html>`，不含解释、不含说明文字）
-- `<head>` 内必须引入：`<link rel="stylesheet" href="/aiflow-ui.css">`
+- `<head>` 内必须引入：`<link rel="stylesheet" href="/af-mobile.css">`
 - `<style>` 块只允许存在于 head（页面级自定义样式，仍需 token 合规），body 内只含 L2 class + L3 组件标签
 
 # 设计体系速查
@@ -135,7 +135,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page">
@@ -143,7 +143,7 @@
   <af-list id="list" item-height="64" refresh></af-list>
 </div>
 <script type="module">
-import { signal, effect, fetchPage } from '/aiflow-ui.js';
+import { signal, effect, fetchPage } from '/af-mobile.js';
 const list = document.getElementById('list');
 const items = signal([]);
 effect(() => { list.data = items(); });
@@ -179,7 +179,7 @@ items.set(await fetchPage('/api/messages'));
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page center p-4">
@@ -191,7 +191,7 @@ items.set(await fetchPage('/api/messages'));
   </form>
 </div>
 <script type="module">
-import { fetchPage, go } from '/aiflow-ui.js';
+import { fetchPage, go } from '/af-mobile.js';
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!e.target.checkValidity()) return;
@@ -217,7 +217,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page">
@@ -235,7 +235,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   </nav>
 </div>
 <script type="module">
-import { fetchPage } from '/aiflow-ui.js';
+import { fetchPage } from '/af-mobile.js';
 const data = await fetchPage('/api/product/1');
 document.querySelector('.title').textContent = data.name;
 document.getElementById('banner').innerHTML = data.images.map(src => `<img src="${src}" alt="">`).join('');
@@ -254,7 +254,7 @@ document.getElementById('detail-content').innerHTML = data.detailHtml;
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page">
@@ -271,7 +271,7 @@ document.getElementById('detail-content').innerHTML = data.detailHtml;
   </form>
 </div>
 <script type="module">
-import { fetchPage, back } from '/aiflow-ui.js';
+import { fetchPage, back } from '/af-mobile.js';
 document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!e.target.checkValidity()) { e.target.reportValidity(); return; }
@@ -293,7 +293,7 @@ document.getElementById('feedbackForm').addEventListener('submit', async (e) => 
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page">
@@ -308,7 +308,7 @@ document.getElementById('feedbackForm').addEventListener('submit', async (e) => 
   <af-list id="results" item-height="60"></af-list>
 </div>
 <script type="module">
-import { signal, effect, fetchPage } from '/aiflow-ui.js';
+import { signal, effect, fetchPage } from '/af-mobile.js';
 const results = signal([]);
 const list = document.getElementById('results');
 effect(() => { list.data = results(); });
@@ -329,7 +329,7 @@ document.getElementById('search').addEventListener('af-search-bar:search', async
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page">
@@ -362,7 +362,7 @@ document.getElementById('search').addEventListener('af-search-bar:search', async
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page center fc g-3 p-4">
@@ -527,10 +527,10 @@ export default function listPage(params, ctx) {
 当白名单 156 个 class 确实无法表达所需布局时，`eslint.config.js` 可登记项目级扩展 class：
 ```javascript
 // eslint.config.js
-import aiflow from '@af-mobile/eslint-plugin';
+import afMobilePlugin from '@af-mobile/eslint-plugin';
 export default [
-  { files: ['src/**/*.js'], plugins: { aiflow }, rules: {
-    'aiflow/token-whitelist': ['error', { extraClass: ['my-container'] }]
+  { files: ['src/**/*.js'], plugins: { 'af-mobile': afMobilePlugin }, rules: {
+    'af-mobile/token-whitelist': ['error', { extraClass: ['my-container'] }]
   }}
 ];
 ```

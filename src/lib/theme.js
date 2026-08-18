@@ -1,4 +1,4 @@
-// AIFlow UI —— L1 主题 API：getTheme / setTheme / toggleTheme / initTheme
+// af-mobile UI —— L1 主题 API：getTheme / setTheme / toggleTheme / initTheme
 // setTheme 触发 themechange 事件让 af-swiper 等组件响应
 // SSR/Node 安全：所有 DOM/localStorage/matchMedia 访问惰性执行 + typeof 守卫，
 // 模块顶层无副作用，import 不会在非浏览器环境抛错

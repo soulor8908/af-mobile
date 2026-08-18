@@ -1,4 +1,4 @@
-// AIFlow UI —— af-swiper：横向滑动卡片
+// af-mobile UI —— af-swiper：横向滑动卡片
 // Shadow DOM（useShadow=true），CSS 嵌入 JS 字符串
 // 职责：touch 拖拽 + 自动播放 + 循环 + dots + 键盘 + 尺寸响应
 import { AfElement } from '../lib/af-element.js';

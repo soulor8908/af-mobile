@@ -1,4 +1,4 @@
-// AIFlow UI —— af-data ref 注册表（纯 Map，零依赖）
+// af-mobile UI —— af-data ref 注册表（纯 Map，零依赖）
 // 从 bind.js 拆出，让 af-data 不再拖入 page.js
 // bind.js 复用此注册表，:bind 解析 refName.field 时读取
 const _dataRefs = new Map();       // refName → () => data object

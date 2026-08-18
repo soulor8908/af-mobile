@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// AIFlow UI —— 构建脚本：生成 dist/ 产物
+// af-mobile UI —— 构建脚本：生成 dist/ 产物
 // 产物：
 //   dist/index.js         ESM bundle（全量组件，Tree Shaking 友好的源码已支持，此处给个全量 bundle 入口）
 //   dist/index.css        全量 CSS（tokens+recipes+atomic，@import 内联）
@@ -18,7 +18,7 @@ const DIST = join(ROOT, 'dist');
 mkdirSync(DIST, { recursive: true });
 
 console.log('╔══════════════════════════════════════════════╗');
-console.log('║     AIFlow UI —— 构建 dist 产物             ║');
+console.log('║     af-mobile UI —— 构建 dist 产物             ║');
 console.log('╚══════════════════════════════════════════════╝\n');
 
 // ---------- 1. dist/index.js（ESM bundle） ----------
@@ -39,12 +39,12 @@ await build({
 });
 console.log('✓ dist/index.js (ESM bundle)');
 
-// 注：不再生成 dist/aiflow-ui.umd.js（UMD = 全局引入，违反按需引入铁律，已移除）
+// 注：不再生成 dist/af-mobile.umd.js（UMD = 全局引入，违反按需引入铁律，已移除）
 
 // ---------- 2. dist/index.css（内联 @import 的全量 CSS） ----------
 // 把 tokens.css + recipes.css + atomic.css 拼接内联为单文件
 const cssFiles = ['tokens.css', 'recipes.css', 'atomic.css'];
-let cssConcat = '/* AIFlow UI —— dist/index.css（构建产物，勿手改。源码见 src/*.css） */\n';
+let cssConcat = '/* af-mobile UI —— dist/index.css（构建产物，勿手改。源码见 src/*.css） */\n';
 for (const f of cssFiles) {
   const content = readFileSync(join(SRC, f), 'utf8');
   // 去掉 @import（已内联）与文件头注释（保留 @layer）
@@ -59,7 +59,7 @@ console.log('✓ dist/index.css (CSS inlined + minified)');
 // 提取 Shadow DOM 组件的 const CSS 模板字符串，拼接为单文件
 // 用法：设置 AfElement.cssMode='external' + cssBaseUrl 指向此文件
 const shadowComponents = ['af-picker', 'af-swiper', 'af-calendar', 'af-dialog'];
-let compCssConcat = '/* AIFlow UI —— dist/components.css（Shadow DOM 组件样式，CSP 外部模式使用） */\n';
+let compCssConcat = '/* af-mobile UI —— dist/components.css（Shadow DOM 组件样式，CSP 外部模式使用） */\n';
 for (const name of shadowComponents) {
   const code = readFileSync(join(SRC, 'components', `${name}.js`), 'utf8');
   const m = code.match(/const CSS = `([\s\S]*?)`;/);

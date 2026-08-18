@@ -11,7 +11,7 @@
 v1 把**数据采集**与**自有 LLM 生成管线**焊死：
 
 ```
-AIFLOW_AI_API_URL（自有 LLM）→ generate → ai-fix → raw-*.json → flywheel.mjs
+AFMOBILE_AI_API_URL（自有 LLM）→ generate → ai-fix → raw-*.json → flywheel.mjs
 ```
 
 - 唯一数据入口是 `eval/results/raw-*.json`，只有配置了自有 LLM 端点才能产出数据；
@@ -23,9 +23,9 @@ AIFLOW_AI_API_URL（自有 LLM）→ generate → ai-fix → raw-*.json → flyw
 ## 1. 设计原则
 
 1. **调用方即 LLM（caller-is-the-LLM）**
-   库侧所有逻辑——prompt 构建、lint、修正 prompt 构建、遥测、分析——全部是确定性 Node.js，零 LLM 调用。驱动飞轮的"智能"来自调用方 Agent 自己的模型（TRAE / Claude / Cursor / 人）。原 `AIFLOW_AI_API_URL` 自动模式降级为**可选的合成数据生产者**，不再是必要条件。
+   库侧所有逻辑——prompt 构建、lint、修正 prompt 构建、遥测、分析——全部是确定性 Node.js，零 LLM 调用。驱动飞轮的"智能"来自调用方 Agent 自己的模型（TRAE / Claude / Cursor / 人）。原 `AFMOBILE_AI_API_URL` 自动模式降级为**可选的合成数据生产者**，不再是必要条件。
 2. **本地优先（local-first）**
-   遥测数据只写仓库本地 `.aiflow/telemetry.jsonl`（gitignore），无云端依赖、无上传、无账号。分析在本地跑，报告在本地生成。
+   遥测数据只写仓库本地 `.af-mobile/telemetry.jsonl`（gitignore），无云端依赖、无上传、无账号。分析在本地跑，报告在本地生成。
 3. **零配置接入（zero-config）**
    TRAE Work / TRAE Code / CLI 类工具**不需要设置任何 LLM 环境变量**。接入面只有两个，都天然存在：
    - **MCP Server**（`mcp/index.mjs`）——AI IDE / Agent 的原生协议；
@@ -45,13 +45,13 @@ AIFLOW_AI_API_URL（自有 LLM）→ generate → ai-fix → raw-*.json → flyw
 │    └─ npm run lint:flywheel <paths> —— lint 即喂数据            │
 │       （source=cli|ci，违规落盘，干净文件默认不记）              │
 │                                                                │
-│  合成 eval（可选，需 AIFLOW_AI_API_URL）                        │
+│  合成 eval（可选，需 AFMOBILE_AI_API_URL）                        │
 │    └─ eval/run.mjs → raw-*.json → 飞轮按 source=eval 摄取       │
 └──────────────────────────┬─────────────────────────────────────┘
                            ↓  统一事件 schema（v1 JSONL）
 ┌─ 采集层 ─────────────────┴─────────────────────────────────────┐
 │  eval/telemetry.mjs —— recordRun / readTelemetry / 权重 / 工具识别│
-│  存储：.aiflow/telemetry.jsonl（本地，gitignore）                │
+│  存储：.af-mobile/telemetry.jsonl（本地，gitignore）                │
 └──────────────────────────┬─────────────────────────────────────┘
                            ↓
 ┌─ 分析层（纯 Node，零 LLM）──┴──────────────────────────────────┐
@@ -72,7 +72,7 @@ AIFLOW_AI_API_URL（自有 LLM）→ generate → ai-fix → raw-*.json → flyw
 
 ## 3. 事件 Schema（v1）
 
-`.aiflow/telemetry.jsonl`，每行一次 lint 运行：
+`.af-mobile/telemetry.jsonl`，每行一次 lint 运行：
 
 ```json
 {
@@ -83,15 +83,15 @@ AIFLOW_AI_API_URL（自有 LLM）→ generate → ai-fix → raw-*.json → flyw
   "file": "src/pages/foo.html",
   "passed": false,
   "violations": [
-    { "rule": "aiflow/token-whitelist", "severity": "error", "line": 3,
+    { "rule": "af-mobile/token-whitelist", "severity": "error", "line": 3,
       "message": "Class 'card-wrapper' not in whitelist. ..." }
   ]
 }
 ```
 
-- `tool` 识别：`AIFLOW_TOOL` 环境变量显式指定优先；否则探测 `CLAUDECODE` / `CURSOR_AGENT` 等常见标记；兜底 `unknown`。
+- `tool` 识别：`AFMOBILE_TOOL` 环境变量显式指定优先；否则探测 `CLAUDECODE` / `CURSOR_AGENT` 等常见标记；兜底 `unknown`。
 - `passed: true` 的事件（干净运行）默认仅 MCP 记录——低频高值，用于收敛度分析；CLI/CI 只记违规文件，防膨胀。
-- 遥测目录可用 `AIFLOW_TELEMETRY_DIR` 覆盖（测试隔离用）。
+- 遥测目录可用 `AFMOBILE_TELEMETRY_DIR` 覆盖（测试隔离用）。
 
 **来源权重**：`mcp: 3`（真实 Agent 使用）> `cli: 2` / `ci: 2`（真实人工/流水线）> `eval: 1`（合成）。真实分布优先于合成分布。
 
@@ -104,7 +104,7 @@ AIFLOW_AI_API_URL（自有 LLM）→ generate → ai-fix → raw-*.json → flyw
 | Claude Code / 其他 CLI Agent | AGENTS.md / CLAUDE.md 指引 + CLI | **否** | `check_compliance` / `lint:flywheel` |
 | 纯 CLI / 人工 | `npm run lint:flywheel <paths>` | **否** | lint 即喂数据（source=cli） |
 | CI | ci.yml 飞轮采集步骤 | **否** | 每次 push 收割全仓违规 + 输出报告（source=ci） |
-| 自有 LLM 合成 eval（可选） | `AIFLOW_AI_API_URL=... npm run eval` | 是（可选） | raw-*.json 按 source=eval 摄取，权重最低 |
+| 自有 LLM 合成 eval（可选） | `AFMOBILE_AI_API_URL=... npm run eval` | 是（可选） | raw-*.json 按 source=eval 摄取，权重最低 |
 
 **关键反转**：`fix_code` / `ai-fix` 的"手动模式"从降级路径升级为**一等公民**——修正 prompt 返回给调用 Agent，由 Agent 自己的模型执行修正，再 `check_compliance` 验证。3 轮闭环由 Agent 驱动，库侧零 LLM。
 
@@ -133,13 +133,13 @@ AIFLOW_AI_API_URL（自有 LLM）→ generate → ai-fix → raw-*.json → flyw
 | `.github/workflows/ci.yml` | 飞轮步骤：采集（含 demo/）→ 分析 → 报告 artifact 上传（不阻断） |
 | `.github/workflows/flywheel.yml` | 定时周报：每周采集+分析，报告以 issue 评论持久化（主动到达人眼前） |
 | `AGENTS.md` §5 | Agent 接入指引（MCP 工具优先，零 LLM） |
-| `.gitignore` | `.aiflow/` |
+| `.gitignore` | `.af-mobile/` |
 
 ## 7. 隐私与边界
 
 - 遥测只含：时间戳、来源、工具名、文件路径、规则名、行号、**脱敏后**的 ESLint 消息。
 - **消息脱敏（v2.1）**：`eval/telemetry.mjs` 的 `sanitizeMessage` 在落盘前剥离嵌入代码片段的消息内容——`no-inline-style` 的 style 属性值、`wc-shadow-use-token` 的 CSS 声明替换为 `[style]` / `[css]` 占位；超长消息截断 200 字符兜底。class/组件/属性名等标识符保留（挖掘器依赖）。**新增 ESLint 规则若消息嵌入代码片段，必须同步登记 `RULE_MESSAGE_REDACT`**。
-- 数据不出本机；本地 `.aiflow/` gitignore，CI 遥测随 runner 销毁。CI 的产出是分析报告 artifact（保留 30 天），跨周趋势由 `flywheel.yml` 周报 issue 的评论流承载。
+- 数据不出本机；本地 `.af-mobile/` gitignore，CI 遥测随 runner 销毁。CI 的产出是分析报告 artifact（保留 30 天），跨周趋势由 `flywheel.yml` 周报 issue 的评论流承载。
 - **零 LLM ≠ 零接入**：无需任何 LLM 环境变量，但 MCP 工具需将 `node mcp/index.mjs` 注册进 MCP 客户端；纯 CLI 用法零注册。
 
 ## 8. Roadmap（未实施，按需启动）

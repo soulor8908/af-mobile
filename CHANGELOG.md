@@ -21,7 +21,7 @@
 
 ### Added
 - **脚手架薄壳包 `create-af-mobile`**：npm create 约定入口（`npm create af-mobile <目录名>`），按需下载执行，无需先手动 `npm install`；转发 `@af-mobile/ui` CLI 并默认注入 `create` 子命令，`skill` 子命令原样透传
-- 脚手架模板依赖改为 npm 版本号（`^1.4.x`，禁 `file:` 本地依赖），生成工程自动自举 aiflow-grill skill
+- 脚手架模板依赖改为 npm 版本号（`^1.4.x`，禁 `file:` 本地依赖），生成工程自动自举 af-mobile-grill skill
 
 ### Published
 - **首个 npm 发布补全**：新增并发布 `@af-mobile/mcp@1.0.0`（MCP Server）、`@af-mobile/prompt@2.0.0`（System Prompt builder）、`@af-mobile/adapters@0.1.0`（supabase scheme 适配器）
@@ -30,7 +30,7 @@
   - 三包补充 README（依赖缺失时发布页面将随下个 patch 版更新）
 
 ### Changed
-- **skill 安装方式修复**：新增 `aiflow skill add [目录]` 子命令（`npx @af-mobile/ui skill add`），已建项目可补装 / 升级 skill（幂等，默认当前目录）
+- **skill 安装方式修复**：新增 `af-mobile skill add [目录]` 子命令（`npx @af-mobile/ui skill add`），已建项目可补装 / 升级 skill（幂等，默认当前目录）
   - 安装器多目标幂等同步：`skills/`、`.trae/skills/`、`.claude/skills/` 三处落盘 + `AGENTS.md` marker 守卫追加指引段，重复执行安全（覆盖 TRAE / Claude Code / AGENTS.md 标准读者）
 
 ## [1.4.0] - 2026-08-17

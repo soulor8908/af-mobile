@@ -1,4 +1,4 @@
-# AIFlow UI — Eval 零 Token 流水线
+# af-mobile UI — Eval 零 Token 流水线
 
 从「LLM 生成需求页面」到「飞轮产出改进建议」的完整闭环，**默认 0 LLM token**，截图评审降级为可选兜底。
 
@@ -20,7 +20,7 @@ eval/results/<id>-k0.html   生成页面
       │  scripts/ai-fix.mjs ESLint 修正
       ▼
 judge.mjs --visual          渲染 + DOM 断言（含语义断言）
-      │  语义失败回写 raw.json（aiflow/semantic-visual）
+      │  语义失败回写 raw.json（af-mobile/semantic-visual）
       ▼
 flywheel.mjs                聚合 errorsByRule → PR 改进草稿
 ```
@@ -70,7 +70,7 @@ node eval/flywheel.mjs eval/results/raw.json --threshold 10
 `flywheel.mjs` 聚合两类失败，产出统一 PR 草稿：
 
 - ESLint 失败 → `token-whitelist`、`no-inline-style` 等 8 条规则
-- **DOM 语义失败 → `aiflow/semantic-visual`**（lint 过了但没满足需求语义）
+- **DOM 语义失败 → `af-mobile/semantic-visual`**（lint 过了但没满足需求语义）
 
 阈值默认 20%（`>=`），可用 `--threshold` 调整。
 
@@ -78,4 +78,4 @@ node eval/flywheel.mjs eval/results/raw.json --threshold 10
 
 - Playwright chromium：`npx playwright install chromium && npx playwright install-deps chromium`
 - 构建 dist：`npm run build`
-- `--visual-llm` 需 `AIFLOW_AI_API_URL` / `AIFLOW_AI_API_KEY`
+- `--visual-llm` 需 `AFMOBILE_AI_API_URL` / `AFMOBILE_AI_API_KEY`

@@ -1,6 +1,6 @@
-/* AIFlow UI —— L2 配方层 · feedback 子集
+/* af-mobile UI —— L2 配方层 · feedback 子集
    空态 / 骨架屏 / 标签 / 徽标 / Toast / Spinner / Progress / Notice
-   反馈类按需引：import 'aiflow-ui/css/feedback'; */
+   反馈类按需引：import 'af-mobile/css/feedback'; */
 @layer components {
   /* === 反馈（9） === */
   .empty {

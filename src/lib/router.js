@@ -1,4 +1,4 @@
-// AIFlow UI —— 移动端 SPA 路由
+// af-mobile UI —— 移动端 SPA 路由
 // route/go/back/forward + beforeEach/afterEach/notFound + router-view + keep-alive + 转场
 // W7：query string 支持（parsePath 分离）+ outlet 失败抛 RouterError + scrollBehavior 仿 Vue Router
 // 顶层无副作用，start() 显式启动（SSR 安全）；stop() 显式停止（移除 popstate、释放引用）

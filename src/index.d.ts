@@ -1,4 +1,4 @@
-// AIFlow UI —— TypeScript 类型声明
+// af-mobile UI —— TypeScript 类型声明
 // 公开 API：28 组件类 + AfElement 基类 + 主题 API + escapeHtml + register（按需注册，无 registerAll/UMD）
 // ⚠️ 手工维护：新增组件时须同步追加 class 声明，CI 的 types-sync 检查会校验一致
 

@@ -1,4 +1,4 @@
-// AIFlow UI —— af-rate：评分
+// af-mobile UI —— af-rate：评分
 // Light DOM，复用 L2 .rate 配方（radio + row-reverse 只读/可选）；value/max/readonly/size，键盘原生支持
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 

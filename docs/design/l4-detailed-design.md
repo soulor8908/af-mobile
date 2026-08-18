@@ -1,4 +1,4 @@
-# AIFlow UI —— L4 AI 约束层详细设计
+# af-mobile UI —— L4 AI 约束层详细设计
 
 > 本文档覆盖 L4 AI 约束层的总体设计：三层防线、115 白名单封闭集、System Prompt 骨架、15 条 ESLint 规则、自动修正 3 轮流程、项目级扩展机制、CI 保护链路。
 >
@@ -43,7 +43,7 @@ temperature = 0.1（极低，白名单确定性空间无需创意）
     │  通过 → 生成合规代码
     │  泄露 → 生成不合规代码
     ▼  第 2 道防线（事后 · ESLint 阻断 + 自动修正 3 轮）
-ESLint plugin-aiflow（15 规则：10 error + 5 warn，5 条可自动修）
+ESLint plugin-af-mobile（15 规则：10 error + 5 warn，5 条可自动修）
     ├─ 自动修复（fixable 规则）：--fix diff
     ├─ 非自动修复：错误信息 + 正例 → 构造修正 Prompt → AI 重写违规点
     ├─ 最多循环 3 轮 →
@@ -115,7 +115,7 @@ af-action-sheet af-picker af-dropdown af-img af-backtop
 
 ### 1.2 白名单版本化
 
-| aiflow-ui 版本 | 白名单文件 | 条目数 | 备注 |
+| af-mobile 版本 | 白名单文件 | 条目数 | 备注 |
 |---|---|---|---|
 | 1.0.x（补丁） | whitelist-v1.json | 115 | 补丁不增条目 |
 | 1.1.0（次版本） | whitelist-v2.json | 115 + N | 次版本可扩展 |
@@ -133,7 +133,7 @@ CI Step 1 检查三处同步，缺一阻断。
 ```json
 {
   "version": "v1",
-  "aiflowVersion": "1.0.0",
+  "af-mobileVersion": "1.0.0",
   "classes": {
     "recipe": ["btn", "btn-sm", "...", "checkout-bar"],
     "atomic": ["p-0", "p-1", "...", "shadow-lg"]
@@ -177,7 +177,7 @@ CI Step 1 检查三处同步，缺一阻断。
 | top_p | **0.5** | 窄候选池，限制"创意" |
 | max_tokens | **按页类型**：列表页 2000 / 结算页 3000 / 弹窗页 1500 | 防止画蛇添足添加自定义 class |
 | 上下文窗口占用 | 白名单 + 禁令 + 示例 ≈ **~2K tokens** | 留出 60%+ 空间给用户需求 |
-| stop 序列 | `["__STOP__"]` | 遇到注释块 `<!-- AIFLOW_LINT_FAILED` 时停止（3 轮失败信号） |
+| stop 序列 | `["__STOP__"]` | 遇到注释块 `<!-- AFMOBILE_LINT_FAILED` 时停止（3 轮失败信号） |
 
 ### 2.3 Prompt 动态注入（决策 D3）
 
@@ -220,7 +220,7 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 
 ### 3.2 L1 规则（2 条 ESLint error + 1 CI 辅助）
 
-#### L1-1 `aiflow/no-token-modification`
+#### L1-1 `af-mobile/no-token-modification`
 
 | 项 | 内容 |
 |---|---|
@@ -228,7 +228,7 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 | **错误信息** | `Token variable '--c-brand' is locked. Modify tokens.css or register in tokens.project.css instead` |
 | **例外** | 路径匹配 `**/tokens.css` 或 `**/tokens.project.css` |
 
-#### L1-2 `aiflow/no-inline-style`（部分可自动修）
+#### L1-2 `af-mobile/no-inline-style`（部分可自动修）
 
 | 项 | 内容 |
 |---|---|
@@ -243,25 +243,25 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 | | `border-radius: 4px → r-s` / `8px → r-m` / `12px → r-l` / `9999px → r-f` |
 | | `font-size: 12px → t-xs` / `14px → t-sm` / `16px → t-md` / `18px → t-lg` / `22px → t-xl` |
 
-#### L1-3 `aiflow/tokens-css-locked`（CI 辅助）
+#### L1-3 `af-mobile/tokens-css-locked`（CI 辅助）
 
 | 项 | 内容 |
 |---|---|
-| **检测** | PR diff 包含 `tokens.css` → 检查 CODEOWNERS `@aiflow-ui/l1-owners` 是否 approve |
+| **检测** | PR diff 包含 `tokens.css` → 检查 CODEOWNERS `@af-mobile/l1-owners` 是否 approve |
 | **动作** | 未获 approve → GitHub 分支保护禁用合并按钮 |
 
 ### 3.3 L2 规则（7 条：4 error + 3 warn）
 
-#### L2-1 `aiflow/token-whitelist`（error）
+#### L2-1 `af-mobile/token-whitelist`（error）
 
 | 项 | 内容 |
 |---|---|
 | **检测** | HTML `class=""` / 自定义元素 tagName → 与 whitelist 115 条目 + extraClass/extraComponents（项目扩展）逐一对比 |
-| **错误信息** | `Class 'custom-btn' not in whitelist. Use recipe/atomic or register in 'aiflow/token-whitelist' rule's extraClass` |
+| **错误信息** | `Class 'custom-btn' not in whitelist. Use recipe/atomic or register in 'af-mobile/token-whitelist' rule's extraClass` |
 | **配置项** | `{ extraClass: string[], extraComponents: string[], allowProjectTokens: boolean }` |
 | **实现** | 读 whitelist-v*.json + 项目 `.eslintrc` 的配置，取并集 |
 
-#### L2-2 `aiflow/no-recipe-break`（error，3 子规则）
+#### L2-2 `af-mobile/no-recipe-break`（error，3 子规则）
 
 | 子规则 | 检测模式 | 错误信息 |
 |---|---|---|
@@ -269,7 +269,7 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 | b | `.btn`（非 `.btn-ghost`） + `text-brand`/`text-danger`/`text-success` | `.btn` background uses `--c-brand`, text color must keep `--c-onbrand` contrast (white). Use `.btn-ghost` instead for colored text |
 | c | `.input` + `t-sm`/`t-xs` 原子 | `.input` font-size must be 16px (--t-md) to prevent iOS focus zoom. Put help text in `<label>` or `.form-err` instead |
 
-#### L2-3 `aiflow/no-variant-conflict`（warn，可自动修）
+#### L2-3 `af-mobile/no-variant-conflict`（warn，可自动修）
 
 | 项 | 内容 |
 |---|---|
@@ -277,7 +277,7 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 | **错误信息** | `Variant conflict: 'btn-sm' and 'btn-lg' —— only the later one (btn-lg) takes effect, remove the earlier one` |
 | **自动修正** | 删除较早出现的变体，保留最后一个（按 CSS 源序后者胜出原则） |
 
-#### L2-4 `aiflow/no-arbitrary-value`（error，部分可自动修）
+#### L2-4 `af-mobile/no-arbitrary-value`（error，部分可自动修）
 
 | 项 | 内容 |
 |---|---|
@@ -285,21 +285,21 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 | **错误信息** | `'p-[13px]' arbitrary value syntax forbidden; use closest atomic 'p-3' (12px) or extend recipes.project.css` / `'p-7' out of range (0/1/2/3/4/5/6/8/10); use 'p-6' (32px) or 'p-8' (64px)` |
 | **自动修正** | `p-7 → p-6`（最近档位）；`p-[20px] → p-5`（24px 最近） |
 
-#### L2-5 `aiflow/no-tailwind-syntax`（error）
+#### L2-5 `af-mobile/no-tailwind-syntax`（error）
 
 | 项 | 内容 |
 |---|---|
 | **检测** | class 含 `sm:`/`md:`/`lg:`/`xl:`/`hover:`/`focus:`/`active:`/`dark:` 前缀 |
 | **错误信息** | `'md:p-4' responsive/state prefix syntax forbidden. Use @container in recipes.project.css for container-queries responsive behavior` |
 
-#### L2-6 `aiflow/prefer-component`（warn）
+#### L2-6 `af-mobile/prefer-component`（warn）
 
 | 项 | 内容 |
 |---|---|
 | **检测** | 页面同时出现：(a) `.toast` class vs `<af-toast>` / (b) `.sheet` class vs `<af-action-sheet>` / (c) `.list` class + `window.addEventListener('scroll')` 手动监听 |
 | **错误信息** | `Manual .toast + setTimeout detected, prefer <af-toast> for singleton queue / auto-dismiss / aria-live` |
 
-#### L2-7 `aiflow/atomic-duplicate`（warn，可自动修）
+#### L2-7 `af-mobile/atomic-duplicate`（warn，可自动修）
 
 | 项 | 内容 |
 |---|---|
@@ -309,14 +309,14 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 
 ### 3.4 L3 规则（6 条：4 error + 2 warn）
 
-#### L3-1 `aiflow/wc-light-no-style`（error）
+#### L3-1 `af-mobile/wc-light-no-style`（error）
 
 | 项 | 内容 |
 |---|---|
 | **检测** | Light 组件 JS（含 `useShadow = false`）中：(a) 出现 `.style.xxx =` 赋值 (b) `innerHTML` 内含 `<style>` 标签 |
 | **错误信息** | `Light DOM component must use L2 recipe classes only. Custom styles → use Shadow component or recipes.project.css` |
 
-#### L3-2 `aiflow/wc-shadow-use-token`（error）
+#### L3-2 `af-mobile/wc-shadow-use-token`（error）
 
 | 项 | 内容 |
 |---|---|
@@ -324,14 +324,14 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 | **例外白名单** | `dialog::backdrop { background: rgba(0,0,0,.5) }` / `[popover]::backdrop`（遮罩半透明黑，L1 无 mask token） |
 | **错误信息** | `'color: #fff' in Shadow CSS must use var(--c-onbrand). Use token variables for cross-theme visual consistency` |
 
-#### L3-3 `aiflow/wc-part-naming`（warn）
+#### L3-3 `af-mobile/wc-part-naming`（warn）
 
 | 项 | 内容 |
 |---|---|
 | **检测** | Shadow 组件暴露的 `part="xxx"` 属性名非 kebab-case，或不在 L3 设计文档 §4.5 的 ::part() 清单中 |
 | **错误信息** | `Part name 'DialogContent' should be kebab-case 'dialog-content' and be registered in l3-detailed-design.md §4.5` |
 
-#### L3-4 `aiflow/wc-event-naming`（error，可自动修）
+#### L3-4 `af-mobile/wc-event-naming`（error，可自动修）
 
 | 项 | 内容 |
 |---|---|
@@ -339,14 +339,14 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 | **错误信息** | `Event name 'afList_LoadMore' should match 'af-{component}:{action}' (e.g. 'af-list:loadmore')` |
 | **自动修正** | 自动转换：snake_case / camelCase → kebab-case，分隔符（`_`/大写）→ `:` |
 
-#### L3-5 `aiflow/wc-aria-required`（error）
+#### L3-5 `af-mobile/wc-aria-required`（error）
 
 | 项 | 内容 |
 |---|---|
-| **检测** | 组件 render 输出的 DOM 缺少声明必需的 ARIA 角色/属性（对照 L3 §7.2 矩阵）。每个组件的 ARIA 要求以 JSON 声明于 `eslint-plugin-aiflow/utils/aria-requirements.json` |
+| **检测** | 组件 render 输出的 DOM 缺少声明必需的 ARIA 角色/属性（对照 L3 §7.2 矩阵）。每个组件的 ARIA 要求以 JSON 声明于 `eslint-plugin-af-mobile/utils/aria-requirements.json` |
 | **错误信息** | `af-tabs missing role="tabpanel" on content area; required by WAI-ARIA tab pattern, see aria-requirements.json` |
 
-#### L3-6 `aiflow/wc-cleanup`（warn）
+#### L3-6 `af-mobile/wc-cleanup`（warn）
 
 | 项 | 内容 |
 |---|---|
@@ -365,7 +365,7 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 │  Step 1：AI 生成代码（System Prompt 引导，temp=0.1）      │
 │      │                                                    │
 │      ▼                                                    │
-│  Step 2：ESLint（plugin:aiflow/recommended）              │
+│  Step 2：ESLint（plugin:af-mobile/recommended）              │
 │      ├─ 0 error → 成功 → Step 4                          │
 │      └─ ≥ 1 error → 构造修正请求                           │
 │          │                                                │
@@ -385,8 +385,8 @@ System Prompt 模板不写死白名单条目，构建时替换两个注入点：
 
 ESLint 返回：
 ```
-42:3  error  Class 'cart-custom' not in whitelist [aiflow/token-whitelist]
-58:1  error  Inline style 'padding: 20px' is forbidden [aiflow/no-inline-style]
+42:3  error  Class 'cart-custom' not in whitelist [af-mobile/token-whitelist]
+58:1  error  Inline style 'padding: 20px' is forbidden [af-mobile/no-inline-style]
 63:12 warn   Variant conflict 'btn-sm' + 'btn-lg' removed btn-sm [auto-fixed]
 ```
 
@@ -395,11 +395,11 @@ ESLint 返回：
 ```
 # 上次生成的代码违反以下 ESLint 规则，请按要求修正（只改违规点，其余保持不变，不改结构/内容/标签）：
 
-## 错误 1（第 42 行）— aiflow/token-whitelist
-Class 'cart-custom' not in AIFlow UI whitelist.
+## 错误 1（第 42 行）— af-mobile/token-whitelist
+Class 'cart-custom' not in af-mobile UI whitelist.
 【建议】最接近的 L2 配方是 <div class="card">（卡片容器），请替换 class。
 
-## 错误 2（第 58 行）— aiflow/no-inline-style（禁令第 2 条）
+## 错误 2（第 58 行）— af-mobile/no-inline-style（禁令第 2 条）
 style="padding: 20px"（7 类属性之一的 padding 禁止内联）
 【建议】20px 最接近原子类 p-5（24px）。请改为 <div class="p-5">。
 
@@ -415,7 +415,7 @@ btn-sm 与 btn-lg 冲突：已删除 btn-sm，保留 btn-lg。请确认修改正
 
 | 动作 | 说明 |
 |---|---|
-| 代码末尾打标记 | `<!-- AIFLOW_LINT_FAILED\n{ JSON.stringify(errors, null, 2) }\n-->` |
+| 代码末尾打标记 | `<!-- AFMOBILE_LINT_FAILED\n{ JSON.stringify(errors, null, 2) }\n-->` |
 | 生成告警 | 通知 L4 Owner：3 轮失败率、Top 高频失败规则 |
 | 放行规则 | warn 级可进入 PR（需人工审查），error 级禁止进入生产 |
 | 学习样本 | 3 轮失败代码 + 最终人工修正代码 → Prompt 优化样本库 |
@@ -447,7 +447,7 @@ btn-sm 与 btn-lg 冲突：已删除 btn-sm，保留 btn-lg。请确认修改正
 
 ### 5.2 recipes.project.css（L2 配方扩展）
 
-**位置**（固定路径，AI 自动感知）：`aiflow-ui/recipes.project.css`
+**位置**（固定路径，AI 自动感知）：`af-mobile/recipes.project.css`
 
 ```css
 /* recipes.project.css —— 项目级扩展
@@ -483,7 +483,7 @@ btn-sm 与 btn-lg 冲突：已删除 btn-sm，保留 btn-lg。请确认修改正
 
 ### 5.3 tokens.project.css（L1 token 值覆盖）
 
-**位置**：`aiflow-ui/tokens.project.css`
+**位置**：`af-mobile/tokens.project.css`
 
 ```css
 /* tokens.project.css —— 只允许覆盖 L1 变量值，不允许新增 L1 变量名
@@ -491,7 +491,7 @@ btn-sm 与 btn-lg 冲突：已删除 btn-sm，保留 btn-lg。请确认修改正
 
 @layer tokens {
   :root {
-    --c-brand: #ff6b35;       /* 项目品牌色（替换 AIFlow UI 默认蓝色） */
+    --c-brand: #ff6b35;       /* 项目品牌色（替换 af-mobile UI 默认蓝色） */
     --c-danger: #e53935;       /* 项目错误色稍深 */
     --s-4: 20px;              /* 项目偏好更大默认 padding */
   }
@@ -505,7 +505,7 @@ btn-sm 与 btn-lg 冲突：已删除 btn-sm，保留 btn-lg。请确认修改正
 
 ### 5.4 项目级组件
 
-**位置**：`aiflow-ui/components/project-af-*.js`（文件名必须 `project-af-` 前缀）
+**位置**：`af-mobile/components/project-af-*.js`（文件名必须 `project-af-` 前缀）
 
 ```javascript
 // components/project-af-qrcode.js
@@ -522,10 +522,10 @@ export class AfQrcode extends AfElement {
 ```javascript
 // .eslintrc.cjs（项目根）
 module.exports = {
-  plugins: ['aiflow'],
-  extends: ['plugin:aiflow/recommended'],
+  plugins: ['af-mobile'],
+  extends: ['plugin:af-mobile/recommended'],
   rules: {
-    'aiflow/token-whitelist': ['error', {
+    'af-mobile/token-whitelist': ['error', {
       extraClass: [
         'avatar-lg',
         'search-with-icon',
@@ -538,7 +538,7 @@ module.exports = {
 };
 ```
 
-**决策 D8**：核心 aiflow-ui 的三处同步（CSS/JS → whitelist.json → Prompt）仍严格；**项目级扩展只需改两处**：`recipes.project.css`（源码） + 项目 `.eslintrc`（extraClass）。**Prompt 侧零人工操作**——构建脚本自动读 `recipes.project.css` 的 `/* === N. 用途 === */` 注释块注入。
+**决策 D8**：核心 af-mobile 的三处同步（CSS/JS → whitelist.json → Prompt）仍严格；**项目级扩展只需改两处**：`recipes.project.css`（源码） + 项目 `.eslintrc`（extraClass）。**Prompt 侧零人工操作**——构建脚本自动读 `recipes.project.css` 的 `/* === N. 用途 === */` 注释块注入。
 
 ### 5.6 项目级扩展自动注入 Prompt（决策 D9）
 
@@ -570,7 +570,7 @@ Pull Request
     ├─ 一致 →  通过
     └─ 不一致 → 阻断，PR 评论输出：
        "recipes.css 有 class xxx（来源 PR commit abc），
-        但 whitelist-v1.json 未登记。请同步更新 eslint-plugin-aiflow whitelist"
+        但 whitelist-v1.json 未登记。请同步更新 eslint-plugin-af-mobile whitelist"
     │
     ▼  Step 2：体积检查（esbuild minify + Node zlib gzip，脚本 scripts/size-check.mjs）
     ├─ L1+L2 总 CSS  ≤ 4.2KB
@@ -583,11 +583,11 @@ Pull Request
     │
     ▼  Step 3：CODEOWNERS 审批检查
     PR diff 涉及关键文件 → 检查对应 Owner approve
-      tokens.css        → @aiflow-ui/l1-owners
-      af-element.js     → @aiflow-ui/l3-owners
-      whitelist-v*.json → @aiflow-ui/l4-owners
-      system-prompt.*   → @aiflow-ui/l4-owners
-      eslint rules/*    → @aiflow-ui/l4-owners
+      tokens.css        → @af-mobile/l1-owners
+      af-element.js     → @af-mobile/l3-owners
+      whitelist-v*.json → @af-mobile/l4-owners
+      system-prompt.*   → @af-mobile/l4-owners
+      eslint rules/*    → @af-mobile/l4-owners
     已 approve →
     未批准 → GitHub 分支保护禁用合并按钮
     │
@@ -623,15 +623,15 @@ if (B \ C) 非空 → "whitelist 有但 Prompt 未注入：..."
 ```
 # CODEOWNERS
 # L1 核心 Token
-src/tokens.css                              @aiflow-ui/l1-owners
+src/tokens.css                              @af-mobile/l1-owners
 
 # L3 基类（影响全部组件）
-src/lib/af-element.js                        @aiflow-ui/l3-owners
+src/lib/af-element.js                        @af-mobile/l3-owners
 
 # L4 白名单 + Prompt + ESLint 规则
-eslint-plugin-aiflow/utils/whitelist-v*.json @aiflow-ui/l4-owners
-system-prompt.template.md                    @aiflow-ui/l4-owners
-eslint-plugin-aiflow/rules/**                @aiflow-ui/l4-owners
+eslint-plugin-af-mobile/utils/whitelist-v*.json @af-mobile/l4-owners
+system-prompt.template.md                    @af-mobile/l4-owners
+eslint-plugin-af-mobile/rules/**                @af-mobile/l4-owners
 ```
 
 三组 Owner 最小化跨层审批：L1/L3/L4 各自管自己的关键文件。
@@ -652,10 +652,10 @@ eslint-plugin-aiflow/rules/**                @aiflow-ui/l4-owners
 
 ```markdown
 # 角色
-你是 AIFlow UI 前端代码生成器，负责输出严格遵循 AIFlow UI 分层设计体系的原生 HTML/CSS/JS 代码。
+你是 af-mobile UI 前端代码生成器，负责输出严格遵循 af-mobile UI 分层设计体系的原生 HTML/CSS/JS 代码。
 目标基准：移动端 H5 375px 宽度。
 输出要求：完整单文件 HTML 代码块（只输出 <!doctype html> ... </html>，不含解释、不含说明文字）。
-<head> 内必须引入：<link rel="stylesheet" href="/aiflow-ui.css">
+<head> 内必须引入：<link rel="stylesheet" href="/af-mobile.css">
 <style> 块只允许存在于 head（页面级自定义样式，仍需 token 合规），body 内只含 L2 class + L3 组件标签。
 
 # 设计体系速查
@@ -786,17 +786,17 @@ L4 约束层：ESLint 15 规则（10 error + 5 warn）+ 最多 3 轮自动修正
 module.exports = {
   root: true,
   parserOptions: { ecmaVersion: 2022, sourceType: 'module' },
-  plugins: ['aiflow'],
-  extends: ['eslint:recommended', 'plugin:aiflow/recommended'],
+  plugins: ['af-mobile'],
+  extends: ['eslint:recommended', 'plugin:af-mobile/recommended'],
   rules: {
     // （可选）严格模式：5 warn → error
-    // 'aiflow/no-variant-conflict': 'error',
-    // 'aiflow/prefer-component': 'error',
-    // 'aiflow/atomic-duplicate': 'error',
-    // 'aiflow/wc-part-naming': 'error',
-    // 'aiflow/wc-cleanup': 'error',
+    // 'af-mobile/no-variant-conflict': 'error',
+    // 'af-mobile/prefer-component': 'error',
+    // 'af-mobile/atomic-duplicate': 'error',
+    // 'af-mobile/wc-part-naming': 'error',
+    // 'af-mobile/wc-cleanup': 'error',
 
-    'aiflow/token-whitelist': ['error', {
+    'af-mobile/token-whitelist': ['error', {
       // === 项目级扩展登记处 ===
       extraClass: [
         'avatar-lg',
@@ -808,14 +808,14 @@ module.exports = {
     }],
 
     // （可选）项目级临时豁免（不推荐）
-    // 'aiflow/no-inline-style': ['warn', { allowProperties: ['width'] }],
+    // 'af-mobile/no-inline-style': ['warn', { allowProperties: ['width'] }],
   },
   settings: {
-    aiflow: {
+    'af-mobile': {
       // SDK 版本，决定加载哪一版 whitelist
       sdkVersion: '1.0.0',
       // 项目级扩展 CSS 路径（供 Prompt 注入扫描）
-      projectRecipesCss: './aiflow-ui/recipes.project.css',
+      projectRecipesCss: './af-mobile/recipes.project.css',
     },
   },
 };
@@ -824,8 +824,8 @@ module.exports = {
 ### 7.3 CI YAML（GitHub Actions）
 
 ```yaml
-# .github/workflows/aiflow-l4-gate.yml
-name: AIFlow UI · L4 Gate
+# .github/workflows/af-mobile-l4-gate.yml
+name: af-mobile UI · L4 Gate
 on: [pull_request]
 jobs:
   gate:

@@ -1,4 +1,4 @@
-// AIFlow —— @af-mobile/mcp 打包（pkg-publish 设计 §3.5）
+// af-mobile —— @af-mobile/mcp 打包（pkg-publish 设计 §3.5）
 // 产物：mcp/dist/index.mjs（自包含 bundle：telemetry/build-prompt/ai-fix/generate/flywheel 全内联）
 // external：sdk（运行时依赖）、eslint（peer，动态 import）
 import { build } from 'esbuild';

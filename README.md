@@ -16,9 +16,9 @@ npm create af-mobile@latest my-app
 cd my-app && npm install && npm run dev
 ```
 
-> `npm create af-mobile` 等价于 `npx create-af-mobile`（npm init 约定，vite/astro 同款）：按需下载并执行脚手架，无需先手动 `npm install`；第二步的 `npm install` 才是把库装进生成的工程。切勿写裸 `npx aiflow`——npm 上存在同名第三方包，会装错。
+> `npm create af-mobile` 等价于 `npx create-af-mobile`（npm init 约定，vite/astro 同款）：按需下载并执行脚手架，无需先手动 `npm install`；第二步的 `npm install` 才是把库装进生成的工程。切勿写裸 `npx af-mobile`——npm 上存在同名第三方包，会装错。
 
-生成工程自带 `aiflow-grill` skill（对话式脚手架）与消费端 ESLint 约束。打开任一 AI 编码工具（TRAE / Claude Code / Cursor 等），说一句"我想做一个习惯打卡应用"，skill 会引导你：**拷问需求 → 需求拆分 → demo 确认 → 一次性生成页面**。
+生成工程自带 `af-mobile-grill` skill（对话式脚手架）与消费端 ESLint 约束。打开任一 AI 编码工具（TRAE / Claude Code / Cursor 等），说一句"我想做一个习惯打卡应用"，skill 会引导你：**拷问需求 → 需求拆分 → demo 确认 → 一次性生成页面**。
 
 ### CLI 用法
 
@@ -27,9 +27,9 @@ npm create af-mobile@latest <目录名>    # 生成新工程（脚手架 + skill
 npx create-af-mobile skill add [目录]   # 已建项目补装 / 升级 skill（幂等，默认当前目录）
 ```
 
-### aiflow-grill skill 装到哪里
+### af-mobile-grill skill 装到哪里
 
-skill 是单文件 `SKILL.md`，随 `@af-mobile/ui` npm 包分发。`npm create af-mobile` / `npx create-af-mobile skill add` 把它写到**中立路径** `skills/aiflow-grill/SKILL.md`，并在 `AGENTS.md` 追加指引段（marker 守卫，幂等）。
+skill 是单文件 `SKILL.md`，随 `@af-mobile/ui` npm 包分发。`npm create af-mobile` / `npx create-af-mobile skill add` 把它写到**中立路径** `skills/af-mobile-grill/SKILL.md`，并在 `AGENTS.md` 追加指引段（marker 守卫，幂等）。
 
 不写 `.trae/skills/` / `.claude/skills/` 等工具特定目录——任何读 `AGENTS.md` 的 AI 工具（TRAE / Claude Code / Cursor / Codex / Copilot / Windsurf 等）都能通过 `AGENTS.md` 找到 skill，避免假设用户用某工具而污染项目。
 
@@ -47,7 +47,7 @@ npm update @af-mobile/ui && npx create-af-mobile skill add   # 库升级 + skill
 npm install @af-mobile/ui
 ```
 
-> **消费端需有打包器 + 组件一律按需引入（铁律）**：`package.json` 的 `main`/`module` 指向 `src/index.js`（源码分发，裸 ESM + CSS import）。直接用 Vite/webpack/Rollup 等打包器处理 `import { AfList, AfDialog } from '@af-mobile/ui'` 并 `customElements.define`（或 `register('af-list', 'af-dialog')`），**只引入页面用到的组件**。**禁止 UMD 直引**（`dist/aiflow-ui.umd.js`）、**禁止 `registerAll()`**（全量注册 = 全局引入）、**禁止全局对象**——所有项目与 demo 一律按需引入。
+> **消费端需有打包器 + 组件一律按需引入（铁律）**：`package.json` 的 `main`/`module` 指向 `src/index.js`（源码分发，裸 ESM + CSS import）。直接用 Vite/webpack/Rollup 等打包器处理 `import { AfList, AfDialog } from '@af-mobile/ui'` 并 `customElements.define`（或 `register('af-list', 'af-dialog')`），**只引入页面用到的组件**。**禁止 UMD 直引**（`dist/af-mobile.umd.js`）、**禁止 `registerAll()`**（全量注册 = 全局引入）、**禁止全局对象**——所有项目与 demo 一律按需引入。
 
 ## 快速上手
 
@@ -339,7 +339,7 @@ register('af-list');
 register('af-dialog');
 ```
 
-**禁止** `registerAll()`（全量注册 = 全局引入）、**禁止** UMD 直引（`dist/aiflow-ui.umd.js`）、**禁止** 全局对象（`window.AiflowUI`）。所有项目与 demo 的组件必须按需引入。
+**禁止** `registerAll()`（全量注册 = 全局引入）、**禁止** UMD 直引（`dist/af-mobile.umd.js`）、**禁止** 全局对象（`window.AfMobile`）。所有项目与 demo 的组件必须按需引入。
 
 ## 路由与部署
 
@@ -475,10 +475,10 @@ L4 设计支持三类扩展通道（不可混用）：
 ```js
 // .eslintrc.cjs 项目级配置示例
 export default [
-  ...aiflowBaseConfig,
+  ...af-mobileBaseConfig,
   {
     rules: {
-      'aiflow/token-whitelist': ['error', {
+      'af-mobile/token-whitelist': ['error', {
         extraClass: ['avatar-lg', 'search-with-icon', 'search-icon'],
         extraComponents: ['af-qrcode'],
         allowProjectTokens: true,
@@ -510,7 +510,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 
 - L1 Owner：`tokens.css`
 - L3 Owner：`af-element.js`
-- L4 Owner：`whitelist-v*.json` / `system-prompt.*` / `eslint-plugin-aiflow/rules/**`
+- L4 Owner：`whitelist-v*.json` / `system-prompt.*` / `eslint-plugin-af-mobile/rules/**`
 
 ## 包生态（@af-mobile scope）
 
@@ -557,7 +557,7 @@ npm run prompt:build
 
 **架构与分层**
 
-- [架构 RFC v3（总纲：AI 生成系统的完整方案）](docs/design/aiflow-ui-rfc-v3.md)
+- [架构 RFC v3（总纲：AI 生成系统的完整方案）](docs/design/af-mobile-rfc-v3.md)
 - [L1+L2 详细设计](docs/design/l1-l2-detailed-design.md)（Token / 配方原子 / 白名单）
 - [L3 真组件详细设计](docs/design/l3-detailed-design.md)
 - [L4 AI 约束层详细设计](docs/design/l4-detailed-design.md)（Prompt / ESLint / CI 三层约束）

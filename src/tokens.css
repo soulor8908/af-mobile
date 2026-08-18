@@ -1,4 +1,4 @@
-/* AIFlow UI —— L1 Token 层：55 变量 + reset + base + 主题切换
+/* af-mobile UI —— L1 Token 层：55 变量 + reset + base + 主题切换
    本文件由库维护者管理，CI 通过 CODEOWNERS 保护。AI 不可改。 */
 
 @layer reset, base, tokens, components, utilities;

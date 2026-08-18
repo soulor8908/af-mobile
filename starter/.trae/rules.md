@@ -1,4 +1,4 @@
-# AIFlow Starter —— AI 开发守则
+# af-mobile Starter —— AI 开发守则
 
 本模板用任何 AI 写代码时，遵守以下约束与工作流。
 

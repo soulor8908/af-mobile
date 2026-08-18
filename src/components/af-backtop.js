@@ -1,4 +1,4 @@
-// AIFlow UI —— af-backtop：回到顶部
+// af-mobile UI —— af-backtop：回到顶部
 // Light DOM，复用 L2 .btn 配方；内置 fixed 定位（开箱即用）
 // 职责：滚动监听显隐 + 点击平滑滚动到顶部
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

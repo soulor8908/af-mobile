@@ -1,6 +1,6 @@
-// AIFlow 脚手架：node scripts/create-app.mjs <dir>
+// af-mobile 脚手架：node scripts/create-app.mjs <dir>
 // 生成最小可运行工程（npm 版本依赖 + hash 路由 + FOUC 防闪 + ESLint 约束），
-// 并自动安装 aiflow-grill skill（多工具目标），形成迭代闭环。
+// 并自动安装 af-mobile-grill skill（多工具目标），形成迭代闭环。
 // 用法等价：npx @af-mobile/ui create <dir>
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
 import { join, resolve, dirname, basename } from 'node:path';
@@ -17,7 +17,7 @@ if (!dirArg) {
 }
 
 const dir = resolve(dirArg);
-const name = basename(dir).toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'aiflow-app';
+const name = basename(dir).toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'af-mobile-app';
 
 if (existsSync(dir) && readdirSync(dir).length > 0) {
   console.error(`✗ 目录已存在且非空：${dir}`);
@@ -77,7 +77,7 @@ export default defineConfig({
 `,
 
   'eslint.config.js': `// AI 代码约束：保存即受 164 白名单 + 15 规则约束
-import aiflow from '@af-mobile/eslint-plugin';
+import afMobilePlugin from '@af-mobile/eslint-plugin';
 
 export default [
   {
@@ -85,8 +85,8 @@ export default [
   },
   {
     files: ['src/**/*.js'],
-    plugins: { aiflow },
-    rules: { ...aiflow.configs.recommended.rules },
+    plugins: { 'af-mobile': afMobilePlugin },
+    rules: { ...afMobilePlugin.configs.recommended.rules },
   },
 ];
 `,
@@ -123,13 +123,13 @@ export default async function homePage(params, ctx) {
   ctx.outlet.innerHTML = \`
     <main class="page">
       <section class="hero">
-        <p class="eyebrow">AIFlow App</p>
+        <p class="eyebrow">af-mobile App</p>
         <h1 class="display">我的应用</h1>
         <p class="subtitle">项目已就绪</p>
       </section>
       <section class="card">
         <h3 class="section-title">下一步</h3>
-        <p class="body">用 TRAE 或任意 AI 编码工具打开本项目，说出你的想法，aiflow-grill skill 会引导你完成需求确认与页面生成。</p>
+        <p class="body">用 TRAE 或任意 AI 编码工具打开本项目，说出你的想法，af-mobile-grill skill 会引导你完成需求确认与页面生成。</p>
       </section>
       <div class="actions">
         <button class="btn btn-block" data-role="go-docs">查看开发指引</button>
@@ -172,7 +172,7 @@ for (const [rel, content] of Object.entries(files)) {
   console.log(`+ ${rel}`);
 }
 
-// 自动安装 aiflow-grill skill（多工具目标 + AGENTS.md 指引段）
+// 自动安装 af-mobile-grill skill（多工具目标 + AGENTS.md 指引段）
 const skill = spawnSync(process.execPath, [join(ROOT, 'scripts/skill-add.mjs'), dir], {
   stdio: 'inherit',
 });

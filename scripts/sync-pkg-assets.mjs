@@ -1,4 +1,4 @@
-// AIFlow —— 包资产快照同步（pkg-publish 设计 §3.7）
+// af-mobile —— 包资产快照同步（pkg-publish 设计 §3.7）
 // 从仓库真相源同步到 @af-mobile/mcp 与 @af-mobile/prompt 的 assets/（两包独立自足）
 // 快照平铺规则与 resolve-asset 的 basename 策略一致；漂移由 test/pkg-assets.test.js 闸门把关
 // 用法：node scripts/sync-pkg-assets.mjs
@@ -10,7 +10,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 // [源（仓库根相对）, 快照名（平铺）]
 const ASSETS = [
-  ['eslint-plugin-aiflow/utils/whitelist-v1.json', 'whitelist-v1.json'],
+  ['eslint-plugin-af-mobile/utils/whitelist-v1.json', 'whitelist-v1.json'],
   ['src/recipes.css', 'recipes.css'],
   ['src/atomic.css', 'atomic.css'],
   ['prompt/system-prompt.md', 'system-prompt.md'],

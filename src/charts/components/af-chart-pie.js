@@ -1,4 +1,4 @@
-// AIFlow UI charts —— af-chart-pie：饼/环形/半环/玫瑰
+// af-mobile UI charts —— af-chart-pie：饼/环形/半环/玫瑰
 // 详见 docs/design/charts-sublibrary-detailed-design.md §5.3
 // variant: pie | donut（center-text 中心 KPI）| half（半环）| rose（半径映射数值，面积正比）
 // 无障碍：svg 的 role="img" 与 aria-label 由 AfChart 基类统一注入（chart-base.js _render）

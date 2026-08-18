@@ -1,4 +1,4 @@
-// AIFlow UI —— af-field：结构化表单字段
+// af-mobile UI —— af-field：结构化表单字段
 // Light DOM，复用 L2 .label/.input/.textarea/.form-err 配方
 // 职责：label + icon + input/textarea + 校验消息 + 帮助文本，比 .form-row 更完整
 // 子元素透传：slot="input" 支持自定义控件（如 select / af-picker），无 slot 时内置 input

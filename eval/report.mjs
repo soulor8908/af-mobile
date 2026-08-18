@@ -1,4 +1,4 @@
-// AIFlow UI —— 数据飞轮：综合改进建议生成器
+// af-mobile UI —— 数据飞轮：综合改进建议生成器
 // 消费 eval/results/raw-*.json + report-*.json，把失败分类为：
 //   1. 管道问题（LLM 网络错误 / 评审解析失败 / 弹层默认关闭误判）→ 修复评审器
 //   2. 真实缺陷（DOM 缺元素 / LLM 判定缺需求元素）→ 改进 Prompt / 组件
@@ -79,7 +79,7 @@ export function generateReport(rawResults, report, opts = {}) {
   }
 
   if (balance.length) {
-    lines.push('### LLM 余额不足（需充值 AIFLOW_AI_API_KEY 账户后重跑）');
+    lines.push('### LLM 余额不足（需充值 AFMOBILE_AI_API_KEY 账户后重跑）');
     lines.push('');
     for (const v of balance) {
       lines.push(`- **[${v.id}] ${v.category}** ${v.llmReason || ''}`);
@@ -100,7 +100,7 @@ export function generateReport(rawResults, report, opts = {}) {
   lines.push('## 建议的修改清单');
   lines.push('');
   if (balance.length) {
-    lines.push('- [ ] 为 AIFLOW_AI_API_KEY 账户充值（Insufficient Balance），重跑完整视觉评审拿干净基线');
+    lines.push('- [ ] 为 AFMOBILE_AI_API_KEY 账户充值（Insufficient Balance），重跑完整视觉评审拿干净基线');
   }
   if (pipe.length) {
     lines.push('- [ ] 修复视觉评审器：弹层类组件（af-dialog/af-action-sheet）默认关闭，评审时应先触发打开或豁免');

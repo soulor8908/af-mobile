@@ -1,4 +1,4 @@
-// AIFlow UI —— 生成 Eval 评估器（judge）
+// af-mobile UI —— 生成 Eval 评估器（judge）
 // 输入：run.mjs 收集的 results 数组（每条含 expects + best.codePath）
 // 输出：
 //   - lint pass@k：生成代码通过 ESLint
@@ -113,16 +113,16 @@ export async function judgeVisual(results, opts = {}) {
   const visualPassRate = total > 0 ? (visualPassed / total * 100).toFixed(1) + '%' : '0%';
   const visualFailures = visualResults.filter(v => !v.passed);
 
-  // 语义断言失败回写：并入 flywheel 的 errorsByRule（aiflow/semantic-visual 规则）
+  // 语义断言失败回写：并入 flywheel 的 errorsByRule（af-mobile/semantic-visual 规则）
   if (opts.writeBack) {
     const byId = new Map(visualResults.map(v => [v.id, v]));
     for (const r of results) {
       const v = byId.get(r.id);
-      r.attempts = (r.attempts || []).filter(a => !((a.lastErrors || []).length && (a.lastErrors || []).every(e => e.rule === 'aiflow/semantic-visual')));
+      r.attempts = (r.attempts || []).filter(a => !((a.lastErrors || []).length && (a.lastErrors || []).every(e => e.rule === 'af-mobile/semantic-visual')));
       if (v && !v.domPass && (v.fails || []).length) {
         r.attempts.push({
           ok: false, rounds: r.best?.rounds || 1,
-          lastErrors: v.fails.map(f => ({ rule: 'aiflow/semantic-visual', message: f })),
+          lastErrors: v.fails.map(f => ({ rule: 'af-mobile/semantic-visual', message: f })),
           codePath: r.best?.codePath || null,
         });
       }

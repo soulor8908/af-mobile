@@ -1,4 +1,4 @@
-// AIFlow UI charts —— af-chart-funnel：漏斗（梯形堆叠 + 层间转化率标注）
+// af-mobile UI charts —— af-chart-funnel：漏斗（梯形堆叠 + 层间转化率标注）
 // 详见 docs/design/charts-sublibrary-detailed-design.md §5.5
 // 零坐标系：宽度 = plotW × v/max，居中梯形直出
 // 无障碍：svg 的 role="img" 与 aria-label 由 AfChart 基类统一注入（chart-base.js _render）

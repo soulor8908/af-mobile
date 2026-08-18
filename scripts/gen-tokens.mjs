@@ -1,4 +1,4 @@
-// AIFlow UI —— src/tokens.json 生成器（W3C Design Tokens Format 1.1）
+// af-mobile UI —— src/tokens.json 生成器（W3C Design Tokens Format 1.1）
 // 从 src/tokens.css（权威源，CI 由 CODEOWNERS 保护，AI 不可改）解析全部 L1 token，映射为 DTCG JSON
 // 设计：tokens.css 为单一真相源，本脚本生成派生的 tokens.json 供设计工具 / 消费端使用
 // 用法：node scripts/gen-tokens.mjs（输出 src/tokens.json）
@@ -10,7 +10,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'src');
 const OUT = join(SRC, 'tokens.json');
 
-const DESC = 'AIFlow UI L1 设计 Token（W3C Design Tokens Format 1.1）。由 src/tokens.css 自动生成，勿手改，运行 `npm run tokens` 重新生成。palette 为 light 基准值，dark 值见 palette.$extensions.aiflow.theme.dark。阴影因源为 CSS 简写字符串，采用 string 类型保证 W3C 校验兼容。';
+const DESC = 'af-mobile UI L1 设计 Token（W3C Design Tokens Format 1.1）。由 src/tokens.css 自动生成，勿手改，运行 `npm run tokens` 重新生成。palette 为 light 基准值，dark 值见 palette.$extensions.af-mobile.theme.dark。阴影因源为 CSS 简写字符串，采用 string 类型保证 W3C 校验兼容。';
 
 // 剥注释后扫描 CSS 规则块（@ 规则递归展开，返回扁平 rule 列表）
 export function parseCssRules(css) {
@@ -114,7 +114,7 @@ export function buildTokensFromCss(css) {
     const name = d.name.slice('--palette-'.length);
     darkVals[name] = convertValue(paletteType(name), d.value);
   }
-  palette.$extensions = { aiflow: { theme: { dark: darkVals } } };
+  palette.$extensions = { 'af-mobile': { theme: { dark: darkVals } } };
   tokens.palette = palette;
 
   for (const d of pub.decls) {

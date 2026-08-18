@@ -1,4 +1,4 @@
-// AIFlow UI —— af-toast：轻提示
+// af-mobile UI —— af-toast：轻提示
 // Light DOM，模块级单例（新替旧，不排队），自动消失 + aria-live + 退场动画
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 

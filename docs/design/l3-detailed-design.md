@@ -1,4 +1,4 @@
-# AIFlow UI —— L3 真组件详细设计（总体架构）
+# af-mobile UI —— L3 真组件详细设计（总体架构）
 
 > 本文档覆盖 L3 真组件的总体架构设计（组件清单、技术选型、生命周期、CSS 隔离、与 L1/L2 协作、事件机制、无障碍、体积控制）。
 >
@@ -262,7 +262,7 @@ import { register } from '@af-mobile/ui';
 register('af-list', 'af-dialog');
 ```
 
-> **铁律**：禁止 `registerAll()`（全量注册 = 全局引入）、禁止 UMD 直引、禁止全局对象（`window.AiflowUI`）——组件一律按需引入。
+> **铁律**：禁止 `registerAll()`（全量注册 = 全局引入）、禁止 UMD 直引、禁止全局对象（`window.AfMobile`）——组件一律按需引入。
 
 ### 2.4 组件文件结构
 
@@ -384,7 +384,7 @@ export class AfList extends AfElement {
 | 定时器 | `clearTimeout` / `clearInterval` | af-toast、af-swiper（autoplay） |
 | 动画帧 | `cancelAnimationFrame` | af-picker（scroll 状态） |
 
-ESLint 规则 `aiflow/wc-cleanup`（warn）检测 addEventListener 但 unmounted 内无对应 removeEventListener。
+ESLint 规则 `af-mobile/wc-cleanup`（warn）检测 addEventListener 但 unmounted 内无对应 removeEventListener。
 
 ---
 
@@ -445,7 +445,7 @@ render() {
 }
 ```
 
-**规范 2**：ESLint `aiflow/wc-light-no-style`（error）——Light 组件 JS 内含 `<style>` 或 `this.style.xxx` 阻断。
+**规范 2**：ESLint `af-mobile/wc-light-no-style`（error）——Light 组件 JS 内含 `<style>` 或 `this.style.xxx` 阻断。
 
 ### 4.4 Shadow DOM 组件样式规范
 
@@ -476,7 +476,7 @@ const CSS = `
 `;
 ```
 
-**规范 3**：ESLint `aiflow/wc-shadow-use-token`（error）——Shadow CSS 内颜色/间距/圆角/字号硬编码（非 `var(--*)`）阻断。
+**规范 3**：ESLint `af-mobile/wc-shadow-use-token`（error）——Shadow CSS 内颜色/间距/圆角/字号硬编码（非 `var(--*)`）阻断。
 - 唯一例外：`dialog::backdrop` / `[popover]::backdrop` 的遮罩半透明黑（`rgba(0,0,0,.5)`）
 - 不新增 `--c-mask` token（YAGNI，只这一处用）
 
@@ -495,7 +495,7 @@ const CSS = `
 | `af-picker` | `column` | 单列容器 | 允许自定义宽度 |
 | `af-picker` | `item` | 单个选项 | 允许自定义字号 |
 
-ESLint `aiflow/wc-part-naming`（warn）——part 名必须 kebab-case 且在文档声明。
+ESLint `af-mobile/wc-part-naming`（warn）——part 名必须 kebab-case 且在文档声明。
 
 ### 4.6 主题切换对 Shadow 组件的影响
 
@@ -532,7 +532,7 @@ L3 组件
 | Toast 提示 | ❌ | ✅ `af-toast` | 队列+定时 |
 | 单个按钮 | ✅ `.btn` | ❌ | 纯静态 |
 
-ESLint `aiflow/prefer-component`（warn）——页面同时存在 L3 组件与等价 L2 配方（如 `<af-toast>` 与手动 `.toast`）时提示。
+ESLint `af-mobile/prefer-component`（warn）——页面同时存在 L3 组件与等价 L2 配方（如 `<af-toast>` 与手动 `.toast`）时提示。
 
 ### 5.3 组件对 L2 配方的使用禁区
 
@@ -612,7 +612,7 @@ emit('af-xxx:xxx', payload)
 **约束（决策 D7）**：
 - 属性 = 输入，事件 = 输出
 - 组件不在事件回调内修改自身 attribute（如 itemclick 后不设 `selected` attribute）——内部状态用私有字段（`_selected`）
-- ESLint `aiflow/wc-no-attr-mutate`（warn）检测事件回调内的 `setAttribute`
+- ESLint `af-mobile/wc-no-attr-mutate`（warn）检测事件回调内的 `setAttribute`
 
 ### 6.5 与 React/Vue 协作
 
@@ -743,10 +743,10 @@ show(message, duration = 2000) {
 
 | 规则名 | 检测 | 动作 |
 |---|---|---|
-| `aiflow/wc-aria-required` | 组件缺少规范要求的 role/aria-* | error |
-| `aiflow/wc-keyboard` | 交互元素有 click 无 keydown 处理 | warn |
-| `aiflow/wc-focus-trap` | 模态组件（af-dialog/af-action-sheet）无焦点陷阱 | error |
-| `aiflow/wc-alt-text` | af-img 缺少 alt 属性透传 | error |
+| `af-mobile/wc-aria-required` | 组件缺少规范要求的 role/aria-* | error |
+| `af-mobile/wc-keyboard` | 交互元素有 click 无 keydown 处理 | warn |
+| `af-mobile/wc-focus-trap` | 模态组件（af-dialog/af-action-sheet）无焦点陷阱 | error |
+| `af-mobile/wc-alt-text` | af-img 缺少 alt 属性透传 | error |
 
 ---
 
@@ -773,7 +773,7 @@ show(message, duration = 2000) {
 
 ```json
 {
-  "name": "aiflow-ui",
+  "name": "af-mobile",
   "sideEffects": false,
   "exports": {
     ".": "./src/index.js",
@@ -1105,7 +1105,7 @@ mounted() {
 <!doctype html>
 <html>
 <head>
-  <link rel="stylesheet" href="/aiflow-ui.css">
+  <link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
   <div class="page">
@@ -1417,7 +1417,7 @@ onThemeChange(theme):
 ```html
 <!doctype html>
 <html>
-<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<head><link rel="stylesheet" href="/af-mobile.css"></head>
 <body>
   <div class="page">
     <af-swiper id="banner" autoplay="3000" loop show-dots>
@@ -1667,7 +1667,7 @@ mounted:
 ```html
 <!doctype html>
 <html>
-<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<head><link rel="stylesheet" href="/af-mobile.css"></head>
 <body>
   <div class="page">
     <af-tabs id="orders" fixed aria-label="订单状态"></af-tabs>
@@ -1938,7 +1938,7 @@ _trapKeydown(e):
 ```html
 <!doctype html>
 <html>
-<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<head><link rel="stylesheet" href="/af-mobile.css"></head>
 <body>
   <button class="btn btn-danger" id="trigger">删除商品</button>
 
@@ -2138,7 +2138,7 @@ unmounted() {
 ```html
 <!doctype html>
 <html>
-<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<head><link rel="stylesheet" href="/af-mobile.css"></head>
 <body>
   <af-toast id="toast" duration="1500"></af-toast>
 
@@ -2345,7 +2345,7 @@ render() {
 ```html
 <!doctype html>
 <html>
-<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<head><link rel="stylesheet" href="/af-mobile.css"></head>
 <body>
   <button class="btn" id="shareBtn">分享</button>
 
@@ -2645,7 +2645,7 @@ col.addEventListener('keydown', (e) => {
 ```html
 <!doctype html>
 <html>
-<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<head><link rel="stylesheet" href="/af-mobile.css"></head>
 <body>
   <button class="btn" id="pick">选择地区</button>
   <span class="body" id="result">未选择</span>
@@ -2857,7 +2857,7 @@ this._list.addEventListener('toggle', (e) => {
 ```html
 <!doctype html>
 <html>
-<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<head><link rel="stylesheet" href="/af-mobile.css"></head>
 <body>
   <div class="form-row-h">
     <label class="label">排序</label>
@@ -3072,7 +3072,7 @@ unmounted() {
 ```html
 <!doctype html>
 <html>
-<head><link rel="stylesheet" href="/aiflow-ui.css"></head>
+<head><link rel="stylesheet" href="/af-mobile.css"></head>
 <body>
   <div class="page">
     <div class="list" id="goods"></div>
@@ -3281,8 +3281,8 @@ unmounted() {
 <!doctype html>
 <html>
 <head>
-  <link rel="stylesheet" href="/aiflow-ui.css">
-  <link rel="stylesheet" href="/aiflow-ui/recipes.project.css">   <!-- 含 .af-backtop-fixed -->
+  <link rel="stylesheet" href="/af-mobile.css">
+  <link rel="stylesheet" href="/af-mobile/recipes.project.css">   <!-- 含 .af-backtop-fixed -->
 </head>
 <body>
   <div class="page">

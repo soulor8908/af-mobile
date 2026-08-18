@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { computeAriaSyncProblems } from '../scripts/check-aria-sync.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const REQUIREMENTS = JSON.parse(readFileSync(join(ROOT, 'eslint-plugin-aiflow/utils/aria-requirements.json'), 'utf8'));
-const RULE_SOURCE = readFileSync(join(ROOT, 'eslint-plugin-aiflow/rules/wc-aria-required.js'), 'utf8');
+const REQUIREMENTS = JSON.parse(readFileSync(join(ROOT, 'eslint-plugin-af-mobile/utils/aria-requirements.json'), 'utf8'));
+const RULE_SOURCE = readFileSync(join(ROOT, 'eslint-plugin-af-mobile/rules/wc-aria-required.js'), 'utf8');
 
 // 规则 JS 的检测分支片段（真实文件按此模式编写，测试用真实文件）
 const RULE_WITH_ALL_BRANCHES = `

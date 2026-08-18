@@ -1,19 +1,19 @@
-// eslint-plugin-aiflow L2 规则测试（7 条合并）
+// eslint-plugin-af-mobile L2 规则测试（7 条合并）
 import { describe, it } from 'vitest';
 import { RuleTester } from 'eslint';
-import tokenWhitelist from '../../eslint-plugin-aiflow/rules/token-whitelist.js';
-import noRecipeBreak from '../../eslint-plugin-aiflow/rules/no-recipe-break.js';
-import noVariantConflict from '../../eslint-plugin-aiflow/rules/no-variant-conflict.js';
-import noArbitraryValue from '../../eslint-plugin-aiflow/rules/no-arbitrary-value.js';
-import noTailwindSyntax from '../../eslint-plugin-aiflow/rules/no-tailwind-syntax.js';
-import preferComponent from '../../eslint-plugin-aiflow/rules/prefer-component.js';
-import atomicDuplicate from '../../eslint-plugin-aiflow/rules/atomic-duplicate.js';
+import tokenWhitelist from '../../eslint-plugin-af-mobile/rules/token-whitelist.js';
+import noRecipeBreak from '../../eslint-plugin-af-mobile/rules/no-recipe-break.js';
+import noVariantConflict from '../../eslint-plugin-af-mobile/rules/no-variant-conflict.js';
+import noArbitraryValue from '../../eslint-plugin-af-mobile/rules/no-arbitrary-value.js';
+import noTailwindSyntax from '../../eslint-plugin-af-mobile/rules/no-tailwind-syntax.js';
+import preferComponent from '../../eslint-plugin-af-mobile/rules/prefer-component.js';
+import atomicDuplicate from '../../eslint-plugin-af-mobile/rules/atomic-duplicate.js';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
 });
 
-describe('L2-1 aiflow/token-whitelist', () => {
+describe('L2-1 af-mobile/token-whitelist', () => {
   it('白名单内 class 放行', () => {
     ruleTester.run('token-whitelist', tokenWhitelist, {
       valid: [{ code: 'const html = `<div class="btn btn-sm">x</div>`;' }],
@@ -85,7 +85,7 @@ describe('L2-1 aiflow/token-whitelist', () => {
   });
 });
 
-describe('L2-2 aiflow/no-recipe-break', () => {
+describe('L2-2 af-mobile/no-recipe-break', () => {
   it('.cell + f 报错', () => {
     ruleTester.run('no-recipe-break', noRecipeBreak, {
       valid: [],
@@ -118,7 +118,7 @@ describe('L2-2 aiflow/no-recipe-break', () => {
   });
 });
 
-describe('L2-3 aiflow/no-variant-conflict', () => {
+describe('L2-3 af-mobile/no-variant-conflict', () => {
   it('btn-sm + btn-lg 报错', () => {
     ruleTester.run('no-variant-conflict', noVariantConflict, {
       valid: [],
@@ -139,7 +139,7 @@ describe('L2-3 aiflow/no-variant-conflict', () => {
   });
 });
 
-describe('L2-4 aiflow/no-arbitrary-value', () => {
+describe('L2-4 af-mobile/no-arbitrary-value', () => {
   it('p-[13px] 报错', () => {
     ruleTester.run('no-arbitrary-value', noArbitraryValue, {
       valid: [],
@@ -166,7 +166,7 @@ describe('L2-4 aiflow/no-arbitrary-value', () => {
   });
 });
 
-describe('L2-5 aiflow/no-tailwind-syntax', () => {
+describe('L2-5 af-mobile/no-tailwind-syntax', () => {
   it('md:p-4 报错', () => {
     ruleTester.run('no-tailwind-syntax', noTailwindSyntax, {
       valid: [],
@@ -187,7 +187,7 @@ describe('L2-5 aiflow/no-tailwind-syntax', () => {
   });
 });
 
-describe('L2-6 aiflow/prefer-component', () => {
+describe('L2-6 af-mobile/prefer-component', () => {
   it('.toast + setTimeout 报 warn', () => {
     ruleTester.run('prefer-component', preferComponent, {
       valid: [],
@@ -211,7 +211,7 @@ describe('L2-6 aiflow/prefer-component', () => {
   });
 });
 
-describe('L2-7 aiflow/atomic-duplicate', () => {
+describe('L2-7 af-mobile/atomic-duplicate', () => {
   it('p-4 p-2 报 warn', () => {
     ruleTester.run('atomic-duplicate', atomicDuplicate, {
       valid: [],

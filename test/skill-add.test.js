@@ -15,22 +15,22 @@ function runInstall(dir) {
 
 describe('skill-add installer', () => {
   it('安装到中立路径 skills/ 且内容与源一致', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'aiflow-skill-'));
+    const dir = mkdtempSync(join(tmpdir(), 'af-mobile-skill-'));
     runInstall(dir);
-    const src = readFileSync(join(ROOT, 'skills/aiflow-grill/SKILL.md'), 'utf8');
-    expect(readFileSync(join(dir, 'skills/aiflow-grill/SKILL.md'), 'utf8')).toBe(src);
+    const src = readFileSync(join(ROOT, 'skills/af-mobile-grill/SKILL.md'), 'utf8');
+    expect(readFileSync(join(dir, 'skills/af-mobile-grill/SKILL.md'), 'utf8')).toBe(src);
     // 不再写工具特定目录（用户可能用 Cursor/Codex/Copilot 等而非 TRAE/Claude Code）
-    expect(existsSync(join(dir, '.trae/skills/aiflow-grill/SKILL.md'))).toBe(false);
-    expect(existsSync(join(dir, '.claude/skills/aiflow-grill/SKILL.md'))).toBe(false);
+    expect(existsSync(join(dir, '.trae/skills/af-mobile-grill/SKILL.md'))).toBe(false);
+    expect(existsSync(join(dir, '.claude/skills/af-mobile-grill/SKILL.md'))).toBe(false);
   });
 
   it('生成 AGENTS.md 指引段且重复执行幂等', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'aiflow-skill-'));
+    const dir = mkdtempSync(join(tmpdir(), 'af-mobile-skill-'));
     runInstall(dir);
     runInstall(dir); // 第二次应无副作用
     const agents = readFileSync(join(dir, 'AGENTS.md'), 'utf8');
-    expect(agents).toContain('<!-- aiflow:skill-grill -->');
-    expect(agents).toContain('skills/aiflow-grill/SKILL.md');
-    expect(agents.match(/<!-- aiflow:skill-grill -->/g)).toHaveLength(1);
+    expect(agents).toContain('<!-- af-mobile:skill-grill -->');
+    expect(agents).toContain('skills/af-mobile-grill/SKILL.md');
+    expect(agents.match(/<!-- af-mobile:skill-grill -->/g)).toHaveLength(1);
   });
 });

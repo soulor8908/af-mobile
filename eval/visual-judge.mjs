@@ -1,18 +1,18 @@
-// AIFlow UI —— LLM 视觉评审
+// af-mobile UI —— LLM 视觉评审
 // 读取截图 PNG，转 base64，在文本中嵌入 Markdown 图片（deepseek 兼容），调用 LLM 评审
 // 用法（独立）：
 //   node eval/visual-judge.mjs <screenshot.png> "<需求描述>"
 // 环境变量：
-//   AIFLOW_AI_API_URL   LLM 端点（默认 http://127.0.0.1:8787）
-//   AIFLOW_AI_API_KEY   Bearer key（代理场景可省略）
-//   AIFLOW_AI_MODEL     模型名（默认用代理/端点默认）
+//   AFMOBILE_AI_API_URL   LLM 端点（默认 http://127.0.0.1:8787）
+//   AFMOBILE_AI_API_KEY   Bearer key（代理场景可省略）
+//   AFMOBILE_AI_MODEL     模型名（默认用代理/端点默认）
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const DEFAULTS = {
-  url: process.env.AIFLOW_AI_API_URL || 'http://127.0.0.1:8787',
-  key: process.env.AIFLOW_AI_API_KEY || '',
-  model: process.env.AIFLOW_AI_MODEL || '',
+  url: process.env.AFMOBILE_AI_API_URL || 'http://127.0.0.1:8787',
+  key: process.env.AFMOBILE_AI_API_KEY || '',
+  model: process.env.AFMOBILE_AI_MODEL || '',
 };
 
 // 调用 LLM 视觉评审：传截图 + 需求 + expects，返回 { pass, reason }

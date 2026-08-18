@@ -1,4 +1,4 @@
-// AIFlow UI —— af-badge：徽标角标
+// af-mobile UI —— af-badge：徽标角标
 // Light DOM，复用 L2 .badge 配方；content/max/dot 控制，data-color 变体，可包裹内容作角标
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 

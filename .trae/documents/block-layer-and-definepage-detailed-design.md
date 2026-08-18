@@ -40,7 +40,7 @@
 
 ### 2.4 ESLint 插件结构
 
-`eslint-plugin-aiflow/index.js` 已有 15 规则按 L1/L2/L3 分组,`recommended` config 统一启用。Block 层新增 `wc-block-*` 规则集,沿用同一插件、同一 config 扩展点。
+`eslint-plugin-af-mobile/index.js` 已有 15 规则按 L1/L2/L3 分组,`recommended` config 统一启用。Block 层新增 `wc-block-*` 规则集,沿用同一插件、同一 config 扩展点。
 
 ### 2.5 白名单三源同步机制
 
@@ -125,7 +125,7 @@
 
 #### 第 7 章 ESLint 规则集(wc-block-* + definePage 约束)
 
-新增规则(写入 `eslint-plugin-aiflow/rules/`):
+新增规则(写入 `eslint-plugin-af-mobile/rules/`):
 - `wc-block-states`:Block 必须实现 5 态(检测 mounted 中 loading/error/empty 分支)
 - `wc-block-props-count`:Block props 数 2-5(检测 defineProp 调用数)
 - `wc-block-no-internal-ref`:AI 代码禁止 querySelector Block 内部(检测消费端代码)
@@ -202,7 +202,7 @@
 ### 5.3 token 经济性复核
 
 - [ ] 3 个验证页面 token 估算诚实(含 transform 80 tokens)
-- [ ] 与 DesignGUI 85-92% 降幅对比合理(aiflow-ui 因含质量保证层,降幅 56-80% 略低但合理)
+- [ ] 与 DesignGUI 85-92% 降幅对比合理(af-mobile 因含质量保证层,降幅 56-80% 略低但合理)
 
 ### 5.4 实现可行性预演
 

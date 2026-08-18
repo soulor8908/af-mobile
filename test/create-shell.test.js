@@ -21,8 +21,8 @@ describe('create-af-mobile 薄壳', () => {
     expect(existsSync(join(dir, 'src/main.js'))).toBe(true);
     // skill 至少落到中立路径 skills/（node_modules 里的发布版可能仍写 .trae/.claude，
     // 不假设其状态——本测试只关心 AGENTS.md 引导真相源 skills/ 是否就绪）
-    expect(existsSync(join(dir, 'skills/aiflow-grill/SKILL.md'))).toBe(true);
-    expect(readFileSync(join(dir, 'AGENTS.md'), 'utf8')).toContain('<!-- aiflow:skill-grill -->');
+    expect(existsSync(join(dir, 'skills/af-mobile-grill/SKILL.md'))).toBe(true);
+    expect(readFileSync(join(dir, 'AGENTS.md'), 'utf8')).toContain('<!-- af-mobile:skill-grill -->');
   });
 
   it('显式 create 子命令原样透传（幂等写法）', () => {
@@ -34,12 +34,12 @@ describe('create-af-mobile 薄壳', () => {
   it('skill 子命令透传：可补装 skill 到已有目录', () => {
     const dir = join(mkdtempSync(join(tmpdir(), 'af-shell-')), 'app3');
     const out = runShell(['skill', 'add', dir]);
-    expect(out).toContain('+ skills/aiflow-grill/SKILL.md');
+    expect(out).toContain('+ skills/af-mobile-grill/SKILL.md');
     // 断言与转发目标的真相源一致（开发态 node_modules 是 registry 发布版，非仓库源）
     const source = readFileSync(
-      join(ROOT, 'node_modules/@af-mobile/ui/skills/aiflow-grill/SKILL.md'), 'utf8',
+      join(ROOT, 'node_modules/@af-mobile/ui/skills/af-mobile-grill/SKILL.md'), 'utf8',
     );
-    const installed = readFileSync(join(dir, 'skills/aiflow-grill/SKILL.md'), 'utf8');
+    const installed = readFileSync(join(dir, 'skills/af-mobile-grill/SKILL.md'), 'utf8');
     expect(installed).toBe(source);
   });
 });

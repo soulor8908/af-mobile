@@ -6,19 +6,19 @@ import { join } from 'node:path';
 import { recordRun, readTelemetry, detectTool, SOURCE_WEIGHTS, telemetryDir, sanitizeMessage } from '../eval/telemetry.mjs';
 
 let tmpDir;
-const ENV_KEYS = ['AIFLOW_TOOL', 'CLAUDECODE', 'CURSOR_AGENT', 'CI'];
+const ENV_KEYS = ['AFMOBILE_TOOL', 'CLAUDECODE', 'CURSOR_AGENT', 'CI'];
 const savedEnv = {};
 
 beforeEach(() => {
-  tmpDir = mkdtempSync(join(tmpdir(), 'aiflow-tel-'));
-  if (savedEnv.AIFLOW_TELEMETRY_DIR === undefined) savedEnv.AIFLOW_TELEMETRY_DIR = process.env.AIFLOW_TELEMETRY_DIR;
-  process.env.AIFLOW_TELEMETRY_DIR = tmpDir;
+  tmpDir = mkdtempSync(join(tmpdir(), 'af-mobile-tel-'));
+  if (savedEnv.AFMOBILE_TELEMETRY_DIR === undefined) savedEnv.AFMOBILE_TELEMETRY_DIR = process.env.AFMOBILE_TELEMETRY_DIR;
+  process.env.AFMOBILE_TELEMETRY_DIR = tmpDir;
   for (const k of ENV_KEYS) { savedEnv[k] = process.env[k]; delete process.env[k]; }
 });
 
 afterEach(() => {
   rmSync(tmpDir, { recursive: true, force: true });
-  for (const k of ['AIFLOW_TELEMETRY_DIR', ...ENV_KEYS]) {
+  for (const k of ['AFMOBILE_TELEMETRY_DIR', ...ENV_KEYS]) {
     if (savedEnv[k] === undefined) delete process.env[k];
     else process.env[k] = savedEnv[k];
   }
@@ -28,14 +28,14 @@ describe('telemetry / recordRun + readTelemetry', () => {
   it('写入并读回事件（含违规明细）', () => {
     recordRun({
       source: 'mcp', tool: 'trae-code', file: 'src/a.html', passed: false,
-      violations: [{ rule: 'aiflow/token-whitelist', severity: 'error', line: 3, message: "Class 'card-w' not in whitelist" }],
+      violations: [{ rule: 'af-mobile/token-whitelist', severity: 'error', line: 3, message: "Class 'card-w' not in whitelist" }],
     });
     const events = readTelemetry();
     expect(events).toHaveLength(1);
     expect(events[0].source).toBe('mcp');
     expect(events[0].tool).toBe('trae-code');
     expect(events[0].passed).toBe(false);
-    expect(events[0].violations[0].rule).toBe('aiflow/token-whitelist');
+    expect(events[0].violations[0].rule).toBe('af-mobile/token-whitelist');
     expect(events[0].v).toBe(1);
   });
 
@@ -63,25 +63,25 @@ describe('telemetry / recordRun + readTelemetry', () => {
 
 describe('telemetry / sanitizeMessage（隐私红线）', () => {
   it('no-inline-style：整个 style 属性值剥离，语义前缀保留', () => {
-    const out = sanitizeMessage('aiflow/no-inline-style', "Inline style 'color:red;background:url(secrets)' is forbidden. Use class instead");
+    const out = sanitizeMessage('af-mobile/no-inline-style', "Inline style 'color:red;background:url(secrets)' is forbidden. Use class instead");
     expect(out).toBe("Inline style '[style]' is forbidden. Use class instead");
     expect(out).not.toContain('color:red');
     expect(out).not.toContain('secrets');
   });
 
   it('wc-shadow-use-token：整条 CSS 声明剥离', () => {
-    const out = sanitizeMessage('aiflow/wc-shadow-use-token', "'color: #fff' in Shadow CSS must use var(--*). Use token variables for cross-theme visual consistency");
+    const out = sanitizeMessage('af-mobile/wc-shadow-use-token', "'color: #fff' in Shadow CSS must use var(--*). Use token variables for cross-theme visual consistency");
     expect(out).toBe("'[css]' in Shadow CSS must use var(--*). Use token variables for cross-theme visual consistency");
   });
 
   it('class/组件名等标识符保留（挖掘器依赖）', () => {
-    const out = sanitizeMessage('aiflow/token-whitelist', "Class 'card-wrap' not in whitelist. Use recipe/atomic or register");
+    const out = sanitizeMessage('af-mobile/token-whitelist', "Class 'card-wrap' not in whitelist. Use recipe/atomic or register");
     expect(out).toContain("'card-wrap'");
   });
 
   it('未知规则超长消息截断 200 兜底（防未来规则嵌入大段代码）', () => {
     const long = 'x'.repeat(500);
-    const out = sanitizeMessage('aiflow/future-rule', long);
+    const out = sanitizeMessage('af-mobile/future-rule', long);
     expect(out.length).toBe(201); // 200 + 省略号
     expect(out.endsWith('…')).toBe(true);
   });
@@ -89,7 +89,7 @@ describe('telemetry / sanitizeMessage（隐私红线）', () => {
   it('recordRun 落盘的是脱敏后消息', () => {
     recordRun({
       source: 'mcp', file: 'a.html', passed: false,
-      violations: [{ rule: 'aiflow/no-inline-style', severity: 'error', line: 1, message: "Inline style 'color:red' is forbidden. Use class instead" }],
+      violations: [{ rule: 'af-mobile/no-inline-style', severity: 'error', line: 1, message: "Inline style 'color:red' is forbidden. Use class instead" }],
     });
     const events = readTelemetry();
     expect(events[0].violations[0].message).toBe("Inline style '[style]' is forbidden. Use class instead");
@@ -97,8 +97,8 @@ describe('telemetry / sanitizeMessage（隐私红线）', () => {
 });
 
 describe('telemetry / detectTool', () => {
-  it('AIFLOW_TOOL 显式指定优先', () => {
-    process.env.AIFLOW_TOOL = 'trae-work';
+  it('AFMOBILE_TOOL 显式指定优先', () => {
+    process.env.AFMOBILE_TOOL = 'trae-work';
     expect(detectTool()).toBe('trae-work');
   });
 
@@ -121,7 +121,7 @@ describe('telemetry / 常量', () => {
     expect(SOURCE_WEIGHTS.cli).toBeGreaterThan(SOURCE_WEIGHTS.eval);
   });
 
-  it('AIFLOW_TELEMETRY_DIR 覆盖默认目录', () => {
+  it('AFMOBILE_TELEMETRY_DIR 覆盖默认目录', () => {
     expect(telemetryDir()).toBe(tmpDir);
   });
 });

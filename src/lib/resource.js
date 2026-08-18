@@ -1,4 +1,4 @@
-// AIFlow UI —— createResource 原语
+// af-mobile UI —— createResource 原语
 // 数据源（signal/函数/常量）变化时自动重新拉取；应在 createPage.setup 中调用，
 // effect 自动注册到当前 owner，页面 unmount() 时级联清理
 // 返回 { data, isLoading, error, isError } 均为 signal（函数式读取）

@@ -1,4 +1,4 @@
-// AIFlow UI —— af-notice-bar：公告通知栏
+// af-mobile UI —— af-notice-bar：公告通知栏
 // Light DOM，复用 L2 .notice 配方（warn 底色）；text 快捷文本，scroll 横向滚动
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 

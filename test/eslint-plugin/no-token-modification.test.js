@@ -1,13 +1,13 @@
-// eslint-plugin-aiflow 规则测试 —— no-token-modification
+// eslint-plugin-af-mobile 规则测试 —— no-token-modification
 import { describe, it, expect } from 'vitest';
 import { RuleTester } from 'eslint';
-import rule from '../../eslint-plugin-aiflow/rules/no-token-modification.js';
+import rule from '../../eslint-plugin-af-mobile/rules/no-token-modification.js';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
 });
 
-describe('aiflow/no-token-modification', () => {
+describe('af-mobile/no-token-modification', () => {
   it('tokens.css 文件内重定义 token：放行', () => {
     ruleTester.run('no-token-modification', rule, {
       valid: [{ filename: 'src/tokens.css', code: ':root { --c-brand: #07c160; }' }],

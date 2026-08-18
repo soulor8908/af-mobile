@@ -1,15 +1,15 @@
-// AIFlow UI —— L4 §4 AI 代码生成 ESLint 修正 3 轮流程
+// af-mobile UI —— L4 §4 AI 代码生成 ESLint 修正 3 轮流程
 // 用法：
 //   node scripts/ai-fix.mjs <html-or-js-file>              # 自检模式：跑 ESLint + 输出修正 prompt
-//   AIFLOW_AI_API_URL=... node scripts/ai-fix.mjs <file>   # 自动模式：调用 LLM API 修正
+//   AFMOBILE_AI_API_URL=... node scripts/ai-fix.mjs <file>   # 自动模式：调用 LLM API 修正
 //
 // 流程（§4.1）：
 //   1. 提取 <script> 内容（HTML 输入）或直接读 JS 文件
-//   2. 跑 ESLint（plugin:aiflow/recommended）
+//   2. 跑 ESLint（plugin:af-mobile/recommended）
 //   3. 0 error → 成功
 //   4. ≥1 error → 构造修正 prompt（含每条错误具体建议，D4）
 //   5. 调用 LLM API（若配置）→ 重写 → 回到 Step 2
-//   6. 3 轮失败 → 末尾打 <!-- AIFLOW_LINT_FAILED ... --> 标记（§4.3）
+//   6. 3 轮失败 → 末尾打 <!-- AFMOBILE_LINT_FAILED ... --> 标记（§4.3）
 import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join, resolve, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -71,21 +71,21 @@ export async function runEslint(code, opts = {}) {
 
 // === 3. 构造修正 prompt（D4：给每条错误具体建议）===
 export const RULE_HINTS = {
-  'aiflow/no-token-modification': '不要重定义 L1 token 变量。如需新 token，写在 tokens.css 或 tokens.project.css',
-  'aiflow/no-inline-style': '改用对应的 atomic class：padding:16px → p-4；color:var(--c-brand) → text-brand；border-radius:8px → r-m',
-  'aiflow/token-whitelist': '该 class 不在 115 白名单内。改用最接近的 L2 配方/原子，或在 .eslintrc 的 extraClass 登记',
-  'aiflow/no-recipe-break': '该 class 组合会破坏配方：.btn 不要叠加 text-* 颜色；.input 不要叠加 t-sm/t-xs；.cell 不要叠加 f/fc',
-  'aiflow/no-variant-conflict': '互斥变体只能保留最后一个：btn-sm+btn-lg → 删 btn-sm',
-  'aiflow/no-arbitrary-value': '改用最接近的原子档位：p-[13px] → p-3 (12px)；p-7 → p-6 (32px)',
-  'aiflow/no-tailwind-syntax': '不要用 Tailwind 前缀语法（md:/hover:/dark: 等）。响应式请用 @container in recipes.project.css',
-  'aiflow/prefer-component': '改用对应 L3 真组件：.toast → <af-toast>；.sheet → <af-action-sheet>',
-  'aiflow/atomic-duplicate': '同属性原子重复，保留最后一个：p-4 p-2 → 只留 p-2',
-  'aiflow/wc-light-no-style': 'Light DOM 组件不能用内联 style、<style> 标签或 innerHTML 中的 style="..." 属性。改用 L2 配方/原子 class 或迁移到 Shadow 组件',
-  'aiflow/wc-shadow-use-token': 'Shadow CSS 必须用 var(--*) 引用 token。例：color: #fff → color: var(--c-onbrand)',
-  'aiflow/wc-part-naming': 'part 名必须 kebab-case：DialogContent → dialog-content',
-  'aiflow/wc-event-naming': '事件名必须 af-{组件}:{动作}：afList_LoadMore → af-list:loadmore',
-  'aiflow/wc-aria-required': '补全必需 ARIA 角色/属性。详见 aria-requirements.json',
-  'aiflow/wc-cleanup': 'unmounted() 内补对应的清理调用：addEventListener → removeEventListener；setInterval → clearInterval',
+  'af-mobile/no-token-modification': '不要重定义 L1 token 变量。如需新 token，写在 tokens.css 或 tokens.project.css',
+  'af-mobile/no-inline-style': '改用对应的 atomic class：padding:16px → p-4；color:var(--c-brand) → text-brand；border-radius:8px → r-m',
+  'af-mobile/token-whitelist': '该 class 不在 115 白名单内。改用最接近的 L2 配方/原子，或在 .eslintrc 的 extraClass 登记',
+  'af-mobile/no-recipe-break': '该 class 组合会破坏配方：.btn 不要叠加 text-* 颜色；.input 不要叠加 t-sm/t-xs；.cell 不要叠加 f/fc',
+  'af-mobile/no-variant-conflict': '互斥变体只能保留最后一个：btn-sm+btn-lg → 删 btn-sm',
+  'af-mobile/no-arbitrary-value': '改用最接近的原子档位：p-[13px] → p-3 (12px)；p-7 → p-6 (32px)',
+  'af-mobile/no-tailwind-syntax': '不要用 Tailwind 前缀语法（md:/hover:/dark: 等）。响应式请用 @container in recipes.project.css',
+  'af-mobile/prefer-component': '改用对应 L3 真组件：.toast → <af-toast>；.sheet → <af-action-sheet>',
+  'af-mobile/atomic-duplicate': '同属性原子重复，保留最后一个：p-4 p-2 → 只留 p-2',
+  'af-mobile/wc-light-no-style': 'Light DOM 组件不能用内联 style、<style> 标签或 innerHTML 中的 style="..." 属性。改用 L2 配方/原子 class 或迁移到 Shadow 组件',
+  'af-mobile/wc-shadow-use-token': 'Shadow CSS 必须用 var(--*) 引用 token。例：color: #fff → color: var(--c-onbrand)',
+  'af-mobile/wc-part-naming': 'part 名必须 kebab-case：DialogContent → dialog-content',
+  'af-mobile/wc-event-naming': '事件名必须 af-{组件}:{动作}：afList_LoadMore → af-list:loadmore',
+  'af-mobile/wc-aria-required': '补全必需 ARIA 角色/属性。详见 aria-requirements.json',
+  'af-mobile/wc-cleanup': 'unmounted() 内补对应的清理调用：addEventListener → removeEventListener；setInterval → clearInterval',
 };
 
 export function buildFixPrompt(messages, originalCode) {
@@ -119,9 +119,9 @@ export function buildFixPrompt(messages, originalCode) {
 
 // === 4. 调用 LLM API（若配置）===
 async function callLLM(systemPrompt, userPrompt) {
-  const url = process.env.AIFLOW_AI_API_URL;
-  const key = process.env.AIFLOW_AI_API_KEY;
-  const model = process.env.AIFLOW_AI_MODEL || 'gpt-4o';
+  const url = process.env.AFMOBILE_AI_API_URL;
+  const key = process.env.AFMOBILE_AI_API_KEY;
+  const model = process.env.AFMOBILE_AI_MODEL || 'gpt-4o';
   if (!url) return null; // 未配置 → 走手动模式
   const res = await fetch(url, {
     method: 'POST',
@@ -194,9 +194,9 @@ export async function runAiFixLoop(absFile, llmCaller, systemPromptOverride = nu
     return { ok: true, rounds: MAX_ROUNDS, lastErrors: [], exitCode: 0 };
   }
 
-  // 3 轮失败：末尾打 AIFLOW_LINT_FAILED 标记
+  // 3 轮失败：末尾打 AFMOBILE_LINT_FAILED 标记
   const errors = lastMessages.filter(m => m.severity === 'error');
-  const failMark = `<!-- AIFLOW_LINT_FAILED\n${JSON.stringify(errors, null, 2)}\n-->`;
+  const failMark = `<!-- AFMOBILE_LINT_FAILED\n${JSON.stringify(errors, null, 2)}\n-->`;
   writeFileSync(absFile, originalCode + '\n' + failMark + '\n');
   return { ok: false, rounds: MAX_ROUNDS, lastErrors: errors, exitCode: 1 };
 }
@@ -207,9 +207,9 @@ if (isMain) {
   const file = process.argv[2];
   if (!file || file === '-h' || file === '--help') {
     console.error('Usage: ai-fix.mjs FILE（html 或 js）');
-    console.error('Env: AIFLOW_AI_API_URL (LLM endpoint, optional)');
-    console.error('     AIFLOW_AI_API_KEY (LLM auth, optional)');
-    console.error('     AIFLOW_AI_MODEL (model name, optional)');
+    console.error('Env: AFMOBILE_AI_API_URL (LLM endpoint, optional)');
+    console.error('     AFMOBILE_AI_API_KEY (LLM auth, optional)');
+    console.error('     AFMOBILE_AI_MODEL (model name, optional)');
     process.exit(file ? 0 : 2);
   }
   const absFile = resolve(process.cwd(), file);
@@ -218,14 +218,14 @@ if (isMain) {
     process.exit(2);
   }
   // CLI 的 LLM caller：默认从环境变量读
-  const llmCaller = process.env.AIFLOW_AI_API_URL ? callLLM : null;
+  const llmCaller = process.env.AFMOBILE_AI_API_URL ? callLLM : null;
   runAiFixLoop(absFile, llmCaller).then(r => {
     if (r.ok) {
       console.error('✓ ESLint 通过（warn 不阻断）');
       process.exit(0);
     }
     if (r.exitCode === 2) {
-      console.error('\n⚠ 未配置 AIFLOW_AI_API_URL，进入手动模式');
+      console.error('\n⚠ 未配置 AFMOBILE_AI_API_URL，进入手动模式');
       console.error('  请把以下修正 Prompt + 原代码复制到 LLM，把输出写回原文件后重跑：\n');
       process.stdout.write('=== SYSTEM ===\n' + r.systemPrompt + '\n');
       process.stdout.write('=== USER ===\n' + r.fixPrompt + '\n');
@@ -233,7 +233,7 @@ if (isMain) {
       process.exit(2);
     }
     if (r.exitCode === 1) {
-      console.error(`\n✗ ${MAX_ROUNDS} 轮修正失败，已打 AIFLOW_LINT_FAILED 标记`);
+      console.error(`\n✗ ${MAX_ROUNDS} 轮修正失败，已打 AFMOBILE_LINT_FAILED 标记`);
       const byRule = {};
       for (const e of r.lastErrors) byRule[e.rule] = (byRule[e.rule] || 0) + 1;
       for (const [rule, n] of Object.entries(byRule).sort((a, b) => b[1] - a[1])) {

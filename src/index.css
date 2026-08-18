@@ -1,4 +1,4 @@
-/* AIFlow UI —— 全量 CSS 入口：L1 tokens + L2 recipes + L2 atomic
+/* af-mobile UI —— 全量 CSS 入口：L1 tokens + L2 recipes + L2 atomic
    全量静态引入（gzip ~3.5KB），无 Tree Shaking。Tree Shaking 仅用于 L3 JS。 */
 @import './tokens.css';
 @import './recipes.css';

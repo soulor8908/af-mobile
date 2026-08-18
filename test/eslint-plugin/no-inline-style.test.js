@@ -1,13 +1,13 @@
-// eslint-plugin-aiflow 规则测试 —— no-inline-style
+// eslint-plugin-af-mobile 规则测试 —— no-inline-style
 import { describe, it, expect } from 'vitest';
 import { RuleTester } from 'eslint';
-import rule from '../../eslint-plugin-aiflow/rules/no-inline-style.js';
+import rule from '../../eslint-plugin-af-mobile/rules/no-inline-style.js';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
 });
 
-describe('aiflow/no-inline-style', () => {
+describe('af-mobile/no-inline-style', () => {
   it('forbidden 属性 padding：报错', () => {
     ruleTester.run('no-inline-style', rule, {
       valid: [],

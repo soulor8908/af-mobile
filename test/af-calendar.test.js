@@ -114,7 +114,7 @@ describe('af-calendar DSD 水合', () => {
     el.month = '2026-08';
     el.value = '2026-08-14';
     // 手动构造 DSD 预填充内容（calendar 无 shadowHTML，动态渲染由 mounted 守卫跳过）
-    // eslint-disable-next-line aiflow/token-whitelist -- DSD 测试夹具（calendar 内部结构 class）
+    // eslint-disable-next-line af-mobile/token-whitelist -- DSD 测试夹具（calendar 内部结构 class）
     const dsdHtml = '<div class="calendar"><div class="header"><div class="month">2026年8月</div></div><div class="weekdays"></div><div class="grid"><button class="day day-selected" data-date="2026-08-14" aria-current="date">14</button></div></div>';
     el.attachShadow({ mode: 'open' });
     el.shadowRoot.innerHTML = dsdHtml;
@@ -129,7 +129,7 @@ describe('af-calendar DSD 水合', () => {
   it('DSD 水合后点击选日期仍触发 select', () => {
     const el = new AfCalendar();
     el.month = '2026-08';
-    // eslint-disable-next-line aiflow/token-whitelist -- DSD 测试夹具（calendar 内部结构 class）
+    // eslint-disable-next-line af-mobile/token-whitelist -- DSD 测试夹具（calendar 内部结构 class）
     const dsdHtml = '<div class="calendar"><div class="grid"><button class="day" data-date="2026-08-20">20</button></div></div>';
     el.attachShadow({ mode: 'open' });
     el.shadowRoot.innerHTML = dsdHtml;

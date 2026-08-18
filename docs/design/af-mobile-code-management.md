@@ -10,10 +10,10 @@
 
 ### 方案 A：现有仓库改造为 Monorepo（推荐 ✅）
 
-**策略**：在 `soulor8908/aiflow-ui` 仓库中建立 `packages/` 目录，用 npm workspaces 管理多个子包。
+**策略**：在 `soulor8908/af-mobile` 仓库中建立 `packages/` 目录，用 npm workspaces 管理多个子包。
 
 ```
-aiflow-ui/ (GitHub 仓库)
+af-mobile/ (GitHub 仓库)
 ├── packages/
 │   ├── ui/                    → @af-mobile/ui (v1.3.2)
 │   │   ├── src/
@@ -52,7 +52,7 @@ aiflow-ui/ (GitHub 仓库)
 - ✅ **历史连续性**：保留现有仓库的 stars、issues、PR 历史
 
 **缺点**：
-- ⚠️ 仓库名 `aiflow-ui` 与 monorepo 定位不符（可接受）
+- ⚠️ 仓库名 `af-mobile` 与 monorepo 定位不符（可接受）
 - ⚠️ 仓库体积会逐渐增大（可接受，代码 < 1MB）
 
 **适用场景**：
@@ -67,7 +67,7 @@ aiflow-ui/ (GitHub 仓库)
 **策略**：新建 `soulor8908/af-mobile-chat` 仓库，独立管理。
 
 ```
-soulor8908/aiflow-ui/        → @af-mobile/ui
+soulor8908/af-mobile/        → @af-mobile/ui
 soulor8908/af-mobile-chat/   → @af-mobile/chat (新建)
 soulor8908/af-mobile-eslint/ → @af-mobile/eslint-plugin (迁移)
 ```
@@ -131,11 +131,11 @@ soulor8908/af-mobile/ (新仓库)
 
 ```bash
 # 当前结构
-aiflow-ui/
+af-mobile/
 ├── src/           # @af-mobile/ui 源码
 ├── vue/           # Vue 适配层
 ├── react/         # React 适配层
-├── eslint-plugin-aiflow/  # ESLint 插件
+├── eslint-plugin-af-mobile/  # ESLint 插件
 ├── prompt/
 ├── eval/
 ├── scripts/
@@ -143,7 +143,7 @@ aiflow-ui/
 └── ...
 
 # 目标结构
-aiflow-ui/
+af-mobile/
 ├── packages/
 │   ├── ui/                    # 从 src/ + package.json 迁移
 │   │   ├── src/
@@ -154,7 +154,7 @@ aiflow-ui/
 │   │   ├── core/
 │   │   ├── adapters/
 │   │   └── package.json       # name: @af-mobile/chat
-│   └── eslint-plugin/         # 从 eslint-plugin-aiflow/ 迁移
+│   └── eslint-plugin/         # 从 eslint-plugin-af-mobile/ 迁移
 │       ├── rules/
 │       └── package.json       # name: @af-mobile/eslint-plugin
 ├── docs/
@@ -292,8 +292,8 @@ pnpm release
 
 ```bash
 # 克隆仓库
-git clone https://github.com/soulor8908/aiflow-ui.git
-cd aiflow-ui
+git clone https://github.com/soulor8908/af-mobile.git
+cd af-mobile
 
 # 安装全部依赖（包括所有 packages 的依赖）
 pnpm install
@@ -308,7 +308,7 @@ pnpm run dev          # 启动 chat 的测试页面
 
 # 在 accounting-ai 中测试本地 chat
 # accounting-ai/package.json:
-#   "@af-mobile/chat": "file:../aiflow-ui/packages/chat"
+#   "@af-mobile/chat": "file:../af-mobile/packages/chat"
 cd ../accounting-ai
 pnpm install
 pnpm run dev          # 使用本地 chat 包
@@ -419,7 +419,7 @@ npm publish --access public
 - [ ] 创建 `packages/` 目录
 - [ ] 将现有代码移动到 `packages/ui/`
 - [ ] 创建 `packages/chat/` 骨架
-- [ ] 迁移 `eslint-plugin-aiflow/` 到 `packages/eslint-plugin/`
+- [ ] 迁移 `eslint-plugin-af-mobile/` 到 `packages/eslint-plugin/`
 - [ ] 更新 Root `package.json`（workspaces + 统一脚本）
 - [ ] 添加 `pnpm-workspace.yaml`
 - [ ] 更新 `.github/workflows/ci.yml`
@@ -482,7 +482,7 @@ import { useChat } from '@af-mobile/chat/vue';
 
 **A**：不需要。独立版本管理。只有当 chat 依赖 ui 的新 API 时，才在 chat 的 package.json 中升级 ui 的版本依赖。
 
-### Q5：仓库名 aiflow-ui 要不要改？
+### Q5：仓库名 af-mobile 要不要改？
 
 **A**：当前不改。等 v2.0 发布后再考虑重命名为 `af-mobile` 或创建 GitHub Organization。现在改会破坏现有链接和 SEO。
 

@@ -1,6 +1,6 @@
-/* AIFlow UI —— L2 配方层 · form 子集
+/* af-mobile UI —— L2 配方层 · form 子集
    表单输入 / 开关 / 搜索条 / 上传 / Checkbox / Radio / af-field/af-stepper 宿主
-   表单页按需引：import 'aiflow-ui/css/form'; */
+   表单页按需引：import 'af-mobile/css/form'; */
 @layer components {
   /* === 表单（8） === */
   .label {

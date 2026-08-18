@@ -1,11 +1,11 @@
-// AIFlow UI —— 生成 Eval 运行器
+// af-mobile UI —— 生成 Eval 运行器
 // 读 eval/prompts.jsonl → 对每条需求调 generate.mjs（生成→lint→修正→再生）
 // 收集每条的：pass/fail、轮数、ESLint 错误（按规则聚合）、生成代码
 // 用法：
-//   AIFLOW_AI_API_URL=... node eval/run.mjs                    # 跑全部
-//   AIFLOW_AI_API_URL=... node eval/run.mjs --limit 5          # 只跑前 5 条
-//   AIFLOW_AI_API_URL=... node eval/run.mjs --category list    # 只跑某类
-//   AIFLOW_AI_API_URL=... node eval/run.mjs --pass-k 3         # pass@k（每条跑 k 次取最优）
+//   AFMOBILE_AI_API_URL=... node eval/run.mjs                    # 跑全部
+//   AFMOBILE_AI_API_URL=... node eval/run.mjs --limit 5          # 只跑前 5 条
+//   AFMOBILE_AI_API_URL=... node eval/run.mjs --category list    # 只跑某类
+//   AFMOBILE_AI_API_URL=... node eval/run.mjs --pass-k 3         # pass@k（每条跑 k 次取最优）
 //   node eval/run.mjs --dry-run                                # 不调 LLM，只验证 prompts.jsonl 格式
 //   node eval/run.mjs --resume                                  # 断点续跑：加载 raw.json 已完成的，只补缺失项
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -81,8 +81,8 @@ async function main() {
     process.exit(0);
   }
 
-  if (!process.env.AIFLOW_AI_API_URL) {
-    console.error('✗ 未配置 AIFLOW_AI_API_URL，无法运行生成 eval');
+  if (!process.env.AFMOBILE_AI_API_URL) {
+    console.error('✗ 未配置 AFMOBILE_AI_API_URL，无法运行生成 eval');
     console.error('  用 --dry-run 仅验证 prompts.jsonl 格式');
     process.exit(2);
   }

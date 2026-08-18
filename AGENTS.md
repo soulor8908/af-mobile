@@ -66,7 +66,7 @@
 **#5 ESLint 规则新增 ARIA 字段必须同步检测逻辑**
 - 反模式：`aria-requirements.json` 加了 `"ariaChecked": true`，但 `wc-aria-required.js` 没写对应检测分支
 - 正确做法：JSON 中声明的每个字段，必须在规则 JS 中有对应的 `if (req.xxx && !source.includes(...))` 分支
-- 适用范围：修改 `eslint-plugin-aiflow/utils/aria-requirements.json` 时
+- 适用范围：修改 `eslint-plugin-af-mobile/utils/aria-requirements.json` 时
 
 ### 代码健壮性
 
@@ -97,7 +97,7 @@
 - 反模式：在组件中用了 `af-backtop-fixed` class，但没登记到 whitelist，导致 CI 三源同步失败
 - 正确做法：新增 class 时，确认以下三源同步：
   1. 源码 CSS（`src/recipes.css` 或 `src/atomic.css`）中定义
-  2. `eslint-plugin-aiflow/utils/whitelist-v1.json` 中登记
+  2. `eslint-plugin-af-mobile/utils/whitelist-v1.json` 中登记
   3. `prompt/system-prompt.md` 中注入（由 `build-prompt.mjs` 自动完成，跑 `npm run prompt:check` 验证）
 - 或改用 `data-*` 属性选择器绕开白名单（推荐，减少白名单膨胀）
 
@@ -246,9 +246,9 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 1. 库仓库开发态：`node scripts/create-app.mjs <dir>`
 2. 已发布包消费端：`npm create af-mobile <dir>`（等价 `npx create-af-mobile <dir>`）
 
-脚手架一次性生成项目骨架 + 自举安装 `AGENTS.md` / `skills/aiflow-grill/SKILL.md` / `eslint.config.js`，是项目骨架的**单一真相源**。AI 在 Phase 5（一次性生成工程）中只能覆盖 `src/pages/*.js`、`src/main.js`、`src/styles.css`、`src/store.js` 等业务文件，**禁止手写** `package.json` / `index.html` / `vite.config.js` / `eslint.config.js` / `.gitignore` 等基础文件。
+脚手架一次性生成项目骨架 + 自举安装 `AGENTS.md` / `skills/af-mobile-grill/SKILL.md` / `eslint.config.js`，是项目骨架的**单一真相源**。AI 在 Phase 5（一次性生成工程）中只能覆盖 `src/pages/*.js`、`src/main.js`、`src/styles.css`、`src/store.js` 等业务文件，**禁止手写** `package.json` / `index.html` / `vite.config.js` / `eslint.config.js` / `.gitignore` 等基础文件。
 
-**已发生的反例**：基于 aiflow-ui 开发的 todo 项目（`.workbuddy/基于aiflow-ui开发待办应用/aiflow-todo/`）AI 直接手写所有文件，导致 `AGENTS.md` / `skills/` 全部缺失；且 `eslint.config.js` 用 `extraClass` 私登了 `page-col`（已在主库白名单）和 `todo-scroll`（可改用 `scroll-y`），`styles.css` 重复定义了主库 recipes.css 已有的 `.page-col` / `.scroll-y` 等价规则。
+**已发生的反例**：基于 af-mobile 开发的 todo 项目（`.workbuddy/基于af-mobile开发待办应用/af-mobile-todo/`）AI 直接手写所有文件，导致 `AGENTS.md` / `skills/` 全部缺失；且 `eslint.config.js` 用 `extraClass` 私登了 `page-col`（已在主库白名单）和 `todo-scroll`（可改用 `scroll-y`），`styles.css` 重复定义了主库 recipes.css 已有的 `.page-col` / `.scroll-y` 等价规则。
 
 **判断流程**：
 ```
@@ -277,7 +277,7 @@ AI 要创建/扩展一个 @af-mobile/ui 项目？
 - [ ] `mounted()` 中的 setTimeout / 观察器在 `unmounted()` 中清理（事件监听已由 `_listen` 自动处理，无需手写 removeEventListener）
 - [ ] 跑 §2 自检命令
 
-### 修改 ESLint 插件 `eslint-plugin-aiflow/`
+### 修改 ESLint 插件 `eslint-plugin-af-mobile/`
 
 - [ ] 修改 `aria-requirements.json` 时，同步更新 `wc-aria-required.js` 检测逻辑
 - [ ] 新增规则时，同步更新 `index.js` 注册和 `recommended` 配置
@@ -301,14 +301,14 @@ AI 要创建/扩展一个 @af-mobile/ui 项目？
 ## 5. AI 开发工具接入（数据飞轮 v2，零 LLM 配置）
 
 > 本节面向**任何**进入本仓的 AI Agent（TRAE Work / TRAE Code / Claude Code / Cursor / CLI 工具）。
-> 核心原则：**调用方即 LLM**——你用自己的模型写代码，库侧只提供确定性的 prompt / lint / 修正建议。不需要配置 `AIFLOW_AI_API_URL`。
+> 核心原则：**调用方即 LLM**——你用自己的模型写代码，库侧只提供确定性的 prompt / lint / 修正建议。不需要配置 `AFMOBILE_AI_API_URL`。
 
-### 5.1 写 AIFlow UI 页面（推荐工作流）
+### 5.1 写 af-mobile UI 页面（推荐工作流）
 
 1. 调 MCP `get_prompt`（或 CLI `node scripts/generate.mjs "需求"` 手动模式）拿按需求裁剪的 System Prompt；
 2. 按该 prompt 用你自己的模型生成页面；
 3. 调 MCP `check_compliance` 验证；有违规就按返回的修正建议改，或调 `fix_code` 拿完整修正 prompt；
-4. 重复 3 直到 `passed: true`。每次检查自动写入飞轮遥测（`.aiflow/`，本地，不含代码内容）——你的错误模式会变成白名单/prompt 的改进输入。
+4. 重复 3 直到 `passed: true`。每次检查自动写入飞轮遥测（`.af-mobile/`，本地，不含代码内容）——你的错误模式会变成白名单/prompt 的改进输入。
 
 ### 5.2 命令行等价物
 
@@ -319,15 +319,15 @@ npm run eval:flywheel                      # 输出飞轮分析报告（Top 规�
 
 ### 5.3 边界与隐私
 
-- **零 LLM ≠ 零接入**：不需要任何 LLM 环境变量，但 MCP 工具需注册进你的 MCP 客户端（TRAE / Claude Code / Cursor 等）：已安装端用 `npx @af-mobile/mcp`（bin `aiflow-ui-mcp`），仓库开发态用 `node mcp/index.mjs`；纯 CLI 用法无任何注册。
+- **零 LLM ≠ 零接入**：不需要任何 LLM 环境变量，但 MCP 工具需注册进你的 MCP 客户端（TRAE / Claude Code / Cursor 等）：已安装端用 `npx @af-mobile/mcp`（bin `af-mobile-mcp`），仓库开发态用 `node mcp/index.mjs`；纯 CLI 用法无任何注册。
 - 遥测只记 时间戳/来源/工具/文件路径/规则名/行号/脱敏后消息，**不记代码内容**（style 值与 CSS 声明在落盘前剥离，见 `eval/telemetry.mjs` 的 `sanitizeMessage`；新增 ESLint 规则若消息嵌入代码片段，必须同步登记 `RULE_MESSAGE_REDACT`），不出本机；
-- CI 上的遥测随 runner 销毁（本地 `.aiflow/` 均被 gitignore）；CI 的产出是分析报告 artifact，跨周趋势由 `flywheel.yml` 定时周报 issue 承载；
-- 合成 eval（`AIFLOW_AI_API_URL`）是可选数据源之一，不是必需品。
+- CI 上的遥测随 runner 销毁（本地 `.af-mobile/` 均被 gitignore）；CI 的产出是分析报告 artifact，跨周趋势由 `flywheel.yml` 定时周报 issue 承载；
+- 合成 eval（`AFMOBILE_AI_API_URL`）是可选数据源之一，不是必需品。
 
-<!-- aiflow:skill-grill -->
-## AIFlow 对话式脚手架（aiflow-grill skill）
+<!-- af-mobile:skill-grill -->
+## af-mobile 对话式脚手架（af-mobile-grill skill）
 
-当用户想用 AIFlow（@af-mobile/ui）开发移动端 H5 应用，或提供 hi-fi/demo 页面要转成项目时，
-先完整阅读并遵循 `skills/aiflow-grill/SKILL.md` 的流程：拷问需求 → 需求拆分表 → demo 确认
+当用户想用 af-mobile（@af-mobile/ui）开发移动端 H5 应用，或提供 hi-fi/demo 页面要转成项目时，
+先完整阅读并遵循 `skills/af-mobile-grill/SKILL.md` 的流程：拷问需求 → 需求拆分表 → demo 确认
 → 一次性生成工程。未经用户确认需求拆分表和 demo，不要直接生成工程代码。
-<!-- /aiflow:skill-grill -->
+<!-- /af-mobile:skill-grill -->

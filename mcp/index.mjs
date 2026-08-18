@@ -5,7 +5,7 @@
 //   get_prompt        — 按需求裁剪 System Prompt（Agent 用自己的模型生成页面）
 //   check_compliance  — 跑 ESLint 检查合规性，违规自动写入飞轮遥测（不调 LLM）
 //   fix_code          — 返回修正 prompt + 逐条修正建议（Agent 自行修正，不调 LLM）
-//   generate_page     — 端到端生成（手动模式返回 prompt；配了 AIFLOW_AI_API_URL 才走自动模式）
+//   generate_page     — 端到端生成（手动模式返回 prompt；配了 AFMOBILE_AI_API_URL 才走自动模式）
 //   flywheel_report   — 数据飞轮分析：Top 违规规则 + 白名单候选 + 收敛度（不调 LLM）
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
@@ -18,7 +18,7 @@ import { recordRun, detectTool } from '../eval/telemetry.mjs';
 import { resolveAsset } from '../scripts/resolve-asset.mjs';
 
 const PKG_DIR = dirname(fileURLToPath(import.meta.url));
-const TMP_DIR = join(tmpdir(), 'aiflow-mcp');
+const TMP_DIR = join(tmpdir(), 'af-mobile-mcp');
 // 内嵌消费端 ESLint 配置：发布端不依赖仓库 flat config（pkg-publish 设计 §3.5）
 // 双候选：源码态 <mcp>/eslint.config.mjs；打包态 <mcp>/dist/../eslint.config.mjs
 const CONFIG_FILE = [
@@ -35,7 +35,7 @@ const ESLINT_OPTS = {
 const TOOLS = [
   {
     name: 'get_prompt',
-    description: '获取本项目专用的 AIFlow UI 页面生成 System Prompt（按需求自动裁剪 few-shot 与组件 API）。用你自己的模型生成代码，无需配置任何 LLM。',
+    description: '获取本项目专用的 af-mobile UI 页面生成 System Prompt（按需求自动裁剪 few-shot 与组件 API）。用你自己的模型生成代码，无需配置任何 LLM。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -47,7 +47,7 @@ const TOOLS = [
   },
   {
     name: 'check_compliance',
-    description: '检查代码是否符合 AIFlow UI 白名单与 ESLint 规则。返回违规列表 + 逐条修正建议，并自动写入数据飞轮（下次生成更准）。不调用 LLM。',
+    description: '检查代码是否符合 af-mobile UI 白名单与 ESLint 规则。返回违规列表 + 逐条修正建议，并自动写入数据飞轮（下次生成更准）。不调用 LLM。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -71,7 +71,7 @@ const TOOLS = [
   },
   {
     name: 'generate_page',
-    description: '端到端页面生成。未配置 AIFLOW_AI_API_URL 时返回 system prompt + user prompt（推荐：改用 get_prompt + 自有模型）。配置后才走自动生成。',
+    description: '端到端页面生成。未配置 AFMOBILE_AI_API_URL 时返回 system prompt + user prompt（推荐：改用 get_prompt + 自有模型）。配置后才走自动生成。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -194,7 +194,7 @@ export async function flywheelReport({ since, topN = 10 } = {}) {
 
 // ===== MCP Server =====
 const server = new Server(
-  { name: 'aiflow-ui-mcp', version: '2.0.0' },
+  { name: 'af-mobile-mcp', version: '2.0.0' },
   { capabilities: { tools: {} } },
 );
 
@@ -219,5 +219,5 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 // 启动
 const transport = new StdioServerTransport();
 server.connect(transport).then(() => {
-  console.error('✓ aiflow-ui-mcp server running via stdio (5 tools, zero-LLM ready)');
+  console.error('✓ af-mobile-mcp server running via stdio (5 tools, zero-LLM ready)');
 });

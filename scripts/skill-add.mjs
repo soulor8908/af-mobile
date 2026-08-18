@@ -1,4 +1,4 @@
-// AIFlow skill 安装器：把对话式脚手架 skill（aiflow-grill）装进任意项目
+// af-mobile skill 安装器：把对话式脚手架 skill（af-mobile-grill）装进任意项目
 // 工具无关：只写中立路径 skills/，AGENTS.md 指向它作为单一真相源。
 // 任何读 AGENTS.md 的 AI 工具（TRAE / Claude Code / Cursor / Codex / Copilot / Windsurf 等）
 // 都能通过 AGENTS.md 找到 skill；不写 .trae/skills/ 或 .claude/skills/ 避免假设用户用某工具。
@@ -10,22 +10,22 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SRC = join(ROOT, 'skills/aiflow-grill/SKILL.md');
+const SRC = join(ROOT, 'skills/af-mobile-grill/SKILL.md');
 
 // 中立路径 skills/ 是 AGENTS.md 指向的真相源；不写工具特定目录避免污染
 const TARGETS = [
-  'skills/aiflow-grill/SKILL.md',
+  'skills/af-mobile-grill/SKILL.md',
 ];
 
-const AGENTS_MARK = '<!-- aiflow:skill-grill -->';
+const AGENTS_MARK = '<!-- af-mobile:skill-grill -->';
 const AGENTS_SECTION = `
 ${AGENTS_MARK}
-## AIFlow 对话式脚手架（aiflow-grill skill）
+## af-mobile 对话式脚手架（af-mobile-grill skill）
 
-当用户想用 AIFlow（@af-mobile/ui）开发移动端 H5 应用，或提供 hi-fi/demo 页面要转成项目时，
-先完整阅读并遵循 \`skills/aiflow-grill/SKILL.md\` 的流程：拷问需求 → 需求拆分表 → demo 确认
+当用户想用 af-mobile（@af-mobile/ui）开发移动端 H5 应用，或提供 hi-fi/demo 页面要转成项目时，
+先完整阅读并遵循 \`skills/af-mobile-grill/SKILL.md\` 的流程：拷问需求 → 需求拆分表 → demo 确认
 → 一次性生成工程。未经用户确认需求拆分表和 demo，不要直接生成工程代码。
-<!-- /aiflow:skill-grill -->
+<!-- /af-mobile:skill-grill -->
 `;
 
 const dir = resolve(process.argv[2] || '.');

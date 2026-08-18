@@ -1,7 +1,7 @@
-// AIFlow UI —— 数据飞轮 v2：统一遥测事件库（本地优先，零 LLM）
+// af-mobile UI —— 数据飞轮 v2：统一遥测事件库（本地优先，零 LLM）
 // 所有数据生产者（MCP / CLI / CI / eval）通过 recordRun 写入同一 JSONL；
 // 分析层（eval/flywheel.mjs）通过 readTelemetry 读取。
-// 存储：.aiflow/telemetry.jsonl（gitignore），可用 AIFLOW_TELEMETRY_DIR 覆盖（测试隔离）。
+// 存储：.af-mobile/telemetry.jsonl（gitignore），可用 AFMOBILE_TELEMETRY_DIR 覆盖（测试隔离）。
 import { appendFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -11,7 +11,7 @@ export const SOURCE_WEIGHTS = { mcp: 3, cli: 2, ci: 2, eval: 1 };
 // 遥测目录（env 可覆盖，测试隔离用）
 // cwd 基准（pkg-publish 设计 §3.4）：开发态 cwd=仓库根（行为不变）；发布态 cwd=用户项目根（遥测属项目级数据，不落包目录）
 export function telemetryDir() {
-  return process.env.AIFLOW_TELEMETRY_DIR || join(process.cwd(), '.aiflow');
+  return process.env.AFMOBILE_TELEMETRY_DIR || join(process.cwd(), '.af-mobile');
 }
 
 function telemetryPath() {
@@ -20,7 +20,7 @@ function telemetryPath() {
 
 // 识别当前是哪个开发工具在驱动：显式 env > 常见 Agent 标记 > unknown
 export function detectTool() {
-  if (process.env.AIFLOW_TOOL) return process.env.AIFLOW_TOOL;
+  if (process.env.AFMOBILE_TOOL) return process.env.AFMOBILE_TOOL;
   if (process.env.CLAUDECODE === '1' || process.env.CLAUDE_CODE_ENTRYPOINT) return 'claude-code';
   if (process.env.CURSOR_AGENT) return 'cursor';
   if (process.env.CI) return 'ci';
@@ -32,9 +32,9 @@ export function detectTool() {
 // 保留 class/组件/属性名等标识符（白名单候选与档位挖掘依赖它们）。
 const RULE_MESSAGE_REDACT = new Map([
   // "Inline style 'color:red;url(x)' is forbidden..." → 整个 style 属性值剥离
-  ['aiflow/no-inline-style', m => m.replace(/'[^']*'/g, "'[style]'")],
+  ['af-mobile/no-inline-style', m => m.replace(/'[^']*'/g, "'[style]'")],
   // "'color: #fff' in Shadow CSS must use var(--*)..." → 整条 CSS 声明剥离
-  ['aiflow/wc-shadow-use-token', m => m.replace(/'[^']*'/g, "'[css]'")],
+  ['af-mobile/wc-shadow-use-token', m => m.replace(/'[^']*'/g, "'[css]'")],
 ]);
 
 const MAX_MESSAGE_LEN = 200;

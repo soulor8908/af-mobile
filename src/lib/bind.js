@@ -1,4 +1,4 @@
-// AIFlow UI —— :bind 响应式绑定管道
+// af-mobile UI —— :bind 响应式绑定管道
 // 语法：:attr="state.field" / :attr="derived.field" / :attr="refName.field"
 // 扫描 [attr^=":"] 元素，用 effect 订阅 signal 变化时自动 setAttribute
 // MutationObserver 监听 DOM 新增（router 渲染新页面时自动绑定）
@@ -17,7 +17,7 @@ export { registerDataRef, unregisterDataRef } from './data-ref.js';
 export function initBind(root = document, ctx = null) {
   if (typeof root.querySelectorAll !== 'function') return () => {};
   if (!ctx?.state) {
-    throw new Error('[aiflow] initBind(root, ctx) 需传入 createPage() 实例（definePage 全局单例已移除）');
+    throw new Error('[af-mobile] initBind(root, ctx) 需传入 createPage() 实例（definePage 全局单例已移除）');
   }
   const stateObj = ctx.state;
   const derivedObj = ctx.derived ?? {};
@@ -67,7 +67,7 @@ function scan(root, stateObj, derivedObj) {
 function bindOne(el, attrName, expr, stateObj, derivedObj) {
   const parsed = parseExpr(expr, stateObj, derivedObj);
   // 未解析表达式不再静默失败：开发期告警，帮助定位拼写错误
-  if (!parsed) return console.warn(`[aiflow] :bind 未解析:${attrName}="${expr}"`), null;
+  if (!parsed) return console.warn(`[af-mobile] :bind 未解析:${attrName}="${expr}"`), null;
   return effect(() => {
     const val = parsed.get();
     applyValue(el, attrName, val);

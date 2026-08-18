@@ -1,4 +1,4 @@
-// AIFlow UI —— L3.5 Block：af-product-card（商品卡片）
+// af-mobile UI —— L3.5 Block：af-product-card（商品卡片）
 // Light DOM，五态（loading/error/empty/success）+ a11y + 键盘导航
 // variant: default / grid
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

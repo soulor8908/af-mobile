@@ -1,5 +1,5 @@
-// AIFlow UI —— 数据飞轮 v2：通用 lint 采集 CLI（任意路径，零 LLM）
-// 对任意文件/目录跑本仓 ESLint 配置，违规自动写入遥测（.aiflow/telemetry.jsonl），
+// af-mobile UI —— 数据飞轮 v2：通用 lint 采集 CLI（任意路径，零 LLM）
+// 对任意文件/目录跑本仓 ESLint 配置，违规自动写入遥测（.af-mobile/telemetry.jsonl），
 // 并打印按规则聚合的报告（含修正提示）。谁生成的代码无所谓——lint 即喂数据。
 // 用法：
 //   node scripts/lint-flywheel.mjs src/ test/ scripts/     # 采集 + 闸门（有 error/warn 则退出码 1）
@@ -122,7 +122,7 @@ if (isMain) {
   }
   if (inputs.length === 0) {
     console.error('Usage: lint-flywheel.mjs <file|dir>... [--source cli|ci|mcp] [--record-clean]');
-    console.error('  lint 任意路径（谁生成的代码都行），违规自动写入 .aiflow/telemetry.jsonl');
+    console.error('  lint 任意路径（谁生成的代码都行），违规自动写入 .af-mobile/telemetry.jsonl');
     process.exit(2);
   }
   const result = await lintAndHarvest(inputs, { source, recordClean });

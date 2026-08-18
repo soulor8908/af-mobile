@@ -1,4 +1,4 @@
-// AIFlow UI —— af-navbar：导航栏
+// af-mobile UI —— af-navbar：导航栏
 // Light DOM，复用 L2 .navbar 配方；返回按钮 + safe-area-top + 标题 slot + 左右插槽
 // 职责：返回按钮派发事件 + sticky 定位 + 顶部安全区适配
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

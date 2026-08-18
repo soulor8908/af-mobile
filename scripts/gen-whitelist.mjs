@@ -1,4 +1,4 @@
-// AIFlow UI —— whitelist-v1.json 生成器（单一真相源）
+// af-mobile UI —— whitelist-v1.json 生成器（单一真相源）
 // 从 src/tokens.css + recipes.css + atomic.css + components/*.js 自动提取
 // 用法：node scripts/gen-whitelist.mjs
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -52,7 +52,7 @@ export function buildWhitelistFromSources() {
   for (const m of STATE_MODIFIERS) recipeSet.add(m);
   return {
     version: 'v1',
-    aiflowVersion: '1.0.0',
+    'af-mobileVersion': '1.0.0',
     classes: {
       recipe: [...recipeSet].sort(),
       atomic: extractClasses(join(SRC, 'atomic.css')),
@@ -72,7 +72,7 @@ export function buildWhitelistFromSources() {
 const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   const whitelist = buildWhitelistFromSources();
-  const outPath = join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json');
+  const outPath = join(ROOT, 'eslint-plugin-af-mobile/utils/whitelist-v1.json');
   writeFileSync(outPath, JSON.stringify(whitelist, null, 2) + '\n');
   console.log(`✓ ${outPath}`);
   console.log(`  recipe: ${whitelist.classes.recipe.length}, atomic: ${whitelist.classes.atomic.length}`);

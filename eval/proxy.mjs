@@ -1,23 +1,23 @@
-// AIFlow UI —— LLM 格式转换代理
+// af-mobile UI —— LLM 格式转换代理
 // 把 callLLM 发送的 { model, system, user, temperature, top_p } 协议
 // 转换为 OpenAI 兼容格式 { model, messages:[{role:'system'},{role:'user'}], ... } 转发到真实 LLM 端点
 // 返回 OpenAI 兼容响应（含 choices[0].message.content），供脚本原有解析逻辑直接使用
 //
 // 用法：
-//   AIFLOW_AI_API_KEY=sk-xxx AIFLOW_AI_MODEL=deepseek-v4-flash node eval/proxy.mjs [port]
+//   AFMOBILE_AI_API_KEY=sk-xxx AFMOBILE_AI_MODEL=deepseek-v4-flash node eval/proxy.mjs [port]
 // 环境变量：
-//   AIFLOW_AI_API_KEY  必填，上游 LLM 的 Bearer key
-//   AIFLOW_AI_MODEL    必填，上游模型名
-//   AIFLOW_AI_TARGET   可选，上游端点（默认 https://api.deepseek.com/v1/chat/completions）
+//   AFMOBILE_AI_API_KEY  必填，上游 LLM 的 Bearer key
+//   AFMOBILE_AI_MODEL    必填，上游模型名
+//   AFMOBILE_AI_TARGET   可选，上游端点（默认 https://api.deepseek.com/v1/chat/completions）
 import { createServer } from 'node:http';
 
 const PORT = Number(process.argv[2]) || 8787;
-const TARGET = process.env.AIFLOW_AI_TARGET || 'https://api.deepseek.com/v1/chat/completions';
-const KEY = process.env.AIFLOW_AI_API_KEY;
-const MODEL = process.env.AIFLOW_AI_MODEL;
+const TARGET = process.env.AFMOBILE_AI_TARGET || 'https://api.deepseek.com/v1/chat/completions';
+const KEY = process.env.AFMOBILE_AI_API_KEY;
+const MODEL = process.env.AFMOBILE_AI_MODEL;
 
 if (!KEY || !MODEL) {
-  console.error('✗ 缺少 AIFLOW_AI_API_KEY / AIFLOW_AI_MODEL 环境变量');
+  console.error('✗ 缺少 AFMOBILE_AI_API_KEY / AFMOBILE_AI_MODEL 环境变量');
   process.exit(2);
 }
 

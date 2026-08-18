@@ -1,4 +1,4 @@
-// AIFlow UI charts —— 图表组件共享基类（五态骨架 + resize/懒渲染 + tooltip + sr-table）
+// af-mobile UI charts —— 图表组件共享基类（五态骨架 + resize/懒渲染 + tooltip + sr-table）
 // 详见 docs/design/charts-sublibrary-detailed-design.md §4
 import { AfElement, escapeHtml as esc } from '../../lib/af-element.js';
 import { withI18n } from '../../lib/with-i18n.js';

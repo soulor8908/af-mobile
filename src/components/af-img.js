@@ -1,4 +1,4 @@
-// AIFlow UI —— af-img：懒加载图片
+// af-mobile UI —— af-img：懒加载图片
 // Light DOM（D19），复用 L2 .thumb/.avatar/.skeleton/.empty 配方
 // 职责：IntersectionObserver 懒加载 + 占位 + 失败回退 + 事件
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

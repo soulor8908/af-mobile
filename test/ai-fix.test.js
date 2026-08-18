@@ -88,11 +88,11 @@ describe('ai-fix / buildFixPrompt', () => {
 
   it('error 含规则名、行号、message、对应 hint', () => {
     const msgs = [{
-      severity: 'error', line: 5, rule: 'aiflow/token-whitelist',
+      severity: 'error', line: 5, rule: 'af-mobile/token-whitelist',
       message: "Class 'custom-btn' not in whitelist",
     }];
     const p = buildFixPrompt(msgs, '');
-    expect(p).toContain('## 错误 1（第 5 行）— aiflow/token-whitelist');
+    expect(p).toContain('## 错误 1（第 5 行）— af-mobile/token-whitelist');
     expect(p).toContain("Class 'custom-btn' not in whitelist");
     expect(p).toContain('【建议】');
     expect(p).toContain('该 class 不在 115 白名单内');
@@ -100,7 +100,7 @@ describe('ai-fix / buildFixPrompt', () => {
 
   it('warn 列出但不强制修改（截断到 5 条）', () => {
     const warns = Array.from({ length: 8 }, (_, i) => ({
-      severity: 'warn', line: i + 1, rule: 'aiflow/atomic-duplicate',
+      severity: 'warn', line: i + 1, rule: 'af-mobile/atomic-duplicate',
       message: `dup ${i}`,
     }));
     const p = buildFixPrompt(warns, '');
@@ -113,7 +113,7 @@ describe('ai-fix / buildFixPrompt', () => {
 
   it('未知规则使用 fallback hint', () => {
     const msgs = [{
-      severity: 'error', line: 1, rule: 'aiflow/unknown-rule', message: 'x',
+      severity: 'error', line: 1, rule: 'af-mobile/unknown-rule', message: 'x',
     }];
     const p = buildFixPrompt(msgs, '');
     expect(p).toContain('（无具体建议，请查阅设计文档）');
@@ -121,11 +121,11 @@ describe('ai-fix / buildFixPrompt', () => {
 
   it('每条已知规则都有对应 hint', () => {
     const knownRules = [
-      'aiflow/no-token-modification', 'aiflow/no-inline-style', 'aiflow/token-whitelist',
-      'aiflow/no-recipe-break', 'aiflow/no-variant-conflict', 'aiflow/no-arbitrary-value',
-      'aiflow/no-tailwind-syntax', 'aiflow/prefer-component', 'aiflow/atomic-duplicate',
-      'aiflow/wc-light-no-style', 'aiflow/wc-shadow-use-token', 'aiflow/wc-part-naming',
-      'aiflow/wc-event-naming', 'aiflow/wc-aria-required', 'aiflow/wc-cleanup',
+      'af-mobile/no-token-modification', 'af-mobile/no-inline-style', 'af-mobile/token-whitelist',
+      'af-mobile/no-recipe-break', 'af-mobile/no-variant-conflict', 'af-mobile/no-arbitrary-value',
+      'af-mobile/no-tailwind-syntax', 'af-mobile/prefer-component', 'af-mobile/atomic-duplicate',
+      'af-mobile/wc-light-no-style', 'af-mobile/wc-shadow-use-token', 'af-mobile/wc-part-naming',
+      'af-mobile/wc-event-naming', 'af-mobile/wc-aria-required', 'af-mobile/wc-cleanup',
     ];
     for (const rule of knownRules) {
       const p = buildFixPrompt([{ severity: 'error', line: 1, rule, message: 'x' }], '');
@@ -153,9 +153,9 @@ describe('ai-fix / runAiFixLoop', () => {
     expect(r.exitCode).toBe(2);
     expect(r.rounds).toBe(1);
     expect(r.lastErrors.length).toBeGreaterThan(0);
-    expect(r.fixPrompt).toContain('aiflow/token-whitelist');
+    expect(r.fixPrompt).toContain('af-mobile/token-whitelist');
     expect(r.fixPrompt).toContain('custom-btn');
-    expect(r.systemPrompt).toContain('AIFlow UI');
+    expect(r.systemPrompt).toContain('af-mobile UI');
     expect(r.originalCode).toContain('custom-btn');
     // 不应修改原文件
     expect(readFileSync(p, 'utf8')).toBe('<div class="custom-btn">Bad</div>');
@@ -173,7 +173,7 @@ describe('ai-fix / runAiFixLoop', () => {
     expect(readFileSync(p, 'utf8')).toBe(fixedHtml);
   });
 
-  it('llmCaller 3 轮都修不动 → exitCode=1，文件末尾打 AIFLOW_LINT_FAILED 标记', async () => {
+  it('llmCaller 3 轮都修不动 → exitCode=1，文件末尾打 AFMOBILE_LINT_FAILED 标记', async () => {
     const p = writeTmp('bad.html', '<div class="custom-btn">Bad</div>');
     // LLM 一直返回同样有问题的代码（无法修复）
     const llmCaller = async () => '<div class="another-bad">Still bad</div>';
@@ -183,7 +183,7 @@ describe('ai-fix / runAiFixLoop', () => {
     expect(r.rounds).toBe(3);
     expect(r.lastErrors.length).toBeGreaterThan(0);
     const final = readFileSync(p, 'utf8');
-    expect(final).toContain('<!-- AIFLOW_LINT_FAILED');
+    expect(final).toContain('<!-- AFMOBILE_LINT_FAILED');
     expect(final).toContain('another-bad');
   });
 

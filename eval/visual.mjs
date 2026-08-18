@@ -1,5 +1,5 @@
-// AIFlow UI —— 视觉评审服务器 + Playwright 截图渲染
-// 提供静态服务：把 /aiflow-ui.css → dist/index.css、/aiflow-ui.js → dist/index.js
+// af-mobile UI —— 视觉评审服务器 + Playwright 截图渲染
+// 提供静态服务：把 /af-mobile.css → dist/index.css、/af-mobile.js → dist/index.js
 // 用 Playwright 渲染 eval 生成的 HTML，截图 + LLM 视觉评审
 //
 // ESLint 约束：本文件是脚本（scripts/eval 目录），受 AI_RULES 约束，仅用白名单 class 无关，无内联 style
@@ -12,18 +12,18 @@ import { chromium } from 'playwright';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
 
-// 资源路径 → dist 文件映射（生成的 HTML 引用 /aiflow-ui.css 与 /aiflow-ui.js）
+// 资源路径 → dist 文件映射（生成的 HTML 引用 /af-mobile.css 与 /af-mobile.js）
 const ROUTES = {
-  '/aiflow-ui.css': 'index.css',
-  '/aiflow-ui.js': 'index.js',
-  '/aiflow-ui': 'index.js',
+  '/af-mobile.css': 'index.css',
+  '/af-mobile.js': 'index.js',
+  '/af-mobile': 'index.js',
   '/index.js': 'index.js',
 };
 
-// /aiflow-ui.js 的包装模块：按需注册所有组件后 re-export（registerAll/UMD 已移除，铁律：只按需引入）。
+// /af-mobile.js 的包装模块：按需注册所有组件后 re-export（registerAll/UMD 已移除，铁律：只按需引入）。
 // 生成页面只 import 原语（signal/effect），不负责注册组件；这里模拟真实接入，
 // 使 af-* 元素在页面脚本执行前 upgrade，属性 setter 才能生效。
-const WRAP_MOD = (name) => `import * as m from '${name}';try{(m.REGISTRY||[]).forEach(([tag])=>m.register(tag))}catch(e){console.error('aiflow register',e)}export * from '${name}';`;
+const WRAP_MOD = (name) => `import * as m from '${name}';try{(m.REGISTRY||[]).forEach(([tag])=>m.register(tag))}catch(e){console.error('af-mobile register',e)}export * from '${name}';`;
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -35,7 +35,7 @@ const MIME = {
   '.svg': 'image/svg+xml',
 };
 
-// 启动静态服务器，映射 /aiflow-ui.{css,js} 到 dist，其余按 eval/results 下文件服务
+// 启动静态服务器，映射 /af-mobile.{css,js} 到 dist，其余按 eval/results 下文件服务
 export function startServer(port = 0) {
   return new Promise((resolve2) => {
     const server = createServer((req, res) => {
@@ -61,8 +61,8 @@ export function startServer(port = 0) {
       }
       const ext = extname(file);
       res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
-      // /aiflow-ui.js：返回同步注册组件的包装模块（见 WRAP_MOD）
-      if (url.pathname.split('?')[0] === '/aiflow-ui.js') {
+      // /af-mobile.js：返回同步注册组件的包装模块（见 WRAP_MOD）
+      if (url.pathname.split('?')[0] === '/af-mobile.js') {
         res.end(WRAP_MOD('/index.js'));
         return;
       }

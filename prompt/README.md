@@ -1,6 +1,6 @@
 # @af-mobile/prompt
 
-AIFlow UI 的 **Prompt 即 API** 薄入口。将 AIFlow UI 分层设计体系（角色 / 白名单 / 组件 API / few-shot / 模型）编译成一份可用的 System Prompt。
+af-mobile UI 的 **Prompt 即 API** 薄入口。将 af-mobile UI 分层设计体系（角色 / 白名单 / 组件 API / few-shot / 模型）编译成一份可用的 System Prompt。
 
 ## 安装
 

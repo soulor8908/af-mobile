@@ -1,4 +1,4 @@
-// AIFlow UI —— L3.5 Block：af-setting-group（设置分组）
+// af-mobile UI —— L3.5 Block：af-setting-group（设置分组）
 // Light DOM，五态（loading/error/empty/success）+ a11y + 键盘导航
 // variant: default / with-switch / with-value
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

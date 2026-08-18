@@ -309,7 +309,7 @@ describe('fetchPage 持久化缓存（localStorageAdapter）', () => {
     setCacheAdapter(localStorageAdapter());
     _fetch.mockResolvedValue(mockResponse({ v: 1 }));
     await fetchPage('/api/p2', { cache: true, cacheTTL: 10000 });
-    expect(localStorage.getItem('aiflow-cache:/api/p2')).toContain('"v":1');
+    expect(localStorage.getItem('af-mobile-cache:/api/p2')).toContain('"v":1');
   });
 
   it('重建 adapter 后缓存仍在（模拟刷新）', async () => {
@@ -328,9 +328,9 @@ describe('fetchPage 持久化缓存（localStorageAdapter）', () => {
   it('过期条目读取时清理并从网络重取', async () => {
     const adapter = localStorageAdapter();
     // 预置过期条目
-    localStorage.setItem('aiflow-cache:/api/p4', JSON.stringify({ data: { v: 1 }, expiry: Date.now() - 1000 }));
+    localStorage.setItem('af-mobile-cache:/api/p4', JSON.stringify({ data: { v: 1 }, expiry: Date.now() - 1000 }));
     expect(adapter.get('/api/p4')).toBeUndefined();      // 过期读取返回 undefined
-    expect(localStorage.getItem('aiflow-cache:/api/p4')).toBeNull();  // 且已清理
+    expect(localStorage.getItem('af-mobile-cache:/api/p4')).toBeNull();  // 且已清理
 
     setCacheAdapter(adapter);
     _fetch.mockResolvedValue(mockResponse({ v: 2 }));
@@ -343,7 +343,7 @@ describe('fetchPage 持久化缓存（localStorageAdapter）', () => {
     _fetch.mockResolvedValue(new Response('x'.repeat(10), { status: 200, headers: { 'Content-Type': 'image/png' } }));
     const data = await fetchPage('/api/p5', { cache: true, responseType: 'blob', cacheTTL: 10000 });
     expect(data.size).toBe(10);                          // 跨 realm 用字段断言而非 instanceof
-    expect(localStorage.getItem('aiflow-cache:/api/p5')).toBeNull();
+    expect(localStorage.getItem('af-mobile-cache:/api/p5')).toBeNull();
   });
 
   it('invalidateCache 删除持久化条目', async () => {
@@ -351,7 +351,7 @@ describe('fetchPage 持久化缓存（localStorageAdapter）', () => {
     _fetch.mockResolvedValue(mockResponse({ v: 1 }));
     await fetchPage('/api/p6', { cache: true, cacheTTL: 10000 });
     invalidateCache('/api/p6');
-    expect(localStorage.getItem('aiflow-cache:/api/p6')).toBeNull();
+    expect(localStorage.getItem('af-mobile-cache:/api/p6')).toBeNull();
   });
 
   it('clearCache 清空全部持久化条目（不影响其他 key）', async () => {
@@ -361,8 +361,8 @@ describe('fetchPage 持久化缓存（localStorageAdapter）', () => {
     await fetchPage('/api/p7', { cache: true, cacheTTL: 10000 });
     await fetchPage('/api/p8', { cache: true, cacheTTL: 10000 });
     clearCache();
-    expect(localStorage.getItem('aiflow-cache:/api/p7')).toBeNull();
-    expect(localStorage.getItem('aiflow-cache:/api/p8')).toBeNull();
+    expect(localStorage.getItem('af-mobile-cache:/api/p7')).toBeNull();
+    expect(localStorage.getItem('af-mobile-cache:/api/p8')).toBeNull();
     expect(localStorage.getItem('unrelated')).toBe('keep');  // 只清前缀内条目
   });
 

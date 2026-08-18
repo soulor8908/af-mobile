@@ -21,7 +21,7 @@
 
 @af-mobile/prompt（files: index.mjs, models/, template）
 └── ../scripts/build-prompt.mjs      ✗ 包外，且其读取：
-    ├── eslint-plugin-aiflow/utils/whitelist-v1.json
+    ├── eslint-plugin-af-mobile/utils/whitelist-v1.json
     ├── src/recipes.css / src/atomic.css
     ├── prompt/system-prompt.template.md
     └── prompt/models/
@@ -78,8 +78,8 @@ resolveAsset(repoRel) → 绝对路径
 ```
 
 - `SELF_DIR` 由 `import.meta.url` 推导；esbuild 打包后指向 `dist/index.mjs`，② 自动落到 `<pkg>/assets/<basename>`。
-- 嵌套路径取 basename（`eslint-plugin-aiflow/utils/whitelist-v1.json` → `assets/whitelist-v1.json`），同步脚本按平铺名落盘。
-- `AIFLOW_ASSETS_DIR` env 覆盖（测试隔离预留）。
+- 嵌套路径取 basename（`eslint-plugin-af-mobile/utils/whitelist-v1.json` → `assets/whitelist-v1.json`），同步脚本按平铺名落盘。
+- `AFMOBILE_ASSETS_DIR` env 覆盖（测试隔离预留）。
 
 ### 3.2 五个资产的读取改造
 
@@ -106,11 +106,11 @@ generate(userPrompt, { outputPath, promptMode, eslintOpts })          // mcp gen
 ### 3.4 遥测落盘点（eval/telemetry.mjs）
 
 ```js
-telemetryDir() = AIFLOW_TELEMETRY_DIR || join(process.cwd(), '.aiflow')
+telemetryDir() = AFMOBILE_TELEMETRY_DIR || join(process.cwd(), '.af-mobile')
 ```
 
 - 开发态：CLI/测试 cwd 均为仓库根 → 行为不变（测试已有 env 隔离）。
-- 发布态：落在用户项目 `.aiflow/`（语义正确：遥测是项目级数据），不再污染 node_modules 包目录。
+- 发布态：落在用户项目 `.af-mobile/`（语义正确：遥测是项目级数据），不再污染 node_modules 包目录。
 
 ### 3.5 mcp 包改造
 
@@ -118,7 +118,7 @@ telemetryDir() = AIFLOW_TELEMETRY_DIR || join(process.cwd(), '.aiflow')
 与根配置对 `.cache/**` 的规则集完全一致（check_compliance 检测的本来就是用户/AI 生成的页面代码），开发态行为等价，发布态自足。插件解析：`@af-mobile/eslint-plugin`（mcp 的 dependency，npm 安装即有；仓库内经 workspace 链接同样可解析）。
 
 **index.mjs 调整**：
-- `TMP_DIR` → `join(os.tmpdir(), 'aiflow-mcp')`（不再写包内 `.cache/`）
+- `TMP_DIR` → `join(os.tmpdir(), 'af-mobile-mcp')`（不再写包内 `.cache/`）
 - `checkCompliance` / `fixCode` / `generatePage` 传入 `eslintOpts = { configFile: <mcp>/eslint.config.mjs, tmpDir }`
 - `getPrompt` full 模式读 `resolveAsset('prompt/system-prompt.md')`
 
@@ -132,7 +132,7 @@ esbuild 关闭 code splitting 时内联动态 import（`await import('../scripts
 
 **package.json**：
 ```json
-"bin": { "aiflow-ui-mcp": "./dist/index.mjs" },
+"bin": { "af-mobile-mcp": "./dist/index.mjs" },
 "files": ["dist/index.mjs", "eslint.config.mjs", "assets/"],
 "dependencies": { "@modelcontextprotocol/sdk": "*", "@af-mobile/eslint-plugin": "^2.0.0" },
 "peerDependencies": { "eslint": ">=9.0.0" },
@@ -152,7 +152,7 @@ esbuild 关闭 code splitting 时内联动态 import（`await import('../scripts
 
 | 源（仓库真相） | 快照名（平铺） |
 |---|---|
-| eslint-plugin-aiflow/utils/whitelist-v1.json | whitelist-v1.json |
+| eslint-plugin-af-mobile/utils/whitelist-v1.json | whitelist-v1.json |
 | src/recipes.css / src/atomic.css | recipes.css / atomic.css |
 | prompt/system-prompt.md（构建快照） | system-prompt.md |
 | prompt/system-prompt.template.md | system-prompt.template.md |
@@ -160,14 +160,14 @@ esbuild 关闭 code splitting 时内联动态 import（`await import('../scripts
 
 目标：`mcp/assets/`、`prompt/assets/`（内容相同，两包独立自足，不互相依赖）。
 
-**闸门**：`test/pkg-assets.test.js` 逐文件比对快照 ↔ 源；`test/mcp-bundle.test.js` 原位构建 bundle 后 import 冒烟（getPrompt 产出含 AIFlow 规范 / checkCompliance 能报 token-whitelist 违规）。两者随 `npm test` 进 CI。
+**闸门**：`test/pkg-assets.test.js` 逐文件比对快照 ↔ 源；`test/mcp-bundle.test.js` 原位构建 bundle 后 import 冒烟（getPrompt 产出含 af-mobile 规范 / checkCompliance 能报 token-whitelist 违规）。两者随 `npm test` 进 CI。
 
 **根配置**：ignores 追加 `mcp/dist/**`、`prompt/dist/**`；`.gitignore` 同步（dist 是发布时构建产物）；`assets/` 快照入库（闸门比对对象）。
 
 ### 3.8 npm scripts 与文档
 
 - 根 package.json：`pkg:assets` / `build:mcp` / `build:prompt`
-- AGENTS.md §5.3：MCP 注册方式补 npm 安装路径（`npx @af-mobile/mcp` 或 bin `aiflow-ui-mcp`），仓库运行方式保留。
+- AGENTS.md §5.3：MCP 注册方式补 npm 安装路径（`npx @af-mobile/mcp` 或 bin `af-mobile-mcp`），仓库运行方式保留。
 
 ---
 
@@ -197,4 +197,4 @@ esbuild 关闭 code splitting 时内联动态 import（`await import('../scripts
 
 - 不改 MCP 工具协议与五个工具的行为语义
 - 不引入 workspace 重组 / 文件搬迁（保持仓库现状最小扰动）
-- 不处理 starter 的 file: 依赖（属 create-aiflow 模板范畴，已由 1.4.0 解决）
+- 不处理 starter 的 file: 依赖（属 create-af-mobile 模板范畴，已由 1.4.0 解决）

@@ -6,13 +6,13 @@ alwaysApply: true
 
 # L4 消费端代码约束
 
-消费端页面（HTML/JS）只能使用 AIFlow UI 白名单内的能力，违反会被 `aiflow/*` ESLint 规则阻断：
+消费端页面（HTML/JS）只能使用 af-mobile UI 白名单内的能力，违反会被 `af-mobile/*` ESLint 规则阻断：
 
-1. **class 白名单**：只能使用 `eslint-plugin-aiflow/utils/whitelist-v1.json` 中登记的 class；自定义 class 触发 `aiflow/token-whitelist` error。新增项目级 class 走三源同步（`recipes.project.css` 定义 + 白名单登记 + `build-prompt.mjs` 注入）。
-2. **禁内联 style**：`style=""` 不得设置 color/background/padding/margin/font-size/border-radius/box-shadow（display/transform/z-index/width/height 布局属性例外）→ `aiflow/no-inline-style`。
-3. **禁 Tailwind 语法**：不用 `p-[13px]`/`bg-[#abc]`/`p-7` → `aiflow/no-tailwind-syntax` / `aiflow/no-arbitrary-value`。
-4. **禁配方破坏**：`.btn` 不叠 `text-brand`/`text-danger`/`text-success`；`.cell`/`.list-item` 不叠 `f`/`fc` → `aiflow/no-recipe-break`。
-5. **组件优先**：列表/轮播/弹层等优先用 `<af-list>`/`<af-swiper>`/`<af-dialog>` 等真组件，不手写造轮子 → `aiflow/prefer-component`。
+1. **class 白名单**：只能使用 `eslint-plugin-af-mobile/utils/whitelist-v1.json` 中登记的 class；自定义 class 触发 `af-mobile/token-whitelist` error。新增项目级 class 走三源同步（`recipes.project.css` 定义 + 白名单登记 + `build-prompt.mjs` 注入）。
+2. **禁内联 style**：`style=""` 不得设置 color/background/padding/margin/font-size/border-radius/box-shadow（display/transform/z-index/width/height 布局属性例外）→ `af-mobile/no-inline-style`。
+3. **禁 Tailwind 语法**：不用 `p-[13px]`/`bg-[#abc]`/`p-7` → `af-mobile/no-tailwind-syntax` / `af-mobile/no-arbitrary-value`。
+4. **禁配方破坏**：`.btn` 不叠 `text-brand`/`text-danger`/`text-success`；`.cell`/`.list-item` 不叠 `f`/`fc` → `af-mobile/no-recipe-break`。
+5. **组件优先**：列表/轮播/弹层等优先用 `<af-list>`/`<af-swiper>`/`<af-dialog>` 等真组件，不手写造轮子 → `af-mobile/prefer-component`。
 6. **L3.5 消费端约束**：页面运行时用 `createPage()`（实例化 + `mount`/`unmount`；definePage 全局单例已移除）；`:bind` 配合 `page.mount(root)` 使用；禁 `registerAll()`。
 
 自检：`npx eslint src/ test/ scripts/ --max-warnings 0` 全绿后交付。

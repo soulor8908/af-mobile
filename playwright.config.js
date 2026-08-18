@@ -1,4 +1,4 @@
-// AIFlow UI —— Playwright e2e 配置
+// af-mobile UI —— Playwright e2e 配置
 // 职责：验证 jsdom 覆盖不到的浏览器原生 API 真实行为
 //   showModal/popover/scroll-snap/ResizeObserver/touch
 // 串行执行（workers=1）：dialog/action-sheet 的 top-layer 会互相干扰

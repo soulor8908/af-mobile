@@ -1,4 +1,4 @@
-// AIFlow UI —— af-action-sheet：底部操作面板
+// af-mobile UI —— af-action-sheet：底部操作面板
 // Light DOM，复用 L2 .sheet/.list/.list-item 配方 + 原生 popover API
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';

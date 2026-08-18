@@ -1,4 +1,4 @@
-// AIFlow UI —— af-cascade-picker：级联选择器
+// af-mobile UI —— af-cascade-picker：级联选择器
 // 复用 af-picker 滚轮内核（scroll-snap + 键盘 + 焦点管理 + 确认/取消）
 // 职责：tree 树形数据 + 列间级联重建（某列变更后重置其下各列，失效值回退首项）
 import { AfElement } from '../lib/af-element.js';

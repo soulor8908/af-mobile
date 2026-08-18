@@ -1,4 +1,4 @@
-// AIFlow UI —— 提交态 system-prompt.md 与运行时构建结果一致性检查（CI 闸门）
+// af-mobile UI —— 提交态 system-prompt.md 与运行时构建结果一致性检查（CI 闸门）
 // 防止 prompt 快照过期：开发者改了 whitelist/recipes/CSS 但忘记 npm run prompt 重新生成
 // 用法：node scripts/check-prompt-sync.mjs
 import { readFileSync } from 'node:fs';

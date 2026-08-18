@@ -63,7 +63,7 @@
 
 - [x] 修复视觉评审器：弹层类组件（af-dialog/af-action-sheet）默认关闭，评审时应先触发打开或豁免
 - [x] 增强评审容错：LLM 返回非 JSON 时重试一次；网络错误自动重试
-- [ ] 为 AIFLOW_AI_API_KEY 账户充值，重跑完整视觉评审拿干净基线
+- [ ] 为 AFMOBILE_AI_API_KEY 账户充值，重跑完整视觉评审拿干净基线
 - [ ] 静态 eval 环境 mock 页面 API（`fetchPage` 返回示例数据），消除 005 类空列表误判
 - [ ] 评审器 DOM 断言放宽：`.form-row` 等非白名单 class 不作为硬性 expects，以 LLM 视觉为准
 - [ ] Prompt 补强"帮助中心"模式：搜索框 + 手风琴问题列表 + 联系客服按钮的完整结构（029 初版误判，复核 HTML 完整，无需改）

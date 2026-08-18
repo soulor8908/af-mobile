@@ -1,4 +1,4 @@
-// AIFlow UI —— L3 基类 AfElement
+// af-mobile UI —— L3 基类 AfElement
 // 5 生命周期钩子 + 主题订阅 + defineProp 双向同步 + emit
 // 子类声明 static useShadow = true/false 决定是否 attachShadow
 // v3.0：移除 i18n（_applyI18n/onLocaleChange/import t 迁至 withI18n mixin），基类无 i18n 依赖

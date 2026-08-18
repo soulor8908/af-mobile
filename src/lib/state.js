@@ -1,4 +1,4 @@
-// AIFlow UI —— 响应式状态原语
+// af-mobile UI —— 响应式状态原语
 // signal/computed/effect/batch + Owner pattern（createRoot/getOwner/untrack）
 // 函数式 API，无 class，顶层无副作用（SSR 安全）
 // v3.0：移除 bus 死代码；computed tempEffect 引用修复上游订阅泄漏；batch 用模块级 Map 替代 s._subs 暴露

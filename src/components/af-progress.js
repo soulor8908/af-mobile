@@ -1,4 +1,4 @@
-// AIFlow UI —— af-progress：进度条
+// af-mobile UI —— af-progress：进度条
 // Light DOM，复用 L2 .progress 原生 <progress> 配方；value/max/color（brand/success/danger）
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 

@@ -1,4 +1,4 @@
-// AIFlow UI —— charts 图表子库类型声明（@af-mobile/ui/charts）
+// af-mobile UI —— charts 图表子库类型声明（@af-mobile/ui/charts）
 // ⚠️ 手工维护：新增图表组件时须同步追加 class 声明，CI 的 types-sync 检查会校验一致
 // 详见 docs/design/charts-sublibrary-detailed-design.md
 

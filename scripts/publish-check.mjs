@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// AIFlow UI —— 发布前检查脚本
+// af-mobile UI —— 发布前检查脚本
 // 用法：node scripts/publish-check.mjs
 // 检查项：1. npm pack 内容 2. Tree Shaking 效果 3. whitelist 同步 4. 体积预算
 import { build } from 'esbuild';
@@ -21,7 +21,7 @@ function check(name, ok, detail = '') {
 }
 
 console.log('\n╔══════════════════════════════════════════════╗');
-console.log('║     AIFlow UI —— 发布前检查                 ║');
+console.log('║     af-mobile UI —— 发布前检查                 ║');
 console.log('╚══════════════════════════════════════════════╝\n');
 
 // 1. npm pack 内容检查
@@ -66,9 +66,9 @@ async function treeShakeCheck() {
 // 3. whitelist 同步检查
 console.log('\n── 3. whitelist 同步 ──');
 function whitelistCheck() {
-  const before = readFileSync(join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json'), 'utf8');
+  const before = readFileSync(join(ROOT, 'eslint-plugin-af-mobile/utils/whitelist-v1.json'), 'utf8');
   execSync('node scripts/gen-whitelist.mjs', { cwd: ROOT });
-  const after = readFileSync(join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json'), 'utf8');
+  const after = readFileSync(join(ROOT, 'eslint-plugin-af-mobile/utils/whitelist-v1.json'), 'utf8');
   check('whitelist 与源码同步', before === after);
 }
 
@@ -76,7 +76,7 @@ function whitelistCheck() {
 console.log('\n── 4. package.json 配置 ──');
 function pkgCheck() {
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
-  // sideEffects: CSS 有副作用（防 tree-shake 误删 import 'aiflow-ui/css'），JS 无副作用
+  // sideEffects: CSS 有副作用（防 tree-shake 误删 import 'af-mobile/css'），JS 无副作用
   check('sideEffects 标记 CSS 有副作用', Array.isArray(pkg.sideEffects) && pkg.sideEffects.some(s => s.includes('css')));
   check('type: module', pkg.type === 'module');
   check('exports 配置存在', !!pkg.exports);

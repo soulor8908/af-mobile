@@ -1,4 +1,4 @@
-// AIFlow UI —— 文档站 API 生成器（P2 Task A）
+// af-mobile UI —— 文档站 API 生成器（P2 Task A）
 // 从 src/index.d.ts 解析组件属性/方法/事件，结合组件源码 defineProp 默认值，
 // 生成 site/components/af-*.md 文档页（marker：<!-- gen:start:api --> ... <!-- gen:end:api -->）
 import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';

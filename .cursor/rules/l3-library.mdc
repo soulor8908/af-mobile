@@ -6,15 +6,15 @@ alwaysApply: true
 
 # L3 组件库开发约束
 
-库源码（`src/`）不设 AI 白名单约束，但受以下 L3 质量规则约束（`aiflow/wc-*`）：
+库源码（`src/`）不设 AI 白名单约束，但受以下 L3 质量规则约束（`af-mobile/wc-*`）：
 
-1. **Light DOM 组件**（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img/af-switch/af-search-bar/af-skeleton-page/af-upload）：禁 `this.style.xxx` 与 `<style>` 标签 → `aiflow/wc-light-no-style`。用 `data-role` 属性 + `recipes.css` 宿主规则。
-2. **Shadow DOM 组件**：CSS 必须引用 `var(--*)` token，禁硬编码颜色/间距 → `aiflow/wc-shadow-use-token`（`dialog::backdrop` 遮罩 `rgba(0,0,0,.5)` 例外）。动画必须加 `@media (prefers-reduced-motion: reduce)` 覆盖。
-3. **事件命名**：`af-{组件}:{动作}` 格式，`emit` 必须 `composed:true` → `aiflow/wc-event-naming`。
-4. **ARIA 必需**：满足 `aria-requirements.json` 声明的必需属性 → `aiflow/wc-aria-required`。
-5. **part 命名**：Shadow 内部 `part` 用 `{组件}-{part}` 前缀 → `aiflow/wc-part-naming`。
-6. **清理**：`mounted()` 中注册的 listener/timer/observer 必须在 `unmounted()` 清理 → `aiflow/wc-cleanup`。
-7. **Block 层**（`src/blocks/`）：五态完整（loading/error/empty/success）；`variant` 必须有 enum 或注释；`transform` 纯函数 → `aiflow/wc-block-*`。
+1. **Light DOM 组件**（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img/af-switch/af-search-bar/af-skeleton-page/af-upload）：禁 `this.style.xxx` 与 `<style>` 标签 → `af-mobile/wc-light-no-style`。用 `data-role` 属性 + `recipes.css` 宿主规则。
+2. **Shadow DOM 组件**：CSS 必须引用 `var(--*)` token，禁硬编码颜色/间距 → `af-mobile/wc-shadow-use-token`（`dialog::backdrop` 遮罩 `rgba(0,0,0,.5)` 例外）。动画必须加 `@media (prefers-reduced-motion: reduce)` 覆盖。
+3. **事件命名**：`af-{组件}:{动作}` 格式，`emit` 必须 `composed:true` → `af-mobile/wc-event-naming`。
+4. **ARIA 必需**：满足 `aria-requirements.json` 声明的必需属性 → `af-mobile/wc-aria-required`。
+5. **part 命名**：Shadow 内部 `part` 用 `{组件}-{part}` 前缀 → `af-mobile/wc-part-naming`。
+6. **清理**：`mounted()` 中注册的 listener/timer/observer 必须在 `unmounted()` 清理 → `af-mobile/wc-cleanup`。
+7. **Block 层**（`src/blocks/`）：五态完整（loading/error/empty/success）；`variant` 必须有 enum 或注释；`transform` 纯函数 → `af-mobile/wc-block-*`。
 
 安全基线：用户输入插入 innerHTML 前经 `escapeHtml()`；`JSON.parse` 包 try-catch；布尔属性 setter false 时 `removeAttribute`。
 

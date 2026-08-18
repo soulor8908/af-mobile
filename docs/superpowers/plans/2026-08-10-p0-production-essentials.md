@@ -2,13 +2,13 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 补齐阻塞真实项目使用的 4 项生产刚需（router / state / fetchPage / System Prompt 4 要素），让 AIFlow UI 能跑起完整移动端 SPA。
+**Goal:** 补齐阻塞真实项目使用的 4 项生产刚需（router / state / fetchPage / System Prompt 4 要素），让 af-mobile UI 能跑起完整移动端 SPA。
 
 **Architecture:** 三个独立 lib 模块（router.js / state.js / fetch.js）零相互依赖，按需 import，coreRuntime 独立预算 ≤ 3.7KB gz（不计入组件 total 14.5KB）。System Prompt 4 要素直接写入 `system-prompt.template.md` 静态内容。所有模块顶层无副作用（SSR 安全），与现有组件零侵入（集成在用户侧）。
 
 **Tech Stack:** 原生 ESM / Web APIs（AbortController / EventTarget / View Transitions API / History API）/ Vitest / esbuild
 
-**Design Doc:** [docs/design/p0-production-essentials-design.md](file:///d:/projects/aiflow-ui/docs/design/p0-production-essentials-design.md)
+**Design Doc:** [docs/design/p0-production-essentials-design.md](file:///d:/projects/af-mobile/docs/design/p0-production-essentials-design.md)
 
 **Self-Check Commands (AGENTS.md §2):**
 ```bash
@@ -129,7 +129,7 @@ Expected: FAIL，错误信息含 `signal is not defined` 或模块找不到。
 Create `src/lib/state.js`:
 
 ```javascript
-// AIFlow UI —— 响应式状态原语
+// af-mobile UI —— 响应式状态原语
 // signal/computed/effect/batch/bus，函数式 API，无 class
 // 顶层无副作用，Node 18+ EventTarget 原生支持（SSR 安全）
 
@@ -822,7 +822,7 @@ Expected: FAIL，模块找不到。
 Create `src/lib/fetch.js`:
 
 ```javascript
-// AIFlow UI —— 数据获取封装
+// af-mobile UI —— 数据获取封装
 // fetchPage + 错误分类（Timeout/Http/Abort）+ 去重/缓存/拦截器
 // 顶层仅声明 Map/Set，无 DOM 访问，Node 18+ fetch/AbortController 原生（SSR 安全）
 
@@ -1344,7 +1344,7 @@ Expected: FAIL，模块找不到。
 Create `src/lib/router.js`:
 
 ```javascript
-// AIFlow UI —— 移动端 SPA 路由
+// af-mobile UI —— 移动端 SPA 路由
 // route/go/back/forward + beforeEach/afterEach/notFound + router-view + keep-alive + 转场
 // 顶层无副作用，start() 显式启动（SSR 安全）
 
@@ -2154,7 +2154,7 @@ const BUDGET = {
 ```javascript
 // 核心运行时：router + state + fetch 合计 gzip（独立预算，不计入 total）
 async function measureCoreRuntime() {
-  const dir = mkdtempSync(join(tmpdir(), 'aiflow-core-'));
+  const dir = mkdtempSync(join(tmpdir(), 'af-mobile-core-'));
   const entry = join(dir, 'entry.js');
   const toPosix = (p) => p.replace(/\\/g, '/');
   writeFileSync(entry,
@@ -2272,7 +2272,7 @@ Edit `prompt/system-prompt.template.md`，在 `<!-- {{{ PROJECT_EXTENSION_INJECT
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page">
@@ -2280,7 +2280,7 @@ Edit `prompt/system-prompt.template.md`，在 `<!-- {{{ PROJECT_EXTENSION_INJECT
   <af-list id="list" item-height="64" refresh></af-list>
 </div>
 <script type="module">
-import { signal, effect, fetchPage } from '/aiflow-ui.js';
+import { signal, effect, fetchPage } from '/af-mobile.js';
 const list = document.getElementById('list');
 const items = signal([]);
 effect(() => { list.data = items(); });
@@ -2316,7 +2316,7 @@ items.set(await fetchPage('/api/messages'));
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page center p-4">
@@ -2328,7 +2328,7 @@ items.set(await fetchPage('/api/messages'));
   </form>
 </div>
 <script type="module">
-import { fetchPage, go } from '/aiflow-ui.js';
+import { fetchPage, go } from '/af-mobile.js';
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!e.target.checkValidity()) return;
@@ -2354,7 +2354,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page">
@@ -2372,7 +2372,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   </nav>
 </div>
 <script type="module">
-import { fetchPage } from '/aiflow-ui.js';
+import { fetchPage } from '/af-mobile.js';
 const data = await fetchPage('/api/product/1');
 document.querySelector('.title').textContent = data.name;
 document.getElementById('banner').innerHTML = data.images.map(src => `<img src="${src}" alt="">`).join('');
@@ -2391,7 +2391,7 @@ document.getElementById('detail-content').innerHTML = data.detailHtml;
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page">
@@ -2408,7 +2408,7 @@ document.getElementById('detail-content').innerHTML = data.detailHtml;
   </form>
 </div>
 <script type="module">
-import { fetchPage, back } from '/aiflow-ui.js';
+import { fetchPage, back } from '/af-mobile.js';
 document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!e.target.checkValidity()) { e.target.reportValidity(); return; }
@@ -2430,7 +2430,7 @@ document.getElementById('feedbackForm').addEventListener('submit', async (e) => 
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page">
@@ -2445,7 +2445,7 @@ document.getElementById('feedbackForm').addEventListener('submit', async (e) => 
   <af-list id="results" item-height="60"></af-list>
 </div>
 <script type="module">
-import { signal, effect, fetchPage } from '/aiflow-ui.js';
+import { signal, effect, fetchPage } from '/af-mobile.js';
 const results = signal([]);
 const list = document.getElementById('results');
 effect(() => { list.data = results(); });
@@ -2466,7 +2466,7 @@ document.getElementById('search').addEventListener('af-search-bar:search', async
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page">
@@ -2499,7 +2499,7 @@ document.getElementById('search').addEventListener('af-search-bar:search', async
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page center fc g-3 p-4">

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>云境咖啡 · AIFlow UI 全量范式页</title>
+  <title>云境咖啡 · af-mobile UI 全量范式页</title>
   <link rel="stylesheet" href="../src/index.css">
   <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
   <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
@@ -170,7 +170,7 @@
     function menuPage(params, ctx) {
       ctx.outlet.innerHTML = `
         <main class="page">
-          <af-notice-bar text="${esc(t('menu.flash'))} · AIFlow UI kitchen-sink" scroll></af-notice-bar>
+          <af-notice-bar text="${esc(t('menu.flash'))} · af-mobile UI kitchen-sink" scroll></af-notice-bar>
           <af-search-bar placeholder="${esc(t('menu.search'))}" clearable debounce="200"></af-search-bar>
           <af-swiper autoplay="4000" loop>
             <div class="card center fc g-2 p-6"><span class="display">云南雨季批次</span><span class="body text-muted">日晒处理 · 限时 9 折</span></div>

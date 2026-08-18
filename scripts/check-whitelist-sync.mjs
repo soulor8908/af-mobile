@@ -1,4 +1,4 @@
-// AIFlow UI —— L4 §6.2 三源同步检查（CI Step 1）
+// af-mobile UI —— L4 §6.2 三源同步检查（CI Step 1）
 // 三源：
 //   A = 源码扫描（CSS/JS 实际存在的 class/component/token）
 //   B = whitelist-v1.json 声明的条目
@@ -15,7 +15,7 @@ import { spawnSync } from 'node:child_process';
 import { buildWhitelistFromSources } from './gen-whitelist.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const WL_PATH = join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json');
+const WL_PATH = join(ROOT, 'eslint-plugin-af-mobile/utils/whitelist-v1.json');
 
 // 差集：在 A 但不在 B
 export function diff(a, b) {

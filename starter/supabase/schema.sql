@@ -1,4 +1,4 @@
--- AIFlow Starter schema：products 表 + 默认开启 RLS + 最小策略模板（设计 §3.3）
+-- af-mobile Starter schema：products 表 + 默认开启 RLS + 最小策略模板（设计 §3.3）
 -- 执行方式：Supabase 控制台 SQL Editor 粘贴执行，或本地 `npm run db:push`
 
 create table if not exists products (
@@ -24,7 +24,7 @@ create policy "products are readable by everyone"
 -- 种子数据（首次执行时插入，幂等）
 insert into products (title, price)
 select * from (values
-  ('AIFlow 标准件 T 恤', 99.00),
+  ('af-mobile 标准件 T 恤', 99.00),
   ('Declarative Shadow DOM 马克杯', 59.00),
   ('零依赖贴纸包', 19.90)
 ) as seed(title, price)

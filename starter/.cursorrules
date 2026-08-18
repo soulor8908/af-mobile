@@ -1,4 +1,4 @@
-# AIFlow Starter —— Cursor 规则
+# af-mobile Starter —— Cursor 规则
 # 完整版见 .trae/rules.md
 
 - 只用 164 白名单 class + af-* 组件标签，禁止自定义 class

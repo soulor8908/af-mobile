@@ -7,7 +7,7 @@ import { createRequire } from 'node:module';
 import { join, dirname } from 'node:path';
 
 const pkgRoot = dirname(dirname(createRequire(import.meta.url).resolve('@af-mobile/ui')));
-const cli = join(pkgRoot, 'scripts/aiflow.mjs');
+const cli = join(pkgRoot, 'scripts/af-mobile.mjs');
 const args = process.argv.slice(2);
 if (args[0] !== 'create' && args[0] !== 'skill') args.unshift('create');
 

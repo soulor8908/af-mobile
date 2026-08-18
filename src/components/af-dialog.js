@@ -1,4 +1,4 @@
-// AIFlow UI —— af-dialog：模态对话框
+// af-mobile UI —— af-dialog：模态对话框
 // Shadow DOM（useShadow=true），基于原生 <dialog> + showModal()
 // 职责：模态遮罩 + 焦点陷阱（原生 + 兜底）+ Esc/backdrop 关闭 + 焦点还原
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

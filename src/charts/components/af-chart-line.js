@@ -1,4 +1,4 @@
-// AIFlow UI charts —— af-chart-line：折线/面积/散点/迷你趋势（sparkline）
+// af-mobile UI charts —— af-chart-line：折线/面积/散点/迷你趋势（sparkline）
 // 详见 docs/design/charts-sublibrary-detailed-design.md §5.1
 // variant: line | area | scatter | spark（spark 无轴/tooltip，KPI 卡内嵌）
 // 无障碍：svg 的 role="img" 与 aria-label 由 AfChart 基类统一注入（chart-base.js _render）

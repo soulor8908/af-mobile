@@ -14,7 +14,7 @@
 
 这句话在 30 秒内被验证是对的。
 
-我打开飞轮的代码，事实清清楚楚：它的唯一数据入口是 `eval/results/raw-*.json`，而这个文件只有配置了自有 LLM 端点（`AIFLOW_AI_API_URL`）才能产出。换句话说——
+我打开飞轮的代码，事实清清楚楚：它的唯一数据入口是 `eval/results/raw-*.json`，而这个文件只有配置了自有 LLM 端点（`AFMOBILE_AI_API_URL`）才能产出。换句话说——
 
 **用 TRAE Work 写的代码、用 Cursor 写的代码、用 Claude Code 写的代码、人手写的代码，一条都进不了飞轮。**
 
@@ -37,7 +37,7 @@
 v1 的飞轮长这样：
 
 ```
-AIFLOW_AI_API_URL（自有 LLM 端点）
+AFMOBILE_AI_API_URL（自有 LLM 端点）
    ↓ generate（按 system prompt 生成页面）
    ↓ ai-fix（最多 3 轮修正循环）
    ↓ judge（评审打分）
@@ -89,7 +89,7 @@ v1 不及格。
 
 "帮我全面分析项目问题"听起来覆盖一切，实际给 AI 的指令是**广度优先**：每个模块扫一眼，产出一堆中等严重度的问题。注意力被摊薄之后，每个子系统分到的深度约等于零。
 
-而这个缺陷需要什么？盯两个文件 30 秒。`flywheel.mjs` 只读 `raw-*.json`，`generate.mjs` 必须配 `AIFLOW_AI_API_URL`——耦合就摆在 import 语句和函数签名里。
+而这个缺陷需要什么？盯两个文件 30 秒。`flywheel.mjs` 只读 `raw-*.json`，`generate.mjs` 必须配 `AFMOBILE_AI_API_URL`——耦合就摆在 import 语句和函数签名里。
 
 **广度杀死了深度，而致命缺陷需要的恰恰是单点纵深。**
 
@@ -146,7 +146,7 @@ v1 的设计是 AI 做的，我"review"过。我能复述每一环在做什么�
 
 修复的核心是一次视角反转，我称之为**调用方即 LLM（caller-is-the-LLM）**：
 
-> 库侧所有逻辑——prompt 构建、lint、修正建议、遥测、分析——全部是确定性代码，零 LLM 调用。驱动飞轮的"智能"来自调用方 Agent 自己的模型（TRAE 也好、Claude 也好、Cursor 也好）。`AIFLOW_AI_API_URL` 从必需品降级为**可选的**合成数据源之一。
+> 库侧所有逻辑——prompt 构建、lint、修正建议、遥测、分析——全部是确定性代码，零 LLM 调用。驱动飞轮的"智能"来自调用方 Agent 自己的模型（TRAE 也好、Claude 也好、Cursor 也好）。`AFMOBILE_AI_API_URL` 从必需品降级为**可选的**合成数据源之一。
 
 ```
 ┌─ 生产者（全部零 LLM 配置）─────────────────────────────┐
@@ -166,10 +166,10 @@ v1 的设计是 AI 做的，我"review"过。我能复述每一环在做什么�
 三个设计原则：
 
 1. **caller-is-the-LLM**：库不做任何智能决策，智能留给调用方；
-2. **local-first**：遥测只落本地 `.aiflow/`，无云端、无账号、无上传；
+2. **local-first**：遥测只落本地 `.af-mobile/`，无云端、无账号、无上传；
 3. **zero-config**：不设任何环境变量即可完整使用。
 
-验收也按"及格线"来：全程在 `AIFLOW_AI_API_URL` 未设置的状态下，跑通了 MCP stdio 协议级 7 步验证（含 Agent 修正闭环：违规代码 → `check_compliance` 报 2 错 → `fix_code` 返回修正 prompt → Agent 自行修正 → 再 check → passed），外加 CLI 采集 → 分析 → PR 草稿全链路，以及 38 个新增单测。
+验收也按"及格线"来：全程在 `AFMOBILE_AI_API_URL` 未设置的状态下，跑通了 MCP stdio 协议级 7 步验证（含 Agent 修正闭环：违规代码 → `check_compliance` 报 2 错 → `fix_code` 返回修正 prompt → Agent 自行修正 → 再 check → passed），外加 CLI 采集 → 分析 → PR 草稿全链路，以及 38 个新增单测。
 
 现在，"我用 TRAE Work 写代码能不能进飞轮"不再是一个需要讨论的问题——它是 E2E 测试里的一行断言。
 

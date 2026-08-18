@@ -1,11 +1,11 @@
-// AIFlow UI —— CSS Tree Shaking 脚本（生产构建时裁剪未用规则）
+// af-mobile UI —— CSS Tree Shaking 脚本（生产构建时裁剪未用规则）
 // 用法：
-//   node scripts/css-tree-shake.mjs --src <消费端源码目录> --css <aiflow-ui css 入口> [--out <输出文件>]
+//   node scripts/css-tree-shake.mjs --src <消费端源码目录> --css <af-mobile css 入口> [--out <输出文件>]
 //   不传 --out 则输出到 stdout
 //
 // 原理：
 //   1. 扫描消费端 .html/.js/.ts/.jsx/.tsx/.vue/.svelte 文件，提取 class="..." / className="..." 中的 class 名
-//   2. 用 postcss 解析 aiflow-ui CSS，遍历每条 Rule：
+//   2. 用 postcss 解析 af-mobile CSS，遍历每条 Rule：
 //      - selector 含 .class：所有 .class 必须在白名单才保留，否则丢弃该 selector
 //      - selector 含 af-xxx 标签（组件宿主）：保留
 //      - selector 含 [data-role]（Light DOM 组件内部结构）：保留
@@ -136,7 +136,7 @@ export function shakeCss(css, usedClasses) {
   return root.toString();
 }
 
-// 把 aiflow-ui 的 @import 内联（postcss-import 不装，手写简单版）
+// 把 af-mobile 的 @import 内联（postcss-import 不装，手写简单版）
 function inlineImports(cssFile) {
   const dir = dirname(cssFile);
   const css = readFileSync(cssFile, 'utf8');

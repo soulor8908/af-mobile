@@ -1,4 +1,4 @@
-# AIFlow Starter 落地方案详细设计 —— 三段式落地链与契约面
+# af-mobile Starter 落地方案详细设计 —— 三段式落地链与契约面
 
 > 版本：v1（2026-08-16）
 > 状态：待评审
@@ -29,7 +29,7 @@
 
 **做**：
 1. 契约面加固——`fetchPage`/`af-data` 的后端无关协议 + BaaS adapter 机制（§2、§3）
-2. AIFlow Starter 模板——前端标准件 + Supabase 后端模板 + Vercel 部署配置（§4）
+2. af-mobile Starter 模板——前端标准件 + Supabase 后端模板 + Vercel 部署配置（§4）
 3. Starter 内的 AI 约束通道——MCP/ESLint 接入预配置（§4.5）
 
 **不做（红线）**：
@@ -43,11 +43,11 @@
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│  AIFlow Starter（一个仓库模板，三条命令上线）                    │
+│  af-mobile Starter（一个仓库模板，三条命令上线）                    │
 │                                                                │
 │  ┌─ 应用层（用户/AI 只写这里）───────────────────────────────┐ │
 │  │  pages/（登录/列表/详情三页模板）                          │ │
-│  │    ├─ UI：AIFlow UI 28 组件 + 154 class 白名单            │ │
+│  │    ├─ UI：af-mobile UI 28 组件 + 154 class 白名单            │ │
 │  │    ├─ 数据：<af-data src="supabase://...">  ← 声明式零胶水 │ │
 │  │    └─ 约束：ESLint 15 规则 + MCP check_compliance（预配）  │ │
 │  └────────────────────────┬─────────────────────────────────┘ │
@@ -77,7 +77,7 @@
 
 ```bash
 # ① 创建（拉取 Starter 模板）
-npm create aiflow-app@latest my-app && cd my-app
+npm create af-mobile-app@latest my-app && cd my-app
 
 # ② 接后端（Supabase 控制台建项目，复制两个值进 .env，推送 schema）
 cp .env.example .env   # 填 VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
@@ -219,14 +219,14 @@ export function registerBackend(scheme, adapter) {
 
 ---
 
-## 4. AIFlow Starter 模板设计
+## 4. af-mobile Starter 模板设计
 
 ### 4.1 目录结构
 
 ```
-aiflow-starter/
+af-mobile-starter/
 ├─ .env.example              # SUPABASE_URL / SUPABASE_ANON_KEY（gitignore 真身）
-├─ .gitignore                # 预置 .env / .aiflow/ / node_modules
+├─ .gitignore                # 预置 .env / .af-mobile/ / node_modules
 ├─ vercel.json               # Vercel：History fallback rewrite + headers
 ├─ public/
 │  ├─ _redirects             # Cloudflare Pages / Netlify：/* → /index.html 200
@@ -244,7 +244,7 @@ aiflow-starter/
 │  │  └─ detail.js           # :param 路由 + createResource 模板
 │  └─ styles.css             # @import '@af-mobile/ui/css'
 ├─ .trae/rules.md            # 引用 MCP get_prompt/check_compliance 的接入说明
-├─ eslint.config.js          # 继承 eslint-plugin-aiflow recommended（消费端规则集）
+├─ eslint.config.js          # 继承 eslint-plugin-af-mobile recommended（消费端规则集）
 └─ package.json              # @af-mobile/ui + @af-mobile/adapters + supabase-js
 ```
 
@@ -283,9 +283,9 @@ addInterceptor('request', (url, opts) => {
 
 ### 4.5 AI 约束通道（把 L4 带进 Starter）
 
-- `eslint.config.js` 继承 `eslint-plugin-aiflow` recommended——**用户在 Starter 内用任何 AI 写代码，保存即受 154 白名单 + 15 规则约束**
+- `eslint.config.js` 继承 `eslint-plugin-af-mobile` recommended——**用户在 Starter 内用任何 AI 写代码，保存即受 154 白名单 + 15 规则约束**
 - `.trae/rules.md` / `.cursorrules` 预写 MCP 接入指引（`get_prompt` 拿裁剪 prompt → 生成 → `check_compliance` 验证）
-- 违规遥测按 flywheel v2 协议落 `.aiflow/`（gitignore 已预置）——**Starter 是飞轮获取第一个真实外部用户的最短路径**：每个用 Starter 的人都在给飞轮喂数据
+- 违规遥测按 flywheel v2 协议落 `.af-mobile/`（gitignore 已预置）——**Starter 是飞轮获取第一个真实外部用户的最短路径**：每个用 Starter 的人都在给飞轮喂数据
 
 ### 4.6 与主库的版本关系
 
@@ -293,7 +293,7 @@ addInterceptor('request', (url, opts) => {
 |---|---|
 | `@af-mobile/ui` | Starter `package.json` 锁 minor（`^1.3`），体积/行为变更走主库 CI 闸门 |
 | `@af-mobile/adapters` | 与主库同 repo monorepo 或独立 repo，peer 依赖 `@supabase/supabase-js@^2` |
-| Starter 模板 | 独立 repo，`npm create aiflow-app` 指向；模板内锁具体版本，更新靠模板 tag |
+| Starter 模板 | 独立 repo，`npm create af-mobile-app` 指向；模板内锁具体版本，更新靠模板 tag |
 
 ---
 

@@ -1,4 +1,4 @@
-// AIFlow Starter —— Vite 仅作打包器，零框架零插件（设计 §4.1）
+// af-mobile Starter —— Vite 仅作打包器，零框架零插件（设计 §4.1）
 import { defineConfig } from 'vite';
 
 export default defineConfig({

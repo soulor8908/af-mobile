@@ -1,4 +1,4 @@
-// AIFlow UI —— ARIA 要求同步检查（CI 闸门，AGENTS.md #5）
+// af-mobile UI —— ARIA 要求同步检查（CI 闸门，AGENTS.md #5）
 // 双向校验：
 //   1. aria-requirements.json 声明的每个必需字段，wc-aria-required.js 都有对应检测分支
 //      （防止反模式：JSON 加了 "ariaChecked": true，但规则 JS 没写 if (req.ariaChecked && ...)）
@@ -10,8 +10,8 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const REQUIREMENTS_PATH = join(ROOT, 'eslint-plugin-aiflow/utils/aria-requirements.json');
-const RULE_PATH = join(ROOT, 'eslint-plugin-aiflow/rules/wc-aria-required.js');
+const REQUIREMENTS_PATH = join(ROOT, 'eslint-plugin-af-mobile/utils/aria-requirements.json');
+const RULE_PATH = join(ROOT, 'eslint-plugin-af-mobile/rules/wc-aria-required.js');
 const COMPONENTS_DIR = join(ROOT, 'src/components');
 
 // 规则支持的必需字段（role 单独处理，其余为布尔属性开关）

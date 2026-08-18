@@ -16,7 +16,7 @@ import {
 } from '../scripts/build-prompt.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const WL = JSON.parse(readFileSync(join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json'), 'utf8'));
+const WL = JSON.parse(readFileSync(join(ROOT, 'eslint-plugin-af-mobile/utils/whitelist-v1.json'), 'utf8'));
 const RECIPES_CSS = readFileSync(join(ROOT, 'src/recipes.css'), 'utf8');
 const ATOMIC_CSS = readFileSync(join(ROOT, 'src/atomic.css'), 'utf8');
 

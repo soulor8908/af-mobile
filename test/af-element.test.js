@@ -179,7 +179,7 @@ describe('AfElement 基类', () => {
     document.body.appendChild(el);
     let captured = null;
     el.addEventListener('test:event', (e) => { captured = e.detail; });
-    // eslint-disable-next-line aiflow/wc-event-naming -- 测试基类 emit()，用任意事件名
+    // eslint-disable-next-line af-mobile/wc-event-naming -- 测试基类 emit()，用任意事件名
     el.emit('test:event', { foo: 'bar' });
     expect(captured).toEqual({ foo: 'bar' });
   });
@@ -206,7 +206,7 @@ describe('AfElement 基类', () => {
 
   it('$ / $$ 在 Light DOM 中查询', () => {
     const el = new TestEl();
-    // eslint-disable-next-line aiflow/token-whitelist -- 测试 $/$$ 查询，用任意 class
+    // eslint-disable-next-line af-mobile/token-whitelist -- 测试 $/$$ 查询，用任意 class
     el.innerHTML = '<div class="a"></div><div class="a"></div><span class="b"></span>';
     document.body.appendChild(el);
     expect(el.$('.b').tagName).toBe('SPAN');
@@ -217,7 +217,7 @@ describe('AfElement 基类', () => {
     class ShadowEl extends AfElement {
       static useShadow = true;
       mounted() {
-        // eslint-disable-next-line aiflow/token-whitelist -- 测试 Shadow DOM 查询，用任意 class
+        // eslint-disable-next-line af-mobile/token-whitelist -- 测试 Shadow DOM 查询，用任意 class
         this.shadowRoot.innerHTML = '<style></style><div class="inner"></div>';
       }
     }
@@ -250,7 +250,7 @@ describe('cssTag 样式注入（CSP 合规）', () => {
     class ShadowCssEl extends AfElement {
       static useShadow = true;
       mounted() {
-        // eslint-disable-next-line aiflow/token-whitelist -- 测试夹具自定义 class
+        // eslint-disable-next-line af-mobile/token-whitelist -- 测试夹具自定义 class
         this.shadowRoot.innerHTML = `${AfElement.cssTag('.a{color:red}', 'test-css')}<div class="a"></div>`;
       }
     }
@@ -313,7 +313,7 @@ class I18nTestEl extends withI18n(AfElement) {
     '@': ['aria-label', 'tb.al'],
   };
   mounted() {
-    // eslint-disable-next-line aiflow/token-whitelist -- 测试夹具自定义 class
+    // eslint-disable-next-line af-mobile/token-whitelist -- 测试夹具自定义 class
     this.innerHTML = `
       <div class="static-attr"></div>
       <div class="static-fallback"></div>
@@ -416,7 +416,7 @@ describe('DSD 声明式 Shadow DOM 支持', () => {
   class DsdShadowEl extends AfElement {
     static useShadow = true;
     shadowHTML() {
-      // eslint-disable-next-line aiflow/token-whitelist -- DSD 测试夹具自定义 class
+      // eslint-disable-next-line af-mobile/token-whitelist -- DSD 测试夹具自定义 class
       return '<style>.x{}</style><div class="inner"></div>';
     }
   }
@@ -444,7 +444,7 @@ describe('DSD 声明式 Shadow DOM 支持', () => {
 
   it('dsdTemplate：Shadow 组件返回 <template shadowrootmode> 包裹 shadowHTML', () => {
     const el = new DsdShadowEl();
-    // eslint-disable-next-line aiflow/token-whitelist -- 断言夹具 shadowHTML 字符串
+    // eslint-disable-next-line af-mobile/token-whitelist -- 断言夹具 shadowHTML 字符串
     expect(el.dsdTemplate()).toBe('<template shadowrootmode="open"><style>.x{}</style><div class="inner"></div></template>');
   });
 

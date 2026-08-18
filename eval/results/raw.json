@@ -18,9 +18,9 @@
         "lastErrors": [
           {
             "line": 2,
-            "rule": "aiflow/token-whitelist",
+            "rule": "af-mobile/token-whitelist",
             "severity": "error",
-            "message": "Class 'aib' not in whitelist. Use recipe/atomic or register in 'aiflow/token-whitelist' rule's extraClass"
+            "message": "Class 'aib' not in whitelist. Use recipe/atomic or register in 'af-mobile/token-whitelist' rule's extraClass"
           }
         ],
         "error": null,
@@ -147,9 +147,9 @@
         "lastErrors": [
           {
             "line": 2,
-            "rule": "aiflow/token-whitelist",
+            "rule": "af-mobile/token-whitelist",
             "severity": "error",
-            "message": "Class 'mt-1' not in whitelist. Use recipe/atomic or register in 'aiflow/token-whitelist' rule's extraClass"
+            "message": "Class 'mt-1' not in whitelist. Use recipe/atomic or register in 'af-mobile/token-whitelist' rule's extraClass"
           }
         ],
         "error": null,

@@ -1,4 +1,4 @@
-// AIFlow UI —— withI18n mixin：i18n 能力按需混入
+// af-mobile UI —— withI18n mixin：i18n 能力按需混入
 // 用 i18n 的组件：class AfDialog extends withI18n(AfElement) {}
 // 不用 i18n 的组件：class AfToast extends AfElement {}（不拉入 i18n.js，体积更小）
 // 收益：基类 AfElement 不再含 i18n 逻辑（base -0.6KB），不用 i18n 的组件零成本

@@ -3,7 +3,7 @@
   "version": "1.4.2",
   "description": "Mobile-first Web Components library with L1/L2/L3 layered design system",
   "workspaces": [
-    "eslint-plugin-aiflow",
+    "eslint-plugin-af-mobile",
     "create-af-mobile"
   ],
   "type": "module",
@@ -22,7 +22,7 @@
       "default": "./src/charts/index.js"
     },
     "./css": "./src/index.css",
-    "./aiflow-ui.css": "./src/index.css",
+    "./af-mobile.css": "./src/index.css",
     "./tokens.css": "./src/tokens.css",
     "./tokens.json": "./src/tokens.json",
     "./recipes.css": "./src/recipes.css",
@@ -33,7 +33,7 @@
     "./dist/css": "./dist/index.css"
   },
   "bin": {
-    "aiflow": "./scripts/aiflow.mjs"
+    "af-mobile": "./scripts/af-mobile.mjs"
   },
   "sideEffects": [
     "**/*.css"
@@ -44,7 +44,7 @@
     "skills",
     "scripts/skill-add.mjs",
     "scripts/create-app.mjs",
-    "scripts/aiflow.mjs"
+    "scripts/af-mobile.mjs"
   ],
   "scripts": {
     "test": "vitest run",

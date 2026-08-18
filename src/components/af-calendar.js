@@ -1,4 +1,4 @@
-// AIFlow UI —— af-calendar：日历
+// af-mobile UI —— af-calendar：日历
 // Shadow DOM，原生 Date/Intl.DateTimeFormat（无 i18n 字典依赖）
 // 职责：单日期选择 + 月份导航 + min/max 约束 + 今天高亮
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

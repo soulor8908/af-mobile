@@ -1,8 +1,8 @@
-# aiflow-ui v2.0 迁移指南
+# af-mobile v2.0 迁移指南
 
 > 适用范围：v1.3.x → v2.0.0
 > 目标：L0 运行时架构修复（Owner pattern / createPage 实例化 / router 增强 / i18n 复数 / theme 系统主题）。
-> 本文档只覆盖**行为变化与迁移动作**；完整设计见 `docs/design/aiflow-ui-evolution-v3.md`。
+> 本文档只覆盖**行为变化与迁移动作**；完整设计见 `docs/design/af-mobile-evolution-v3.md`。
 
 ---
 

@@ -1,4 +1,4 @@
-// AIFlow —— @af-mobile/prompt 打包（pkg-publish 设计 §3.6）
+// af-mobile —— @af-mobile/prompt 打包（pkg-publish 设计 §3.6）
 // 产物：prompt/dist/index.mjs（build-prompt 全量 bundle，零 external，纯 node 内建）
 import { build } from 'esbuild';
 import { join, resolve, dirname } from 'node:path';

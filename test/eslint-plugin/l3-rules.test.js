@@ -1,12 +1,12 @@
-// eslint-plugin-aiflow L3 规则测试（6 条合并）
+// eslint-plugin-af-mobile L3 规则测试（6 条合并）
 import { describe, it } from 'vitest';
 import { RuleTester } from 'eslint';
-import wcLightNoStyle from '../../eslint-plugin-aiflow/rules/wc-light-no-style.js';
-import wcShadowUseToken from '../../eslint-plugin-aiflow/rules/wc-shadow-use-token.js';
-import wcPartNaming from '../../eslint-plugin-aiflow/rules/wc-part-naming.js';
-import wcEventNaming from '../../eslint-plugin-aiflow/rules/wc-event-naming.js';
-import wcAriaRequired from '../../eslint-plugin-aiflow/rules/wc-aria-required.js';
-import wcCleanup from '../../eslint-plugin-aiflow/rules/wc-cleanup.js';
+import wcLightNoStyle from '../../eslint-plugin-af-mobile/rules/wc-light-no-style.js';
+import wcShadowUseToken from '../../eslint-plugin-af-mobile/rules/wc-shadow-use-token.js';
+import wcPartNaming from '../../eslint-plugin-af-mobile/rules/wc-part-naming.js';
+import wcEventNaming from '../../eslint-plugin-af-mobile/rules/wc-event-naming.js';
+import wcAriaRequired from '../../eslint-plugin-af-mobile/rules/wc-aria-required.js';
+import wcCleanup from '../../eslint-plugin-af-mobile/rules/wc-cleanup.js';
 
 const ruleTester = new RuleTester({
   languageOptions: { ecmaVersion: 2022, sourceType: 'module' },
@@ -15,7 +15,7 @@ const ruleTester = new RuleTester({
 const LIGHT_COMP = `export class AfFoo extends HTMLElement { static useShadow = false; }`;
 const SHADOW_COMP = `export class AfFoo extends HTMLElement { static useShadow = true; }`;
 
-describe('L3-1 aiflow/wc-light-no-style', () => {
+describe('L3-1 af-mobile/wc-light-no-style', () => {
   it('Light 组件 .style.xxx 赋值报错', () => {
     ruleTester.run('wc-light-no-style', wcLightNoStyle, {
       valid: [],
@@ -104,7 +104,7 @@ describe('L3-1 aiflow/wc-light-no-style', () => {
   });
 });
 
-describe('L3-2 aiflow/wc-shadow-use-token', () => {
+describe('L3-2 af-mobile/wc-shadow-use-token', () => {
   it('Shadow CSS 硬编码颜色报错', () => {
     ruleTester.run('wc-shadow-use-token', wcShadowUseToken, {
       valid: [],
@@ -135,7 +135,7 @@ describe('L3-2 aiflow/wc-shadow-use-token', () => {
   });
 });
 
-describe('L3-3 aiflow/wc-part-naming', () => {
+describe('L3-3 af-mobile/wc-part-naming', () => {
   it('非 kebab-case part 名报 warn', () => {
     ruleTester.run('wc-part-naming', wcPartNaming, {
       valid: [],
@@ -157,7 +157,7 @@ describe('L3-3 aiflow/wc-part-naming', () => {
   });
 });
 
-describe('L3-4 aiflow/wc-event-naming', () => {
+describe('L3-4 af-mobile/wc-event-naming', () => {
   it('合法事件名放行', () => {
     ruleTester.run('wc-event-naming', wcEventNaming, {
       valid: [{ code: `this.emit('af-list:loadmore', {});` }],
@@ -186,7 +186,7 @@ describe('L3-4 aiflow/wc-event-naming', () => {
   });
 });
 
-describe('L3-5 aiflow/wc-aria-required', () => {
+describe('L3-5 af-mobile/wc-aria-required', () => {
   it('af-tabs 缺 role=tablist 报错', () => {
     ruleTester.run('wc-aria-required', wcAriaRequired, {
       valid: [],
@@ -246,7 +246,7 @@ describe('L3-5 aiflow/wc-aria-required', () => {
   });
 });
 
-describe('L3-6 aiflow/wc-cleanup', () => {
+describe('L3-6 af-mobile/wc-cleanup', () => {
   it('直接 addEventListener 报 listen（须走 _listen 登记）', () => {
     ruleTester.run('wc-cleanup', wcCleanup, {
       valid: [],

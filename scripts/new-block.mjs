@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// AIFlow UI —— L3.5 Block 脚手架（一键生成 + 同步六源 + 自检）
+// af-mobile UI —— L3.5 Block 脚手架（一键生成 + 同步六源 + 自检）
 // 用法：
 //   node scripts/new-block.mjs <tag> [options]
 //   node scripts/new-block.mjs af-product-card --purpose "商品卡片" --variant "default,grid" --props "title,price,items,loading" --events "itemclick"
@@ -103,7 +103,7 @@ function genBlockSource() {
   const watchAttrs = props.map(p => `'${p}'`).join(', ');
   const variantComment = variants.join(' / ');
 
-  return `// AIFlow UI —— L3.5 Block：${tag}（${purpose}）
+  return `// af-mobile UI —— L3.5 Block：${tag}（${purpose}）
 // Light DOM，五态（loading/error/empty/success）+ a11y + 键盘导航
 // variant: ${variantComment}
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

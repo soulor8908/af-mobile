@@ -1,11 +1,11 @@
-// AIFlow UI —— System Prompt 构建器（§2.3 / D3 / D9）
+// af-mobile UI —— System Prompt 构建器（§2.3 / D3 / D9）
 // 两个注入点：
 //   {{{ WHITELIST_INJECTION_POINT }}}       ← whitelist-v1.json + CSS 分组注释 → 105 class 分组列表
 //   {{{ PROJECT_EXTENSION_INJECTION_POINT }}} ← recipes.project.css 的 /* === N. 用途 === */ 注释块
 // 用法：
 //   node scripts/build-prompt.mjs                          # 输出到 stdout
 //   node scripts/build-prompt.mjs -o prompt/system-prompt.md
-//   node scripts/build-prompt.mjs --project ./aiflow-ui/recipes.project.css
+//   node scripts/build-prompt.mjs --project ./af-mobile/recipes.project.css
 //   node scripts/build-prompt.mjs --model claude          # 拼模型特化头
 import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
@@ -15,7 +15,7 @@ import { resolveAsset } from './resolve-asset.mjs';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 // 资产经双候选解析：开发态读仓库源，打包发布态读包内 assets 快照（pkg-publish 设计 §3.2）
 const TEMPLATE = resolveAsset('prompt/system-prompt.template.md');
-const WHITELIST = resolveAsset('eslint-plugin-aiflow/utils/whitelist-v1.json');
+const WHITELIST = resolveAsset('eslint-plugin-af-mobile/utils/whitelist-v1.json');
 const RECIPES_CSS = resolveAsset('src/recipes.css');
 const ATOMIC_CSS = resolveAsset('src/atomic.css');
 const MODEL_DIR = resolveAsset('prompt/models');

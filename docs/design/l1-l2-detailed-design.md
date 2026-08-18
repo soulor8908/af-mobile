@@ -1,4 +1,4 @@
-# AIFlow UI —— L1+L2 详细设计
+# af-mobile UI —— L1+L2 详细设计
 
 > 方案 B：规格 + 内嵌参考 CSS。本文档既是设计决策记录，也是实现阶段的参考源。
 >
@@ -403,7 +403,7 @@ export function toggleTheme() {
 
 ### 3.2 L1 ESLint 保护规则
 
-**规则 1：`aiflow/no-token-modification`（error 阻断）**
+**规则 1：`af-mobile/no-token-modification`（error 阻断）**
 
 | 项 | 内容 |
 |---|---|
@@ -413,11 +413,11 @@ export function toggleTheme() {
 | **错误信息** | `Token variables are locked. Modify tokens.css instead of overriding --c-brand in recipes.css` |
 | **示例（阻断）** | ❌ `recipes.css` 内写 `.btn { --c-brand: red; }`<br>❌ `page.html` 内 `<style>:root { --s-4: 20px }</style>`<br>✅ `tokens.css` 内修改 `--c-brand`（CI 跳过检测） |
 
-**规则 2：`aiflow/no-inline-style`（error 阻断，与 L2 共用）**
+**规则 2：`af-mobile/no-inline-style`（error 阻断，与 L2 共用）**
 
 检测 `style="..."` 属性，因为内联 style 可绕过 token 系统直接写颜色/间距——这条规则在第 7 节详述，L1 依赖它确保所有视觉值走 token。
 
-**规则 3：`aiflow/tokens-css-locked`（CI 层，发布阻断）**
+**规则 3：`af-mobile/tokens-css-locked`（CI 层，发布阻断）**
 
 | 项 | 内容 |
 |---|---|
@@ -452,7 +452,7 @@ System Prompt 需包含的规则（L0 层，第 7 节汇总）：
 5. dark 模式适配零代码——配方层已用 token 变量，自动跟随
 ```
 
-**关键决策**：第 5 条是 AIFlow UI 的核心卖点——**AI 生成的页面无需写任何 dark 模式代码**，因为配方层全部引用 token 变量，主题切换只改 token 值。这是把"约束即生产力"落到 AI 体验上的具体体现。
+**关键决策**：第 5 条是 af-mobile UI 的核心卖点——**AI 生成的页面无需写任何 dark 模式代码**，因为配方层全部引用 token 变量，主题切换只改 token 值。这是把"约束即生产力"落到 AI 体验上的具体体现。
 
 ---
 
@@ -504,7 +504,7 @@ System Prompt 需包含的规则（L0 层，第 7 节汇总）：
 
 **关键决策：原子类不引入响应式前缀**
 
-Tailwind 的 `md:p-4` / `sm:flex-row` 在 AIFlow UI 里不引入。原因：
+Tailwind 的 `md:p-4` / `sm:flex-row` 在 af-mobile UI 里不引入。原因：
 - 移动端 H5 是单一视口场景，响应式需求极低
 - Container Queries（RFC 6.4）已覆盖"组件按容器自适应"的需求
 - 响应式前缀会让类空间从 52 → 数百，破坏白名单封闭性
@@ -536,7 +536,7 @@ L2 层白名单 = **102 配方 + 52 原子 = 154 个类**。这是 AI 可用的�
 
 **白名单维护规则**：
 - 新增配方/原子需修改 `recipes.css` + 同步更新 ESLint 白名单配置 + 更新 System Prompt 的 token 白名单节
-- 这三处同步由 CI 检查（规则 `aiflow/whitelist-sync`），避免人工遗漏
+- 这三处同步由 CI 检查（规则 `af-mobile/whitelist-sync`），避免人工遗漏
 - 项目级扩展（OPC 项目自定义配方）走 `recipes.project.css` 单独文件，不污染核心白名单
 
 ---
@@ -1479,7 +1479,7 @@ L2 的样式解析遵循两条规则，**先比 @layer 顺序，同层比源序*
 | `background` | `bg-*` | — | 见 7.3 禁止场景 |
 | `box-shadow` | `shadow-*` | — | 阴影覆盖安全 |
 
-**ESLint 规则 `aiflow/no-recipe-break`**（warn）：检测以下危险覆盖模式：
+**ESLint 规则 `af-mobile/no-recipe-break`**（warn）：检测以下危险覆盖模式：
 
 ```html
 <!-- warn: 覆盖 .cell 的 display:flex, 破坏布局 -->
@@ -1551,7 +1551,7 @@ L2 的样式解析遵循两条规则，**先比 @layer 顺序，同层比源序*
 以下是写入 System Prompt 的 L1+L2 使用规则，AI 生成代码时必须遵守：
 
 ```markdown
-## AIFlow UI 使用规则（L1+L2）
+## af-mobile UI 使用规则（L1+L2）
 
 ### Token 使用
 1. 颜色/间距/圆角/字号/阴影必须用 var(--c-*) 等引用 token，禁止硬编码值
@@ -1585,14 +1585,14 @@ L1+L2 层的完整 ESLint 规则矩阵（RFC 12.5 的 6 条 + 详细设计新增
 
 | 规则名 | 层级 | 检测 | 动作 |
 |---|---|---|---|
-| `aiflow/no-token-modification` | L1 | 非 tokens.css 文件重定义 token 变量 | error |
-| `aiflow/no-inline-style` | L1+L2 | `style="..."` 设置颜色/间距/字号 | error |
-| `aiflow/token-whitelist` | L2 | 白名单外 class | error |
-| `aiflow/no-recipe-break` | L2 | 危险覆盖（btn+text-brand、input+t-sm 等） | error |
-| `aiflow/no-variant-conflict` | L2 | 同组互斥变体叠加（btn-sm+btn-lg） | warn |
-| `aiflow/no-arbitrary-value` | L2 | 任意值语法（p-[20px]） | error |
-| `aiflow/no-tailwind-syntax` | L2 | Tailwind 响应式前缀（sm:/md:） | error |
-| `aiflow/whitelist-sync` | CI | recipes.css 改动但 ESLint/Prompt 未同步 | error |
+| `af-mobile/no-token-modification` | L1 | 非 tokens.css 文件重定义 token 变量 | error |
+| `af-mobile/no-inline-style` | L1+L2 | `style="..."` 设置颜色/间距/字号 | error |
+| `af-mobile/token-whitelist` | L2 | 白名单外 class | error |
+| `af-mobile/no-recipe-break` | L2 | 危险覆盖（btn+text-brand、input+t-sm 等） | error |
+| `af-mobile/no-variant-conflict` | L2 | 同组互斥变体叠加（btn-sm+btn-lg） | warn |
+| `af-mobile/no-arbitrary-value` | L2 | 任意值语法（p-[20px]） | error |
+| `af-mobile/no-tailwind-syntax` | L2 | Tailwind 响应式前缀（sm:/md:） | error |
+| `af-mobile/whitelist-sync` | CI | recipes.css 改动但 ESLint/Prompt 未同步 | error |
 
 **规则优先级**：error 阻断构建，warn 仅提示。CI 层 `whitelist-sync` 在 PR 合并前检查三处同步（CSS + ESLint 配置 + System Prompt）。
 

@@ -7,7 +7,7 @@ export default async function listPage(params, ctx) {
   ctx.outlet.innerHTML = `
     <main class="page">
       <section class="hero">
-        <p class="eyebrow">AIFlow Starter</p>
+        <p class="eyebrow">af-mobile Starter</p>
         <h1 class="display">商品列表</h1>
         <p class="subtitle">分页加载 · 搜索过滤 · 点击进详情</p>
       </section>

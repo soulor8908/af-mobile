@@ -1,6 +1,6 @@
 {
   "version": "v1",
-  "aiflowVersion": "1.0.0",
+  "af-mobileVersion": "1.0.0",
   "classes": {
     "recipe": [
       "actions",

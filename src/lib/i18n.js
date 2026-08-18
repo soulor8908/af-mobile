@@ -1,4 +1,4 @@
-// AIFlow UI —— i18n 国际化 API
+// af-mobile UI —— i18n 国际化 API
 // 与 theme.js 对称：函数式 API + CustomEvent('localechange') 通知
 // SSR/Node 安全：所有 DOM/localStorage/navigator 访问惰性执行 + typeof 守卫
 // 字典扁平 key（{组件2字母缩写}.{后缀}）；复数条目用 { zero/one/two/few/many/other } 对象 + CLDR 规则（W7）

@@ -1,4 +1,4 @@
-// AIFlow UI —— tokens.json 与 tokens.css 同步检查（CI）
+// af-mobile UI —— tokens.json 与 tokens.css 同步检查（CI）
 // 双向 diff：tokens.css（权威源）解析出的 DTCG 树 == 已提交的 src/tokens.json
 // 用法：node scripts/check-tokens-sync.mjs
 import { readFileSync } from 'node:fs';

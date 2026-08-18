@@ -1,6 +1,6 @@
-/* AIFlow UI —— L2 配方层 · display 子集
+/* af-mobile UI —— L2 配方层 · display 子集
    折叠面板 / 评分 / 步骤条 / 分段控制器
-   展示类按需引：import 'aiflow-ui/css/display'; */
+   展示类按需引：import 'af-mobile/css/display'; */
 @layer components {
   /* === 折叠面板（3） === */
   /* 纯 CSS：<details>/<summary> 原生，零 JS

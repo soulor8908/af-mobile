@@ -2,7 +2,7 @@
 
 ## 安装
 
-推荐用脚手架 `@af-mobile/ui` 专用命令一键生成可运行工程。脚手架会一次性生成项目骨架，并自举安装 `AGENTS.md`、`skills/aiflow-grill/SKILL.md` 与 `eslint.config.js`（含消费端白名单约束），是项目骨架的单一真相源——
+推荐用脚手架 `@af-mobile/ui` 专用命令一键生成可运行工程。脚手架会一次性生成项目骨架，并自举安装 `AGENTS.md`、`skills/af-mobile-grill/SKILL.md` 与 `eslint.config.js`（含消费端白名单约束），是项目骨架的单一真相源——
 
 ```bash
 npm create af-mobile <dir>
@@ -12,9 +12,9 @@ npx create-af-mobile <dir>
 cd <dir> && npm install && npm run dev
 ```
 
-> `npm create af-mobile` 与 `npx create-af-mobile` 等价（npm init 约定，与 vite / astro 同款）：按需下载并执行脚手架，无需先手动 `npm install`。切勿写裸 `npx aiflow`——npm 上存在同名第三方包，会装错。
+> `npm create af-mobile` 与 `npx create-af-mobile` 等价（npm init 约定，与 vite / astro 同款）：按需下载并执行脚手架，无需先手动 `npm install`。切勿写裸 `npx af-mobile`——npm 上存在同名第三方包，会装错。
 
-生成工程自带 `aiflow-grill` skill（对话式脚手架）与消费端 ESLint 约束。在任意 AI 编码工具（TRAE / Claude Code / Cursor 等）中打开工程，说一句"我想做一个习惯打卡应用"，skill 会引导你：**拷问需求 → 需求拆分 → demo 确认 → 一次性生成页面**。
+生成工程自带 `af-mobile-grill` skill（对话式脚手架）与消费端 ESLint 约束。在任意 AI 编码工具（TRAE / Claude Code / Cursor 等）中打开工程，说一句"我想做一个习惯打卡应用"，skill 会引导你：**拷问需求 → 需求拆分 → demo 确认 → 一次性生成页面**。
 
 ## 手动接入
 
@@ -45,7 +45,7 @@ npm i @af-mobile/ui
    register('af-dialog', 'af-toast'); // 按需注册
    ```
 
-   > 注意：`import '@af-mobile/ui'` 只是一次纯导入，**不会**自动注册组件。必须显式调用 `registerAll()` / `register()`，或直接取具名类用 `customElements.define`。另外，`main` / `exports` 指向源码分发（裸 ESM），消费端需要有打包器（Vite / webpack / Rollup）；若需浏览器直引，用 `dist/aiflow-ui.umd.js`。
+   > 注意：`import '@af-mobile/ui'` 只是一次纯导入，**不会**自动注册组件。必须显式调用 `registerAll()` / `register()`，或直接取具名类用 `customElements.define`。另外，`main` / `exports` 指向源码分发（裸 ESM），消费端需要有打包器（Vite / webpack / Rollup）；若需浏览器直引，用 `dist/af-mobile.umd.js`。
 
 ## 首个组件示例
 

@@ -1,4 +1,4 @@
-// AIFlow UI —— af-pull-refresh：下拉刷新容器
+// af-mobile UI —— af-pull-refresh：下拉刷新容器
 // Light DOM，复用 L2 .skeleton/.spinner/.empty 配方
 // 职责：触摸下拉刷新 + 阻尼系数 + 阈值激活 + 加载态指示器
 // 用法：<af-pull-refresh><div class="list">...</div></af-pull-refresh>

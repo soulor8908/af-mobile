@@ -15,7 +15,7 @@ function scaffold(dir) {
 
 describe('create-app scaffold', () => {
   it('生成最小工程模板且依赖为 npm 版本号', () => {
-    const parent = mkdtempSync(join(tmpdir(), 'aiflow-create-'));
+    const parent = mkdtempSync(join(tmpdir(), 'af-mobile-create-'));
     const dir = join(parent, 'my-habit-app');
     scaffold(dir);
 
@@ -45,27 +45,27 @@ describe('create-app scaffold', () => {
     expect(main).toContain("start('#app', { hash: true })");
   });
 
-  it('自举安装 aiflow-grill skill 到中立路径 + AGENTS.md', () => {
-    const parent = mkdtempSync(join(tmpdir(), 'aiflow-create-'));
+  it('自举安装 af-mobile-grill skill 到中立路径 + AGENTS.md', () => {
+    const parent = mkdtempSync(join(tmpdir(), 'af-mobile-create-'));
     const dir = join(parent, 'app');
     scaffold(dir);
 
-    const src = readFileSync(join(ROOT, 'skills/aiflow-grill/SKILL.md'), 'utf8');
-    expect(readFileSync(join(dir, 'skills/aiflow-grill/SKILL.md'), 'utf8')).toBe(src);
+    const src = readFileSync(join(ROOT, 'skills/af-mobile-grill/SKILL.md'), 'utf8');
+    expect(readFileSync(join(dir, 'skills/af-mobile-grill/SKILL.md'), 'utf8')).toBe(src);
     // 不再写工具特定目录（用户可能用 Cursor/Codex/Copilot 等而非 TRAE/Claude Code）
-    expect(existsSync(join(dir, '.trae/skills/aiflow-grill/SKILL.md'))).toBe(false);
-    expect(existsSync(join(dir, '.claude/skills/aiflow-grill/SKILL.md'))).toBe(false);
-    expect(readFileSync(join(dir, 'AGENTS.md'), 'utf8')).toContain('<!-- aiflow:skill-grill -->');
+    expect(existsSync(join(dir, '.trae/skills/af-mobile-grill/SKILL.md'))).toBe(false);
+    expect(existsSync(join(dir, '.claude/skills/af-mobile-grill/SKILL.md'))).toBe(false);
+    expect(readFileSync(join(dir, 'AGENTS.md'), 'utf8')).toContain('<!-- af-mobile:skill-grill -->');
   });
 
   it('拒绝覆盖非空目录', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'aiflow-create-'));
+    const dir = mkdtempSync(join(tmpdir(), 'af-mobile-create-'));
     writeFileSync(join(dir, 'keep.txt'), 'x');
     expect(() => scaffold(dir)).toThrow();
   });
 
   it('空目录可以生成（目录已存在但为空）', () => {
-    const parent = mkdtempSync(join(tmpdir(), 'aiflow-create-'));
+    const parent = mkdtempSync(join(tmpdir(), 'af-mobile-create-'));
     const dir = join(parent, 'nested', 'app');
     mkdirSync(dir, { recursive: true });
     scaffold(dir);

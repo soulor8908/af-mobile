@@ -1,4 +1,4 @@
-// AIFlow UI —— af-swipe-cell：滑动单元格
+// af-mobile UI —— af-swipe-cell：滑动单元格
 // Light DOM，复用 L2 .list-item / .btn 配方
 // 职责：左滑/右滑显示操作按钮 + 阈值吸附 + 点击收起 + 滑动方向锁定
 // 用法：<af-swipe-cell><div slot="content">主内容</div><div slot="right">操作按钮</div></af-swipe-cell>

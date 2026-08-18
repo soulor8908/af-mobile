@@ -13,15 +13,15 @@ const DIST = join(ROOT, 'mcp/dist/index.mjs');
 let savedTelemetryDir;
 
 beforeAll(() => {
-  savedTelemetryDir = process.env.AIFLOW_TELEMETRY_DIR;
-  process.env.AIFLOW_TELEMETRY_DIR = mkdtempSync(join(tmpdir(), 'aiflow-mcp-bundle-'));
+  savedTelemetryDir = process.env.AFMOBILE_TELEMETRY_DIR;
+  process.env.AFMOBILE_TELEMETRY_DIR = mkdtempSync(join(tmpdir(), 'af-mobile-mcp-bundle-'));
   // 原位构建（bundle 的资产解析依赖 dist 相对位置，不能构建到临时目录）
   execFileSync('node', [join(ROOT, 'scripts/build-mcp.mjs')], { stdio: 'pipe' });
   execFileSync('node', [join(ROOT, 'scripts/build-prompt-pkg.mjs')], { stdio: 'pipe' });
   return () => {
-    if (savedTelemetryDir === undefined) delete process.env.AIFLOW_TELEMETRY_DIR;
-    else process.env.AIFLOW_TELEMETRY_DIR = savedTelemetryDir;
-    rmSync(process.env.AIFLOW_TELEMETRY_DIR || '', { recursive: true, force: true });
+    if (savedTelemetryDir === undefined) delete process.env.AFMOBILE_TELEMETRY_DIR;
+    else process.env.AFMOBILE_TELEMETRY_DIR = savedTelemetryDir;
+    rmSync(process.env.AFMOBILE_TELEMETRY_DIR || '', { recursive: true, force: true });
   };
 });
 
@@ -38,7 +38,7 @@ describe('mcp bundle 发布态冒烟', () => {
     const m = await import(DIST);
     const bad = await m.checkCompliance({ code: '<div class="my-custom-card">x</div>', filename: 't.html' });
     expect(bad.passed).toBe(false);
-    expect(bad.errors.some(e => e.rule === 'aiflow/token-whitelist')).toBe(true);
+    expect(bad.errors.some(e => e.rule === 'af-mobile/token-whitelist')).toBe(true);
     const ok = await m.checkCompliance({ code: '<div class="card">x</div>', filename: 't2.html' });
     expect(ok.passed).toBe(true);
   });

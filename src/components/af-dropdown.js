@@ -1,4 +1,4 @@
-// AIFlow UI —— af-dropdown：下拉菜单
+// af-mobile UI —— af-dropdown：下拉菜单
 // Light DOM，复用 L2 .input/.list/.list-item 配方 + 原生 popover API
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';

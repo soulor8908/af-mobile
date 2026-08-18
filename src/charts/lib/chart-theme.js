@@ -1,4 +1,4 @@
-// AIFlow UI charts —— 取色策略 + 图表共享 Shadow CSS
+// af-mobile UI charts —— 取色策略 + 图表共享 Shadow CSS
 // 详见 docs/design/charts-sublibrary-detailed-design.md §3.4
 //
 // 取色不新增 L1 token：直接引用 var(--c-*)，SVG fill/stroke 属性原生支持 CSS 变量，

@@ -1,7 +1,7 @@
 # 强制生成型 JSON 使用 LF，避免 Windows autocrlf 检出 CRLF 与脚本写入 LF 不一致
 # 导致 whitelist:check / publish:check 行尾误报
 src/tokens.json text eol=lf
-eslint-plugin-aiflow/utils/whitelist-v1.json text eol=lf
+eslint-plugin-af-mobile/utils/whitelist-v1.json text eol=lf
 # pkg:assets 生成的副本必须与源同 LF，否则 pkg-assets 漂移闸门在 Windows 上反复误报
 mcp/assets/whitelist-v1.json text eol=lf
 prompt/assets/whitelist-v1.json text eol=lf

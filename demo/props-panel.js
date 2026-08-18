@@ -1,4 +1,4 @@
-// AIFlow UI —— demo 站简易 props 调节面板（IP-9）
+// af-mobile UI —— demo 站简易 props 调节面板（IP-9）
 // 用法：createPropsPanel(container, schema, target)
 //   schema: [{ prop, label, type: 'boolean'|'number'|'string'|'select', options?, min?, max?, step? }]
 //   target: 组件实例，面板修改 target[prop] 触发重渲染

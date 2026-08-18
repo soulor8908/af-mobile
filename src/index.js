@@ -1,4 +1,4 @@
-// AIFlow UI —— L3 组件汇总导出
+// af-mobile UI —— L3 组件汇总导出
 // ESM 命名导出 + Tree Shaking + sideEffects:false
 // 使用方式：按需注册（唯一合法方式，禁止全量注册 / UMD / 全局对象）
 //   import { AfList, AfDialog } from '@af-mobile/ui';

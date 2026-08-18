@@ -1,4 +1,4 @@
-# AIFlow UI —— Charts 图表子库详细设计（@af-mobile/ui/charts）
+# af-mobile UI —— Charts 图表子库详细设计（@af-mobile/ui/charts）
 
 > 状态：**已实施**（Phase 1-2 完成，5 组件 + 内核全部落地，2026-08-16）。验收记录见 §11。
 > 定位：L3 之上的**可选子库**，独立入口 `@af-mobile/ui/charts`，不进主 `index.js`。
@@ -27,7 +27,7 @@
 
 ### 0.1 问题
 
-移动端 H5 需要 1-2 张图（趋势/占比/漏斗）时，引入 ECharts 按需构建也要 **~110-150KB gzip**，占一个典型 AIFlow 页面总预算（主库全量 23.8KB + coreRuntime 5.4KB）的 4-6 倍。ECharts 的体积大头（zrender 双渲染器、25+ 图表、5 套坐标系、dataZoom/visualMap/toolbox）在移动端 H5 场景中是"为没出现的需求预付的抽象税"。
+移动端 H5 需要 1-2 张图（趋势/占比/漏斗）时，引入 ECharts 按需构建也要 **~110-150KB gzip**，占一个典型 af-mobile 页面总预算（主库全量 23.8KB + coreRuntime 5.4KB）的 4-6 倍。ECharts 的体积大头（zrender 双渲染器、25+ 图表、5 套坐标系、dataZoom/visualMap/toolbox）在移动端 H5 场景中是"为没出现的需求预付的抽象税"。
 
 ### 0.2 目标
 
@@ -423,7 +423,7 @@ const BUDGET = {
 
 `af-chart-line/bar/pie/radar/funnel` 5 个标签登记：
 
-1. `eslint-plugin-aiflow/utils/whitelist-v1.json` → `components` +5
+1. `eslint-plugin-af-mobile/utils/whitelist-v1.json` → `components` +5
 2. `prompt/system-prompt.md` 注入（`build-prompt.mjs` 自动，跑 `npm run prompt:check` 验证）
 3. 图表组件为 Shadow DOM，**无新增 L2 class**，recipes.css 零改动（CSS 全在 Shadow 内）
 

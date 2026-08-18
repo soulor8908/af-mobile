@@ -12,7 +12,7 @@ import {
 import { buildWhitelistFromSources } from '../scripts/gen-whitelist.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const WL_PATH = join(ROOT, 'eslint-plugin-aiflow/utils/whitelist-v1.json');
+const WL_PATH = join(ROOT, 'eslint-plugin-af-mobile/utils/whitelist-v1.json');
 const B = JSON.parse(readFileSync(WL_PATH, 'utf8'));
 
 // 构造最小化 whitelist 对象（computeSyncProblems 只用到这些字段）

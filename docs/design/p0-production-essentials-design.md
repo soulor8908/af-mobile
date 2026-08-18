@@ -2,7 +2,7 @@
 
 > 对应 RFC §11.1（路由）/ §11.2（状态）/ §11.3（异步）/ §12.1 + §12.4（System Prompt 4 要素补全）
 >
-> 目标：补齐阻塞真实项目使用的 4 项生产刚需，让 AIFlow UI 能跑起完整移动端 SPA。
+> 目标：补齐阻塞真实项目使用的 4 项生产刚需，让 af-mobile UI 能跑起完整移动端 SPA。
 
 ---
 
@@ -926,7 +926,7 @@ route('/list', async () => {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page">
@@ -934,7 +934,7 @@ route('/list', async () => {
   <af-list id="list" item-height="64" refresh></af-list>
 </div>
 <script type="module">
-import { signal, effect, fetchPage } from '/aiflow-ui.js';
+import { signal, effect, fetchPage } from '/af-mobile.js';
 const list = document.getElementById('list');
 const items = signal([]);
 effect(() => { list.data = items(); });
@@ -971,7 +971,7 @@ items.set(await fetchPage('/api/messages'));
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="/aiflow-ui.css">
+<link rel="stylesheet" href="/af-mobile.css">
 </head>
 <body>
 <div class="page center p-4">
@@ -983,7 +983,7 @@ items.set(await fetchPage('/api/messages'));
   </form>
 </div>
 <script type="module">
-import { fetchPage, go } from '/aiflow-ui.js';
+import { fetchPage, go } from '/af-mobile.js';
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!e.target.checkValidity()) return;

@@ -1,4 +1,4 @@
-// AIFlow UI —— af-skeleton-page：整页骨架屏
+// af-mobile UI —— af-skeleton-page：整页骨架屏
 // Light DOM，4 种预设布局变体（list/detail/profile/card），复用 L2 .skeleton .skeleton-line .skeleton-block
 import { AfElement } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';

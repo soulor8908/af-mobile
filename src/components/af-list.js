@@ -1,4 +1,4 @@
-// AIFlow UI —— af-list：长列表虚拟滚动
+// af-mobile UI —— af-list：长列表虚拟滚动
 // Light DOM（useShadow=false），复用 L2 .list/.list-item 配方
 // 职责：虚拟滚动 + 下拉刷新 + 上拉加载 + itemclick 事件委托
 import { AfElement, escapeHtml as esc, html } from '../lib/af-element.js';

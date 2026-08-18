@@ -1,4 +1,4 @@
-// AIFlow UI —— af-picker：滚轮选择器
+// af-mobile UI —— af-picker：滚轮选择器
 // Shadow DOM（useShadow=true），CSS scroll-snap 原生吸附
 // 职责：多列滚轮 + scroll-snap 吸附 + 滚动停止触发 change + 确认/取消
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

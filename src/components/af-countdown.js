@@ -1,4 +1,4 @@
-// AIFlow UI —— af-countdown：倒计时
+// af-mobile UI —— af-countdown：倒计时
 // Light DOM；time（秒）+ autostart；mm:ss 展示，start/pause/reset，结束派发 af-countdown:end
 import { AfElement } from '../lib/af-element.js';
 

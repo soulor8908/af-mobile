@@ -11,17 +11,17 @@ let savedTelemetryDir;
 let savedCI;
 
 beforeEach(() => {
-  tmpDir = mkdtempSync(join(tmpdir(), 'aiflow-lint-'));
-  savedTelemetryDir = process.env.AIFLOW_TELEMETRY_DIR;
+  tmpDir = mkdtempSync(join(tmpdir(), 'af-mobile-lint-'));
+  savedTelemetryDir = process.env.AFMOBILE_TELEMETRY_DIR;
   savedCI = process.env.CI;
-  process.env.AIFLOW_TELEMETRY_DIR = tmpDir;
+  process.env.AFMOBILE_TELEMETRY_DIR = tmpDir;
   delete process.env.CI;
 });
 
 afterEach(() => {
   rmSync(tmpDir, { recursive: true, force: true });
-  if (savedTelemetryDir === undefined) delete process.env.AIFLOW_TELEMETRY_DIR;
-  else process.env.AIFLOW_TELEMETRY_DIR = savedTelemetryDir;
+  if (savedTelemetryDir === undefined) delete process.env.AFMOBILE_TELEMETRY_DIR;
+  else process.env.AFMOBILE_TELEMETRY_DIR = savedTelemetryDir;
   if (savedCI === undefined) delete process.env.CI;
   else process.env.CI = savedCI;
 });
@@ -36,14 +36,14 @@ describe('lint-flywheel / 违规采集', () => {
     expect(r.exitCode).toBe(1);
     const bad = r.byFile.find(f => f.file.endsWith('bad.html'));
     const rules = bad.messages.map(m => m.rule);
-    expect(rules).toContain('aiflow/token-whitelist');
-    expect(rules).toContain('aiflow/no-inline-style');
+    expect(rules).toContain('af-mobile/token-whitelist');
+    expect(rules).toContain('af-mobile/no-inline-style');
     // 遥测：违规文件默认记录
     const events = readTelemetry();
     expect(events).toHaveLength(1);
     expect(events[0].source).toBe('cli');
     expect(events[0].passed).toBe(false);
-    expect(events[0].violations.some(v => v.rule === 'aiflow/token-whitelist')).toBe(true);
+    expect(events[0].violations.some(v => v.rule === 'af-mobile/token-whitelist')).toBe(true);
   });
 
   it('干净文件：退出码 0 + 默认不记录遥测', async () => {

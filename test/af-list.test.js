@@ -46,7 +46,7 @@ describe('af-list 虚拟滚动', () => {
 
   it('自定义 renderItem 函数被使用', () => {
     const el = makeList({ data: makeData(5) });
-    // eslint-disable-next-line aiflow/token-whitelist -- 测试自定义 renderItem，用任意 class
+    // eslint-disable-next-line af-mobile/token-whitelist -- 测试自定义 renderItem，用任意 class
     el.renderItem = (item, idx) => `<div class="custom-item" data-idx="${idx}">${item.title}</div>`;
     expect(el.$$('.custom-item').length).toBeGreaterThan(0);
   });

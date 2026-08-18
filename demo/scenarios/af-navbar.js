@@ -1,4 +1,4 @@
-// AIFlow UI —— af-navbar Playground 场景（单一真相源：playground / gen-docs / AI 直读）
+// af-mobile UI —— af-navbar Playground 场景（单一真相源：playground / gen-docs / AI 直读）
 // 契约：{ tag, name, scenarios: [{ name, html, main?, props[], events[], styleTokens[], init? }] }
 // 属性/事件名以 src/index.d.ts 为准；点击返回按钮触发 af-navbar:back；右/左插槽用 slot="right"/"left"。
 export default {

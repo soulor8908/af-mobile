@@ -1,4 +1,4 @@
-// AIFlow UI —— demo 站 Vite 配置（IP-9: 自建 demo，原生优先，不用 Storybook）
+// af-mobile UI —— demo 站 Vite 配置（IP-9: 自建 demo，原生优先，不用 Storybook）
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';

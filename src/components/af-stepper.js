@@ -1,4 +1,4 @@
-// AIFlow UI —— af-stepper：数量选择器
+// af-mobile UI —— af-stepper：数量选择器
 // Light DOM，复用 L2 .btn 配方；min/max/step/禁用态，比 input[type=number] 体验更好
 // 职责：±按钮 + 数值边界 + 步长 + 禁用态 + 键盘可访问
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

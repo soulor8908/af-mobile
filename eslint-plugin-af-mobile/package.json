@@ -1,0 +1,31 @@
+{
+  "name": "@af-mobile/eslint-plugin",
+  "version": "2.0.1",
+  "description": "af-mobile UI ESLint plugin — 27 rules (L1/L2/L3/L3.5) enforcing design-system + Web Component constraints",
+  "type": "module",
+  "main": "./index.js",
+  "module": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "rules/",
+    "utils/"
+  ],
+  "dependencies": {
+    "postcss": "^8.4.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=9.0.0"
+  },
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "web-components",
+    "design-system",
+    "af-mobile"
+  ],
+  "license": "MIT"
+}

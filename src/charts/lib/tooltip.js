@@ -1,4 +1,4 @@
-// AIFlow UI charts —— Shadow DOM 内 DOM tooltip + 最近点查找
+// af-mobile UI charts —— Shadow DOM 内 DOM tooltip + 最近点查找
 // 详见 docs/design/charts-sublibrary-detailed-design.md §3.5
 
 // 创建 tooltip 控制器（懒建 DOM，首 show 才建）

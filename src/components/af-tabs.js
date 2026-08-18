@@ -1,4 +1,4 @@
-// AIFlow UI —— af-tabs：标签页切换
+// af-mobile UI —— af-tabs：标签页切换
 // Light DOM（useShadow=false），复用 L2 .tabbar/.tab-item 配方
 // 职责：选中态 + 内容联动 + WAI-ARIA tab 模式（roving tabindex + 键盘）
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';

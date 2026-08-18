@@ -1,8 +1,8 @@
-// AIFlow UI —— 端到端生成闭环（生成 → lint → 修正 → 再生 一键）
+// af-mobile UI —— 端到端生成闭环（生成 → lint → 修正 → 再生 一键）
 // 复用 ai-fix.mjs 的 runAiFixLoop，封装"调 LLM 生成 → 跑 ai-fix 闭环"
 // 用法：
 //   node scripts/generate.mjs "列表页：商品列表带图"               # 默认走手动模式（输出 prompt）
-//   AIFLOW_AI_API_URL=... node scripts/generate.mjs "需求描述" -o out.html  # 自动生成+修正
+//   AFMOBILE_AI_API_URL=... node scripts/generate.mjs "需求描述" -o out.html  # 自动生成+修正
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,9 +13,9 @@ const CACHE_DIR = join(ROOT, '.cache/generate');
 
 // 调用 LLM 生成首版代码（与 ai-fix.mjs 的 callLLM 同协议）
 async function callLLM(systemPrompt, userPrompt) {
-  const url = process.env.AIFLOW_AI_API_URL;
-  const key = process.env.AIFLOW_AI_API_KEY;
-  const model = process.env.AIFLOW_AI_MODEL || 'gpt-4o';
+  const url = process.env.AFMOBILE_AI_API_URL;
+  const key = process.env.AFMOBILE_AI_API_KEY;
+  const model = process.env.AFMOBILE_AI_MODEL || 'gpt-4o';
   if (!url) return null;
   const res = await fetch(url, {
     method: 'POST',
@@ -67,7 +67,7 @@ export async function generate(userPrompt, opts = {}) {
     return {
       ok: false, code: '', exitCode: 2,
       systemPrompt, userPrompt, outputPath,
-      error: '未配置 AIFLOW_AI_API_URL，进入手动模式',
+      error: '未配置 AFMOBILE_AI_API_URL，进入手动模式',
     };
   }
   if (!firstCode || !firstCode.trim()) {
@@ -100,7 +100,7 @@ if (isMain) {
     if (args[i] === '-o' || args[i] === '--output') outputPath = args[++i];
     else if (args[i] === '-h' || args[i] === '--help') {
       console.error('Usage: generate.mjs "需求描述" [-o out.html]');
-      console.error('Env: AIFLOW_AI_API_URL (LLM endpoint, optional)');
+      console.error('Env: AFMOBILE_AI_API_URL (LLM endpoint, optional)');
       process.exit(0);
     } else userPrompt += (userPrompt ? ' ' : '') + args[i];
   }
@@ -112,7 +112,7 @@ if (isMain) {
 
   generate(userPrompt, { outputPath }).then(r => {
     if (r.exitCode === 2) {
-      console.error('\n⚠ 未配置 AIFLOW_AI_API_URL，进入手动模式');
+      console.error('\n⚠ 未配置 AFMOBILE_AI_API_URL，进入手动模式');
       console.error('  请把以下 System Prompt + User Prompt 复制到 LLM，把输出写回文件后跑 ai-fix：\n');
       process.stdout.write('=== SYSTEM ===\n' + r.systemPrompt + '\n');
       process.stdout.write('=== USER ===\n' + r.userPrompt + '\n');

@@ -1,4 +1,4 @@
-// AIFlow UI —— af-switch：开关切换
+// af-mobile UI —— af-switch：开关切换
 // Light DOM，role=switch，支持 loading 禁用态与 size 变体
 import { AfElement } from '../lib/af-element.js';
 

@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import * as AiflowUI from '../src/index.js';
+import * as AfMobile from '../src/index.js';
 
 describe('index.js 汇总导出', () => {
   it('导出 AfElement 基类', () => {
-    expect(AiflowUI.AfElement).toBeDefined();
+    expect(AfMobile.AfElement).toBeDefined();
   });
 
   it('导出 10 个 L3 组件类', () => {
@@ -12,34 +12,34 @@ describe('index.js 汇总导出', () => {
       'AfActionSheet', 'AfPicker', 'AfDropdown', 'AfImg', 'AfBacktop',
     ];
     expected.forEach(name => {
-      expect(AiflowUI[name]).toBeDefined();
-      expect(typeof AiflowUI[name]).toBe('function');
+      expect(AfMobile[name]).toBeDefined();
+      expect(typeof AfMobile[name]).toBe('function');
     });
   });
 
   it('导出主题 API：getTheme / setTheme / toggleTheme', () => {
-    expect(typeof AiflowUI.getTheme).toBe('function');
-    expect(typeof AiflowUI.setTheme).toBe('function');
-    expect(typeof AiflowUI.toggleTheme).toBe('function');
+    expect(typeof AfMobile.getTheme).toBe('function');
+    expect(typeof AfMobile.setTheme).toBe('function');
+    expect(typeof AfMobile.toggleTheme).toBe('function');
   });
 
   it('导出 register 按需注册函数', () => {
-    expect(typeof AiflowUI.register).toBe('function');
+    expect(typeof AfMobile.register).toBe('function');
   });
 
   it('register(name) 注册单个组件', () => {
-    expect(() => AiflowUI.register('af-list')).not.toThrow();
-    expect(customElements.get('af-list')).toBe(AiflowUI.AfList);
+    expect(() => AfMobile.register('af-list')).not.toThrow();
+    expect(customElements.get('af-list')).toBe(AfMobile.AfList);
   });
 
   it('register(...names) 变参注册多个组件（与 no-register-all 规则推荐用法一致）', () => {
-    expect(() => AiflowUI.register('af-tabs', 'af-dialog')).not.toThrow();
-    expect(customElements.get('af-tabs')).toBe(AiflowUI.AfTabs);
-    expect(customElements.get('af-dialog')).toBe(AiflowUI.AfDialog);
+    expect(() => AfMobile.register('af-tabs', 'af-dialog')).not.toThrow();
+    expect(customElements.get('af-tabs')).toBe(AfMobile.AfTabs);
+    expect(customElements.get('af-dialog')).toBe(AfMobile.AfDialog);
   });
 
   it('register(未知名) 抛错', () => {
-    expect(() => AiflowUI.register('af-unknown')).toThrow(/unknown component/);
+    expect(() => AfMobile.register('af-unknown')).toThrow(/unknown component/);
   });
 });
 
@@ -47,10 +47,10 @@ describe('index.js 汇总导出', () => {
 describe('minify 安全注册', () => {
   // 模拟打包器类名压缩：把类名改短，旧实现基于 Ctor.name 推导 tag 会失效
   it('REGISTRY 用字面量 tag，与类名解耦', () => {
-    expect(Array.isArray(AiflowUI.REGISTRY)).toBe(true);
-    expect(AiflowUI.REGISTRY.length).toBe(28);
+    expect(Array.isArray(AfMobile.REGISTRY)).toBe(true);
+    expect(AfMobile.REGISTRY.length).toBe(28);
     // 每个 entry 是 [string, function]，tag 与类名无关
-    for (const [tag, Ctor] of AiflowUI.REGISTRY) {
+    for (const [tag, Ctor] of AfMobile.REGISTRY) {
       expect(typeof tag).toBe('string');
       expect(tag).toMatch(/^af-/);
       expect(typeof Ctor).toBe('function');
@@ -59,16 +59,16 @@ describe('minify 安全注册', () => {
 
   it('register 全部 28 个 tag 均来自 REGISTRY 字面量（即使类名被压缩）', () => {
     // 逐个按需注册（registerAll 已移除），所有 tag 应能被注册
-    for (const [tag] of AiflowUI.REGISTRY) {
-      expect(() => AiflowUI.register(tag)).not.toThrow();
+    for (const [tag] of AfMobile.REGISTRY) {
+      expect(() => AfMobile.register(tag)).not.toThrow();
       expect(customElements.get(tag)).toBeDefined();
     }
   });
 
   it('register(tag) 按 REGISTRY 字面量查找，不依赖类名', () => {
     // af-badge 由 register 单独注册
-    expect(() => AiflowUI.register('af-badge')).not.toThrow();
-    expect(customElements.get('af-badge')).toBe(AiflowUI.AfBadge);
+    expect(() => AfMobile.register('af-badge')).not.toThrow();
+    expect(customElements.get('af-badge')).toBe(AfMobile.AfBadge);
   });
 });
 

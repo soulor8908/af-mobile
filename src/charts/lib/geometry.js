@@ -1,4 +1,4 @@
-// AIFlow UI charts —— SVG path 几何生成（纯函数，可单测）
+// af-mobile UI charts —— SVG path 几何生成（纯函数，可单测）
 // 详见 docs/design/charts-sublibrary-detailed-design.md §3.2
 // 全部返回 SVG d 属性字符串；不含任何 DOM 操作
 

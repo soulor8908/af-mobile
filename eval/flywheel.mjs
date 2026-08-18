@@ -1,6 +1,6 @@
-// AIFlow UI —— 数据飞轮 v2：从多源违规数据驱动 Prompt/白名单/禁令改进
+// af-mobile UI —— 数据飞轮 v2：从多源违规数据驱动 Prompt/白名单/禁令改进
 // 数据源（全部零 LLM 依赖）：
-//   .aiflow/telemetry.jsonl —— MCP / CLI / CI / 真实使用（eval/telemetry.mjs 统一 schema）
+//   .af-mobile/telemetry.jsonl —— MCP / CLI / CI / 真实使用（eval/telemetry.mjs 统一 schema）
 //   eval/results/raw-*.json —— 合成 eval（可选，需自有 LLM，权重最低）
 // 用法：
 //   node eval/flywheel.mjs                                  # 分析本地遥测 + 全部 raw-*.json
@@ -17,7 +17,7 @@ const RESULTS_DIR = join(ROOT, 'eval/results');
 
 // 规则 → 改进建议映射（驱动 Prompt/白名单/禁令调整）
 const RULE_SUGGESTIONS = {
-  'aiflow/token-whitelist': {
+  'af-mobile/token-whitelist': {
     diagnosis: 'AI 频繁使用白名单外的 class',
     actions: [
       '检查是否高频合理的 class 缺失（考虑加入白名单或 recipes.project.css 扩展）',
@@ -25,7 +25,7 @@ const RULE_SUGGESTIONS = {
       '若该 class 是通用语义（如 .container/.wrapper），评估是否应升级为 L2 配方',
     ],
   },
-  'aiflow/no-inline-style': {
+  'af-mobile/no-inline-style': {
     diagnosis: 'AI 仍习惯性写内联 style',
     actions: [
       '在 Prompt 高频反例区强化"禁止内联 style"示例',
@@ -33,42 +33,42 @@ const RULE_SUGGESTIONS = {
       '考虑在 ai-fix.mjs 的 RULE_HINTS 补充更具体的映射建议',
     ],
   },
-  'aiflow/no-recipe-break': {
+  'af-mobile/no-recipe-break': {
     diagnosis: 'AI 不理解配方组合约束',
     actions: [
       '在 Prompt 禁令 #4/#5/#6 区补充更详细的"为何不能叠加"原因',
       '考虑是否该配方组合约束过于严格（评估放宽可能性）',
     ],
   },
-  'aiflow/wc-aria-required': {
+  'af-mobile/wc-aria-required': {
     diagnosis: 'AI 生成的组件缺少 ARIA 属性',
     actions: [
       '在 Prompt 组件简表区补充每个组件的必需 ARIA 属性',
       '检查 aria-requirements.json 是否过于严格',
     ],
   },
-  'aiflow/wc-event-naming': {
+  'af-mobile/wc-event-naming': {
     diagnosis: 'AI 事件命名不规范',
     actions: [
       '在 Prompt 组件简表区强化"事件名必须 af-{组件}:{动作}"规则',
       '考虑该规则的自动修复能力是否覆盖了 AI 常犯的命名模式',
     ],
   },
-  'aiflow/no-tailwind-syntax': {
+  'af-mobile/no-tailwind-syntax': {
     diagnosis: 'AI 习惯性使用 Tailwind 语法',
     actions: [
       '在 Prompt 高频反例区追加 Tailwind 语法的正确替代示例',
       '强化"本系统非 Tailwind"的角色定位说明',
     ],
   },
-  'aiflow/no-arbitrary-value': {
+  'af-mobile/no-arbitrary-value': {
     diagnosis: 'AI 使用任意值或越界档位',
     actions: [
       '在 Prompt 白名单区强化"p 仅允许 0/1/2/3/4/5/6/8/10"等档位说明',
       '检查档位是否覆盖了 AI 常用的值（考虑新增档位）',
     ],
   },
-  'aiflow/no-variant-conflict': {
+  'af-mobile/no-variant-conflict': {
     diagnosis: 'AI 叠加互斥变体',
     actions: [
       '在 Prompt 高频反例区追加互斥变体示例',
@@ -162,7 +162,7 @@ export function mineArbitraryValues(events) {
   const vals = {};
   for (const ev of events) {
     for (const v of ev.violations || []) {
-      if (v.rule !== 'aiflow/no-arbitrary-value') continue;
+      if (v.rule !== 'af-mobile/no-arbitrary-value') continue;
       const m = v.message.match(/^'([\w-]+(?:\[[^\]]*\])?)'/);
       if (m) vals[m[1]] = (vals[m[1]] || 0) + 1;
     }
@@ -207,9 +207,9 @@ export async function analyze(events, opts = {}) {
   // 可自动修复覆盖率：高频规则是否有 fixable 实现（→ 是投资 autofix，否投资 prompt）
   let fixableCoverage = [];
   try {
-    const { default: plugin } = await import('../eslint-plugin-aiflow/index.js');
+    const { default: plugin } = await import('../eslint-plugin-af-mobile/index.js');
     fixableCoverage = perRuleList.slice(0, 10).map(r => {
-      const short = r.rule.replace(/^aiflow\//, '');
+      const short = r.rule.replace(/^af-mobile\//, '');
       const rule = plugin.rules[short];
       return { rule: r.rule, count: r.count, fixable: Boolean(rule?.meta?.fixable) };
     });
@@ -414,7 +414,7 @@ if (isMain) {
     console.log('✓ 飞轮暂无数据。喂数据方式：');
     console.log('  1. node scripts/lint-flywheel.mjs <任意路径>   # CLI/CI 采集');
     console.log('  2. MCP check_compliance / fix_code             # Agent 真实使用（TRAE/Claude/Cursor）');
-    console.log('  3. AIFLOW_AI_API_URL=... npm run eval          # 合成 eval（可选）');
+    console.log('  3. AFMOBILE_AI_API_URL=... npm run eval          # 合成 eval（可选）');
     process.exit(0);
   }
 

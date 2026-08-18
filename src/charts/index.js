@@ -1,4 +1,4 @@
-// AIFlow UI —— charts 图表子库入口（@af-mobile/ui/charts）
+// af-mobile UI —— charts 图表子库入口（@af-mobile/ui/charts）
 // 独立入口：不进主 index.js，不 import 不加载，主库体积预算零影响
 // 详见 docs/design/charts-sublibrary-detailed-design.md §1
 import { AfChartLine } from './components/af-chart-line.js';
@@ -28,7 +28,7 @@ export const CHART_TAGS = {
 // 注册单个图表组件（保持 Tree Shaking；幂等，重复调用安全）
 export function registerChart(tag) {
   const C = CHART_TAGS[tag];
-  if (!C) throw new Error(`[aiflow/charts] 未知图表标签：${tag}`);
+  if (!C) throw new Error(`[af-mobile/charts] 未知图表标签：${tag}`);
   if (!customElements.get(tag)) customElements.define(tag, C);
 }
 

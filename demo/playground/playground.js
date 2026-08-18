@@ -1,4 +1,4 @@
-// AIFlow UI —— Playground 沙盒宿主页逻辑
+// af-mobile UI —— Playground 沙盒宿主页逻辑
 // 场景文件契约：{ tag, name, scenarios: [{ name, html, main?, props[], events[], styleTokens[], init? }] }
 // main: { selector } 用于定位组件实例（缺省回退 html 首元素）；init: 渲染后调用（注入数据/绑定按钮）
 // props 控件：boolean=开关按钮 / select=下拉 / number=数字 / string=文本，赋值 el[prop] 实时生效

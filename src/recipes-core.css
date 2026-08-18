@@ -1,6 +1,6 @@
-/* AIFlow UI —— L2 配方层 · core 子集
+/* af-mobile UI —— L2 配方层 · core 子集
    按钮 / 容器 / 文本 / 列表 / 导航 / 布局 / Light DOM 宿主（非表单）
-   所有页面必引：import 'aiflow-ui/css/core'; */
+   所有页面必引：import 'af-mobile/css/core'; */
 @layer components {
   /* === 按钮（7） === */
   .btn {

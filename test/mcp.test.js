@@ -10,15 +10,15 @@ let tmpDir;
 let savedTelemetryDir;
 
 beforeEach(() => {
-  tmpDir = mkdtempSync(join(tmpdir(), 'aiflow-mcp-'));
-  savedTelemetryDir = process.env.AIFLOW_TELEMETRY_DIR;
-  process.env.AIFLOW_TELEMETRY_DIR = tmpDir;
+  tmpDir = mkdtempSync(join(tmpdir(), 'af-mobile-mcp-'));
+  savedTelemetryDir = process.env.AFMOBILE_TELEMETRY_DIR;
+  process.env.AFMOBILE_TELEMETRY_DIR = tmpDir;
 });
 
 afterEach(() => {
   rmSync(tmpDir, { recursive: true, force: true });
-  if (savedTelemetryDir === undefined) delete process.env.AIFLOW_TELEMETRY_DIR;
-  else process.env.AIFLOW_TELEMETRY_DIR = savedTelemetryDir;
+  if (savedTelemetryDir === undefined) delete process.env.AFMOBILE_TELEMETRY_DIR;
+  else process.env.AFMOBILE_TELEMETRY_DIR = savedTelemetryDir;
 });
 
 describe('MCP / check_compliance', () => {
@@ -27,8 +27,8 @@ describe('MCP / check_compliance', () => {
     expect(r.passed).toBe(false);
     expect(r.errorCount).toBeGreaterThan(0);
     const rules = r.errors.map(e => e.rule);
-    expect(rules).toContain('aiflow/token-whitelist');
-    expect(rules).toContain('aiflow/no-inline-style');
+    expect(rules).toContain('af-mobile/token-whitelist');
+    expect(rules).toContain('af-mobile/no-inline-style');
   });
 
   it('合规代码 passed=true', async () => {
@@ -121,13 +121,13 @@ describe('MCP / flywheel_report（零 LLM）', () => {
     recordRun({
       source: 'mcp', tool: 'trae-code', file: 'a.html', passed: false,
       violations: [
-        { rule: 'aiflow/token-whitelist', severity: 'error', line: 1, message: "Class 'card-wrap' not in whitelist. Use recipe" },
+        { rule: 'af-mobile/token-whitelist', severity: 'error', line: 1, message: "Class 'card-wrap' not in whitelist. Use recipe" },
       ],
     });
     recordRun({ source: 'mcp', tool: 'trae-code', file: 'b.html', passed: true, violations: [] });
     const r = await flywheelReport({ topN: 5 });
     expect(r.total).toBe(2);
-    expect(r.topRules[0].rule).toBe('aiflow/token-whitelist');
+    expect(r.topRules[0].rule).toBe('af-mobile/token-whitelist');
     expect(r.whitelistCandidates.classes[0].name).toBe('card-wrap');
     expect(r.convergence['trae-code']).toEqual({ runs: 2, passed: 1 });
   });

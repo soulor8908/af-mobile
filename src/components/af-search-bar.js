@@ -1,4 +1,4 @@
-// AIFlow UI —— af-search-bar：搜索栏
+// af-mobile UI —— af-search-bar：搜索栏
 // Light DOM，复用 L2 .search-input，内置搜索图标、清除按钮、防抖 input 事件、回车 search 事件
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';

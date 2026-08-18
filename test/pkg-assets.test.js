@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const ASSETS = [
-  ['eslint-plugin-aiflow/utils/whitelist-v1.json', 'whitelist-v1.json'],
+  ['eslint-plugin-af-mobile/utils/whitelist-v1.json', 'whitelist-v1.json'],
   ['src/recipes.css', 'recipes.css'],
   ['src/atomic.css', 'atomic.css'],
   ['prompt/system-prompt.md', 'system-prompt.md'],

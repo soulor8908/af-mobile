@@ -1,4 +1,4 @@
-// AIFlow UI —— createPage 页面运行时工厂
+// af-mobile UI —— createPage 页面运行时工厂
 // 9 原语：state / computed / setup / effects / transform / actions / onError / transition / keepAlive
 // 复用 state.js 的 signal/computed/effect/batch/createRoot，复用 router.js 的路由钩子
 // SSR 安全：顶层无副作用，DOM/window 访问都在 effect 处理器内延迟到浏览器环境

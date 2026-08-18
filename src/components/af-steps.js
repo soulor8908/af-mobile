@@ -1,4 +1,4 @@
-// AIFlow UI —— af-steps：步骤条
+// af-mobile UI —— af-steps：步骤条
 // Light DOM，复用 L2 .steps 纯 CSS 配方；steps（字符串数组或 {label} 数组）+ current 高亮当前步
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 

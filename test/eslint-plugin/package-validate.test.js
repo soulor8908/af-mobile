@@ -1,13 +1,13 @@
-// eslint-plugin-aiflow 独立包验证：@af-mobile/eslint-plugin 可作为独立 npm 包发布/消费
+// eslint-plugin-af-mobile 独立包验证：@af-mobile/eslint-plugin 可作为独立 npm 包发布/消费
 // 验证：包元信息 / 20 规则完整性 / recommended 配置自洽 / 端到端集成（Linter 跑通）
 import { describe, it, expect } from 'vitest';
 import { Linter } from 'eslint';
 import { readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import plugin from '../../eslint-plugin-aiflow/index.js';
+import plugin from '../../eslint-plugin-af-mobile/index.js';
 
-const PKG_DIR = resolve(fileURLToPath(import.meta.url), '../../../eslint-plugin-aiflow');
+const PKG_DIR = resolve(fileURLToPath(import.meta.url), '../../../eslint-plugin-af-mobile');
 
 describe('@af-mobile/eslint-plugin 独立包', () => {
   it('package.json 元信息完整（name/version/exports/files/peerDeps）', () => {
@@ -33,12 +33,12 @@ describe('@af-mobile/eslint-plugin 独立包', () => {
     expect(plugin.rules['wc-block-states']).toBeDefined();
   });
 
-  it('recommended 配置自洽：所有 aiflow/* 规则都已在 plugin.rules 中声明', () => {
+  it('recommended 配置自洽：所有 af-mobile/* 规则都已在 plugin.rules 中声明', () => {
     const { rules } = plugin.configs.recommended;
-    expect(plugin.configs.recommended.plugins.aiflow).toBe(plugin);
+    expect(plugin.configs.recommended.plugins['af-mobile']).toBe(plugin);
     for (const key of Object.keys(rules)) {
-      expect(key.startsWith('aiflow/')).toBe(true);
-      const name = key.slice('aiflow/'.length);
+      expect(key.startsWith('af-mobile/')).toBe(true);
+      const name = key.slice('af-mobile/'.length);
       expect(plugin.rules[name], `recommended 引用了未导出规则 ${name}`).toBeDefined();
     }
   });
@@ -47,19 +47,19 @@ describe('@af-mobile/eslint-plugin 独立包', () => {
     const linter = new Linter();
     const messages = linter.verify(
       'const html = `<div class="custom-btn" style="color:red">x</div>`;',
-      [{ plugins: { aiflow: plugin }, rules: plugin.configs.recommended.rules }],
+      [{ plugins: { 'af-mobile': plugin }, rules: plugin.configs.recommended.rules }],
       { filename: 'consumer.js' },
     );
     const ids = messages.map((m) => m.ruleId);
-    expect(ids).toContain('aiflow/token-whitelist'); // 白名单外 class
-    expect(ids).toContain('aiflow/no-inline-style'); // 内联 style
+    expect(ids).toContain('af-mobile/token-whitelist'); // 白名单外 class
+    expect(ids).toContain('af-mobile/no-inline-style'); // 内联 style
   });
 
   it('端到端：白名单内 class + 合法代码零报错', () => {
     const linter = new Linter();
     const messages = linter.verify(
       'const html = `<button class="btn btn-sm" disabled>x</button>`;',
-      [{ plugins: { aiflow: plugin }, rules: plugin.configs.recommended.rules }],
+      [{ plugins: { 'af-mobile': plugin }, rules: plugin.configs.recommended.rules }],
       { filename: 'consumer.js' },
     );
     expect(messages).toHaveLength(0);

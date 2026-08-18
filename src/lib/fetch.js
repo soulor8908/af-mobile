@@ -1,4 +1,4 @@
-// AIFlow UI —— 数据获取封装
+// af-mobile UI —— 数据获取封装
 // fetchPage + 错误分类（Timeout/Http/Abort）+ 去重/缓存/拦截器
 // 顶层仅声明 Map/Set，无 DOM 访问，Node 18+ fetch/AbortController 原生（SSR 安全）
 
@@ -189,7 +189,7 @@ export function clearCache() {
 }
 
 /** 持久化缓存后端：localStorageAdapter() 创建（与 Map 同接口 get/set/delete/clear） */
-export function localStorageAdapter({ prefix = 'aiflow-cache:' } = {}) {
+export function localStorageAdapter({ prefix = 'af-mobile-cache:' } = {}) {
   const get = (url) => {
     try {
       const raw = localStorage.getItem(prefix + url);

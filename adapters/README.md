@@ -1,6 +1,6 @@
 # @af-mobile/adapters
 
-为 AIFlow UI（`@af-mobile/ui`）提供数据源适配器。当前内置 **Supabase**（`supabase://` scheme）适配器：把 `supabase://table?select=...&filter=...` 翻译成 PostgREST 请求，复用 `@af-mobile/ui` 的 `fetchPage` 原生通道（分页 + total）。
+为 af-mobile UI（`@af-mobile/ui`）提供数据源适配器。当前内置 **Supabase**（`supabase://` scheme）适配器：把 `supabase://table?select=...&filter=...` 翻译成 PostgREST 请求，复用 `@af-mobile/ui` 的 `fetchPage` 原生通道（分页 + total）。
 
 ## 安装
 

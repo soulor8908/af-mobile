@@ -1,4 +1,4 @@
-// AIFlow UI —— L3 体积预算验证脚本
+// af-mobile UI —— L3 体积预算验证脚本
 // 用法：node scripts/size-check.mjs
 // 依据 docs/design/l3-detailed-design.md §8.5 CI 体积监控（数字与下方 BUDGET 一致）
 //   单组件 JS gzip ≤ 2.8KB   PR 阻断（CSS 计入 L1+L2 总预算，不单测）
@@ -135,7 +135,7 @@ const NAME_TO_FILE = Object.fromEntries(
 
 // 按需引入 2 组件：临时入口 import 基类 + 2 组件，bundle 后 minify+gz
 async function onDemand2Gz(compA, compB) {
-  const dir = mkdtempSync(join(tmpdir(), 'aiflow-size-'));
+  const dir = mkdtempSync(join(tmpdir(), 'af-mobile-size-'));
   const entry = join(dir, 'entry.js');
   // Windows 下 join 返回反斜杠，嵌入 JS 字符串会被当转义字符吞掉，统一转成正斜杠
   const toPosix = (p) => p.replace(/\\/g, '/');
@@ -164,7 +164,7 @@ async function onDemand2Gz(compA, compB) {
 // charts 内核：scale+geometry+render+chart-theme+tooltip+chart-base 合计 gzip
 // （external 掉主库基类/with-i18n/i18n，与 coreRuntime 同法防 tree-shake）
 async function measureChartsRuntime() {
-  const dir = mkdtempSync(join(tmpdir(), 'aiflow-charts-'));
+  const dir = mkdtempSync(join(tmpdir(), 'af-mobile-charts-'));
   const entry = join(dir, 'entry.js');
   const toPosix = (p) => p.replace(/\\/g, '/');
   const lib = (f) => toPosix(join(SRC, 'charts/lib', f));
@@ -176,7 +176,7 @@ async function measureChartsRuntime() {
     `import { createTooltip, nearestIndex } from '${lib('tooltip.js')}';\n` +
     `import { AfChart } from '${lib('chart-base.js')}';\n` +
     `// 引用以防 tree-shake 摇除\n` +
-    `globalThis.__aiflow_charts = [niceTicks, linear, linePath, areaPath, arcPath, polar, fmtNum, svgEl, bindResize, bindLazy, CHART_COLORS, seriesColor, seriesOpacity, CHART_CSS, createTooltip, nearestIndex, AfChart];\n`
+    `globalThis.__afMobile_charts = [niceTicks, linear, linePath, areaPath, arcPath, polar, fmtNum, svgEl, bindResize, bindLazy, CHART_COLORS, seriesColor, seriesOpacity, CHART_CSS, createTooltip, nearestIndex, AfChart];\n`
   );
   const res = await build({
     entryPoints: [entry],
@@ -192,7 +192,7 @@ async function measureChartsRuntime() {
 // bare import 会被 esbuild tree-shake 摇除。因此用具名导入 + globalThis 引用强制保留代码
 // （与 onDemand2Gz 用 customElements.define 防摇除同理）。
 async function measureCoreRuntime() {
-  const dir = mkdtempSync(join(tmpdir(), 'aiflow-core-'));
+  const dir = mkdtempSync(join(tmpdir(), 'af-mobile-core-'));
   const entry = join(dir, 'entry.js');
   const toPosix = (p) => p.replace(/\\/g, '/');
   writeFileSync(entry,
@@ -203,7 +203,7 @@ async function measureCoreRuntime() {
     `import { t, getLocale, setLocale, initLocale, addMessages, messages } from '${toPosix(join(SRC, 'lib/i18n.js'))}';\n` +
     `import { createPage } from '${toPosix(join(SRC, 'lib/page.js'))}';\n` +
     `// 引用以防 tree-shake 摇除\n` +
-    `globalThis.__aiflow_core = [signal, computed, effect, batch, createRoot, getOwner, untrack, createResource, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, setCacheAdapter, localStorageAdapter, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages, createPage];\n`
+    `globalThis.__afMobile_core = [signal, computed, effect, batch, createRoot, getOwner, untrack, createResource, fetchPage, FetchError, TimeoutError, HttpError, AbortError, addInterceptor, removeInterceptor, invalidateCache, clearCache, setCacheAdapter, localStorageAdapter, route, go, back, forward, beforeEach, afterEach, notFound, current, start, t, getLocale, setLocale, initLocale, addMessages, messages, createPage];\n`
   );
   const res = await build({
     entryPoints: [entry],
@@ -274,7 +274,7 @@ async function main() {
 
   // === 报告 ===
   console.log('\n╔══════════════════════════════════════════════════════════╗');
-  console.log('║          AIFlow UI —— 体积预算验证                      ║');
+  console.log('║          af-mobile UI —— 体积预算验证                      ║');
   console.log('╚══════════════════════════════════════════════════════════╝\n');
 
   const violations = [];

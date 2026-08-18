@@ -1,8 +1,8 @@
-# AIFlow UI —— 迭代版本详细设计（v1.1.0 / v1.2.0 / v1.3.0 / v1.4.0 / v1.5.0 / v1.6.0）
+# af-mobile UI —— 迭代版本详细设计（v1.1.0 / v1.2.0 / v1.3.0 / v1.4.0 / v1.5.0 / v1.6.0）
 
-> 本文档基于 [iteration-plan.md](file:///d:/projects/aiflow-ui/docs/iteration-plan.md)，将 10 个迭代项（IP-1 ~ IP-10）细化为可直接落地的详细设计。
+> 本文档基于 [iteration-plan.md](file:///d:/projects/af-mobile/docs/iteration-plan.md)，将 10 个迭代项（IP-1 ~ IP-10）细化为可直接落地的详细设计。
 >
-> 设计原则遵循 L3 总体架构（[l3-detailed-design.md](file:///d:/projects/aiflow-ui/docs/design/l3-detailed-design.md)）：原生 WC、混合 Shadow/Light DOM、`AfElement` 基类、`af-{component}:{action}` 事件、白名单封闭、体积预算。
+> 设计原则遵循 L3 总体架构（[l3-detailed-design.md](file:///d:/projects/af-mobile/docs/design/l3-detailed-design.md)）：原生 WC、混合 Shadow/Light DOM、`AfElement` 基类、`af-{component}:{action}` 事件、白名单封闭、体积预算。
 >
 > 新增组件详设沿用 §9 的 10 节模板：概述 / DOM 模式 / 属性 API / DOM 结构 / 算法 / 事件 / ARIA 与键盘 / 使用示例 / 与 L2 协作 / 体积拆分。
 
@@ -244,7 +244,7 @@ npm view eslint versions --json | findstr "10."
 
 #### 1. 问题回顾
 
-[af-tabs.js#L48-L74](file:///d:/projects/aiflow-ui/src/components/af-tabs.js#L48-L74) 的 `_renderPanels` 在 slot 静态面板模式下，把 Light DOM 面板 `move` 到 `.af-tabs-panel-container`。若面板内已绑定事件或外部持有 DOM 引用，移动会破坏引用。
+[af-tabs.js#L48-L74](file:///d:/projects/af-mobile/src/components/af-tabs.js#L48-L74) 的 `_renderPanels` 在 slot 静态面板模式下，把 Light DOM 面板 `move` 到 `.af-tabs-panel-container`。若面板内已绑定事件或外部持有 DOM 引用，移动会破坏引用。
 
 #### 2. 方案对比
 
@@ -836,7 +836,7 @@ function ProductList({ items }) {
         </div>
       </af-list>
       {/* 客户端 hydrate */}
-      <Script src="/aiflow-ui.js" strategy="lazyOnload" onLoad={() => window.AiflowUI?.registerAll()} />
+      <Script src="/af-mobile.js" strategy="lazyOnload" onLoad={() => window.AfMobile?.registerAll()} />
     </>
   );
 }
@@ -949,7 +949,7 @@ af-picker 当前为 Shadow DOM，选项通过 `data` 属性传入（非 slot）�
 
 ## v1.4.0 L3.5 Block 层 + definePage 基础设施
 
-> 完整设计见 [l3.5-block-detailed-design.md](file:///d:/projects/aiflow-ui/docs/design/l3.5-block-detailed-design.md)。本节仅列迭代项清单与验收标准。
+> 完整设计见 [l3.5-block-detailed-design.md](file:///d:/projects/af-mobile/docs/design/l3.5-block-detailed-design.md)。本节仅列迭代项清单与验收标准。
 
 ### IP-11 definePage 运行时 + af-data + :bind
 
@@ -1032,17 +1032,17 @@ af-picker 当前为 Shadow DOM，选项通过 `data` 属性传入（非 slot）�
 
 | 文件 | 规则 | severity |
 |---|---|---|
-| `eslint-plugin-aiflow/rules/wc-block-states.js` | Block 必须实现五态 | error |
-| `eslint-plugin-aiflow/rules/wc-block-props-count.js` | Block props 数 2-5 | error |
-| `eslint-plugin-aiflow/rules/wc-block-no-internal-ref.js` | 消费端禁止穿透 Block 边界 | error |
-| `eslint-plugin-aiflow/rules/wc-effects-whitelist.js` | effects key 只能在白名单 | error |
-| `eslint-plugin-aiflow/rules/wc-transform-pure.js` | transform 函数体无副作用 | error |
-| `eslint-plugin-aiflow/rules/wc-bind-syntax.js` | :bind 只能绑定 state/computed/af-data 字段 | error |
-| `eslint-plugin-aiflow/rules/wc-no-addeventlistener.js` | 消费端禁止裸 addEventListener | error |
-| `eslint-plugin-aiflow/rules/wc-definepage-single.js` | 每页只允许一个 definePage | error |
-| `eslint-plugin-aiflow/rules/wc-state-schema.js` | state 字段必须声明类型 | error |
-| `eslint-plugin-aiflow/rules/wc-pure-function.js` | computed/actions 必须纯函数 | error |
-| `eslint-plugin-aiflow/rules/wc-block-variant-enum.js` | variant 必须限制枚举 | warn |
+| `eslint-plugin-af-mobile/rules/wc-block-states.js` | Block 必须实现五态 | error |
+| `eslint-plugin-af-mobile/rules/wc-block-props-count.js` | Block props 数 2-5 | error |
+| `eslint-plugin-af-mobile/rules/wc-block-no-internal-ref.js` | 消费端禁止穿透 Block 边界 | error |
+| `eslint-plugin-af-mobile/rules/wc-effects-whitelist.js` | effects key 只能在白名单 | error |
+| `eslint-plugin-af-mobile/rules/wc-transform-pure.js` | transform 函数体无副作用 | error |
+| `eslint-plugin-af-mobile/rules/wc-bind-syntax.js` | :bind 只能绑定 state/computed/af-data 字段 | error |
+| `eslint-plugin-af-mobile/rules/wc-no-addeventlistener.js` | 消费端禁止裸 addEventListener | error |
+| `eslint-plugin-af-mobile/rules/wc-definepage-single.js` | 每页只允许一个 definePage | error |
+| `eslint-plugin-af-mobile/rules/wc-state-schema.js` | state 字段必须声明类型 | error |
+| `eslint-plugin-af-mobile/rules/wc-pure-function.js` | computed/actions 必须纯函数 | error |
+| `eslint-plugin-af-mobile/rules/wc-block-variant-enum.js` | variant 必须限制枚举 | warn |
 
 #### 3. 实现要点
 
@@ -1061,7 +1061,7 @@ af-picker 当前为 Shadow DOM，选项通过 `data` 属性传入（非 slot）�
 #### 4. 验收标准
 
 - [ ] 11 条规则全部实现,每条有正反例测试用例
-- [ ] `eslint-plugin-aiflow/index.js` 的 recommended config 追加 11 条(10 error + 1 warn)
+- [ ] `eslint-plugin-af-mobile/index.js` 的 recommended config 追加 11 条(10 error + 1 warn)
 - [ ] `npx eslint src/ test/ scripts/ --max-warnings 0` 全绿
 - [ ] 3 个验证 Block + 验证页面代码通过所有规则
 

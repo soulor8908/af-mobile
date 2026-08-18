@@ -1,4 +1,4 @@
-// AIFlow UI charts —— af-chart-radar：雷达（多维能力画像，单/双主体对比）
+// af-mobile UI charts —— af-chart-radar：雷达（多维能力画像，单/双主体对比）
 // 详见 docs/design/charts-sublibrary-detailed-design.md §5.4
 // shape: polygon（多边形网格）| circle（同心圆网格）
 // 无障碍：svg 的 role="img" 与 aria-label 由 AfChart 基类统一注入（chart-base.js _render）

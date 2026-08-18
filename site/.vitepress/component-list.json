@@ -133,5 +133,30 @@
     "tag": "countdown",
     "className": "AfCountdown",
     "title": "倒计时"
+  },
+  {
+    "tag": "chart-line",
+    "className": "AfChartLine",
+    "title": "折线/面积/散点"
+  },
+  {
+    "tag": "chart-bar",
+    "className": "AfChartBar",
+    "title": "柱状/条形/堆叠"
+  },
+  {
+    "tag": "chart-pie",
+    "className": "AfChartPie",
+    "title": "饼/环形/玫瑰"
+  },
+  {
+    "tag": "chart-radar",
+    "className": "AfChartRadar",
+    "title": "雷达画像"
+  },
+  {
+    "tag": "chart-funnel",
+    "className": "AfChartFunnel",
+    "title": "转化漏斗"
   }
 ]

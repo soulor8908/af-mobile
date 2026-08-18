@@ -57,3 +57,7 @@ coverage/
 
 # Vite/Vitest 运行临时碎片（*.config.js.timestamp-*.mjs，自动重建，不入库）
 *.timestamp-*.mjs
+
+# 文档站构建产物与 demo 产物（不入库，均由 CI 生成）
+site/.vitepress/dist/
+site/public/demo/

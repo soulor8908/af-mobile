@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AfPlayground</title>
+  <link rel="stylesheet" href="../src/index.css">
+  <style>
+    html, body { margin: 0; height: 100%; background: #f5f6f8; }
+    .pg { display: flex; flex-direction: column; height: 100vh; }
+    .pg-header { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: #fff; border-bottom: 1px solid #eee; }
+    .pg-header h1 { font-size: 16px; margin: 0; }
+    .pg-tabs { display: flex; gap: 6px; }
+    .pg-tabs button, .pg-scen button { border: 1px solid #ddd; background: #fff; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+    .pg-tabs button.active, .pg-scen button.active { background: #1668dc; color: #fff; border-color: #1668dc; }
+    .pg-body { flex: 1; display: flex; overflow: hidden; }
+    .pg-stage { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 16px; overflow: auto; }
+    .pg-phone { width: 375px; max-width: 100%; background: #fff; border: 1px solid #e4e4e4; border-radius: 12px; padding: 16px; min-height: 480px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .pg-panel { width: 320px; background: #fff; border-left: 1px solid #eee; display: flex; flex-direction: column; overflow: hidden; }
+    .pg-panel .pg-tabs { padding: 8px; border-bottom: 1px solid #eee; }
+    .pg-panel-body { flex: 1; overflow: auto; padding: 12px; }
+    .pg-field { margin-bottom: 12px; }
+    .pg-field label { display: block; font-size: 12px; color: #666; margin-bottom: 4px; }
+    .pg-field .pg-val { font-size: 11px; color: #999; margin-left: 6px; }
+    .pg-ctrl { width: 100%; }
+    .pg-switch { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #f0f0f0; }
+    .pg-log { font-family: monospace; font-size: 11px; color: #333; background: #fafafa; border-radius: 6px; padding: 8px; white-space: pre-wrap; word-break: break-all; max-height: 100%; overflow: auto; }
+    .pg-copy { margin-top: 8px; width: 100%; }
+    .pg-empty { color: #999; font-size: 13px; padding: 16px; text-align: center; }
+  </style>
+</head>
+<body>
+  <main class="pg">
+    <header class="pg-header">
+      <button id="back" title="返回">←</button>
+      <h1 id="pg-title">Playground</h1>
+      <div class="pg-scen" id="scen-tabs"></div>
+      <a id="doc-link" href="#" target="_blank" title="打开组件文档">📖</a>
+    </header>
+    <div class="pg-body">
+      <section class="pg-stage">
+        <div class="pg-phone" id="preview"></div>
+      </section>
+      <aside class="pg-panel">
+        <div class="pg-tabs" id="panel-tabs">
+          <button data-tab="props" class="active">属性</button>
+          <button data-tab="events">事件</button>
+          <button data-tab="tokens">样式</button>
+        </div>
+        <div class="pg-panel-body">
+          <div id="props-box"></div>
+          <div id="events-box" hidden>
+            <div class="pg-log" id="event-log"></div>
+          </div>
+          <div id="tokens-box" hidden></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script type="module">
+    import { registerAll } from '../src/index.js';
+    registerAll();
+
+    // 静态收集所有场景，Vite 全量打包
+    const sceneMods = import.meta.glob('./scenarios/*.js', { eager: true });
+    const url = new URLSearchParams(location.search);
+    const inTag = url.get('c') || 'af-dialog';
+    const cfg = sceneMods[`./scenarios/${inTag}.js`]?.default;
+    if (!cfg) {
+      document.getElementById('pg-title').textContent = '未找到场景';
+      document.getElementById('preview').textContent = `没有组件「${inTag}」的 Playground 场景`;
+    }
+
+    const preview = document.getElementById('preview');
+    const propBox = document.getElementById('props-box');
+    const eventsBox = document.getElementById('events-box');
+    const tokensBox = document.getElementById('tokens-box');
+    const eventLog = document.getElementById('event-log');
+    const scenTabs = document.getElementById('scen-tabs');
+    const panelTabs = document.getElementById('panel-tabs');
+    const docLink = document.getElementById('doc-link');
+    document.getElementById('pg-title').textContent = `af-${cfg.tag.replace(/^af-/, '')}`;
+
+    let targetEl = null;
+
+    // 事件在 preview 上 capture 监听（组件 emit 为 composed，冒泡至祖先可被 capture 捕获）
+    let lastTypes = [];
+    function onEvent(e) {
+      eventLog.textContent = `[${e.type}] ` + JSON.stringify(e.detail ?? {}) + '\n' + eventLog.textContent;
+    }
+    function wireEvents(scen) {
+      lastTypes.forEach((t) => preview.removeEventListener(t, onEvent, true));
+      lastTypes = scen.evts || [];
+      lastTypes.forEach((t) => preview.addEventListener(t, onEvent, true));
+    }
+
+    // 属性面板：复用 props-panel.js 的 schema 协议
+    import('./props-panel.js').then(({ createPropsPanel }) => {
+      if (cfg) renderScene(0);
+    });
+
+    function renderScene(idx) {
+      if (!cfg) return;
+      const scen = cfg.scenarios[idx];
+      preview.innerHTML = scen.html;
+      targetEl = preview.querySelector(scen.main?.selector || cfg.tag) || null;
+      // 场景初始化钩子
+      scen.init?.();
+
+      scenTabs.innerHTML = cfg.scenarios.map((s, i) =>
+        `<button class="${i === idx ? 'active' : ''}" data-idx="${i}">${s.name}</button>`).join('');
+      scenTabs.querySelectorAll('button').forEach((b) =>
+        b.addEventListener('click', () => renderScene(Number(b.dataset.idx))));
+
+      // 属性
+      propBox.innerHTML = '';
+      if (targetEl && scen.props?.length) {
+        createPropsPanel(propBox, scen.props, targetEl);
+      } else propBox.innerHTML = '<div class="pg-empty">无可调属性</div>';
+
+      // 事件
+      eventLog.textContent = '等待事件触发…';
+      wireEvents(scen);
+
+      // 样式 token
+      tokensBox.innerHTML = '';
+      if (scen.tokens?.length) {
+        const code = [];
+        scen.tokens.forEach((tk) => {
+          const box = document.createElement('div');
+          box.className = 'pg-field';
+          const label = document.createElement('label');
+          label.textContent = tk.label || tk.token;
+          box.appendChild(label);
+          if (tk.type === 'color') {
+            const input = document.createElement('input');
+            input.type = 'color';
+            input.className = 'pg-ctrl';
+            input.value = getComputedStyle(document.documentElement).getPropertyValue(tk.token).trim() || tk.default || '#1668dc';
+            input.addEventListener('input', () => {
+              document.documentElement.style.setProperty(tk.token, input.value);
+              code.push(`  ${tk.token}: ${input.value};`);
+            });
+            box.appendChild(input);
+          } else {
+            const wrap = document.createElement('div');
+            const input = document.createElement('input');
+            input.type = 'range';
+            input.className = 'pg-ctrl';
+            input.min = tk.min ?? 0;
+            input.max = tk.max ?? 100;
+            input.value = tk.default ?? 16;
+            const val = document.createElement('span');
+            val.className = 'pg-val';
+            const upd = () => {
+              document.documentElement.style.setProperty(tk.token, input.value + 'px');
+              val.textContent = input.value + 'px';
+              code.push(`  ${tk.token}: ${input.value}px;`);
+            };
+            input.addEventListener('input', upd);
+            upd();
+            wrap.appendChild(input);
+            wrap.appendChild(val);
+            box.appendChild(wrap);
+          }
+          tokensBox.appendChild(box);
+        });
+        const copy = document.createElement('button');
+        copy.className = 'btn pg-copy';
+        copy.textContent = '复制覆盖代码';
+        copy.addEventListener('click', async () => {
+          const css = `:root {\n${code.join('\n')}\n}`;
+          try { await navigator.clipboard.writeText(css); } catch { /* ignore */ }
+        });
+        tokensBox.appendChild(copy);
+      } else tokensBox.innerHTML = '<div class="pg-empty">无可用样式 token</div>';
+    }
+
+    // panel tab 切换
+    panelTabs.querySelectorAll('button').forEach((b) =>
+      b.addEventListener('click', () => {
+        panelTabs.querySelectorAll('button').forEach((x) => x.classList.toggle('active', x === b));
+        propBox.hidden = b.dataset.tab !== 'props';
+        eventsBox.hidden = b.dataset.tab !== 'events';
+        tokensBox.hidden = b.dataset.tab !== 'tokens';
+      }));
+
+    document.getElementById('back').addEventListener('click', () => (location.href = './index.html'));
+    if (cfg) docLink.href = `/v/components/af-${cfg.tag.replace(/^af-/, '')}.html`;
+  </script>
+</body>
+</html>

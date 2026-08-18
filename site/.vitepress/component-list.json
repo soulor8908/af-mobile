@@ -1,0 +1,137 @@
+[
+  {
+    "tag": "list",
+    "className": "AfList",
+    "title": "长列表（虚拟滚动）"
+  },
+  {
+    "tag": "swiper",
+    "className": "AfSwiper",
+    "title": "轮播滑动"
+  },
+  {
+    "tag": "tabs",
+    "className": "AfTabs",
+    "title": "标签页"
+  },
+  {
+    "tag": "dialog",
+    "className": "AfDialog",
+    "title": "模态对话框"
+  },
+  {
+    "tag": "toast",
+    "className": "AfToast",
+    "title": "轻提示"
+  },
+  {
+    "tag": "action-sheet",
+    "className": "AfActionSheet",
+    "title": "底部面板"
+  },
+  {
+    "tag": "picker",
+    "className": "AfPicker",
+    "title": "滚轮选择器"
+  },
+  {
+    "tag": "dropdown",
+    "className": "AfDropdown",
+    "title": "下拉菜单"
+  },
+  {
+    "tag": "img",
+    "className": "AfImg",
+    "title": "懒加载图片"
+  },
+  {
+    "tag": "backtop",
+    "className": "AfBacktop",
+    "title": "回到顶部"
+  },
+  {
+    "tag": "badge",
+    "className": "AfBadge",
+    "title": "徽标角标"
+  },
+  {
+    "tag": "calendar",
+    "className": "AfCalendar",
+    "title": "日历"
+  },
+  {
+    "tag": "switch",
+    "className": "AfSwitch",
+    "title": "开关"
+  },
+  {
+    "tag": "search-bar",
+    "className": "AfSearchBar",
+    "title": "搜索栏"
+  },
+  {
+    "tag": "skeleton-page",
+    "className": "AfSkeletonPage",
+    "title": "骨架屏"
+  },
+  {
+    "tag": "upload",
+    "className": "AfUpload",
+    "title": "文件上传"
+  },
+  {
+    "tag": "navbar",
+    "className": "AfNavbar",
+    "title": "顶部导航栏"
+  },
+  {
+    "tag": "tabbar",
+    "className": "AfTabbar",
+    "title": "底部标签栏"
+  },
+  {
+    "tag": "stepper",
+    "className": "AfStepper",
+    "title": "步进器"
+  },
+  {
+    "tag": "field",
+    "className": "AfField",
+    "title": "表单字段"
+  },
+  {
+    "tag": "pull-refresh",
+    "className": "AfPullRefresh",
+    "title": "下拉刷新"
+  },
+  {
+    "tag": "swipe-cell",
+    "className": "AfSwipeCell",
+    "title": "滑动单元格"
+  },
+  {
+    "tag": "rate",
+    "className": "AfRate",
+    "title": "评分"
+  },
+  {
+    "tag": "notice-bar",
+    "className": "AfNoticeBar",
+    "title": "公告通知栏"
+  },
+  {
+    "tag": "progress",
+    "className": "AfProgress",
+    "title": "进度条"
+  },
+  {
+    "tag": "steps",
+    "className": "AfSteps",
+    "title": "步骤条"
+  },
+  {
+    "tag": "countdown",
+    "className": "AfCountdown",
+    "title": "倒计时"
+  }
+]

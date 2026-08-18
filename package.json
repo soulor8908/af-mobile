@@ -82,7 +82,10 @@
     "prepublishOnly": "npm run build && npm run publish:check",
     "ci": "vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs && node scripts/check-tokens-sync.mjs && node scripts/check-types-sync.mjs && node scripts/check-aria-sync.mjs",
     "demo": "vite",
-    "demo:build": "vite build"
+    "demo:build": "vite build",
+    "docs:dev": "vitepress dev site",
+    "docs:build": "vitepress build site",
+    "docs:gen": "node scripts/gen-docs.mjs"
   },
   "keywords": [
     "web-components",
@@ -104,6 +107,7 @@
     "lighthouse": "^12.2.1",
     "postcss": "^8.5.26",
     "vite": "^5.4.0",
+    "vitepress": "^1.6.4",
     "vitest": "^1.6.0",
     "web-vitals": "^4.2.4"
   }

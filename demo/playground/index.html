@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>组件沙盒 Playground</title>
+  <link rel="stylesheet" href="../../src/index.css">
+  <link rel="stylesheet" href="./playground.css">
+</head>
+<body>
+  <header class="pg-topbar">
+    <h1>组件沙盒</h1>
+    <select id="pg-component" title="选择组件"></select>
+  </header>
+  <main class="pg-main">
+    <section class="pg-stage">
+      <div class="pg-device" id="pg-device">
+        <div class="pg-device-bar">
+          <span id="pg-device-label">375px</span>
+          <button data-w="375" class="pg-btn">375</button>
+          <button data-w="414" class="pg-btn">414</button>
+          <button data-w="auto" class="pg-btn">自适应</button>
+        </div>
+        <div class="pg-device-screen" id="pg-screen"></div>
+      </div>
+    </section>
+    <aside class="pg-panel">
+      <div class="pg-tabs">
+        <button data-tab="props" class="pg-tab is-active">属性</button>
+        <button data-tab="events" class="pg-tab">事件</button>
+        <button data-tab="styles" class="pg-tab">样式</button>
+      </div>
+      <div class="pg-tabpanel is-active" data-panel="props" id="pg-props"></div>
+      <div class="pg-tabpanel" data-panel="events">
+        <pre id="pg-event-log" class="pg-log">（切换场景后开始记录事件）</pre>
+        <button id="pg-event-clear" class="pg-btn">清空日志</button>
+      </div>
+      <div class="pg-tabpanel" data-panel="styles" id="pg-styles"></div>
+      <div class="pg-scenarios">
+        <div id="pg-scenario-tabs"></div>
+      </div>
+    </aside>
+  </main>
+  <script type="module" src="./playground.js"></script>
+</body>
+</html>

@@ -2,8 +2,8 @@
 
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
 
-- **L1 Token**：43 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
-- **L2 配方 + 原子**：173 个白名单封闭集 class（111 配方 + 62 原子，`btn`/`card`/`p-4`/...）
+- **L1 Token**：75 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
+- **L2 配方 + 原子**：175 个白名单封闭集 class（113 配方 + 62 原子，`btn`/`card`/`p-4`/...）
 - **L3 真组件**：28 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 20 规则兜底 + CI 保护
 
@@ -114,38 +114,39 @@ npm install @af-mobile/ui
 
 ## 组件 API 速查
 
-| 组件 | 标签 | 关键属性 | 关键事件 |
-|---|---|---|---|
-| 长列表（虚拟滚动） | `<af-list>` | `data` `item-height` `total-count` `page-size` `refresh` | `af-list:loadmore` `af-list:itemclick` `af-list:refresh` |
-| 轮播/滑动 | `<af-swiper>` | `autoplay` `loop` `active-index` | `af-swiper:change` |
-| 标签页 | `<af-tabs>` | `tabs` `active-index` | `af-tabs:change` |
-| 模态对话框 | `<af-dialog>` | `title` `close-on-esc` `close-on-backdrop` | `af-dialog:open` `af-dialog:close` |
-| 轻提示 | `<af-toast>` | `duration` | `af-toast:dismiss` |
-| 底部操作面板 | `<af-action-sheet>` | `options` `title` `show-cancel` | `af-action-sheet:select` `af-action-sheet:close` |
-| 滚轮选择器 | `<af-picker>` | `columns` `values` `title` | `af-picker:change` `af-picker:confirm` |
-| 下拉菜单 | `<af-dropdown>` | `options` `value` `placeholder` | `af-dropdown:select` |
-| 懒加载图片 | `<af-img>` | `src` `alt` `placeholder-src` `fail-src` | `af-img:load` `af-img:error` |
-| 回到顶部 | `<af-backtop>` | `threshold` `target` `position` | `af-backtop:click` |
-| 开关 | `<af-switch>` | `checked` `loading` `disabled` `size` | `af-switch:change` |
-| 搜索栏 | `<af-search-bar>` | `value` `placeholder` `clearable` `debounce` | `af-search-bar:input` `af-search-bar:search` `af-search-bar:clear` |
-| 骨架屏页面 | `<af-skeleton-page>` | `variant` | — |
-| 文件上传 | `<af-upload>` | `accept` `multiple` `max-size` `max-count` `button-text` | `af-upload:change` `af-upload:error` |
-| 顶部导航栏 | `<af-navbar>` | `title` `show-back` `back-text` | `af-navbar:back` |
-| 底部标签栏 | `<af-tabbar>` | `tabs` `active-index` `fixed` | `af-tabbar:change` |
-| 步进器 | `<af-stepper>` | `value` `min` `max` `step` `disabled` | `af-stepper:change` |
-| 表单字段 | `<af-field>` | `label` `icon` `type` `input-type` `value` `placeholder` `help` `error` `disabled` `readonly` | `af-field:input` `af-field:change` |
-| 下拉刷新 | `<af-pull-refresh>` | `refreshing` | `af-pull-refresh:refresh` |
-| 滑动单元格 | `<af-swipe-cell>` | `disabled` | `af-swipe-cell:action` |
-| 级联选择器 | `<af-cascade-picker>` | `tree` `values` `title` | `af-cascade-picker:change` `af-cascade-picker:confirm` |
-| 徽章 | `<af-badge>` | `value` `max` `dot` `type` | — |
-| 日历 | `<af-calendar>` | `value` `min` `max` `first-day-of-week` | `af-calendar:change` `af-calendar:select` |
-| 评分 | `<af-rate>` | `value` `max` `allow-half` `readonly` `disabled` | `af-rate:change` |
-| 公告栏 | `<af-notice-bar>` | `text` `mode` `scrollable` | `af-notice-bar:close` |
-| 进度条 | `<af-progress>` | `value` `max` `show-text` `variant` | — |
-| 步骤条 | `<af-steps>` | `steps` `active-index` `direction` | — |
-| 倒计时 | `<af-countdown>` | `target` `format` `auto-start` | `af-countdown:change` `af-countdown:finish` |
+| 组件 | 标签 | 关键属性 | 关键事件 | 方法 / slot |
+|---|---|---|---|---|
+| 长列表（虚拟滚动） | `<af-list>` | `data` `item-height` `total-count` `page-size` `refresh` | `af-list:loadmore` `af-list:itemclick` `af-list:refresh` | `endLoadMore()` `endRefresh()` |
+| 轮播/滑动 | `<af-swiper>` | `autoplay` `loop` `active-index` | `af-swiper:change` | `goTo()` `next()` `prev()` |
+| 标签页 | `<af-tabs>` | `tabs` `active-index` | `af-tabs:change` | `setActive()`；slot `panel-{i}` |
+| 模态对话框 | `<af-dialog>` | `title` `close-on-esc` `close-on-backdrop` | `af-dialog:open` `af-dialog:close` | `open()` `close()` |
+| 轻提示 | `<af-toast>` | `duration` | `af-toast:dismiss` | `show(message, options)` `dismiss()` |
+| 底部操作面板 | `<af-action-sheet>` | `options` `title` `show-cancel` | `af-action-sheet:select` `af-action-sheet:close` | `showPopover()` `hidePopover()` |
+| 滚轮选择器 | `<af-picker>` | `columns` `values` `title` | `af-picker:change` `af-picker:confirm` | `open()` `close()` `setColumn()` |
+| 下拉菜单 | `<af-dropdown>` | `options` `value` `placeholder` | `af-dropdown:select` | `open()` `close()` |
+| 懒加载图片 | `<af-img>` | `src` `alt` `placeholder-src` `fail-src` | `af-img:load` `af-img:error` | — |
+| 回到顶部 | `<af-backtop>` | `threshold` `target` `position` | `af-backtop:click` | `scrollToTop()` |
+| 开关 | `<af-switch>` | `checked` `loading` `disabled` `size` | `af-switch:change` | `toggle()` |
+| 搜索栏 | `<af-search-bar>` | `value` `placeholder` `clearable` `debounce` | `af-search-bar:input` `af-search-bar:search` `af-search-bar:clear` | `focus()` |
+| 骨架屏页面 | `<af-skeleton-page>` | `variant` | — | — |
+| 文件上传 | `<af-upload>` | `accept` `multiple` `max-size` `max-count` `button-text` | `af-upload:change` `af-upload:error` | `clear()` |
+| 顶部导航栏 | `<af-navbar>` | `title` `show-back` `back-text` | `af-navbar:back` | — |
+| 底部标签栏 | `<af-tabbar>` | `tabs` `active-index` `fixed` | `af-tabbar:change` | `setActive()` |
+| 步进器 | `<af-stepper>` | `value` `min` `max` `step` `disabled` | `af-stepper:change` | `setValue()` |
+| 表单字段 | `<af-field>` | `label` `icon` `type` `input-type` `value` `placeholder` `help` `error` `disabled` `readonly` | `af-field:input` `af-field:change` | `setError()` `focus()`；slot `input`（透传自定义控件） |
+| 下拉刷新 | `<af-pull-refresh>` | `refreshing` | `af-pull-refresh:refresh` | `endRefresh()` |
+| 滑动单元格 | `<af-swipe-cell>` | `disabled` | `af-swipe-cell:action` | `open()` `close()`；slot `content` / `right` |
+| 级联选择器 | `<af-cascade-picker>` | `tree` `values` `title` | `af-cascade-picker:change` `af-cascade-picker:confirm` | — |
+| 徽章 | `<af-badge>` | `value` `max` `dot` `type` | — | — |
+| 日历 | `<af-calendar>` | `value` `min` `max` `first-day-of-week` | `af-calendar:change` `af-calendar:select` | — |
+| 评分 | `<af-rate>` | `value` `max` `allow-half` `readonly` `disabled` | `af-rate:change` | — |
+| 公告栏 | `<af-notice-bar>` | `text` `mode` `scrollable` | `af-notice-bar:close` | — |
+| 进度条 | `<af-progress>` | `value` `max` `show-text` `variant` | — | — |
+| 步骤条 | `<af-steps>` | `steps` `active-index` `direction` | — | — |
+| 倒计时 | `<af-countdown>` | `target` `format` `auto-start` | `af-countdown:change` `af-countdown:finish` | `start()` `pause()` `reset()` |
 
 事件名遵循 `af-{组件}:{动作}` 格式，`event.detail` 携带结构化数据。
+完整 API（属性默认值 / 方法签名 / 事件）以 `src/index.d.ts` 为准，文档站页面由 `npm run docs:gen` 从该文件自动生成，本表仅列高频项。
 
 ## 图表子库（@af-mobile/ui/charts）
 

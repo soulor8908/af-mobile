@@ -4,6 +4,60 @@
 
 > 早期版本（v1.0.0 ~ v1.3.x）未维护本文件，变更记录自 v1.4.0 起。
 
+## [1.5.2] - 2026-08-19
+
+> **1.5.x line 首次实际 npm 发布**（v1.5.0/1.5.1 仅本地标记，未推送到 registry，npm 上 latest 仍指向 1.4.3）。本条目汇总自 v1.4.3 以来的累积变更：v1.5.0 视觉基线重构 + v1.5.1 类名简写 + 本次的 af-chat AI 对话子库新增。
+
+### Added（本次新增）
+- **af-chat AI 对话子库**（`./chat` 子入口，独立预算线）：
+  - `af-chat` Shadow DOM 气泡 + composer + 工具芯片 + 卸片塔
+  - 三种封闭卡片：`confirm`（diff 确认）/ `list`（查询结果）/ `actions`（快捷回复芯片），透传 `kind` 兜底
+  - 双模式 API：绑定 session（推荐）/ 受控 messages
+  - 5 事件：`send` / `action` / `confirm` / `abort` / `error`，流式 a11y（`aria-hidden` 靜态 + sr 播报）
+  - 渲染器纯函数 `lib/render.js`，`i18n` 独立 `ct.*` 字典经入口注册（核心体积零影响）
+  - `size-check` 新增 `chatUI` 预算线 3.3KB（实测 3.212），chat 内核 1.860KB；主库预算 23KB 不变
+  - demo 页 + playground 组件区 + prompt 注入 + site 文档
+- **ESLint 插件**：`aria-requirements.json` 新增 af-chat 的 ARIA 必需字段；`whitelist-v1.json` 新增 chat 子库白名单条目
+- **Prompt 子包**：`system-prompt.template.md` 注入 af-chat 组件 API + 卡片 schema 片段；`whitelist-v1.json` 同步
+
+### Accumulated（v1.5.0/1.5.1 累积，未发布到 npm，本次首次实际推送）
+
+#### v1.5.1 — 深度性能优化（含**类名破坏性变更**，33 项，纯改名零行为差异）
+- **特长类名简写**（≥12 字符为主）：`skeleton*` → `sk*`（10 项）、`search-bar-*` → `sb-*`（3 项）、`checkout-bar*` → `cob*`（2 项）、`segmented*` → `seg*`（3 项）、`collapse*` → `clp*`（3 项）、`switch-thumb/loading` → `switch-th/ldg`、`notice-text/scroll` → `notice-tx/scr`、`upload-trigger/grid` → `upload-tg/gd`、`list-item-compact` → `list-item-cp`、`rate-readonly` → `rate-ro`、`section-title` → `section-tt`、`input-bar-fixed` → `input-bar-fx`、`hairline-top/bottom` → `hl-t/hl-b`
+- **豁免家族**：`toast-*` / `progress-*` 保持原名（运行时动态拼接 + `<progress>` 原生标签同名，改名有三重冲突风险）
+- **同步范围**：源码/测试/demo/e2e/starter/site/skills/prompt 模板/README/AGENTS 全量 codemod；五配方文件镜像同步；白名单三源与 `prompt/dist` 均已重建
+- **体积收益**：gzip 后 CSS 5.990KB → 5.969KB（-21B）、全量 JS 22.015KB → 22.004KB（-11B）。类名简写在 gzip 下收益有限（重复文本已被字典压缩），本项主要为原则一致性
+- **结构性去重**：`af-toast` `dismiss()` 双清理路径合并为单一路径；`af-list` 空态与骨架屏的重复逻辑抽取为 `_clearView()` 共用
+- **Fixed**：`eslint-plugin` typo 建议测试样本随白名单更新
+
+#### v1.5.0 — UI v6 视觉基线重构（含少量**视觉破坏性变更**）
+- **Token 层重构**：品牌 hue 275→262（靛紫偏蓝）；灰阶 5 角色→8 档阶梯（`--c-gray-1..8`）；字号 `--t-md` 15→14、`--t-sm` 13→12；圆角收紧 `--r-s` 8→6、`--r-m` 12→8、`--r-l` 16→12；`--tabbar-h` 52→50
+- **去拟物**：`.btn` 删 inset 高光 / 按压位移 / 多层阴影；`.card` 去投影改纯描边；`.navbar`/`.tabbar`/`.input-bar`/`.checkout-bar`/`af-navbar` 去投影改 0.5px hairline
+- **触控与行高**：`.cell`/`.list-item` min-height 52→48；`.switch` 对齐大触控规格（52×32 / thumb 28）
+- **表单字号恒 16px**：`.input`/`.textarea`/`.search-input` 统一 `--t-input:16px`（iOS Safari 聚焦 <16px 自动放大整页）
+- **五配方文件同步**：`recipes-form/feedback/display.css` 与全量 `recipes.css` 对齐
+- **Added**：对比度 CI（`scripts/check-contrast.mjs`，挂入 `npm test`）；新 Token `--t-input`/`--tabbar-h`/`--c-gray-1..8`；新配方 `.btn-plain`/`.btn-round`/`.tag-plain`/`.ellipsis-2`/`.hairline-top`/`.hairline-bottom`；`af-navbar` 标题单行截断
+- **Fixed**：feedback 子集对比度 bug（`.tag-warn`/`.notice`/`.toast-warning` 黄底配白字不达标）；`recipes-core.css` tab-item 硬编码 48px → `var(--tabbar-h)`；`.btn-danger`/`.btn-success` :active 串色；`no-recipe-break` 子规则 c 扩展到 `.textarea`/`.search-input`
+
+### Migration
+- v1.4.3 → v1.5.2 用户需阅读 `docs/migration-guide.md` § UI v6（视觉破坏性）+ § UI v7（类名简写破坏性）。`@af-mobile/ui` peer 依赖方升级时需同步更新类名引用。
+
+### Published
+- `@af-mobile/ui@1.5.2`（白名单 188：recipe 121 + atomic 67，含 af-chat 子库白名单）
+- `@af-mobile/eslint-plugin@2.0.4`（af-chat aria-requirements + whitelist 同步）
+- `@af-mobile/prompt@2.0.3`（system-prompt.template 注入 af-chat + 白名单同步）
+- `@af-mobile/mcp@1.0.3`（assets 同步 + 本地领先 patch）
+
+### 体积基线对照（v1.4.3 → v1.5.2）
+
+| 指标 | v1.4.3 npm | v1.5.2 终态 | 预算 |
+|------|-----------|-----------|------|
+| L1+L2 CSS | 5.990KB | 5.969KB | ≤ 6KB |
+| 基类 AfElement | 1.951KB | 1.951KB | ≤ 2KB |
+| 全量 JS（30 组件 + 基类） | 22.015KB | 22.004KB | ≤ 23KB |
+| charts 全量 | 10.706KB | 10.706KB | ≤ 15KB |
+| chatUI（子库，独立预算） | — | 3.212KB | ≤ 3.3KB |
+
 ## [1.5.1] - 2026-08-19
 
 > 深度性能优化（结构性去重 + 白名单类名简写）。含**类名破坏性变更**（33 项，纯改名零行为差异），迁移见 `docs/migration-guide.md` § UI v7。

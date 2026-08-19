@@ -160,7 +160,7 @@
   }
   .list-item:active { background: var(--c-muted-bg); }
 
-  .list-item-compact {
+  .list-item-cp {
     display: flex;
     align-items: center;
     gap: var(--s-2);
@@ -168,7 +168,7 @@
     padding: var(--s-2) var(--s-3);
     min-height: 44px;
   }
-  .list-item-compact:active { background: var(--c-muted-bg); }
+  .list-item-cp:active { background: var(--c-muted-bg); }
 
   .divider {
     height: 1px;
@@ -290,7 +290,7 @@
     padding-bottom: calc(var(--s-2) + env(safe-area-inset-bottom));
   }
 
-  .checkout-bar {
+  .cob {
     display: flex;
     align-items: center;
     gap: var(--s-3);

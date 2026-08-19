@@ -3,7 +3,7 @@
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';
 
-const ICON = '<svg class="search-bar-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm6.32 8.32a1 1 0 0 1 1.36 0l3 3a1 1 0 0 1-1.36 1.36l-3-3a1 1 0 0 1 0-1.36z" fill="currentColor"/></svg>';
+const ICON = '<svg class="sb-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm6.32 8.32a1 1 0 0 1 1.36 0l3 3a1 1 0 0 1-1.36 1.36l-3-3a1 1 0 0 1 0-1.36z" fill="currentColor"/></svg>';
 const CLEAR_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" width="12" height="12"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm5 13.59L13.59 15 15 13.59 17 11.59 15 9.59 13.59 8 12 9.59 10.41 8 9 9.59 11 11.59 9 13.59 10.41 15 12 13.59 14 15 13.59 17 12 15.41z" fill="currentColor"/></svg>';
 
 export class AfSearchBar extends withI18n(AfElement) {
@@ -12,14 +12,14 @@ export class AfSearchBar extends withI18n(AfElement) {
   // clear 按钮仅在 clearable=true 时渲染；querySelectorAll 返回空则跳过
   static i18n = {
     'input.search-input': ['placeholder', 'sb.ph', 'placeholder'],
-    '.search-bar-clear':  ['aria-label',  'sb.clr'],
+    '.sb-clear':  ['aria-label',  'sb.clr'],
   };
 
   mounted() {
-    const clearBtn = this.clearable ? `<button class="search-bar-clear" type="button" hidden>${CLEAR_ICON}</button>` : '';
-    this.innerHTML = `<div class="search-bar-wrap">${ICON}<input class="search-input" type="search" />${clearBtn}</div>`;
+    const clearBtn = this.clearable ? `<button class="sb-clear" type="button" hidden>${CLEAR_ICON}</button>` : '';
+    this.innerHTML = `<div class="sb-wrap">${ICON}<input class="search-input" type="search" />${clearBtn}</div>`;
     this._input = this.$('.search-input');
-    this._clear = this.$('.search-bar-clear');
+    this._clear = this.$('.sb-clear');
     this._input.value = this.value;
     this._debounceTimer = null;
     this._bindInput();

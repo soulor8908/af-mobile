@@ -19,10 +19,10 @@ describe('af-upload 基础渲染', () => {
 
   it('渲染 trigger + 隐藏 input + 预览容器', () => {
     const el = makeUpload();
-    expect(el.$('.upload-trigger')).not.toBeNull();
+    expect(el.$('.upload-tg')).not.toBeNull();
     expect(el.$('.upload-input')).not.toBeNull();
     expect(el.$('.upload-input').hidden).toBe(true);
-    expect(el.$('.upload-grid')).not.toBeNull();
+    expect(el.$('.upload-gd')).not.toBeNull();
     expect(el.$('.btn')).not.toBeNull();
   });
 
@@ -47,9 +47,9 @@ describe('af-upload 基础渲染', () => {
     expect(el.$('.btn').getAttribute('aria-label')).toBe('上传头像');
   });
 
-  it('upload-grid 初始为空（:empty 不显示）', () => {
+  it('upload-gd 初始为空（:empty 不显示）', () => {
     const el = makeUpload();
-    expect(el.$('.upload-grid').children.length).toBe(0);
+    expect(el.$('.upload-gd').children.length).toBe(0);
   });
 });
 
@@ -244,6 +244,6 @@ describe('af-upload 属性变化与清理', () => {
 
   it('ARIA：grid 有 role=list', () => {
     const el = makeUpload();
-    expect(el.$('.upload-grid').getAttribute('role')).toBe('list');
+    expect(el.$('.upload-gd').getAttribute('role')).toBe('list');
   });
 });

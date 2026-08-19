@@ -15,7 +15,7 @@ export class AfSwitch extends AfElement {
 
   _render() {
     const sizeClass = this.size === 'sm' ? ' switch-sm' : '';
-    this.innerHTML = `<button class="switch${sizeClass}" role="switch" aria-checked="${this.checked}" tabindex="0"${this.disabled || this.loading ? ' disabled' : ''}><span class="switch-thumb"></span></button>`;
+    this.innerHTML = `<button class="switch${sizeClass}" role="switch" aria-checked="${this.checked}" tabindex="0"${this.disabled || this.loading ? ' disabled' : ''}><span class="switch-th"></span></button>`;
   }
 
   toggle(force) {
@@ -31,7 +31,7 @@ export class AfSwitch extends AfElement {
     this._btn.setAttribute('aria-checked', String(this.checked));
     this._btn.classList.toggle('switch-on', this.checked);
     this._btn.disabled = this.disabled || this.loading;
-    this._btn.classList.toggle('switch-loading', this.loading);
+    this._btn.classList.toggle('switch-ldg', this.loading);
   }
 
   _bindClick() {

@@ -453,7 +453,7 @@ toggleTheme();            // 切换并持久化
 6. `.cell/.list-item` 不可叠加 `f/fc` 原子
 7. 不可用 Tailwind 任意值语法：`p-[13px]/bg-[#abc]/p-7`
 8. 不可互斥变体叠加：`btn-sm+btn-lg`、`tag-ok+tag-warn`、同属性原子重复
-9. `.list-item/.list-item-compact` 自带 border-top 由 `.list` 容器管理，不要单独设
+9. `.list-item/.list-item-cp` 自带 border-top 由 `.list` 容器管理，不要单独设
 10. `.sheet` 显隐必须走原生 popover API `showPopover/hidePopover`
 11. `.tab-item` 选中态单一真相源是 `aria-selected="true"`（视觉由属性选择器驱动，不可用 `active` class）
 12. **Light DOM 组件**（`af-list`/`af-tabs`/`af-toast`/`af-action-sheet`/`af-dropdown`/`af-backtop`/`af-img`/`af-switch`/`af-search-bar`/`af-skeleton-page`/`af-navbar`/`af-tabbar`/`af-stepper`/`af-field`/`af-upload`/`af-pull-refresh`/`af-swipe-cell`/`af-badge`/`af-rate`/`af-notice-bar`/`af-progress`/`af-steps`/`af-countdown` 共 23 个）不可含 `<style>` 或 `this.style.xxx=`
@@ -465,10 +465,10 @@ toggleTheme();            // 切换并持久化
 18. `.empty` 与 `.center` 不可在同一语义场景混用
 19. `.hero` 不可用作内容区主体背景（仅用于页面顶部大留白标题区）
 20. `.actions` 内 `.btn` 与 `.btn-block` 不可同时出现
-21. `.tabbar-fixed/.checkout-bar/.input-bar` 必须含 `safe-area-inset-bottom`
+21. `.tabbar-fixed/.cob/.input-bar` 必须含 `safe-area-inset-bottom`
 22. `af-swiper/af-tabs/af-picker` 方向键切换必须焦点跟随（roving tabindex）
 23. 不可手动创建 `.toast` 元素（必须通过 `af-toast.show()` 单例）
-24. 骨架屏 `style=""` 不可设宽高（用 `.skeleton-line` 配方或项目级扩展）
+24. 骨架屏 `style=""` 不可设宽高（用 `.sk-ln` 配方或项目级扩展）
 25. 不可在 JS 事件回调内调用 `setAttribute` 修改自身 attribute（单向数据流）
 
 完整禁令详见 [docs/design/l4-detailed-design.md](docs/design/l4-detailed-design.md) §7.1。

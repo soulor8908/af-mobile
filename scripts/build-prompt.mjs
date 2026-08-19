@@ -94,9 +94,9 @@ export function extractProjectExtensions(css) {
 // AI 用例复盘：.segmented 被漏掉重造、.empty 手写居中空态，均为纯语义缺失
 // 注意：class 名必须在 whitelist-v1.json 中存在（CI B→C 同步兜底）
 const CLASS_DESC = [
-  ['segmented', '分段控制器（iOS 风格 N 选一），配 segmented-item / segmented-block'],
-  ['checkout-bar', '底部操作栏（通用：确认/提交/下一步，不限于收银场景），fixed 变体自动适配 tabbar 与 safe-area'],
-  ['input-bar', '底部固定输入栏（评论/聊天），input-bar-fixed 自动适配 safe-area'],
+  ['segmented', '分段控制器（iOS 风格 N 选一），配 seg-it / seg-blk'],
+  ['cob', '底部操作栏（通用：确认/提交/下一步，不限于收银场景），cob-fx 自动适配 tabbar 与 safe-area'],
+  ['input-bar', '底部固定输入栏（评论/聊天），input-bar-fx 自动适配 safe-area'],
   ['safe-top', '安全区 padding 工具：自建 fixed/sticky 元素规避刘海'],
   ['safe-bottom', '安全区 padding 工具：自建固定元素规避 Home Indicator'],
   ['empty', '空态占位（列表无数据/搜索无结果），勿手写居中提示'],

@@ -16,7 +16,7 @@ describe('af-product-card 五态', () => {
     const el = makeEl({ loading: true, title: '商品卡片' });
     expect(el.getAttribute('aria-busy')).toBe('true');
     expect(el.$('[data-role="loading"]')).not.toBeNull();
-    expect(el.$$('.skeleton-line').length).toBeGreaterThanOrEqual(4);
+    expect(el.$$('.sk-ln').length).toBeGreaterThanOrEqual(4);
   });
 
   it('空 items 渲染 empty 态', () => {

@@ -27,7 +27,7 @@ describe('af-list 虚拟滚动', () => {
   it('loading=true：渲染骨架屏', () => {
     const el = makeList({ loading: true });
     expect(el.getAttribute('aria-busy')).toBe('true');
-    expect(el.$$('.skeleton').length).toBeGreaterThan(0);
+    expect(el.$$('.sk').length).toBeGreaterThan(0);
   });
 
   it('数据渲染：viewport 含 list-item', () => {
@@ -51,9 +51,9 @@ describe('af-list 虚拟滚动', () => {
     expect(el.$$('.custom-item').length).toBeGreaterThan(0);
   });
 
-  it('compact 模式用 list-item-compact class', () => {
+  it('compact 模式用 list-item-cp class', () => {
     const el = makeList({ data: makeData(5), mode: 'compact' });
-    expect(el.$$('.list-item-compact').length).toBeGreaterThan(0);
+    expect(el.$$('.list-item-cp').length).toBeGreaterThan(0);
   });
 
   it('itemclick 事件委托触发 af-list:itemclick', () => {

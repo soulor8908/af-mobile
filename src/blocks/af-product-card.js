@@ -39,7 +39,7 @@ export class AfProductCard extends withI18n(AfElement) {
   _render() {
     if (this.loading) {
       this.setAttribute('aria-busy', 'true');
-      const rows = '<div class="list-item"><div class="skeleton skeleton-line"></div></div>'.repeat(SKEL_ROWS);
+      const rows = '<div class="list-item"><div class="sk sk-ln"></div></div>'.repeat(SKEL_ROWS);
       this.innerHTML = this._wrap(`<div class="list" data-role="loading" aria-live="polite">${rows}<div class="caption t-center p-2" data-role="loading-text"></div></div>`);
       return;
     }

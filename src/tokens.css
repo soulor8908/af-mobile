@@ -158,7 +158,7 @@
     --s-5: 24px; --s-6: 32px; --s-7: 40px; --s-8: 56px;
 
     /* === 结构尺寸 === */
-    /* 底部标签栏高度（.tab-item min-height，v6 对齐 Vant 50px）：.input-bar-fixed / .checkout-bar-fixed 的避让基准 */
+    /* 底部标签栏高度（.tab-item min-height，v6 对齐 Vant 50px）：.input-bar-fx / .cob-fx 的避让基准 */
     --tabbar-h: 50px;
 
     /* === 字号 / 行高 / 字重 / 字距

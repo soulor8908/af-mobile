@@ -4,6 +4,36 @@
 
 > 早期版本（v1.0.0 ~ v1.3.x）未维护本文件，变更记录自 v1.4.0 起。
 
+## [2.0.0] - 2026-08-19
+
+> 深度性能优化（结构性去重 + 白名单类名简写）。含**类名破坏性变更**（33 项，纯改名零行为差异），迁移见 `docs/migration-guide.md` § UI v7。
+
+### BREAKING（白名单类名简写，33 项）
+- **特长类名简写**（≥12 字符为主）：`skeleton*` → `sk*`（10 项）、`search-bar-*` → `sb-*`（3 项）、`checkout-bar*` → `cob*`（2 项）、`segmented*` → `seg*`（3 项）、`collapse*` → `clp*`（3 项）、`switch-thumb/loading` → `switch-th/ldg`、`notice-text/scroll` → `notice-tx/scr`、`upload-trigger/grid` → `upload-tg/gd`、`list-item-compact` → `list-item-cp`、`rate-readonly` → `rate-ro`、`section-title` → `section-tt`、`input-bar-fixed` → `input-bar-fx`、`hairline-top/bottom` → `hl-t/hl-b`
+- **豁免家族**：`toast-*` / `progress-*` 保持原名（运行时动态拼接 `toast-${type}` / `progress-${color}` + `<progress>` 原生标签同名，改名有三重冲突风险）
+- **同步范围**：源码/测试/demo/e2e/starter/site/skills/prompt 模板/README/AGENTS 全量 codemod（token 边界正则 + 长名优先替换，零误伤组件标签）；`recipes-core/display/form/feedback.css` 四个子集镜像**已显式同步**（镜像无自动闸门，后续维护仍需人工五文件同步）；白名单三源（源码 ↔ `whitelist-v1.json` ↔ Prompt 注入）与 `prompt/dist` 均已重建
+- **体积收益**：gzip 后 CSS 5.990KB → 5.969KB（-21B）、全量 JS 22.015KB → 22.004KB（-11B）。类名简写在 gzip 下收益有限（重复文本已被字典压缩），本项主要为**原则一致性**（高频类名短写、HTML 传输体积下降）；预算主力是下方结构性去重
+
+### Changed（结构性去重，无 API 变化）
+- **af-toast**：`dismiss()` 的 if/else 双清理路径合并为单一路径（退场动画回调与立即清理共用 `done()`）
+- **af-list**：空态与骨架屏的重复"置零双 spacer + 渲染 viewport + 清空 loadmore"抽取为 `_clearView()` 共用
+- CSS 相同声明块合并经实测为 gzip **负收益**（重复声明已被字典压缩，抽象选择器组引入新字面量反而变大），已回退，仅保留 JS 去重
+
+### Fixed
+- `eslint-plugin` typo 建议测试样本随白名单更新（`chekout-bar → checkout-bar` 样本失效，换 `sk-lin → sk-ln`，编辑距离 1 触发最近邻建议）
+
+### Published
+- `@af-mobile/ui@2.0.0`（白名单 188：recipe 121 + atomic 67，数量不变纯改名）、`@af-mobile/eslint-plugin`（白名单同步）、`@af-mobile/prompt`（assets 同步）
+
+### 体积基线对照（Step 0 基线 vs 终态）
+
+| 指标 | 1.5.0 基线 | 2.0.0 终态 | 预算 |
+|------|-----------|-----------|------|
+| L1+L2 CSS | 5.990KB | 5.969KB | ≤ 6KB |
+| 基类 AfElement | 1.951KB | 1.951KB（未动） | ≤ 2KB |
+| 全量 JS（30 组件+基类） | 22.015KB | 22.004KB | ≤ 23KB |
+| charts 全量 | 10.706KB | 10.706KB（未动） | ≤ 15KB |
+
 ## [1.5.0] - 2026-08-19
 
 > UI v6 视觉基线：去拟物 + 对比度 CI 化 + 五配方文件同步。对标 Vant 4 的系统性整改，含少量**视觉破坏性变更**（见 `docs/migration-guide.md` § UI v6）。

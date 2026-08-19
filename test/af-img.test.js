@@ -30,9 +30,9 @@ describe('af-img', () => {
     expect(el.classList.contains('avatar')).toBe(true);
   });
 
-  it('默认渲染 skeleton 占位（无 placeholderSrc）', () => {
+  it('默认渲染 sk 占位（无 placeholderSrc）', () => {
     const el = makeImg({ src: 'a.jpg' });
-    expect(el.$('.skeleton')).not.toBeNull();
+    expect(el.$('.sk')).not.toBeNull();
     expect(el.$('img.af-img-inner')).not.toBeNull();
   });
 

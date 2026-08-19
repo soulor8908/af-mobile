@@ -274,7 +274,7 @@ export default function homePage(params, ctx) {
         <p class="subtitle">项目已就绪</p>
       </section>
       <section class="card">
-        <h3 class="section-title">下一步</h3>
+        <h3 class="section-tt">下一步</h3>
         <p class="body">用 TRAE 或任意 AI 编码工具打开本项目，说出你的想法，af-mobile-grill skill 会引导你完成需求确认与页面生成。</p>
         <progress max="100" :value="derived.pct"></progress>
         <button class="btn" data-role="inc">点我 +1</button>
@@ -304,15 +304,15 @@ export default function docsPage(params, ctx) {
     <main class="page">
       <header class="navbar navbar-fixed"><h1 class="title">开发指引</h1></header>
       <section class="card">
-        <h3 class="section-title">约束</h3>
+        <h3 class="section-tt">约束</h3>
         <p class="body">只用白名单 class 和 af-* 组件标签；禁止内联 style 与 Tailwind 语法。</p>
       </section>
       <section class="card">
-        <h3 class="section-title">页面范式</h3>
+        <h3 class="section-tt">页面范式</h3>
         <p class="body">createPage({ state, computed, actions }) 声明逻辑；:attr="state.x" 响应式绑定组件属性；page.mount(ctx.outlet) 启动绑定，路由离开时 page.unmount() 级联清理。</p>
       </section>
       <section class="card">
-        <h3 class="section-title">组件 API</h3>
+        <h3 class="section-tt">组件 API</h3>
         <p class="body">见 node_modules/@af-mobile/ui/src/index.d.ts（方法签名与事件 payload，一次读全）。</p>
       </section>
       <div class="actions">

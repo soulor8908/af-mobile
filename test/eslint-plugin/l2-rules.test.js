@@ -93,12 +93,12 @@ describe('L2-1 af-mobile/token-whitelist', () => {
       }],
     });
   });
-  it('typo class 消息带最近邻建议（chekout-bar → checkout-bar）', () => {
+  it('typo class 消息带最近邻建议（sk-lin → sk-ln）', () => {
     ruleTester.run('token-whitelist', tokenWhitelist, {
       valid: [],
       invalid: [{
-        code: 'const html = `<div class="chekout-bar">x</div>`;',
-        errors: [{ messageId: 'unknownClass', data: { name: 'chekout-bar', suggest: " Did you mean 'checkout-bar'?" } }],
+        code: 'const html = `<div class="sk-lin">x</div>`;',
+        errors: [{ messageId: 'unknownClass', data: { name: 'sk-lin', suggest: " Did you mean 'sk-ln'?" } }],
       }],
     });
   });

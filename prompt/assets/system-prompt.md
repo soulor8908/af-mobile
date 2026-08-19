@@ -21,21 +21,21 @@
 ## L2 配方（121 个，按用途分组）
 
 **按钮（10）：** `btn` `btn-sm` `btn-lg` `btn-mini` `btn-ghost` `btn-plain` `btn-danger` `btn-success` `btn-block` `btn-round`
-**容器（8）：** `page` `card` `cell` `center` `sheet` `eyebrow` `section` `section-title`
+**容器（8）：** `page` `card` `cell` `center` `sheet` `eyebrow` `section` `section-tt`
 **文本（8）：** `display` `title` `subtitle` `body` `caption` `meta` `price` `price-del`
-**表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-loading` `switch-thumb` `search-bar-wrap` `search-bar-icon` `search-bar-clear` `input-err` `upload-trigger` `upload-grid`
-**列表（6）：** `list` `list-item` `list-item-compact` `divider` `thumb` `avatar`
-**反馈（23）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-md` `tag-lg` `tag-ok` `tag-warn` `tag-danger` `tag-plain` `badge` `toast` `toast-success` `toast-error` `toast-warning`
+**表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-ldg` `switch-th` `sb-wrap` `sb-icon` `sb-clear` `input-err` `upload-tg` `upload-gd`
+**列表（6）：** `list` `list-item` `list-item-cp` `divider` `thumb` `avatar`
+**反馈（23）：** `empty` `sk` `sk-ln` `sk-blk` `sk-blk-h-sm` `sk-blk-h-md` `sk-w-40` `sk-w-60` `sk-w-80` `sk-cir` `sk-pg` `tag` `tag-md` `tag-lg` `tag-ok` `tag-warn` `tag-danger` `tag-plain` `badge` `toast` `toast-success` `toast-error` `toast-warning`
 **导航（7）：** `navbar` `navbar-fixed` `page-col` `scroll-y` `tabbar` `tabbar-fixed` `tab-item`
-**布局（9）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar` `input-bar-fixed` `checkout-bar-fixed` `safe-top` `safe-bottom`
+**布局（9）：** `hero` `stats-grid` `actions` `input-bar` `cob` `input-bar-fx` `cob-fx` `safe-top` `safe-bottom`
 **Checkbox / Radio（4）：** `checkbox` `radio` `checkbox-sm` `radio-sm`
 **加载指示器（3）：** `spinner` `spinner-sm` `spinner-lg`
 **进度条（5）：** `progress` `progress-sm` `progress-lg` `progress-success` `progress-danger`
-**折叠面板（3）：** `collapse` `collapse-summary` `collapse-content`
-**通知栏（3）：** `notice` `notice-text` `notice-scroll`
-**评分（5）：** `rate` `rate-star` `rate-readonly` `rate-sm` `rate-lg`
+**折叠面板（3）：** `clp` `clp-sum` `clp-ct`
+**通知栏（3）：** `notice` `notice-tx` `notice-scr`
+**评分（5）：** `rate` `rate-star` `rate-ro` `rate-sm` `rate-lg`
 **步骤条（6）：** `steps` `step` `step-done` `step-active` `step-circle` `step-label`
-**分段控制器（3）：** `segmented` `segmented-item` `segmented-block`
+**分段控制器（3）：** `seg` `seg-it` `seg-blk`
 
 ## L2 原子（67 个，按用途分组）
 
@@ -50,14 +50,13 @@
 **颜色（7）：** `text-brand` `text-muted` `text-danger` `text-success` `bg-brand` `bg-card` `bg-muted`
 **阴影（3）：** `shadow-sm` `shadow-md` `shadow-lg`
 **文本对齐与溢出（6）：** `t-left` `t-center` `t-right` `ws-nowrap` `ellipsis` `ellipsis-2`
-**hairline（2）：** `hairline-top` `hairline-bottom`
+**hairline（2）：** `hl-t` `hl-b`
 **其他（2）：** `list` `navbar`
 
 ### 易漏 class 语义速查
 
-- `segmented`：分段控制器（iOS 风格 N 选一），配 segmented-item / segmented-block
-- `checkout-bar`：底部操作栏（通用：确认/提交/下一步，不限于收银场景），fixed 变体自动适配 tabbar 与 safe-area
-- `input-bar`：底部固定输入栏（评论/聊天），input-bar-fixed 自动适配 safe-area
+- `cob`：底部操作栏（通用：确认/提交/下一步，不限于收银场景），cob-fx 自动适配 tabbar 与 safe-area
+- `input-bar`：底部固定输入栏（评论/聊天），input-bar-fx 自动适配 safe-area
 - `safe-top`：安全区 padding 工具：自建 fixed/sticky 元素规避刘海
 - `safe-bottom`：安全区 padding 工具：自建固定元素规避 Home Indicator
 - `empty`：空态占位（列表无数据/搜索无结果），勿手写居中提示
@@ -140,7 +139,7 @@
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fi`/`fc` 原子（自带 `display:flex`，再设会破坏布局）
 07. 禁止 Tailwind 式任意值语法：`p-[13px]`/`bg-[#abc]`/`p-9`（p 仅允许 0/1/2/3/4/5/6/7/8/10）
 08. 禁止互斥变体叠加：`btn-sm+btn-lg`、`tag-ok/warn/danger` 任意两个同现、多个圆角类同现、同属性原子重复（如 `p-4 p-2`、`f fi`、`lh-tight lh-normal`、`bg-card bg-muted`）
-09. 禁止 `.list-item`/`.list-item-compact` 自带 border-top（分隔线由 `.list` 容器管理）
+09. 禁止 `.list-item`/`.list-item-cp` 自带 border-top（分隔线由 `.list` 容器管理）
 10. 禁止 `.sheet` 手动 display 切换（显隐必须走原生 popover API `showPopover`/`hidePopover`）
 11. 禁止 `.tab-item` 用 `active` class 表达选中态（选中态单一真相源是 `aria-selected="true"`，视觉由属性选择器 `.tab-item[aria-selected="true"]` 驱动）
 12. 禁止 L3 Light DOM 组件（af-list/af-tabs/af-toast/af-action-sheet/af-dropdown/af-backtop/af-img/af-switch/af-search-bar/af-skeleton-page/af-navbar/af-tabbar/af-stepper/af-field/af-upload/af-pull-refresh/af-swipe-cell/af-badge/af-rate/af-notice-bar，共 20 个）内含 `<style>` 或 `this.style.xxx`（纯 L2 配方，自定义样式请用 Shadow 组件或 `recipes.project.css`）
@@ -152,10 +151,10 @@
 18. 禁止 `.empty` 与 `.center` 在同一语义场景混用（`.empty` 专用于空状态，`.center` 通用居中）
 19. 禁止 `.hero` 用作内容区主体背景（仅用于页面顶部大留白标题区）
 20. 禁止 `.actions` 内 `.btn` 与 `.btn-block` 同时出现（`flex-1` 均分 vs 块级冲突）
-21. 禁止 `.tabbar-fixed`/`.checkout-bar`/`.input-bar` 漏 `safe-area-inset-bottom`（iOS Home 条遮挡）
+21. 禁止 `.tabbar-fixed`/`.cob`/`.input-bar` 漏 `safe-area-inset-bottom`（iOS Home 条遮挡）
 22. 禁止 af-swiper/af-tabs/af-picker 方向键切换无焦点跟随（roving tabindex 模式）
 23. 禁止手动创建 `.toast` 元素（必须通过 `af-toast.show()` 单例管理）
-24. 禁止骨架屏 `style=""` 设宽高（请用 `.skeleton-line` 配方或 `recipes.project.css` 扩展）
+24. 禁止骨架屏 `style=""` 设宽高（请用 `.sk-ln` 配方或 `recipes.project.css` 扩展）
 25. 禁止在 JS 事件回调内调用 `setAttribute` 修改自身 attribute（单向数据流：attribute=输入 / event=输出 / 内部状态用 `this._xxx` 私有字段）
 
 ---

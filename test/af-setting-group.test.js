@@ -18,7 +18,7 @@ describe('af-setting-group 五态', () => {
     const el = makeGroup({ loading: true, title: '账号' });
     expect(el.getAttribute('aria-busy')).toBe('true');
     expect(el.$('[data-role="loading"]')).not.toBeNull();
-    expect(el.$$('.skeleton-line').length).toBeGreaterThanOrEqual(4);
+    expect(el.$$('.sk-ln').length).toBeGreaterThanOrEqual(4);
     expect(el.$('[data-role="loading-text"]').textContent).toBe('加载中…'); // i18n 默认 zh-CN
   });
 

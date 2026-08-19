@@ -12,12 +12,12 @@ function makeSearchBar(props = {}) {
 describe('af-search-bar 基础渲染', () => {
   beforeEach(() => { document.body.innerHTML = ''; });
 
-  it('渲染 search-bar-wrap + input + icon + clear', () => {
+  it('渲染 sb-wrap + input + icon + clear', () => {
     const el = makeSearchBar();
-    expect(el.$('.search-bar-wrap')).not.toBeNull();
+    expect(el.$('.sb-wrap')).not.toBeNull();
     expect(el.$('.search-input')).not.toBeNull();
-    expect(el.$('.search-bar-icon')).not.toBeNull();
-    expect(el.$('.search-bar-clear')).not.toBeNull();
+    expect(el.$('.sb-icon')).not.toBeNull();
+    expect(el.$('.sb-clear')).not.toBeNull();
   });
 
   it('placeholder 传到 input', () => {
@@ -32,17 +32,17 @@ describe('af-search-bar 基础渲染', () => {
 
   it('clearable=false 时不渲染清除按钮', () => {
     const el = makeSearchBar({ clearable: false });
-    expect(el.$('.search-bar-clear')).toBeNull();
+    expect(el.$('.sb-clear')).toBeNull();
   });
 
   it('清除按钮初始 hidden（无值时）', () => {
     const el = makeSearchBar();
-    expect(el.$('.search-bar-clear').hidden).toBe(true);
+    expect(el.$('.sb-clear').hidden).toBe(true);
   });
 
   it('有值时清除按钮可见', () => {
     const el = makeSearchBar({ value: 'test' });
-    expect(el.$('.search-bar-clear').hidden).toBe(false);
+    expect(el.$('.sb-clear').hidden).toBe(false);
   });
 });
 
@@ -91,10 +91,10 @@ describe('af-search-bar 交互', () => {
     const inputHandler = vi.fn();
     el.addEventListener('af-search-bar:clear', clearHandler);
     el.addEventListener('af-search-bar:input', inputHandler);
-    el.$('.search-bar-clear').click();
+    el.$('.sb-clear').click();
     expect(el.value).toBe('');
     expect(el.$('.search-input').value).toBe('');
-    expect(el.$('.search-bar-clear').hidden).toBe(true);
+    expect(el.$('.sb-clear').hidden).toBe(true);
     expect(clearHandler).toHaveBeenCalledTimes(1);
     expect(inputHandler).toHaveBeenCalledTimes(1);
   });
@@ -109,10 +109,10 @@ describe('af-search-bar 交互', () => {
     const el = makeSearchBar({ debounce: 0 });
     el.$('.search-input').value = 'text';
     el.$('.search-input').dispatchEvent(new Event('input'));
-    expect(el.$('.search-bar-clear').hidden).toBe(false);
+    expect(el.$('.sb-clear').hidden).toBe(false);
     el.$('.search-input').value = '';
     el.$('.search-input').dispatchEvent(new Event('input'));
-    expect(el.$('.search-bar-clear').hidden).toBe(true);
+    expect(el.$('.sb-clear').hidden).toBe(true);
   });
 });
 

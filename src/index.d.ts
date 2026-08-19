@@ -168,7 +168,7 @@ export class AfList extends AfElement {
   pageSize: number;
   /** 缓冲项数 */
   buffer: number;
-  /** 模式：normal 用 .list-item，compact 用 .list-item-compact */
+  /** 模式：normal 用 .list-item，compact 用 .list-item-cp */
   mode: 'normal' | 'compact';
   /** 是否启用下拉刷新 */
   refresh: boolean;

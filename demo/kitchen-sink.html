@@ -440,9 +440,9 @@
           </header>
           <div data-role="rows" class="fc g-2"></div>
           <section class="card fc g-3">
-            <details class="collapse">
-              <summary class="collapse-summary">${esc(t('cart.date'))}</summary>
-              <div class="collapse-content"><af-calendar min="${today()}"></af-calendar></div>
+            <details class="clp">
+              <summary class="clp-sum">${esc(t('cart.date'))}</summary>
+              <div class="clp-ct"><af-calendar min="${today()}"></af-calendar></div>
             </details>
             <div class="f aic jcsb">
               <span class="label">${esc(t('cart.addr'))}</span>
@@ -454,7 +454,7 @@
               <af-switch></af-switch>
             </div>
           </section>
-          <div class="checkout-bar">
+          <div class="cob">
             <span class="caption">${esc(t('cart.pay'))}</span>
             <span class="price flex-1" data-role="total">¥0.00</span>
             <button class="btn" data-role="checkout" type="button">${esc(t('cart.checkout'))}</button>

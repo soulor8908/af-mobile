@@ -80,7 +80,7 @@ describe('L3-1 af-mobile/wc-light-no-style', () => {
       valid: [],
       invalid: [{
         filename: 'src/components/af-foo.js',
-        code: lightComp(`mounted() { const html = \`<div class="skeleton" style="width:80%"></div>\`; this.innerHTML = html; }`),
+        code: lightComp(`mounted() { const html = \`<div class="sk" style="width:80%"></div>\`; this.innerHTML = html; }`),
         errors: [{ messageId: 'styleAttr' }],
       }],
     });
@@ -98,7 +98,7 @@ describe('L3-1 af-mobile/wc-light-no-style', () => {
     ruleTester.run('wc-light-no-style', wcLightNoStyle, {
       valid: [{
         filename: 'src/components/af-foo.js',
-        code: lightComp(`mounted() { this.innerHTML = '<div class="card skeleton-w-80">x</div>'; }`),
+        code: lightComp(`mounted() { this.innerHTML = '<div class="card sk-w-80">x</div>'; }`),
       }],
       invalid: [],
     });

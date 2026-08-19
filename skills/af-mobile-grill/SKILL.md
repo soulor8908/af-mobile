@@ -141,11 +141,11 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 
 **L2 白名单 class（封闭集，只用这些）：**
 - 按钮：`btn btn-sm btn-lg btn-ghost btn-danger btn-success btn-block`
-- 容器：`page card cell center sheet hero eyebrow section section-title`；安全区：`safe-top safe-bottom`；文本：`display title subtitle body caption meta price price-del`
-- 列表：`list list-item list-item-compact divider thumb avatar`
-- 导航：`navbar navbar-fixed tabbar tabbar-fixed tab-item`；布局：`stats-grid actions input-bar checkout-bar`
-- 表单：`label input textarea form-row form-row-h form-err search-input switch switch-sm switch-on switch-loading switch-thumb search-bar-wrap search-bar-icon search-bar-clear input-err upload-trigger upload-grid`
-- 反馈/状态：`empty skeleton skeleton-line skeleton-block skeleton-w-40/60/80 skeleton-circle skeleton-page tag tag-ok tag-warn tag-danger badge toast spinner spinner-sm spinner-lg progress progress-sm progress-lg progress-success progress-danger collapse collapse-summary collapse-content notice notice-text notice-scroll rate rate-star rate-readonly rate-sm rate-lg steps step step-done step-active step-circle step-label segmented segmented-item segmented-block checkbox radio checkbox-sm radio-sm`
+- 容器：`page card cell center sheet hero eyebrow section section-tt`；安全区：`safe-top safe-bottom`；文本：`display title subtitle body caption meta price price-del`
+- 列表：`list list-item list-item-cp divider thumb avatar`
+- 导航：`navbar navbar-fixed tabbar tabbar-fixed tab-item`；布局：`stats-grid actions input-bar cob`
+- 表单：`label input textarea form-row form-row-h form-err search-input switch switch-sm switch-on switch-ldg switch-th sb-wrap sb-icon sb-clear input-err upload-tg upload-gd`
+- 反馈/状态：`empty sk sk-ln sk-blk sk-w-40/60/80 sk-cir sk-pg tag tag-ok tag-warn tag-danger badge toast spinner spinner-sm spinner-lg progress progress-sm progress-lg progress-success progress-danger clp clp-sum clp-ct notice notice-tx notice-scr rate rate-star rate-ro rate-sm rate-lg steps step step-done step-active step-circle step-label seg seg-it seg-blk checkbox radio checkbox-sm radio-sm`
 - 原子：`p-0..10 m-0..4 g-0..4 f fc aic jcc jcsb jce flex-1 w-full r-0/s/m/l/f t-xs..xl t-b t-m text-brand text-muted text-danger text-success bg-brand bg-muted shadow-sm/md/lg t-left t-center t-right ws-nowrap`
 
 **核心禁令：**

@@ -94,6 +94,6 @@
 
   /* === hairline（2） === */
   /* v6：0.5px 物理像素分隔线（消费端自建分隔时用，与 .list/.navbar 内置 hairline 同规格） */
-  .hairline-top    { border-top: 0.5px solid var(--c-border); }
-  .hairline-bottom { border-bottom: 0.5px solid var(--c-border); }
+  .hl-t    { border-top: 0.5px solid var(--c-border); }
+  .hl-b { border-bottom: 0.5px solid var(--c-border); }
 }

@@ -12,53 +12,53 @@ function makeSkeleton(props = {}) {
 describe('af-skeleton-page 基础渲染', () => {
   beforeEach(() => { document.body.innerHTML = ''; });
 
-  it('渲染 skeleton-page 容器', () => {
+  it('渲染 sk-pg 容器', () => {
     const el = makeSkeleton();
-    expect(el.$('.skeleton-page')).not.toBeNull();
+    expect(el.$('.sk-pg')).not.toBeNull();
   });
 
-  it('默认 variant=list 渲染 6 条 skeleton-line', () => {
+  it('默认 variant=list 渲染 6 条 sk-ln', () => {
     const el = makeSkeleton();
-    expect(el.$$('.skeleton-line').length).toBe(6);
+    expect(el.$$('.sk-ln').length).toBe(6);
   });
 
-  it('variant=detail 含 skeleton-block', () => {
+  it('variant=detail 含 sk-blk', () => {
     const el = makeSkeleton({ variant: 'detail' });
-    expect(el.$$('.skeleton-block').length).toBeGreaterThan(0);
-    expect(el.$$('.skeleton-line').length).toBeGreaterThanOrEqual(2);
+    expect(el.$$('.sk-blk').length).toBeGreaterThan(0);
+    expect(el.$$('.sk-ln').length).toBeGreaterThanOrEqual(2);
   });
 
   it('variant=profile 含圆形占位', () => {
     const el = makeSkeleton({ variant: 'profile' });
-    expect(el.$$('.skeleton-block').length).toBeGreaterThan(0);
+    expect(el.$$('.sk-blk').length).toBeGreaterThan(0);
   });
 
   it('variant=card 含多个 block', () => {
     const el = makeSkeleton({ variant: 'card' });
-    expect(el.$$('.skeleton-block').length).toBeGreaterThanOrEqual(2);
+    expect(el.$$('.sk-blk').length).toBeGreaterThanOrEqual(2);
   });
 
   it('variant=article 含标题行 + 图片块', () => {
     const el = makeSkeleton({ variant: 'article' });
-    expect(el.$$('.skeleton-line').length).toBeGreaterThanOrEqual(3);
-    expect(el.$$('.skeleton-block').length).toBeGreaterThanOrEqual(2);
+    expect(el.$$('.sk-ln').length).toBeGreaterThanOrEqual(3);
+    expect(el.$$('.sk-blk').length).toBeGreaterThanOrEqual(2);
   });
 
-  it('list 骨架所有元素都带 skeleton 基类（可见性：无基类则无 shimmer 背景）', () => {
+  it('list 骨架所有元素都带 sk 基类（可见性：无基类则无 shimmer 背景）', () => {
     const el = makeSkeleton({ variant: 'list' });
-    const lines = el.$$('.skeleton-line');
+    const lines = el.$$('.sk-ln');
     expect(lines.length).toBe(6);
     for (const node of lines) {
-      expect(node.classList.contains('skeleton')).toBe(true);
+      expect(node.classList.contains('sk')).toBe(true);
     }
   });
 
-  it('所有 skeleton 元素都有 skeleton class', () => {
+  it('所有 sk 元素都有 sk class', () => {
     const el = makeSkeleton({ variant: 'detail' });
-    const all = el.$$('.skeleton');
+    const all = el.$$('.sk');
     expect(all.length).toBeGreaterThan(0);
     for (const node of all) {
-      expect(node.classList.contains('skeleton')).toBe(true);
+      expect(node.classList.contains('sk')).toBe(true);
     }
   });
 });
@@ -68,17 +68,17 @@ describe('af-skeleton-page ARIA', () => {
 
   it('根容器有 role=status', () => {
     const el = makeSkeleton();
-    expect(el.$('.skeleton-page').getAttribute('role')).toBe('status');
+    expect(el.$('.sk-pg').getAttribute('role')).toBe('status');
   });
 
   it('根容器有 aria-live=polite', () => {
     const el = makeSkeleton();
-    expect(el.$('.skeleton-page').getAttribute('aria-live')).toBe('polite');
+    expect(el.$('.sk-pg').getAttribute('aria-live')).toBe('polite');
   });
 
   it('根容器有 aria-label=加载中', () => {
     const el = makeSkeleton();
-    expect(el.$('.skeleton-page').getAttribute('aria-label')).toBe('加载中');
+    expect(el.$('.sk-pg').getAttribute('aria-label')).toBe('加载中');
   });
 });
 
@@ -87,14 +87,14 @@ describe('af-skeleton-page 属性变化', () => {
 
   it('variant 属性变化重新渲染', () => {
     const el = makeSkeleton({ variant: 'list' });
-    expect(el.$$('.skeleton-line').length).toBe(6);
+    expect(el.$$('.sk-ln').length).toBe(6);
     el.setAttribute('variant', 'detail');
-    expect(el.$$('.skeleton-block').length).toBeGreaterThan(0);
+    expect(el.$$('.sk-blk').length).toBeGreaterThan(0);
   });
 
   it('无效 variant 回退到 list', () => {
     const el = makeSkeleton({ variant: 'invalid' });
-    expect(el.$$('.skeleton-line').length).toBe(6);
+    expect(el.$$('.sk-ln').length).toBe(6);
   });
 
   it('unmounted 不报错', () => {

@@ -1,5 +1,5 @@
 // af-mobile UI —— af-upload：文件上传
-// Light DOM，原生 <input type="file"> + 缩略图预览，复用 L2 .btn / .thumb / .upload-trigger / .upload-grid
+// Light DOM，原生 <input type="file"> + 缩略图预览，复用 L2 .btn / .thumb / .upload-tg / .upload-gd
 // 职责：文件选择 + 大小/数量/类型校验 + 图片预览（URL.createObjectURL）+ revokeObjectURL 防泄漏
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';
@@ -7,9 +7,9 @@ import { withI18n } from '../lib/with-i18n.js';
 export class AfUpload extends withI18n(AfElement) {
   static useShadow = false;
   static i18n = {
-    '.upload-grid':           ['aria-label', 'up.pv'],
+    '.upload-gd':           ['aria-label', 'up.pv'],
     'button.btn':             ['',           'up.btn', 'buttonText'],
-    '.upload-trigger button': ['aria-label', 'up.al', 'ariaLabelText'],
+    '.upload-tg button': ['aria-label', 'up.al', 'ariaLabelText'],
   };
 
   constructor() {
@@ -20,14 +20,14 @@ export class AfUpload extends withI18n(AfElement) {
 
   mounted() {
     this.innerHTML = `
-      <div class="upload-trigger">
+      <div class="upload-tg">
         <button class="btn btn-ghost" type="button"></button>
         <input class="upload-input" type="file" accept="${esc(this.accept)}"${this.multiple ? ' multiple' : ''} hidden>
       </div>
-      <div class="upload-grid" role="list"></div>
+      <div class="upload-gd" role="list"></div>
     `;
     this._input = this.$('.upload-input');
-    this._grid = this.$('.upload-grid');
+    this._grid = this.$('.upload-gd');
     this._bindClick();
     this._bindChange();
   }

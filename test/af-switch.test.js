@@ -18,7 +18,7 @@ describe('af-switch 基础渲染', () => {
     expect(btn).not.toBeNull();
     expect(btn.getAttribute('role')).toBe('switch');
     expect(btn.getAttribute('aria-checked')).toBe('false');
-    expect(el.$('.switch-thumb')).not.toBeNull();
+    expect(el.$('.switch-th')).not.toBeNull();
   });
 
   it('checked=true 时 aria-checked=true + switch-on class', () => {
@@ -38,10 +38,10 @@ describe('af-switch 基础渲染', () => {
     expect(el.$('.switch').disabled).toBe(true);
   });
 
-  it('loading=true 时添加 switch-loading class + disabled', () => {
+  it('loading=true 时添加 switch-ldg class + disabled', () => {
     const el = makeSwitch({ loading: true });
     const btn = el.$('.switch');
-    expect(btn.classList.contains('switch-loading')).toBe(true);
+    expect(btn.classList.contains('switch-ldg')).toBe(true);
     expect(btn.disabled).toBe(true);
   });
 });

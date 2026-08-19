@@ -98,25 +98,27 @@ export class AfList extends withI18n(AfElement) {
     }
     this.removeAttribute('aria-busy');
     if (!this.data.length) {
-      this._spacerBefore.style.setProperty('--af-spacer-before-h', '0px');
-      this._spacerAfter.style.setProperty('--af-spacer-after-h', '0px');
-      this._viewport.innerHTML = `<div class="empty"><p class="body">${esc(this.emptyText)}</p></div>`;
-      this._loadmoreEl.textContent = '';
+      this._clearView(`<div class="empty"><p class="body">${esc(this.emptyText)}</p></div>`);
       return;
     }
     this._updateViewport();
+  }
+
+  // 置零双 spacer + 渲染 viewport + 清空 loadmore（空态/骨架共用）
+  _clearView(inner) {
+    this._spacerBefore.style.setProperty('--af-spacer-before-h', '0px');
+    this._spacerAfter.style.setProperty('--af-spacer-after-h', '0px');
+    this._viewport.innerHTML = inner;
+    this._loadmoreEl.textContent = '';
   }
 
   _renderSkeleton() {
     const lines = Math.max(3, Math.floor(this._scroller.clientHeight / this.itemHeight));
     let html = '';
     for (let i = 0; i < lines; i++) {
-      html += `<div class="list-item"><div class="skeleton skeleton-line skeleton-w-80"></div></div>`;
+      html += `<div class="list-item"><div class="sk sk-ln sk-w-80"></div></div>`;
     }
-    this._spacerBefore.style.setProperty('--af-spacer-before-h', '0px');
-    this._spacerAfter.style.setProperty('--af-spacer-after-h', '0px');
-    this._viewport.innerHTML = html;
-    this._loadmoreEl.textContent = '';
+    this._clearView(html);
   }
 
   _updateViewport() {
@@ -163,7 +165,7 @@ export class AfList extends withI18n(AfElement) {
   // 默认渲染：用 html 标签自动转义插值，防 XSS
   // 自定义 renderItem 时强烈建议用 html 标签，或手动 esc() 转义不可信数据
   _defaultRender(item, idx) {
-    const cls = this.mode === 'compact' ? 'list-item-compact' : 'list-item';
+    const cls = this.mode === 'compact' ? 'list-item-cp' : 'list-item';
     return html`<div class="${cls}" data-list-index="${idx}">
       <div class="flex-1">
         <div class="body">${item.title}</div>
@@ -246,7 +248,7 @@ export class AfList extends withI18n(AfElement) {
 
   _bindClick() {
     this._onClick = (e) => {
-      const itemEl = e.target.closest('.list-item, .list-item-compact');
+      const itemEl = e.target.closest('.list-item, .list-item-cp');
       if (!itemEl || !this._scroller.contains(itemEl)) return;
       const idx = Number(itemEl.dataset.listIndex);
       if (!Number.isNaN(idx) && this.data[idx] != null) {

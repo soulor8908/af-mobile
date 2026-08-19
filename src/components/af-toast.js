@@ -55,25 +55,20 @@ export class AfToast extends AfElement {
     this._exiting = true;
     clearTimeout(this._timer);
     const msg = this._message;
-    // 退场动画：opacity 淡出后再清空 innerHTML
-    const toastEl = this.$('.toast');
-    if (toastEl) {
-      toastEl.style.setProperty('--toast-transition', `opacity ${EXIT_ANIM_MS}ms var(--ease-out)`);
-      toastEl.style.setProperty('--toast-opacity', '0');
-      setTimeout(() => {
-        this.innerHTML = '';
-        this._message = '';
-        this._exiting = false;
-        if (instance === this) instance = null;
-        this.emit('af-toast:dismiss', { message: msg });
-      }, EXIT_ANIM_MS);
-    } else {
+    // 退场动画：opacity 淡出后清空 innerHTML（无 toastEl 时立即清理）
+    const el = this.$('.toast');
+    const done = () => {
       this.innerHTML = '';
       this._message = '';
       this._exiting = false;
       if (instance === this) instance = null;
       this.emit('af-toast:dismiss', { message: msg });
-    }
+    };
+    if (el) {
+      el.style.setProperty('--toast-transition', `opacity ${EXIT_ANIM_MS}ms var(--ease-out)`);
+      el.style.setProperty('--toast-opacity', '0');
+      setTimeout(done, EXIT_ANIM_MS);
+    } else done();
   }
 
   unmounted() {

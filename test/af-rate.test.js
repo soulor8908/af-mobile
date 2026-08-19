@@ -48,10 +48,10 @@ describe('af-rate', () => {
     expect(el.$('[data-role="rate"]').querySelector('#' + label.getAttribute('for'))).not.toBeNull();
   });
 
-  it('readonly=true 时 input disabled + rate-readonly class', () => {
+  it('readonly=true 时 input disabled + rate-ro class', () => {
     const el = makeRate({ readonly: true, value: 3 });
     const group = el.$('[data-role="rate"]');
-    expect(group.classList.contains('rate-readonly')).toBe(true);
+    expect(group.classList.contains('rate-ro')).toBe(true);
     expect(group.querySelector('input').disabled).toBe(true);
   });
 

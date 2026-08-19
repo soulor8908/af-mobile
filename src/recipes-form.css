@@ -77,7 +77,7 @@
   }
   .search-input::placeholder { color: var(--c-muted); }
 
-  /* v5：switch-thumb 阴影改 color-mix 派生，主题切换自动跟随；环形描边替代黑色投影 */
+  /* v5：switch-th 阴影改 color-mix 派生，主题切换自动跟随；环形描边替代黑色投影 */
   .switch {
     position: relative;
     display: inline-flex;
@@ -94,9 +94,9 @@
   }
   .switch-sm { width: 40px; height: 24px; }
   .switch-on { background: var(--c-brand); border-color: var(--c-brand); }
-  .switch-loading { pointer-events: none; }
+  .switch-ldg { pointer-events: none; }
   .switch[disabled] { opacity: 0.5; cursor: not-allowed; }
-  .switch-thumb {
+  .switch-th {
     display: block;
     width: 28px;
     height: 28px;
@@ -107,18 +107,18 @@
     margin: 0 2px;
     flex-shrink: 0;
   }
-  .switch-sm .switch-thumb { width: 20px; height: 20px; }
-  .switch-on .switch-thumb { transform: translateX(20px); }
-  .switch-sm.switch-on .switch-thumb { transform: translateX(16px); }
-  .switch-loading .switch-thumb { animation: switch-spin 0.8s linear infinite; }
+  .switch-sm .switch-th { width: 20px; height: 20px; }
+  .switch-on .switch-th { transform: translateX(20px); }
+  .switch-sm.switch-on .switch-th { transform: translateX(16px); }
+  .switch-ldg .switch-th { animation: switch-spin 0.8s linear infinite; }
   @keyframes switch-spin { to { transform: rotate(360deg); } }
 
-  .search-bar-wrap {
+  .sb-wrap {
     position: relative;
     display: flex;
     align-items: center;
   }
-  .search-bar-icon {
+  .sb-icon {
     position: absolute;
     left: var(--s-2);
     width: 16px;
@@ -126,7 +126,7 @@
     color: var(--c-muted);
     pointer-events: none;
   }
-  .search-bar-clear {
+  .sb-clear {
     position: absolute;
     right: var(--s-1);
     border: none;
@@ -141,7 +141,7 @@
     color: var(--c-muted);
     padding: 0;
   }
-  .search-bar-clear[hidden] { display: none; }
+  .sb-clear[hidden] { display: none; }
 
   .input-err, .input-err:focus { border-color: var(--c-danger); }
 
@@ -149,14 +149,14 @@
   .input:user-invalid, .textarea:user-invalid { border-color: var(--c-danger); }
   .input:user-invalid:focus, .textarea:user-invalid:focus { border-color: var(--c-danger); }
 
-  .upload-trigger { display: inline-flex; align-items: center; }
-  .upload-grid {
+  .upload-tg { display: inline-flex; align-items: center; }
+  .upload-gd {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
     gap: var(--s-2);
     margin-top: var(--s-3);
   }
-  .upload-grid:empty { display: none; }
+  .upload-gd:empty { display: none; }
 
   /* === Checkbox / Radio（4） === */
   /* v5：删 appearance:none + ::after 自绘勾选（魔数 + 对齐 bug）

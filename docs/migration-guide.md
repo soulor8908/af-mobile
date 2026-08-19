@@ -1,6 +1,6 @@
 # af-mobile v2.0 迁移指南
 
-> 适用范围：v1.3.x → v2.0.0
+> 适用范围：v1.3.x → v2.0.0（运行时）+ v1.5.0 → v2.0.0（白名单类名简写，见「UI v7」章节）
 > 目标：L0 运行时架构修复（Owner pattern / createPage 实例化 / router 增强 / i18n 复数 / theme 系统主题）。
 > 本文档只覆盖**行为变化与迁移动作**；完整设计见 `docs/design/af-mobile-evolution-v3.md`。
 
@@ -18,19 +18,70 @@
 | 依赖 `.btn` 按压位移/高光反馈 | 已删 `translateY`/inset 高光 | 无需动作；如需更强反馈可监听 `:active` 换底色（内置已生效） |
 | 给 `.input`/`.textarea`/`.search-input` 叠加过 `t-sm`/`t-xs` | 控件字号恒 `--t-input` 16px | 删除小字号叠加（ESLint 规则 05 现在会报错）；帮助文字放 `.form-err`/`.label` |
 | 页面假设 cell/list-item 高 52px | min-height 48px | 检查虚拟列表 `item-height` 之类的硬编码（`af-list` 传 48 或自适应） |
-| 自定义 1px 分隔线 | `.list`/`.navbar`/`.tabbar` 内置 0.5px hairline | 自建分隔改用 `.hairline-top`/`.hairline-bottom` |
+| 自定义 1px 分隔线 | `.list`/`.navbar`/`.tabbar` 内置 0.5px hairline | 自建分隔改用 `.hl-t`/`.hl-b`（v2.0 前称 `.hairline-top`/`.hairline-bottom`，见下方 UI v7 对照表） |
 | 黄底 warn 场景用白字 | `.tag-warn`/`.notice`/`.toast-warning` 已改 `--c-onwarn` | 若曾手动用 `text-fff` 之类补丁，可删除 |
 | 依赖旧灰阶 token（5 角色） | 灰阶扩为 8 档 | 旧 token 全保留，无破坏；新分层用 `--c-gray-1..8` |
 
 ### 新增能力（无需迁移，直接可用）
 
-`.btn-plain` / `.btn-round` / `.tag-plain` / `.ellipsis-2` / `.hairline-top` / `.hairline-bottom`；Token `--t-input`、`--tabbar-h`、`--c-gray-1..8`。
+`.btn-plain` / `.btn-round` / `.tag-plain` / `.ellipsis-2` / `.hl-t`（时名 `.hairline-top`）/ `.hl-b`（时名 `.hairline-bottom`）；Token `--t-input`、`--tabbar-h`、`--c-gray-1..8`。
 
 ### 设计决策摘要
 
 - **为什么 input 锁 16px**：iOS Safari 聚焦字号 <16px 的输入框会自动放大整页，且用户设置里无法关闭；锁 16px 是唯一可靠解。
 - **为什么 hairline 用 0.5px**：高分屏（dpr≥2）下 0.5px 解析为 1 物理像素，1px 边框在 dpr=3 设备上显粗发闷；Vant/Antd 同款做法。
 - **为什么 card 去投影**：投影语义保留给浮层（sheet/dropdown）；平面容器用描边，暗色主题下描边比投影更稳定（投影在暗底几乎不可见还增加噪点）。
+
+---
+
+## UI v7（v1.5.0 → v2.0.0，白名单类名简写）
+
+> 纯 class 改名，**零行为变化**：选择器规格、视觉表现、ESLint 约束完全一致。共 33 项，按家族对照替换即可。
+> `toast` 家族与 `progress` 家族**不在改名范围**（`toast-${type}`/`progress-${color}` 为运行时动态拼接，且 `<progress>` 为原生标签，保持原名）。
+
+### 类名对照表（33 项）
+
+| 家族 | 旧名（≤1.5.0） | 新名（2.0.0） |
+|------|----------------|---------------|
+| 骨架屏 | `skeleton` | `sk` |
+| 骨架屏 | `skeleton-line` | `sk-ln` |
+| 骨架屏 | `skeleton-block` | `sk-blk` |
+| 骨架屏 | `skeleton-block-h-sm` | `sk-blk-h-sm` |
+| 骨架屏 | `skeleton-block-h-md` | `sk-blk-h-md` |
+| 骨架屏 | `skeleton-w-40` | `sk-w-40` |
+| 骨架屏 | `skeleton-w-60` | `sk-w-60` |
+| 骨架屏 | `skeleton-w-80` | `sk-w-80` |
+| 骨架屏 | `skeleton-circle` | `sk-cir` |
+| 骨架屏 | `skeleton-page` | `sk-pg` |
+| 搜索栏 | `search-bar-wrap` | `sb-wrap` |
+| 搜索栏 | `search-bar-icon` | `sb-icon` |
+| 搜索栏 | `search-bar-clear` | `sb-clear` |
+| 结算栏 | `checkout-bar` | `cob` |
+| 结算栏 | `checkout-bar-fixed` | `cob-fx` |
+| 分段器 | `segmented` | `seg` |
+| 分段器 | `segmented-item` | `seg-it` |
+| 分段器 | `segmented-block` | `seg-blk` |
+| 折叠面板 | `collapse` | `clp` |
+| 折叠面板 | `collapse-summary` | `clp-sum` |
+| 折叠面板 | `collapse-content` | `clp-ct` |
+| 开关 | `switch-loading` | `switch-ldg` |
+| 开关 | `switch-thumb` | `switch-th` |
+| 通知栏 | `notice-text` | `notice-tx` |
+| 通知栏 | `notice-scroll` | `notice-scr` |
+| 上传 | `upload-trigger` | `upload-tg` |
+| 上传 | `upload-grid` | `upload-gd` |
+| 列表 | `list-item-compact` | `list-item-cp` |
+| 评分 | `rate-readonly` | `rate-ro` |
+| 标题 | `section-title` | `section-tt` |
+| 布局 | `input-bar-fixed` | `input-bar-fx` |
+| 分隔线 | `hairline-top` | `hl-t` |
+| 分隔线 | `hairline-bottom` | `hl-b` |
+
+### 迁移动作
+
+1. 全局替换上表旧名 → 新名（注意 `skeleton` → `sk` 时用全字匹配，避免误伤 `af-skeleton-page` 组件标签；`toast`/`progress` 家族不要动）。
+2. 升级 `@af-mobile/eslint-plugin` 至配套版本，旧类名会被 `token-whitelist` 规则拦截并给出最近邻建议。
+3. 自定义扩展（`recipes.project.css` / `extraClass`）中如引用旧名，同步替换。
 
 ---
 

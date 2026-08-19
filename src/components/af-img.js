@@ -1,5 +1,5 @@
 // af-mobile UI —— af-img：懒加载图片
-// Light DOM（D19），复用 L2 .thumb/.avatar/.skeleton/.empty 配方
+// Light DOM（D19），复用 L2 .thumb/.avatar/.sk/.empty 配方
 // 职责：IntersectionObserver 懒加载 + 占位 + 失败回退 + 事件
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 import { t } from '../lib/i18n.js';
@@ -45,7 +45,7 @@ export class AfImg extends AfElement {
     // 内部元素用 data-role 定位（同 af-list），避免内部类污染白名单
     const placeholderHtml = this.placeholderSrc
       ? `<img data-role="placeholder" src="${esc(this.placeholderSrc)}" alt="" aria-hidden="true">`
-      : `<div class="skeleton" data-role="placeholder" aria-hidden="true"></div>`;
+      : `<div class="sk" data-role="placeholder" aria-hidden="true"></div>`;
     // 用 hidden 属性控制显隐，遵守 Light DOM 不可设内联样式的约束
     this.innerHTML = `
       ${placeholderHtml}

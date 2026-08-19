@@ -20,36 +20,36 @@ describe('af-notice-bar', () => {
     expect(bar.getAttribute('role')).toBe('status');
   });
 
-  it('text 渲染为 notice-text 并转义（XSS 防护）', () => {
+  it('text 渲染为 notice-tx 并转义（XSS 防护）', () => {
     const el = makeNotice({ text: '<img onerror="x()">' });
-    const textEl = el.$('.notice-text');
+    const textEl = el.$('.notice-tx');
     expect(textEl).not.toBeNull();
     expect(el.innerHTML).toContain('&lt;img');
     expect(el.querySelector('img')).toBeNull();
   });
 
-  it('scroll=true 包 notice-scroll（marquee 滚动）', () => {
+  it('scroll=true 包 notice-scr（marquee 滚动）', () => {
     const el = makeNotice({ text: '滚动公告', scroll: true });
-    expect(el.$('.notice-scroll')).not.toBeNull();
-    expect(el.$('.notice-scroll').textContent).toBe('滚动公告');
+    expect(el.$('.notice-scr')).not.toBeNull();
+    expect(el.$('.notice-scr').textContent).toBe('滚动公告');
   });
 
-  it('scroll=false 无 notice-scroll（ellipsis 截断）', () => {
+  it('scroll=false 无 notice-scr（ellipsis 截断）', () => {
     const el = makeNotice({ text: '截断公告' });
-    expect(el.$('.notice-scroll')).toBeNull();
+    expect(el.$('.notice-scr')).toBeNull();
   });
 
   it('text 为空时渲染空文案（不抛错）', () => {
     const el = makeNotice();
-    expect(el.$('.notice-text').textContent).toBe('');
+    expect(el.$('.notice-tx').textContent).toBe('');
   });
 
   it('text/scroll 属性变化自动重渲染', () => {
     const el = makeNotice({ text: 'a' });
-    expect(el.$('.notice-text').textContent).toBe('a');
+    expect(el.$('.notice-tx').textContent).toBe('a');
     el.scroll = true;
     el.text = 'b';
-    expect(el.$('.notice-scroll').textContent).toBe('b');
+    expect(el.$('.notice-scr').textContent).toBe('b');
   });
 
   it('内联 style 为空（遵守 wc-light-no-style）', () => {

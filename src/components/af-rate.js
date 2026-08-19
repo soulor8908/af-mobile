@@ -21,7 +21,7 @@ export class AfRate extends AfElement {
     for (let i = this.max; i >= 1; i--) {
       stars += `<input type="radio" name="${uid}" id="${uid}-${i}" value="${i}"${this.readonly ? ' disabled' : ''}><label for="${uid}-${i}" class="rate-star">★</label>`;
     }
-    this.innerHTML = `<div class="rate${sizeClass}${this.readonly ? ' rate-readonly' : ''}" data-role="rate" role="radiogroup" aria-label="${esc(this.label)}">${stars}</div>`;
+    this.innerHTML = `<div class="rate${sizeClass}${this.readonly ? ' rate-ro' : ''}" data-role="rate" role="radiogroup" aria-label="${esc(this.label)}">${stars}</div>`;
   }
 
   _updateChecked() {

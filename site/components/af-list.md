@@ -32,7 +32,7 @@
 | height | `string` | '' | 显式高度（如 '400px'，使虚拟滚动生效） |
 | pageSize | `number` | 20 | 页大小（loadmore page 步长） |
 | buffer | `number` | 5 | 缓冲项数 |
-| mode | `'normal' \| 'compact'` | 'normal' | 模式：normal 用 .list-item，compact 用 .list-item-compact |
+| mode | `'normal' \| 'compact'` | 'normal' | 模式：normal 用 .list-item，compact 用 .list-item-cp |
 | refresh | `boolean` | true | 是否启用下拉刷新 |
 | loading | `boolean` | false | 加载中状态（显示骨架屏） |
 | emptyText | `string` | null | 空状态文案 |

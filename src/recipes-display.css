@@ -4,14 +4,14 @@
 @layer components {
   /* === 折叠面板（3） === */
   /* 纯 CSS：<details>/<summary> 原生，零 JS
-     用法：<details class="collapse"><summary class="collapse-summary">标题</summary><div class="collapse-content">内容</div></details> */
-  .collapse {
+     用法：<details class="clp"><summary class="clp-sum">标题</summary><div class="clp-ct">内容</div></details> */
+  .clp {
     background: var(--c-card);
     border-radius: var(--r-m);
     overflow: hidden;
   }
-  .collapse + .collapse { margin-top: var(--s-2); }
-  .collapse-summary {
+  .clp + .clp { margin-top: var(--s-2); }
+  .clp-sum {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -24,8 +24,8 @@
     min-height: 48px;
     -webkit-tap-highlight-color: transparent;
   }
-  .collapse-summary::-webkit-details-marker { display: none; }
-  .collapse-summary::after {
+  .clp-sum::-webkit-details-marker { display: none; }
+  .clp-sum::after {
     content: '';
     width: 8px;
     height: 8px;
@@ -35,8 +35,8 @@
     transition: transform var(--dur-fast) var(--ease-out);
     flex-shrink: 0;
   }
-  .collapse[open] .collapse-summary::after { transform: rotate(45deg); }
-  .collapse-content {
+  .clp[open] .clp-sum::after { transform: rotate(45deg); }
+  .clp-ct {
     padding: 0 var(--s-4) var(--s-3);
     font-size: var(--t-sm);
     color: var(--c-muted);
@@ -51,7 +51,7 @@
          <input type="radio" name="r" id="r4" value="4"><label for="r4" class="rate-star">★</label>
          ...（5→1 逆序排列，row-reverse 后视觉为 1→5）
        </div>
-     用法（只读）：<div class="rate rate-readonly">...同上，input 加 checked ...</div> */
+     用法（只读）：<div class="rate rate-ro">...同上，input 加 checked ...</div> */
   .rate {
     display: inline-flex;
     flex-direction: row-reverse;
@@ -78,7 +78,7 @@
   .rate input:focus-visible ~ .rate-star { color: var(--c-warn); }
   .rate-star:hover,
   .rate-star:hover ~ .rate-star { color: var(--c-warn); }
-  .rate-readonly { cursor: default; pointer-events: none; }
+  .rate-ro { cursor: default; pointer-events: none; }
   .rate-sm { font-size: var(--t-md); }
   .rate-lg { font-size: var(--t-xl); }
 
@@ -149,19 +149,19 @@
   /* === 分段控制器（3） === */
   /* 纯 CSS：iOS 风格分段器，af-tabs 的轻量替代
      用法：
-       <div class="segmented">
-         <button class="segmented-item" aria-selected="true">日</button>
-         <button class="segmented-item">周</button>
-         <button class="segmented-item">月</button>
+       <div class="seg">
+         <button class="seg-it" aria-selected="true">日</button>
+         <button class="seg-it">周</button>
+         <button class="seg-it">月</button>
        </div> */
-  .segmented {
+  .seg {
     display: inline-flex;
     background: var(--c-muted-bg);
     border-radius: var(--r-m);
     padding: 2px;
     gap: 2px;
   }
-  .segmented-item {
+  .seg-it {
     /* 按内容分配空间（flex:1 等宽会惩罚长标签，375px 下三标签截断），
        空间不足时按内容比例收缩，ellipsis 兜底 */
     flex: 1 1 auto;
@@ -181,12 +181,12 @@
     transition: background var(--dur-fast) var(--ease-out),
                 color var(--dur-fast) var(--ease-out);
   }
-  .segmented-item[aria-selected="true"] {
+  .seg-it[aria-selected="true"] {
     background: var(--c-card);
     color: var(--c-text);
     font-weight: var(--fw-medium);
     box-shadow: var(--shadow-sm);
   }
-  .segmented-item:active:not([aria-selected="true"]) { background: var(--c-border); }
-  .segmented-block { display: flex; width: 100%; }
+  .seg-it:active:not([aria-selected="true"]) { background: var(--c-border); }
+  .seg-blk { display: flex; width: 100%; }
 }

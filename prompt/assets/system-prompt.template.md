@@ -37,7 +37,7 @@
     （display/transform/z-index/width/height 布局属性例外）
 03. 禁止使用 {{{ TOTAL_CLASS_COUNT }}} 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success` 或 `bg-card`/`bg-muted`（破坏 onbrand 对比度）
-05. 禁止 `.input` 叠加 `t-sm`/`t-xs`（iOS 聚焦 < 16px 自动放大页面）
+05. 禁止 `.input`/`.textarea`/`.search-input` 控件叠加 `t-sm`/`t-xs`（控件字号恒为 `--t-input` 16px，iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fi`/`fc` 原子（自带 `display:flex`，再设会破坏布局）
 07. 禁止 Tailwind 式任意值语法：`p-[13px]`/`bg-[#abc]`/`p-9`（p 仅允许 0/1/2/3/4/5/6/7/8/10）
 08. 禁止互斥变体叠加：`btn-sm+btn-lg`、`tag-ok/warn/danger` 任意两个同现、多个圆角类同现、同属性原子重复（如 `p-4 p-2`、`f fi`、`lh-tight lh-normal`、`bg-card bg-muted`）

@@ -1,64 +1,60 @@
 /* af-mobile UI —— L2 配方层：74 个复合视觉单元 */
 @layer components {
-  /* === 按钮（7） === */
-  /* v5：删 180° 线性渐变（Web 2.0 遗物），改纯色 + 精细层叠阴影 + 内描边高光
-     悬停用 color-mix 派生（主题切换自动跟随），按下 translateY(1px) 触觉感 */
+  /* === 按钮（9） === */
+  /* v6：删 inset 高光与 translateY 按压位移（拟物遗物），active 回归「换深底色」的扁平反馈；
+     各彩色变体补齐自己的 :active 底色（此前继承 .btn:active 的 brand-strong 会串色） */
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--s-2);
     min-height: 44px;
-    padding: 0 var(--s-5);
+    padding: 0 var(--s-4);
     background: var(--c-brand);
     color: var(--c-onbrand);
     font-size: var(--t-md);
-    font-weight: var(--fw-semibold);
+    font-weight: var(--fw-medium);
     line-height: var(--lh-tight);
     border: none;
     border-radius: var(--r-m);
-    box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, var(--c-onbrand) 18%, transparent);
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    transition: background var(--dur-fast) var(--ease-out),
-                transform var(--dur-fast) var(--ease-out),
-                box-shadow var(--dur-fast) var(--ease-out);
+    transition: background var(--dur-fast) var(--ease-out);
   }
   .btn:hover { background: color-mix(in srgb, var(--c-brand) 92%, white); }
-  .btn:active {
-    background: var(--c-brand-strong);
-    transform: translateY(1px);
-    box-shadow: 0 1px 1px color-mix(in srgb, var(--c-text) 6%, transparent);
-  }
-  .btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+  .btn:active { background: var(--c-brand-strong); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .btn-sm  { min-height: 32px; padding: 0 var(--s-3); font-size: var(--t-sm); }
-  .btn-lg  { min-height: 52px; padding: 0 var(--s-6); font-size: var(--t-lg); }
+  .btn-sm  { min-height: 32px; padding: 0 var(--s-2); font-size: var(--t-sm); }
+  .btn-lg  { min-height: 50px; padding: 0 var(--s-5); font-size: var(--t-lg); }
 
   .btn-ghost {
     background: transparent;
     color: var(--c-brand);
-    box-shadow: none;
   }
   .btn-ghost:hover { background: var(--c-brand-soft); }
-  .btn-ghost:active { background: color-mix(in srgb, var(--c-brand) 14%, transparent); box-shadow: none; }
+  .btn-ghost:active { background: color-mix(in srgb, var(--c-brand) 14%, transparent); }
   .btn-ghost:disabled { background: transparent; }
 
-  .btn-danger  {
-    background: var(--c-danger);
-    box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, var(--c-onbrand) 18%, transparent);
+  /* v6 新增：plain（白底彩字描边）/ round（胶囊），对齐主流变体 */
+  .btn-plain {
+    background: var(--c-card);
+    color: var(--c-brand);
+    border: 1px solid var(--c-brand);
   }
+  .btn-plain:hover { background: var(--c-brand-soft); }
+  .btn-plain:active { background: var(--c-brand-soft); }
+
+  .btn-danger  { background: var(--c-danger); }
   .btn-danger:hover { background: color-mix(in srgb, var(--c-danger) 92%, white); }
-  .btn-danger:active { box-shadow: 0 1px 1px color-mix(in srgb, var(--c-text) 6%, transparent); }
-  .btn-success {
-    background: var(--c-success);
-    box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, var(--c-onbrand) 18%, transparent);
-  }
+  .btn-danger:active { background: color-mix(in srgb, var(--c-danger) 88%, black); }
+  .btn-success { background: var(--c-success); }
   .btn-success:hover { background: color-mix(in srgb, var(--c-success) 92%, white); }
-  .btn-success:active { box-shadow: 0 1px 1px color-mix(in srgb, var(--c-text) 6%, transparent); }
+  .btn-success:active { background: color-mix(in srgb, var(--c-success) 88%, black); }
 
   .btn-block { display: flex; width: 100%; }
+  .btn-round { border-radius: var(--r-f); }
 
   /* === 容器（7） === */
   .page {
@@ -71,21 +67,22 @@
     background: var(--c-bg);
   }
 
+  /* v6：card 去投影（描边扁平风，shadow 语义只留给浮层 sheet/navbar-fixed 场景由具体类自取） */
   .card {
     background: var(--c-card);
     border: 1px solid var(--c-border);
     border-radius: var(--r-m);
     padding: var(--s-4);
-    box-shadow: var(--shadow-sm);
   }
 
+  /* v6：cell 行高 52→48（对齐 Vant 44-48 区间，padding 12 上下 + 24 行内容 = 48 节拍） */
   .cell {
     display: flex;
     align-items: center;
     gap: var(--s-3);
     background: var(--c-card);
     padding: var(--s-3) var(--s-4);
-    min-height: 52px;
+    min-height: 48px;
   }
 
   .center {
@@ -170,7 +167,8 @@
     background: var(--c-card);
     border: 1px solid var(--c-border);
     border-radius: var(--r-m);
-    font-size: var(--t-md);
+    /* v6：--t-input(16px)——iOS Safari 聚焦 <16px 输入框会自动放大整页，禁止更小字号 */
+    font-size: var(--t-input);
     color: var(--c-text);
     line-height: var(--lh-tight);
     transition: border-color var(--dur-fast) var(--ease-out),
@@ -214,7 +212,7 @@
     background: var(--c-muted-bg);
     border: 1px solid transparent;
     border-radius: var(--r-f);
-    font-size: var(--t-md);
+    font-size: var(--t-input);
     color: var(--c-text);
     transition: border-color var(--dur-fast) var(--ease-out),
                 box-shadow var(--dur-fast) var(--ease-out);
@@ -230,8 +228,8 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    width: 44px;
-    height: 26px;
+    width: 52px;
+    height: 32px;
     border-radius: var(--r-f);
     background: var(--c-muted-bg);
     border: 1px solid var(--c-border);
@@ -240,14 +238,14 @@
     padding: 0;
     flex-shrink: 0;
   }
-  .switch-sm { width: 36px; height: 20px; }
+  .switch-sm { width: 40px; height: 24px; }
   .switch-on { background: var(--c-brand); border-color: var(--c-brand); }
   .switch-loading { pointer-events: none; }
   .switch[disabled] { opacity: 0.5; cursor: not-allowed; }
   .switch-thumb {
     display: block;
-    width: 22px;
-    height: 22px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: var(--c-card);
     box-shadow: var(--shadow-sm), 0 0 0 1px color-mix(in srgb, var(--c-text) 4%, transparent);
@@ -255,9 +253,9 @@
     margin: 0 2px;
     flex-shrink: 0;
   }
-  .switch-sm .switch-thumb { width: 16px; height: 16px; }
-  .switch-on .switch-thumb { transform: translateX(16px); }
-  .switch-sm.switch-on .switch-thumb { transform: translateX(14px); }
+  .switch-sm .switch-thumb { width: 20px; height: 20px; }
+  .switch-on .switch-thumb { transform: translateX(20px); }
+  .switch-sm.switch-on .switch-thumb { transform: translateX(16px); }
   .switch-loading .switch-thumb { animation: switch-spin 0.8s linear infinite; }
   @keyframes switch-spin { to { transform: rotate(360deg); } }
 
@@ -312,9 +310,10 @@
     border-radius: var(--r-m);
     overflow: hidden;
   }
+  /* v6：列表分隔线 1px → 0.5px hairline（高分屏物理像素线，Vant/Ant 同款做法） */
   .list > .cell + .cell,
   .list > .list-item + .list-item {
-    border-top: 1px solid var(--c-border);
+    border-top: 0.5px solid var(--c-border);
   }
 
   .list-item {
@@ -323,7 +322,7 @@
     gap: var(--s-3);
     background: var(--c-card);
     padding: var(--s-3) var(--s-4);
-    min-height: 52px;
+    min-height: 48px;
     /* button 宿主需显式覆盖 UA 默认样式（border / color / font / text-align / width / appearance）
        div 宿主这些属性的默认值与显式覆盖等价，不受影响 */
     border: none;
@@ -402,9 +401,9 @@
   }
 
   .skeleton-line {
-    height: var(--t-sm);
+    height: var(--t-md);
     line-height: var(--lh-tight);
-    margin-bottom: var(--s-2);
+    margin-bottom: var(--s-1);
   }
   .skeleton-line:last-child {
     margin-bottom: 0;
@@ -441,6 +440,8 @@
   .tag-ok     { background: var(--c-success); color: var(--c-onbrand); }
   .tag-warn   { background: var(--c-warn);    color: var(--c-onwarn); }
   .tag-danger { background: var(--c-danger);  color: var(--c-onbrand); }
+  /* v6 新增：plain 描边式标签（浅底场景弱强调，不与实心彩底争抢视觉层级） */
+  .tag-plain  { background: transparent; color: var(--c-brand); border: 1px solid var(--c-brand); }
 
   /* v5：badge padding 5px → var(--s-1)（修魔数） */
   .badge {
@@ -480,20 +481,20 @@
   .toast-warning { background: var(--c-warn); color: var(--c-onwarn); }
 
   /* === 导航（5） === */
+  /* v6：导航/标签栏去投影，改 0.5px hairline 分隔（扁平 + 物理像素线，暗色下不发灰） */
   .navbar {
     display: flex;
     align-items: center;
     gap: var(--s-3);
     padding: var(--s-3) var(--s-4);
     background: var(--c-card);
-    border-bottom: 1px solid var(--c-border);
+    border-bottom: 0.5px solid var(--c-border);
     min-height: 48px;
   }
   .navbar-fixed {
     position: sticky;
     top: 0;
     z-index: var(--z-sticky);
-    box-shadow: var(--shadow-sm);
   }
 
   /* App 骨架：页面级纵向布局 + 可滚动内容区（所有 App 都需要的通用结构） */
@@ -512,7 +513,7 @@
   .tabbar {
     display: flex;
     background: var(--c-card);
-    box-shadow: var(--shadow-md);
+    border-top: 0.5px solid var(--c-border);
   }
   .tabbar-fixed {
     position: fixed;
@@ -583,8 +584,7 @@
     gap: var(--s-2);
     padding: var(--s-2) var(--s-3);
     background: var(--c-card);
-    border-top: 1px solid var(--c-border);
-    box-shadow: var(--shadow-sm);
+    border-top: 0.5px solid var(--c-border);
     padding-bottom: calc(var(--s-2) + env(safe-area-inset-bottom));
   }
 
@@ -594,8 +594,7 @@
     gap: var(--s-3);
     padding: var(--s-3) var(--s-4);
     background: var(--c-card);
-    border-top: 1px solid var(--c-border);
-    box-shadow: var(--shadow-sm);
+    border-top: 0.5px solid var(--c-border);
     padding-bottom: calc(var(--s-3) + env(safe-area-inset-bottom));
   }
 
@@ -966,7 +965,7 @@
   af-navbar {
     display: flex; align-items: center; gap: var(--s-3);
     position: sticky; top: 0; z-index: var(--z-sticky);
-    background: var(--c-card); box-shadow: var(--shadow-sm);
+    background: var(--c-card); border-bottom: 0.5px solid var(--c-border);
     padding-top: env(safe-area-inset-top);
     min-height: 48px;
   }
@@ -975,7 +974,11 @@
   }
   af-navbar [data-role="left"] { margin-right: auto; }
   af-navbar [data-role="right"] { margin-left: auto; }
-  af-navbar [data-role="title"] { flex: 1; text-align: center; }
+  /* v6：标题过长单行截断（flex item 默认 min-width:auto 会撑破容器，须 min-width:0） */
+  af-navbar [data-role="title"] {
+    flex: 1; min-width: 0; text-align: center;
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
 
   /* af-tabbar：底部固定 + 底部安全区 */
   af-tabbar { display: block; }

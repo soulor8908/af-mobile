@@ -17,7 +17,8 @@
     background: var(--c-card);
     border: 1px solid var(--c-border);
     border-radius: var(--r-m);
-    font-size: var(--t-md);
+    /* v6：--t-input(16px)——iOS Safari 聚焦 <16px 输入框会自动放大整页，禁止更小字号 */
+    font-size: var(--t-input);
     color: var(--c-text);
     line-height: var(--lh-tight);
     transition: border-color var(--dur-fast) var(--ease-out),
@@ -61,7 +62,7 @@
     background: var(--c-muted-bg);
     border: 1px solid transparent;
     border-radius: var(--r-f);
-    font-size: var(--t-md);
+    font-size: var(--t-input);
     color: var(--c-text);
     transition: border-color var(--dur-fast) var(--ease-out),
                 box-shadow var(--dur-fast) var(--ease-out);

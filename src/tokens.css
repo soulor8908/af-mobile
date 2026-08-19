@@ -1,4 +1,4 @@
-/* af-mobile UI —— L1 Token 层：55 变量 + reset + base + 主题切换
+/* af-mobile UI —— L1 Token 层：88 变量 + reset + base + 主题切换
    本文件由库维护者管理，CI 通过 CODEOWNERS 保护。AI 不可改。 */
 
 @layer reset, base, tokens, components, utilities;
@@ -43,19 +43,30 @@
 
 @layer tokens {
   /* === 主题调色板（二次抽象：单处定义，light/dark 共享）
-     v5 设计基线：OKLCH 感知均匀色彩空间（更精准的明度/饱和度控制）
-     品牌色从 Material #2B5CE6 → 现代靛紫（hue 275），沉稳有立场 === */
+     设计基线：OKLCH 感知均匀色彩空间（更精准的明度/饱和度控制）
+     v6：品牌色 hue 275→262（靛紫偏蓝去闷，保留靛系识别度）；
+     灰度 5 角色 → 8 档阶梯。所有关键组合对比度由 scripts/check-contrast.mjs CI 断言 === */
   :root {
-    --palette-brand: oklch(54% 0.22 275);
-    --palette-brand-strong: oklch(47% 0.22 275);
+    --palette-brand: oklch(54% 0.22 262);
+    --palette-brand-strong: oklch(47% 0.22 262);
     --palette-onbrand: oklch(100% 0 0);
-    --palette-brand-soft: oklch(96% 0.04 275);
-    --palette-text: oklch(28% 0.03 270);
-    --palette-muted: oklch(55% 0.02 270);
+    --palette-brand-soft: oklch(96% 0.04 262);
+    /* 灰阶 8 档（v6）：gray-6=muted 档锁定 AA（≥4.5），中间档供 L2/业务分层取用 */
+    --palette-gray-1: oklch(98% 0.005 270);
+    --palette-gray-2: oklch(96% 0.005 270);
+    --palette-gray-3: oklch(92% 0.005 270);
+    --palette-gray-4: oklch(88% 0.005 270);
+    --palette-gray-5: oklch(75% 0.01 270);
+    --palette-gray-6: oklch(55% 0.02 270);
+    --palette-gray-7: oklch(42% 0.02 270);
+    --palette-gray-8: oklch(28% 0.03 270);
+    /* 语义角色映射到灰阶（单处定义，消费端按档位经 --c-gray-1 至 --c-gray-8 取中间档） */
+    --palette-text: var(--palette-gray-8);
+    --palette-muted: var(--palette-gray-6);
     --palette-card: oklch(100% 0 0);
-    --palette-bg: oklch(98% 0.005 270);
-    --palette-muted-bg: oklch(96% 0.005 270);
-    --palette-border: oklch(92% 0.005 270);
+    --palette-bg: var(--palette-gray-1);
+    --palette-muted-bg: var(--palette-gray-2);
+    --palette-border: var(--palette-gray-3);
     --palette-danger: oklch(58% 0.22 25);
     --palette-success: oklch(55% 0.16 145);
     --palette-warn: oklch(78% 0.16 75);
@@ -70,16 +81,24 @@
   /* === 系统暗黑自动跟随：仅当未显式设 light 时生效 === */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --palette-brand: oklch(72% 0.16 275);
-      --palette-brand-strong: oklch(78% 0.16 275);
+      --palette-brand: oklch(72% 0.16 262);
+      --palette-brand-strong: oklch(78% 0.16 262);
       --palette-onbrand: oklch(20% 0.03 270);
-      --palette-brand-soft: oklch(28% 0.06 275);
-      --palette-text: oklch(94% 0.01 270);
-      --palette-muted: oklch(68% 0.02 270);
+      --palette-brand-soft: oklch(28% 0.06 262);
+      --palette-gray-1: oklch(15% 0.015 270);
+      --palette-gray-2: oklch(26% 0.015 270);
+      --palette-gray-3: oklch(32% 0.02 270);
+      --palette-gray-4: oklch(38% 0.02 270);
+      --palette-gray-5: oklch(52% 0.015 270);
+      --palette-gray-6: oklch(68% 0.02 270);
+      --palette-gray-7: oklch(80% 0.01 270);
+      --palette-gray-8: oklch(94% 0.01 270);
+      --palette-text: var(--palette-gray-8);
+      --palette-muted: var(--palette-gray-6);
       --palette-card: oklch(22% 0.015 270);
-      --palette-bg: oklch(15% 0.015 270);
-      --palette-muted-bg: oklch(26% 0.015 270);
-      --palette-border: oklch(32% 0.02 270);
+      --palette-bg: var(--palette-gray-1);
+      --palette-muted-bg: var(--palette-gray-2);
+      --palette-border: var(--palette-gray-3);
       --palette-danger: oklch(68% 0.21 25);
       --palette-success: oklch(70% 0.17 145);
       --palette-warn: oklch(82% 0.16 75);
@@ -92,16 +111,24 @@
 
   /* === 手动切换 dark：覆盖系统 light（无需 :root[data-theme="light"]，:root 默认即 light） === */
   :root[data-theme="dark"] {
-    --palette-brand: oklch(72% 0.16 275);
-    --palette-brand-strong: oklch(78% 0.16 275);
-    --palette-onbrand: oklch(20% 0.03 270);
-    --palette-brand-soft: oklch(28% 0.06 275);
-    --palette-text: oklch(94% 0.01 270);
-    --palette-muted: oklch(68% 0.02 270);
-    --palette-card: oklch(22% 0.015 270);
-    --palette-bg: oklch(15% 0.015 270);
-    --palette-muted-bg: oklch(26% 0.015 270);
-    --palette-border: oklch(32% 0.02 270);
+    --palette-brand: oklch(72% 0.16 262);
+    --palette-brand-strong: oklch(78% 0.16 262);
+      --palette-onbrand: oklch(20% 0.03 270);
+      --palette-brand-soft: oklch(28% 0.06 262);
+      --palette-gray-1: oklch(15% 0.015 270);
+      --palette-gray-2: oklch(26% 0.015 270);
+      --palette-gray-3: oklch(32% 0.02 270);
+      --palette-gray-4: oklch(38% 0.02 270);
+      --palette-gray-5: oklch(52% 0.015 270);
+      --palette-gray-6: oklch(68% 0.02 270);
+      --palette-gray-7: oklch(80% 0.01 270);
+      --palette-gray-8: oklch(94% 0.01 270);
+      --palette-text: var(--palette-gray-8);
+      --palette-muted: var(--palette-gray-6);
+      --palette-card: oklch(22% 0.015 270);
+      --palette-bg: var(--palette-gray-1);
+      --palette-muted-bg: var(--palette-gray-2);
+      --palette-border: var(--palette-gray-3);
     --palette-danger: oklch(68% 0.21 25);
     --palette-success: oklch(70% 0.17 145);
     --palette-warn: oklch(82% 0.16 75);
@@ -121,24 +148,31 @@
     --c-card: var(--palette-card);    --c-bg: var(--palette-bg);    --c-muted-bg: var(--palette-muted-bg);
     --c-border: var(--palette-border);
     --c-danger: var(--palette-danger); --c-success: var(--palette-success); --c-warn: var(--palette-warn);
+    --c-gray-1: var(--palette-gray-1); --c-gray-2: var(--palette-gray-2);
+    --c-gray-3: var(--palette-gray-3); --c-gray-4: var(--palette-gray-4);
+    --c-gray-5: var(--palette-gray-5); --c-gray-6: var(--palette-gray-6);
+    --c-gray-7: var(--palette-gray-7); --c-gray-8: var(--palette-gray-8);
 
     /* === 间距 === */
     --s-1: 4px;  --s-2: 8px;  --s-3: 12px;  --s-4: 16px;
     --s-5: 24px; --s-6: 32px; --s-7: 40px; --s-8: 56px;
 
     /* === 结构尺寸 === */
-    /* 底部标签栏高度（.tab-item min-height）：.input-bar-fixed / .checkout-bar-fixed 的避让基准 */
-    --tabbar-h: 48px;
+    /* 底部标签栏高度（.tab-item min-height，v6 对齐 Vant 50px）：.input-bar-fixed / .checkout-bar-fixed 的避让基准 */
+    --tabbar-h: 50px;
 
     /* === 字号 / 行高 / 字重 / 字距
-       v5：display 28→32、xl 20→22、lg 17→18，拉大标题层级梯度 === */
-    --t-display: 32px; --t-xl: 22px; --t-lg: 18px; --t-md: 15px; --t-sm: 13px; --t-xs: 11px;
-    --lh-display: 1.15; --lh-tight: 1.3;  --lh-normal: 1.55;
+       v6：md 15→14、sm 13→12（14px 是中文移动端安全基准）
+       --t-input 固定 16px：iOS Safari 聚焦 <16px 输入框会自动放大整页（用户不可关闭），
+       表单控件（.input/.textarea/.search-input/af-field）一律用它，禁止叠加更小字号 === */
+    --t-display: 32px; --t-xl: 22px; --t-lg: 18px; --t-md: 14px; --t-sm: 12px; --t-xs: 11px;
+    --t-input: 16px;
+    --lh-display: 1.15; --lh-tight: 1.3;  --lh-normal: 1.6;
     --fw-normal: 400;  --fw-medium: 500;  --fw-semibold: 600;  --fw-bold: 700;
     --ls-display: -0.02em;  --ls-caption: 0.01em;
 
-    /* === 圆角：v5 收紧（10→8、14→12、20→16），更现代 === */
-    --r-xs: 6px; --r-s: 8px; --r-m: 12px; --r-l: 16px; --r-f: 9999px;
+    /* === 圆角：v6 收紧（s 8→6、m 12→8、l 16→12），基准 4/6/8/12 小圆角专业风 === */
+    --r-xs: 4px; --r-s: 6px; --r-m: 8px; --r-l: 12px; --r-f: 9999px;
 
     /* === 阴影（从调色板派生） === */
     --shadow-sm: var(--palette-shadow-sm);

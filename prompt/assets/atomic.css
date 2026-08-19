@@ -77,10 +77,23 @@
   .shadow-md { box-shadow: var(--shadow-md); }
   .shadow-lg { box-shadow: var(--shadow-lg); }
 
-  /* === 文本对齐与溢出（5） === */
+  /* === 文本对齐与溢出（6） === */
   .t-left   { text-align: left; }
   .t-center { text-align: center; }
   .t-right  { text-align: right; }
   .ws-nowrap{ white-space: nowrap; }
   .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* v6：两行截断（列表卡片摘要场景） */
+  .ellipsis-2 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+
+  /* === hairline（2） === */
+  /* v6：0.5px 物理像素分隔线（消费端自建分隔时用，与 .list/.navbar 内置 hairline 同规格） */
+  .hairline-top    { border-top: 0.5px solid var(--c-border); }
+  .hairline-bottom { border-bottom: 0.5px solid var(--c-border); }
 }

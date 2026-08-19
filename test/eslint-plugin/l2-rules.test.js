@@ -162,6 +162,15 @@ describe('L2-2 af-mobile/no-recipe-break', () => {
       invalid: [{ code: 'const html = `<input class="input t-sm">`;', errors: [{ messageId: 'inputFont' }] }],
     });
   });
+  it('.search-input/.textarea + t-xs 同样报错（v6 表单控件恒 16px）', () => {
+    ruleTester.run('no-recipe-break', noRecipeBreak, {
+      valid: [{ code: 'const html = `<input class="search-input">`;' }],
+      invalid: [
+        { code: 'const html = `<input class="search-input t-xs">`;', errors: [{ messageId: 'inputFont' }] },
+        { code: 'const html = `<textarea class="textarea t-sm">`;', errors: [{ messageId: 'inputFont' }] },
+      ],
+    });
+  });
 });
 
 describe('L2-3 af-mobile/no-variant-conflict', () => {

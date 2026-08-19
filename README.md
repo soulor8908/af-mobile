@@ -2,8 +2,8 @@
 
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
 
-- **L1 Token**：75 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效）
-- **L2 配方 + 原子**：175 个白名单封闭集 class（113 配方 + 62 原子，`btn`/`card`/`p-4`/...）
+- **L1 Token**：88 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效，含 8 档灰阶，关键组合 WCAG AA 对比度由 CI 断言）
+- **L2 配方 + 原子**：185 个白名单封闭集 class（118 配方 + 67 原子，`btn`/`card`/`p-4`/...）
 - **L3 真组件**：28 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 20 规则兜底 + CI 保护
 

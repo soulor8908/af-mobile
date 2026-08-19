@@ -4,6 +4,33 @@
 
 > 早期版本（v1.0.0 ~ v1.3.x）未维护本文件，变更记录自 v1.4.0 起。
 
+## [1.5.0] - 2026-08-19
+
+> UI v6 视觉基线：去拟物 + 对比度 CI 化 + 五配方文件同步。对标 Vant 4 的系统性整改，含少量**视觉破坏性变更**（见 `docs/migration-guide.md` § UI v6）。
+
+### Changed（视觉破坏性）
+- **Token 层重构**：品牌 hue 275→262（靛紫偏蓝）；灰阶 5 角色→8 档阶梯（`--c-gray-1..8`）；字号 `--t-md` 15→14、`--t-sm` 13→12（中文移动端安全基准）；圆角收紧 `--r-s` 8→6、`--r-m` 12→8、`--r-l` 16→12；`--tabbar-h` 52→50
+- **去拟物**：`.btn` 删 inset 高光 / `translateY(1px)` 按压位移 / 多层阴影，active 回归换深底色的扁平反馈；`.card` 去投影改纯描边；`.navbar`/`.tabbar`/`.input-bar`/`.checkout-bar`/`af-navbar` 去投影改 0.5px hairline
+- **触控与行高**：`.cell`/`.list-item` min-height 52→48；`.switch` 对齐大触控规格（52×32 / thumb 28）
+- **表单字号恒 16px**：`.input`/`.textarea`/`.search-input` 统一 `--t-input:16px`（iOS Safari 聚焦 <16px 输入框会自动放大整页且用户不可关闭）
+- **五配方文件同步**：`recipes-form/feedback/display.css` 与全量 `recipes.css` 对齐（switch 规格 / skeleton 行高 / segmented clamp 内边距），消除子集间漂移
+
+### Added
+- **对比度 CI**：`scripts/check-contrast.mjs`（OKLCH→sRGB 转换 + WCAG 比值断言，正文/次级/按钮/警示等关键组合 AA 达标），挂入 `npm test` 与 `ci`
+- **新 Token**：`--t-input`、`--tabbar-h`、`--c-gray-1..8`、`--palette-gray-1..8`
+- **新配方/原子**：`.btn-plain`（描边按钮）、`.btn-round`（胶囊）、`.tag-plain`（描边标签）、`.ellipsis-2`（两行截断）、`.hairline-top`/`.hairline-bottom`（0.5px 分隔线工具类）
+- **af-navbar 标题单行截断**（`min-width:0` + ellipsis，长标题不再撑破布局）
+
+### Fixed
+- **feedback 子集对比度 bug**：`.tag-warn`/`.notice`/`.toast-warning` 黄底配白字（AA 不达标）→ 改 `--c-onwarn` 暖深棕；黑底 `.toast` 在 dark 主题下文字随 onbrand 变深不可读 → 恒 `#fff`
+- **`recipes-core.css` tab-item 硬编码 48px** → `var(--tabbar-h)`（此前改 token 不生效）
+- **`.btn-danger`/`.btn-success` :active 串色**（继承 `.btn:active` 的 brand-strong）→ 各自补深底色
+- **ESLint `no-recipe-break` 子规则 c** 扩展到 `.textarea`/`.search-input`，报错文案修正为 `--t-input`
+- 规则 05（Prompt 25 条禁令）同步更新为三控件 + `--t-input` 表述
+
+### Published
+- `@af-mobile/ui@1.5.0`（白名单扩至 185：recipe 118 + atomic 67）、`@af-mobile/eslint-plugin@2.0.2`、`@af-mobile/prompt@2.0.3`（assets 同步）
+
 ## [1.4.2] - 2026-08-17
 
 ### Fixed

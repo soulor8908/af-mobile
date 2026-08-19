@@ -1,6 +1,6 @@
 {
   "name": "@af-mobile/ui",
-  "version": "1.4.4",
+  "version": "1.5.0",
   "description": "Mobile-first Web Components library with L1/L2/L3 layered design system",
   "workspaces": [
     "eslint-plugin-af-mobile",
@@ -51,7 +51,8 @@
     "scripts/resolve-asset.mjs"
   ],
   "scripts": {
-    "test": "vitest run",
+    "test": "node scripts/check-contrast.mjs && vitest run",
+    "test:contrast": "node scripts/check-contrast.mjs",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
@@ -85,7 +86,7 @@
     "publish:check": "node scripts/publish-check.mjs",
     "build": "node scripts/build.mjs",
     "prepublishOnly": "npm run build && npm run publish:check",
-    "ci": "vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs && node scripts/check-tokens-sync.mjs && node scripts/check-types-sync.mjs && node scripts/check-aria-sync.mjs",
+    "ci": "node scripts/check-contrast.mjs && vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs && node scripts/check-tokens-sync.mjs && node scripts/check-types-sync.mjs && node scripts/check-aria-sync.mjs",
     "demo": "vite",
     "demo:build": "vite build",
     "docs:dev": "vitepress dev site",

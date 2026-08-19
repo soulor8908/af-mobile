@@ -6,6 +6,34 @@
 
 ---
 
+## UI v6（v1.4.x → v1.5.0，视觉层迁移）
+
+> 独立于下方 v2.0 运行时迁移，可单独执行。全部为 CSS 层变更，**不改任何 JS API**。
+
+### 需要检查的存量代码
+
+| 场景 | 变化 | 迁移动作 |
+|------|------|----------|
+| 依赖 `.card` 投影做层级 | card 已去影改纯描边 | 需要浮起感的容器改用 `.sheet`（浮层）或叠加 `.shadow-sm` 原子 |
+| 依赖 `.btn` 按压位移/高光反馈 | 已删 `translateY`/inset 高光 | 无需动作；如需更强反馈可监听 `:active` 换底色（内置已生效） |
+| 给 `.input`/`.textarea`/`.search-input` 叠加过 `t-sm`/`t-xs` | 控件字号恒 `--t-input` 16px | 删除小字号叠加（ESLint 规则 05 现在会报错）；帮助文字放 `.form-err`/`.label` |
+| 页面假设 cell/list-item 高 52px | min-height 48px | 检查虚拟列表 `item-height` 之类的硬编码（`af-list` 传 48 或自适应） |
+| 自定义 1px 分隔线 | `.list`/`.navbar`/`.tabbar` 内置 0.5px hairline | 自建分隔改用 `.hairline-top`/`.hairline-bottom` |
+| 黄底 warn 场景用白字 | `.tag-warn`/`.notice`/`.toast-warning` 已改 `--c-onwarn` | 若曾手动用 `text-fff` 之类补丁，可删除 |
+| 依赖旧灰阶 token（5 角色） | 灰阶扩为 8 档 | 旧 token 全保留，无破坏；新分层用 `--c-gray-1..8` |
+
+### 新增能力（无需迁移，直接可用）
+
+`.btn-plain` / `.btn-round` / `.tag-plain` / `.ellipsis-2` / `.hairline-top` / `.hairline-bottom`；Token `--t-input`、`--tabbar-h`、`--c-gray-1..8`。
+
+### 设计决策摘要
+
+- **为什么 input 锁 16px**：iOS Safari 聚焦字号 <16px 的输入框会自动放大整页，且用户设置里无法关闭；锁 16px 是唯一可靠解。
+- **为什么 hairline 用 0.5px**：高分屏（dpr≥2）下 0.5px 解析为 1 物理像素，1px 边框在 dpr=3 设备上显粗发闷；Vant/Antd 同款做法。
+- **为什么 card 去投影**：投影语义保留给浮层（sheet/dropdown）；平面容器用描边，暗色主题下描边比投影更稳定（投影在暗底几乎不可见还增加噪点）。
+
+---
+
 ## 0. 兼容性策略
 
 | 版本 | definePage | createPage | 说明 |

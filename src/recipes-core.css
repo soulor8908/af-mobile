@@ -2,65 +2,61 @@
    按钮 / 容器 / 文本 / 列表 / 导航 / 布局 / Light DOM 宿主（非表单）
    所有页面必引：import 'af-mobile/css/core'; */
 @layer components {
-  /* === 按钮（7） === */
-  /* v5：删 180° 线性渐变（Web 2.0 遗物），改纯色 + 精细层叠阴影 + 内描边高光
-     悬停用 color-mix 派生（主题切换自动跟随），按下 translateY(1px) 触觉感 */
+  /* === 按钮（9） === */
+  /* v6：删 inset 高光与 translateY 按压位移（拟物遗物），active 回归「换深底色」的扁平反馈；
+     各彩色变体补齐自己的 :active 底色（此前继承 .btn:active 的 brand-strong 会串色） */
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--s-2);
     min-height: 44px;
-    padding: 0 var(--s-5);
+    padding: 0 var(--s-4);
     background: var(--c-brand);
     color: var(--c-onbrand);
     font-size: var(--t-md);
-    font-weight: var(--fw-semibold);
+    font-weight: var(--fw-medium);
     line-height: var(--lh-tight);
     border: none;
     border-radius: var(--r-m);
-    box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, var(--c-onbrand) 18%, transparent);
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    transition: background var(--dur-fast) var(--ease-out),
-                transform var(--dur-fast) var(--ease-out),
-                box-shadow var(--dur-fast) var(--ease-out);
+    transition: background var(--dur-fast) var(--ease-out);
   }
   .btn:hover { background: color-mix(in srgb, var(--c-brand) 92%, white); }
-  .btn:active {
-    background: var(--c-brand-strong);
-    transform: translateY(1px);
-    box-shadow: 0 1px 1px color-mix(in srgb, var(--c-text) 6%, transparent);
-  }
-  .btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+  .btn:active { background: var(--c-brand-strong); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .btn-sm  { min-height: 32px; padding: 0 var(--s-3); font-size: var(--t-sm); }
-  .btn-lg  { min-height: 52px; padding: 0 var(--s-6); font-size: var(--t-lg); }
+  .btn-sm  { min-height: 32px; padding: 0 var(--s-2); font-size: var(--t-sm); }
+  .btn-lg  { min-height: 50px; padding: 0 var(--s-5); font-size: var(--t-lg); }
 
   .btn-ghost {
     background: transparent;
     color: var(--c-brand);
-    box-shadow: none;
   }
   .btn-ghost:hover { background: var(--c-brand-soft); }
-  .btn-ghost:active { background: color-mix(in srgb, var(--c-brand) 14%, transparent); box-shadow: none; }
+  .btn-ghost:active { background: color-mix(in srgb, var(--c-brand) 14%, transparent); }
   .btn-ghost:disabled { background: transparent; }
 
-  .btn-danger  {
-    background: var(--c-danger);
-    box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, var(--c-onbrand) 18%, transparent);
+  /* v6 新增：plain（白底彩字描边）/ round（胶囊），对齐主流变体 */
+  .btn-plain {
+    background: var(--c-card);
+    color: var(--c-brand);
+    border: 1px solid var(--c-brand);
   }
+  .btn-plain:hover { background: var(--c-brand-soft); }
+  .btn-plain:active { background: var(--c-brand-soft); }
+
+  .btn-danger  { background: var(--c-danger); }
   .btn-danger:hover { background: color-mix(in srgb, var(--c-danger) 92%, white); }
-  .btn-danger:active { box-shadow: 0 1px 1px color-mix(in srgb, var(--c-text) 6%, transparent); }
-  .btn-success {
-    background: var(--c-success);
-    box-shadow: var(--shadow-sm), inset 0 1px 0 color-mix(in srgb, var(--c-onbrand) 18%, transparent);
-  }
+  .btn-danger:active { background: color-mix(in srgb, var(--c-danger) 88%, black); }
+  .btn-success { background: var(--c-success); }
   .btn-success:hover { background: color-mix(in srgb, var(--c-success) 92%, white); }
-  .btn-success:active { box-shadow: 0 1px 1px color-mix(in srgb, var(--c-text) 6%, transparent); }
+  .btn-success:active { background: color-mix(in srgb, var(--c-success) 88%, black); }
 
   .btn-block { display: flex; width: 100%; }
+  .btn-round { border-radius: var(--r-f); }
 
   /* === 容器（5） === */
   .page {
@@ -78,7 +74,6 @@
     border: 1px solid var(--c-border);
     border-radius: var(--r-m);
     padding: var(--s-4);
-    box-shadow: var(--shadow-sm);
   }
 
   .cell {
@@ -87,7 +82,7 @@
     gap: var(--s-3);
     background: var(--c-card);
     padding: var(--s-3) var(--s-4);
-    min-height: 52px;
+    min-height: 48px;
   }
 
   .center {
@@ -137,9 +132,10 @@
     border-radius: var(--r-m);
     overflow: hidden;
   }
+  /* v6：列表分隔线 1px → 0.5px hairline */
   .list > .cell + .cell,
   .list > .list-item + .list-item {
-    border-top: 1px solid var(--c-border);
+    border-top: 0.5px solid var(--c-border);
   }
 
   .list-item {
@@ -148,7 +144,7 @@
     gap: var(--s-3);
     background: var(--c-card);
     padding: var(--s-3) var(--s-4);
-    min-height: 52px;
+    min-height: 48px;
     /* button 宿主需显式覆盖 UA 默认样式（border / color / font / text-align / width / appearance）
        div 宿主这些属性的默认值与显式覆盖等价，不受影响 */
     border: none;
@@ -198,26 +194,26 @@
   }
 
   /* === 导航（5） === */
+  /* v6：导航/标签栏去投影改 hairline；tab-item 高度接 --tabbar-h（52→50 对齐 Vant） */
   .navbar {
     display: flex;
     align-items: center;
     gap: var(--s-3);
     padding: var(--s-3) var(--s-4);
     background: var(--c-card);
-    border-bottom: 1px solid var(--c-border);
+    border-bottom: 0.5px solid var(--c-border);
     min-height: 48px;
   }
   .navbar-fixed {
     position: sticky;
     top: 0;
     z-index: var(--z-sticky);
-    box-shadow: var(--shadow-sm);
   }
 
   .tabbar {
     display: flex;
     background: var(--c-card);
-    box-shadow: var(--shadow-md);
+    border-top: 0.5px solid var(--c-border);
   }
   .tabbar-fixed {
     position: fixed;
@@ -241,7 +237,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    min-height: 48px;
+    min-height: var(--tabbar-h);
     -webkit-tap-highlight-color: transparent;
     transition: color var(--dur-fast) var(--ease-out);
   }
@@ -288,8 +284,7 @@
     gap: var(--s-2);
     padding: var(--s-2) var(--s-3);
     background: var(--c-card);
-    border-top: 1px solid var(--c-border);
-    box-shadow: var(--shadow-sm);
+    border-top: 0.5px solid var(--c-border);
     padding-bottom: calc(var(--s-2) + env(safe-area-inset-bottom));
   }
 
@@ -299,8 +294,7 @@
     gap: var(--s-3);
     padding: var(--s-3) var(--s-4);
     background: var(--c-card);
-    border-top: 1px solid var(--c-border);
-    box-shadow: var(--shadow-sm);
+    border-top: 0.5px solid var(--c-border);
     padding-bottom: calc(var(--s-3) + env(safe-area-inset-bottom));
   }
 
@@ -341,7 +335,7 @@
   af-navbar {
     display: flex; align-items: center; gap: var(--s-3);
     position: sticky; top: 0; z-index: var(--z-sticky);
-    background: var(--c-card); box-shadow: var(--shadow-sm);
+    background: var(--c-card); border-bottom: 0.5px solid var(--c-border);
     padding-top: env(safe-area-inset-top);
     min-height: 48px;
   }
@@ -350,7 +344,11 @@
   }
   af-navbar [data-role="left"] { margin-right: auto; }
   af-navbar [data-role="right"] { margin-left: auto; }
-  af-navbar [data-role="title"] { flex: 1; text-align: center; }
+  /* v6：标题过长单行截断（flex item 默认 min-width:auto 会撑破容器，须 min-width:0） */
+  af-navbar [data-role="title"] {
+    flex: 1; min-width: 0; text-align: center;
+    overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  }
 
   /* af-tabbar：底部固定 + 底部安全区 */
   af-tabbar { display: block; }

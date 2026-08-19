@@ -69,8 +69,10 @@
     color: var(--c-muted);
   }
   .tag-ok     { background: var(--c-success); color: var(--c-onbrand); }
-  .tag-warn   { background: var(--c-warn);    color: var(--c-onbrand); }
+  .tag-warn   { background: var(--c-warn);    color: var(--c-onwarn); }
   .tag-danger { background: var(--c-danger);  color: var(--c-onbrand); }
+  /* v6 新增：plain 描边式标签（浅底场景弱强调，不与实心彩底争抢视觉层级） */
+  .tag-plain  { background: transparent; color: var(--c-brand); border: 1px solid var(--c-brand); }
 
   /* v5：badge padding 5px → var(--s-1)（修魔数） */
   .badge {
@@ -95,7 +97,8 @@
     transform: translate(-50%, -50%);
     padding: var(--s-2) var(--s-4);
     background: rgba(0,0,0,.8);
-    color: var(--c-onbrand);
+    /* v6：黑底 Toast 恒用纯白——onbrand 在 dark 主题是深色，浮于黑底不可读 */
+    color: #fff;
     font-size: var(--t-sm);
     border-radius: var(--r-m);
     z-index: var(--z-modal);
@@ -107,7 +110,7 @@
   }
   .toast-success { background: var(--c-success); }
   .toast-error { background: var(--c-danger); }
-  .toast-warning { background: var(--c-warn); color: var(--c-text); }
+  .toast-warning { background: var(--c-warn); color: var(--c-onwarn); }
 
   /* === 加载指示器（3） === */
   /* 纯 CSS：@keyframes border 旋转
@@ -170,7 +173,7 @@
     gap: var(--s-2);
     padding: var(--s-2) var(--s-3);
     background: var(--c-warn);
-    color: var(--c-onbrand);
+    color: var(--c-onwarn);
     font-size: var(--t-sm);
     line-height: var(--lh-tight);
     overflow: hidden;

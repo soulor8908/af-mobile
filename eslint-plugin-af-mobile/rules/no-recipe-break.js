@@ -18,7 +18,7 @@ export default {
     messages: {
       cellFlex: ".cell has built-in display:flex, adding 'f'/'fc' may break layout",
       btnColor: ".btn background uses --c-brand, text color must keep --c-onbrand contrast. Use .btn-ghost instead for colored text",
-      inputFont: ".input font-size must be 16px (--t-md) to prevent iOS focus zoom. Put help text in <label> or .form-err instead",
+      inputFont: "form control (.input/.textarea/.search-input) font-size must be 16px (--t-input) to prevent iOS focus zoom. Put help text in <label> or .form-err instead",
       btnBg: ".btn background is --c-brand with white text; overriding background with 'bg-card'/'bg-muted' breaks contrast. Use .btn-ghost instead",
     },
   },
@@ -41,8 +41,8 @@ export default {
           if (set.has(a)) { context.report({ node, messageId: 'btnBg' }); break; }
         }
       }
-      // c: .input + t-sm/t-xs
-      if (set.has('input')) {
+      // c: 表单控件 + t-sm/t-xs（.input/.textarea/.search-input 均为 --t-input 16px 基准）
+      if (set.has('input') || set.has('textarea') || set.has('search-input')) {
         for (const a of SMALL_FONT) {
           if (set.has(a)) { context.report({ node, messageId: 'inputFont' }); break; }
         }

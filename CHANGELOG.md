@@ -45,6 +45,7 @@
 ### Published
 - `@af-mobile/ui@1.5.2`（白名单 188：recipe 121 + atomic 67，含 af-chat 子库白名单）
 - `@af-mobile/eslint-plugin@2.0.4`（af-chat aria-requirements + whitelist 同步）
+- `create-af-mobile@1.4.3`（依赖 `@af-mobile/ui` `^1.4.3` → `^1.5.2`，脚手架默认拉起新版 UI）
 - `@af-mobile/prompt@2.0.3`（system-prompt.template 注入 af-chat + 白名单同步）
 - `@af-mobile/mcp@1.0.3`（assets 同步 + 本地领先 patch）
 

@@ -30,6 +30,8 @@
 
   .btn-sm  { min-height: 32px; padding: 0 var(--s-2); font-size: var(--t-sm); }
   .btn-lg  { min-height: 50px; padding: 0 var(--s-5); font-size: var(--t-lg); }
+  /* v6.1 新增：mini 档（24px），标签/筛选/表格内操作场景；字号用 t-sm(12px) 避开中文 <12px 渲染钳制 */
+  .btn-mini { min-height: 24px; padding: 0 var(--s-2); font-size: var(--t-sm); }
 
   .btn-ghost {
     background: transparent;
@@ -330,23 +332,23 @@
   af-backtop:not([position="left-bottom"]) { right: calc(var(--s-4) + env(safe-area-inset-right)); }
 
   /* af-navbar：sticky 顶部导航 + 顶部安全区
-     注意：display 必须 flex —— auto margin 仅在 flex 容器的 flex item 上生效
-     （CSS 2.1 §10.3.1：inline-level 元素的 auto 左右外边距计算为 0） */
+     v6.1：左右区绝对定位，标题脱离左右内容宽度差、真正居中 */
   af-navbar {
-    display: flex; align-items: center; gap: var(--s-3);
+    display: flex; align-items: center; justify-content: center;
     position: sticky; top: 0; z-index: var(--z-sticky);
     background: var(--c-card); border-bottom: 0.5px solid var(--c-border);
     padding-top: env(safe-area-inset-top);
     min-height: 48px;
   }
   af-navbar [data-role="left"], af-navbar [data-role="right"] {
+    position: absolute; top: env(safe-area-inset-top); bottom: 0;
     display: inline-flex; align-items: center; gap: var(--s-2);
   }
-  af-navbar [data-role="left"] { margin-right: auto; }
-  af-navbar [data-role="right"] { margin-left: auto; }
-  /* v6：标题过长单行截断（flex item 默认 min-width:auto 会撑破容器，须 min-width:0） */
+  af-navbar [data-role="left"] { left: 0; }
+  af-navbar [data-role="right"] { right: 0; }
+  /* v6：标题过长单行截断；v6.1：max-width 约束占宽，防与绝对定位的左右区重叠（对齐 Vant 60%） */
   af-navbar [data-role="title"] {
-    flex: 1; min-width: 0; text-align: center;
+    max-width: 60%; text-align: center;
     overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
   }
 

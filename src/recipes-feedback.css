@@ -68,6 +68,9 @@
     background: var(--c-muted-bg);
     color: var(--c-muted);
   }
+  /* v6.1 新增：尺寸阶梯（此前只有颜色变体）。基础 .tag 即小号，颜色变体与尺寸可自由组合 */
+  .tag-md { padding: var(--s-1) var(--s-2); font-size: var(--t-sm); }
+  .tag-lg { padding: var(--s-1) var(--s-3); font-size: var(--t-md); }
   .tag-ok     { background: var(--c-success); color: var(--c-onbrand); }
   .tag-warn   { background: var(--c-warn);    color: var(--c-onwarn); }
   .tag-danger { background: var(--c-danger);  color: var(--c-onbrand); }

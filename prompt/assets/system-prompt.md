@@ -10,7 +10,7 @@
 # 设计体系速查
 
 - **L1 Token（92 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
-- **L2 配方（118）+ 原子（67）= 185 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
+- **L2 配方（121）+ 原子（67）= 188 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
 - **L3 真组件（33 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 20 规则（13 error + 7 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
@@ -18,14 +18,14 @@
 
 # L2 白名单（构建时注入）
 
-## L2 配方（118 个，按用途分组）
+## L2 配方（121 个，按用途分组）
 
-**按钮（9）：** `btn` `btn-sm` `btn-lg` `btn-ghost` `btn-plain` `btn-danger` `btn-success` `btn-block` `btn-round`
+**按钮（10）：** `btn` `btn-sm` `btn-lg` `btn-mini` `btn-ghost` `btn-plain` `btn-danger` `btn-success` `btn-block` `btn-round`
 **容器（8）：** `page` `card` `cell` `center` `sheet` `eyebrow` `section` `section-title`
 **文本（8）：** `display` `title` `subtitle` `body` `caption` `meta` `price` `price-del`
 **表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-loading` `switch-thumb` `search-bar-wrap` `search-bar-icon` `search-bar-clear` `input-err` `upload-trigger` `upload-grid`
 **列表（6）：** `list` `list-item` `list-item-compact` `divider` `thumb` `avatar`
-**反馈（21）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-ok` `tag-warn` `tag-danger` `tag-plain` `badge` `toast` `toast-success` `toast-error` `toast-warning`
+**反馈（23）：** `empty` `skeleton` `skeleton-line` `skeleton-block` `skeleton-block-h-sm` `skeleton-block-h-md` `skeleton-w-40` `skeleton-w-60` `skeleton-w-80` `skeleton-circle` `skeleton-page` `tag` `tag-md` `tag-lg` `tag-ok` `tag-warn` `tag-danger` `tag-plain` `badge` `toast` `toast-success` `toast-error` `toast-warning`
 **导航（7）：** `navbar` `navbar-fixed` `page-col` `scroll-y` `tabbar` `tabbar-fixed` `tab-item`
 **布局（9）：** `hero` `stats-grid` `actions` `input-bar` `checkout-bar` `input-bar-fixed` `checkout-bar-fixed` `safe-top` `safe-bottom`
 **Checkbox / Radio（4）：** `checkbox` `radio` `checkbox-sm` `radio-sm`
@@ -132,7 +132,7 @@
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 02. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
     （display/transform/z-index/width/height 布局属性例外）
-03. 禁止使用 185 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
+03. 禁止使用 188 白名单外的 class 名或自定义组件标签（项目级扩展需先登记）
 04. 禁止 `.btn`（非 `.btn-ghost`）叠加 `text-brand`/`text-danger`/`text-success` 或 `bg-card`/`bg-muted`（破坏 onbrand 对比度）
 05. 禁止 `.input`/`.textarea`/`.search-input` 控件叠加 `t-sm`/`t-xs`（控件字号恒为 `--t-input` 16px，iOS 聚焦 < 16px 自动放大页面）
 06. 禁止 `.cell`/`.list-item` 叠加 `f`/`fi`/`fc` 原子（自带 `display:flex`，再设会破坏布局）
@@ -629,7 +629,7 @@ export default function listPage(params, ctx) {
 - **白名单确实缺的布局缺口**（如业务专属容器）：在 `eslint.config.js` 的 `extraClass` 数组登记，而非反复猜类名死循环。仅限结构性 class（无视觉属性），视觉样式仍走 token/原子类
 
 ### extraClass 逃生舱
-当白名单 185 个 class 确实无法表达所需布局时，`eslint.config.js` 可登记项目级扩展 class：
+当白名单 188 个 class 确实无法表达所需布局时，`eslint.config.js` 可登记项目级扩展 class：
 ```javascript
 // eslint.config.js
 import afMobilePlugin from '@af-mobile/eslint-plugin';

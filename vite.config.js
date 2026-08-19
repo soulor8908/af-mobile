@@ -14,12 +14,14 @@ const SRC_URL_PREFIX = BASE.replace(/\/[^/]+\/$/, '/src/');
 const SRC_DIR = resolve(ROOT, 'src');
 const MIME = { '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json' };
 
-// demo/components/*.html 每个组件一个静态 demo 页，全部作为多页入口打包
-function componentInputs() {
-  const dir = resolve(ROOT, 'demo/components');
+// demo/components/*.html、demo/scenarios/*.html 每页一个静态 demo，全部作为多页入口打包。
+// input key 决定产物路径：必须带目录前缀与源目录结构一致，
+// 否则 index.html 的相对链接（components/xxx.html、scenarios/xxx.html）发布后 404。
+function htmlInputs(subDir) {
+  const dir = resolve(ROOT, 'demo', subDir);
   const inputs = {};
   for (const f of readdirSync(dir).filter((f) => f.endsWith('.html'))) {
-    inputs[f.replace(/\.html$/, '')] = resolve(dir, f);
+    inputs[`${subDir}/${f.replace(/\.html$/, '')}`] = resolve(dir, f);
   }
   return inputs;
 }
@@ -69,7 +71,8 @@ export default defineConfig({
         playground: resolve(ROOT, 'demo/playground/index.html'),
         kitchenSink: resolve(ROOT, 'demo/kitchen-sink.html'),
         perf: resolve(ROOT, 'demo/perf.html'),
-        ...componentInputs(),
+        ...htmlInputs('components'),
+        ...htmlInputs('scenarios'),
       },
     },
   },

@@ -28,6 +28,8 @@
 
   .btn-sm  { min-height: 32px; padding: 0 var(--s-2); font-size: var(--t-sm); }
   .btn-lg  { min-height: 50px; padding: 0 var(--s-5); font-size: var(--t-lg); }
+  /* v6.1 新增：mini 档（24px），标签/筛选/表格内操作场景；字号用 t-sm(12px) 避开中文 <12px 渲染钳制 */
+  .btn-mini { min-height: 24px; padding: 0 var(--s-2); font-size: var(--t-sm); }
 
   .btn-ghost {
     background: transparent;
@@ -132,7 +134,8 @@
   }
 
   /* === 文本（9） === */
-  .display  { font-size: var(--t-display); font-weight: var(--fw-bold);
+  /* v6.1：display 700→600——中文大字号 700 笔画糊化，600 是汉字安全上限（数字场景 .price/.badge 保留 700） */
+  .display  { font-size: var(--t-display); font-weight: var(--fw-semibold);
               line-height: var(--lh-display); letter-spacing: var(--ls-display);
               color: var(--c-text); }
   .title    { font-size: var(--t-xl); font-weight: var(--fw-semibold);
@@ -208,7 +211,10 @@
 
   .search-input {
     width: 100%;
-    padding: var(--s-2) var(--s-3) var(--s-2) var(--s-5);
+    /* v6.1：固定高度替代垂直 padding（原 ~40px → 36px），垂直居中由 input 原生行为保证；
+       字号仍用 --t-input(16px)，iOS 聚焦缩放红线不可触碰 */
+    height: 36px;
+    padding: 0 var(--s-3) 0 var(--s-5);
     background: var(--c-muted-bg);
     border: 1px solid transparent;
     border-radius: var(--r-f);
@@ -437,6 +443,9 @@
     background: var(--c-muted-bg);
     color: var(--c-muted);
   }
+  /* v6.1 新增：尺寸阶梯（此前只有颜色变体）。基础 .tag 即小号，颜色变体与尺寸可自由组合 */
+  .tag-md { padding: var(--s-1) var(--s-2); font-size: var(--t-sm); }
+  .tag-lg { padding: var(--s-1) var(--s-3); font-size: var(--t-md); }
   .tag-ok     { background: var(--c-success); color: var(--c-onbrand); }
   .tag-warn   { background: var(--c-warn);    color: var(--c-onwarn); }
   .tag-danger { background: var(--c-danger);  color: var(--c-onbrand); }
@@ -960,23 +969,24 @@
   af-backtop:not([position="left-bottom"]) { right: calc(var(--s-4) + env(safe-area-inset-right)); }
 
   /* af-navbar：sticky 顶部导航 + 顶部安全区
-     注意：display 必须 flex —— auto margin 仅在 flex 容器的 flex item 上生效
-     （CSS 2.1 §10.3.1：inline-level 元素的 auto 左右外边距计算为 0） */
+     v6.1：左右区绝对定位（sticky 元素即定位基准），标题脱离左右内容宽度差、真正居中；
+     左右区 top 从安全区下沿起算，垂直居中于内容区 */
   af-navbar {
-    display: flex; align-items: center; gap: var(--s-3);
+    display: flex; align-items: center; justify-content: center;
     position: sticky; top: 0; z-index: var(--z-sticky);
     background: var(--c-card); border-bottom: 0.5px solid var(--c-border);
     padding-top: env(safe-area-inset-top);
     min-height: 48px;
   }
   af-navbar [data-role="left"], af-navbar [data-role="right"] {
+    position: absolute; top: env(safe-area-inset-top); bottom: 0;
     display: inline-flex; align-items: center; gap: var(--s-2);
   }
-  af-navbar [data-role="left"] { margin-right: auto; }
-  af-navbar [data-role="right"] { margin-left: auto; }
-  /* v6：标题过长单行截断（flex item 默认 min-width:auto 会撑破容器，须 min-width:0） */
+  af-navbar [data-role="left"] { left: 0; }
+  af-navbar [data-role="right"] { right: 0; }
+  /* v6：标题过长单行截断；v6.1：max-width 约束占宽，防与绝对定位的左右区重叠（对齐 Vant 60%） */
   af-navbar [data-role="title"] {
-    flex: 1; min-width: 0; text-align: center;
+    max-width: 60%; text-align: center;
     overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
   }
 
@@ -985,14 +995,16 @@
 
   /* af-stepper：横向紧凑布局 + 居中数字输入 */
   af-stepper { display: inline-flex; align-items: center; gap: var(--s-1); }
-  af-stepper [data-role="input"] { width: 64px; text-align: center; }
-  /* ±按钮加大到 40px 方形触点（覆盖 btn-sm 的 32px），字号提到 t-lg 更醒目 */
+  /* v6.1：输入宽 64→40px（对齐 Vant 32px 量级，64px 在紧凑表单中过宽） */
+  af-stepper [data-role="input"] { width: 40px; text-align: center; }
+  /* ±按钮 40px 方形触点（覆盖 btn-sm 的 32px，保触控达标）；
+     v6.1：字号 t-lg→t-md，±符号与正文同级即可，避免喧宾夺主 */
   af-stepper [data-role="minus"],
   af-stepper [data-role="plus"] {
     width: var(--s-7);
     height: var(--s-7);
     padding: 0;
-    font-size: var(--t-lg);
+    font-size: var(--t-md);
   }
 
   /* af-field：图标绝对定位 + 控件容器相对定位 */

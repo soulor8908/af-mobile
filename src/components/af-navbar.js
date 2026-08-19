@@ -24,12 +24,8 @@ export class AfNavbar extends withI18n(AfElement) {
     // 保存 slotted 子节点引用：innerHTML= 会销毁现有子节点，需在重置前抓取再搬入
     const slottedLeft = this.$$('[slot="left"]');
     const slottedRight = this.$$('[slot="right"]');
-    this.innerHTML = `
-      ${back}
-      <div data-role="left"></div>
-      ${title}
-      <div data-role="right"></div>
-    `;
+    // v6.1：back 归入 left 容器（左右区绝对定位见 recipes.css），标题真正居中
+    this.innerHTML = `<div data-role="left">${back}</div>${title}<div data-role="right"></div>`;
     // 把 slotted 子节点搬入对应容器（保留外部引用与事件）
     const left = this.$('[data-role="left"]');
     const right = this.$('[data-role="right"]');

@@ -113,6 +113,37 @@ describe('af-chart-line Shadow DOM', () => {
     }));
   });
 
+  it('tooltip 定位含锚点坐标（右半屏翻转 + 上方对齐）', () => {
+    const el = makeLine({ data: DATA });
+    el.$('svg').dispatchEvent(new MouseEvent('click', { clientX: 320, clientY: 120, bubbles: true }));
+    // show 收到的是最近数据点坐标（非触点）；jsdom clientWidth=0 → wrap 宽兜底 320
+    const i = el._pxs.indexOf(Math.max(...el._pxs)); // clientX=320 最右 → 命中最右点
+    const [x, y] = [el._pxs[i], el._pys[i]];
+    const flip = x > 160, above = y > 48;
+    expect(el.$('.chart-tooltip').style.transform)
+      .toBe(`translate(${flip ? x - 8 : x + 8}px, ${above ? y - 8 : y + 8}px) translate(${flip ? '-100%' : '0'}, ${above ? '-100%' : '0'})`);
+  });
+
+  it('重绘销毁 tooltip 后再次交互自动重建（isConnected 防失效引用崩溃）', async () => {
+    const el = makeLine({ data: DATA });
+    el.$('svg').dispatchEvent(new MouseEvent('click', { clientX: 320, clientY: 120, bubbles: true }));
+    expect(el.$('.chart-tooltip')).not.toBeNull();
+    // 属性变化触发重绘：wrap.innerHTML='' 会把 tooltip 一并销毁（旧实现缓存失效引用 → TypeError）
+    el.height = 300;
+    await new Promise(r => setTimeout(r));
+    expect(() => {
+      el.$('svg').dispatchEvent(new MouseEvent('click', { clientX: 100, clientY: 120, bubbles: true }));
+    }).not.toThrow();
+    const tip = el.$('.chart-tooltip');
+    expect(tip).not.toBeNull();
+    // 重绘后 _pxs/_pys 按 height=300 重算，期望值动态推导
+    const i = el._pxs.indexOf(Math.min(...el._pxs)); // clientX=100 最左 → 命中最左点
+    const [x, y] = [el._pxs[i], el._pys[i]];
+    const flip = x > 160, above = y > 48;
+    expect(tip.style.transform)
+      .toBe(`translate(${flip ? x - 8 : x + 8}px, ${above ? y - 8 : y + 8}px) translate(${flip ? '-100%' : '0'}, ${above ? '-100%' : '0'})`);
+  });
+
   it('resize 触发重绘（MockResizeObserver → rAF）', async () => {
     const el = makeLine({ data: DATA });
     const first = el.$('path').getAttribute('d');

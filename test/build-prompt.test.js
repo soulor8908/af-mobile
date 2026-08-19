@@ -134,8 +134,10 @@ describe('build-prompt / buildWhitelistSection', () => {
   });
 
   it('CSS 分组名出现在注入结果中', () => {
-    // 按钮分组
-    expect(section).toContain('**按钮（9）：**');
+    // 按钮分组：计数派生自分组内实际 class 数（build-prompt 防漂移设计，勿手敲数字）
+    const btn = recipeGroups.find(g => g.name.startsWith('按钮'));
+    expect(btn).toBeDefined();
+    expect(section).toContain('**按钮（' + btn.classes.length + '）：**');
   });
 });
 

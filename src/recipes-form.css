@@ -58,7 +58,10 @@
 
   .search-input {
     width: 100%;
-    padding: var(--s-2) var(--s-3) var(--s-2) var(--s-5);
+    /* v6.1：固定高度替代垂直 padding（原 ~40px → 36px），垂直居中由 input 原生行为保证；
+       字号仍用 --t-input(16px)，iOS 聚焦缩放红线不可触碰 */
+    height: 36px;
+    padding: 0 var(--s-3) 0 var(--s-5);
     background: var(--c-muted-bg);
     border: 1px solid transparent;
     border-radius: var(--r-f);
@@ -191,7 +194,8 @@
   /* === af-stepper / af-field 宿主样式（form 子集，表单页才引） === */
   /* af-stepper：横向紧凑布局 + 居中数字输入 */
   af-stepper { display: inline-flex; align-items: center; gap: var(--s-1); }
-  af-stepper [data-role="input"] { width: 64px; text-align: center; }
+  /* v6.1：输入宽 64→40px（对齐 Vant 32px 量级，64px 在紧凑表单中过宽） */
+  af-stepper [data-role="input"] { width: 40px; text-align: center; }
 
   /* af-field：图标绝对定位 + 控件容器相对定位 */
   af-field { display: block; }

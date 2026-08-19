@@ -6,7 +6,8 @@
 export function createTooltip(root) {
   let el = null;
   const ensure = () => {
-    if (el) return el;
+    // _render 的 wrap.innerHTML='' 会销毁已挂载的 tooltip，isConnected 校验防失效引用
+    if (el && el.isConnected) return el;
     el = document.createElement('div');
     el.className = 'chart-tooltip';
     el.setAttribute('role', 'status');
@@ -19,9 +20,11 @@ export function createTooltip(root) {
     show(html, x, y) {
       const t = ensure();
       t.innerHTML = html;
-      // 边界翻转：右半屏时右对齐，避免溢出视口
+      // 两段定位：先平移到锚点 (x±8, y±8)，再用 -100%（相对自身尺寸）做角对齐；
+      // flip=右半屏右对齐防溢出；above=锚点上方空间不足时翻到下方
       const flip = x > (t.parentElement.clientWidth || 320) / 2;
-      t.style.transform = `translate(${flip ? '-100%' : '0'}, 0) translateX(${flip ? -8 : 8}px) translateY(${Math.max(y - 40, 0)}px)`;
+      const above = y > 48;
+      t.style.transform = `translate(${flip ? x - 8 : x + 8}px, ${above ? y - 8 : y + 8}px) translate(${flip ? '-100%' : '0'}, ${above ? '-100%' : '0'})`;
       t.style.display = 'block';
     },
     hide() {

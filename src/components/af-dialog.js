@@ -1,6 +1,7 @@
 // af-mobile UI —— af-dialog：模态对话框
 // Shadow DOM（useShadow=true），基于原生 <dialog> + showModal()
 // 职责：模态遮罩 + 焦点陷阱（原生 + 兜底）+ Esc/backdrop 关闭 + 焦点还原
+// v6.1：标题字重 700→600（中文大字 700 笔画糊化；CSS 模板内勿留注释——minify 不删、直接进产物）
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';
 
@@ -13,7 +14,7 @@ const CSS = `
   }
   dialog::backdrop { background: rgba(0,0,0,.4); backdrop-filter: blur(8px); }
   header { padding: var(--s-4); border-bottom: 1px solid var(--c-border); position: relative; }
-  .title { margin: 0; font-size: var(--t-lg); font-weight: var(--fw-bold); line-height: var(--lh-tight); }
+  .title { margin: 0; font-size: var(--t-lg); font-weight: var(--fw-semibold); line-height: var(--lh-tight); }
   .close-btn {
     position: absolute; top: var(--s-2); right: var(--s-2);
     background: none; border: none; color: var(--c-muted);

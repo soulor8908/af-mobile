@@ -91,7 +91,7 @@
     }
     function wireEvents(scen) {
       lastTypes.forEach((t) => preview.removeEventListener(t, onEvent, true));
-      lastTypes = scen.evts || [];
+      lastTypes = scen.events || [];
       lastTypes.forEach((t) => preview.addEventListener(t, onEvent, true));
     }
 
@@ -125,9 +125,9 @@
 
       // 样式 token
       tokensBox.innerHTML = '';
-      if (scen.tokens?.length) {
+      if (scen.styleTokens?.length) {
         const code = [];
-        scen.tokens.forEach((tk) => {
+        scen.styleTokens.forEach((tk) => {
           const box = document.createElement('div');
           box.className = 'pg-field';
           const label = document.createElement('label');

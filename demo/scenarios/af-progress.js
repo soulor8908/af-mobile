@@ -1,0 +1,29 @@
+// af-mobile UI —— af-progress Playground 场景
+// 契约见 af-dialog.js 顶部注释；props 控件复用 demo/props-panel.js schema
+export default {
+  tag: 'af-progress',
+  name: '进度条',
+  scenarios: [
+    {
+      name: '进度推进',
+      html: `
+        <div class="card">
+          <div class="cell"><span class="body">默认</span><af-progress id="p1" value="60"></af-progress></div>
+          <div class="cell"><span class="body">下载中…</span><af-progress id="p2" value="0"></af-progress></div>
+        </div>
+        <div class="card">
+          <button class="btn btn-ghost btn-block" onclick="var p1=document.getElementById('p1'),p2=document.getElementById('p2');p1.value=Math.min(100,p1.value+10);p2.value=Math.min(100,p2.value+10);">推进 +10</button>
+        </div>
+      `,
+      main: { selector: '#p1' },
+      props: [
+        { prop: 'value', label: '值', type: 'number', min: 0, max: 100, step: 1 },
+        { prop: 'max', label: '上限', type: 'number', min: 1, max: 1000, step: 1 },
+        { prop: 'color', label: '颜色', type: 'select', options: ['brand', 'success', 'danger'] },
+      ],
+      styleTokens: [
+        { token: '--c-brand', label: '主色', type: 'color' },
+      ],
+    },
+  ],
+};

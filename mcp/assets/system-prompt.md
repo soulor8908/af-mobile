@@ -11,7 +11,7 @@
 
 - **L1 Token（92 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
 - **L2 配方（121）+ 原子（67）= 188 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
-- **L3 真组件（33 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
+- **L3 真组件（35 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 20 规则（13 error + 7 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
@@ -69,9 +69,9 @@
 - `sheet`：底部弹出层容器（自定义 action-sheet 内容时用）
 - `input-err`：输入框错误态红框，form-err 为表单行错误文案
 
-## L3 真组件标签（33 个）
+## L3 真组件标签（35 个）
 
-`<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-calendar>` `<af-cascade-picker>` `<af-chart-bar>` `<af-chart-funnel>` `<af-chart-line>` `<af-chart-pie>` `<af-chart-radar>` `<af-countdown>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-notice-bar>` `<af-picker>` `<af-progress>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-steps>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
+`<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-calendar>` `<af-cascade-picker>` `<af-chart-bar>` `<af-chart-funnel>` `<af-chart-line>` `<af-chart-pie>` `<af-chart-radar>` `<af-countdown>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-notice-bar>` `<af-number-keyboard>` `<af-password-input>` `<af-picker>` `<af-progress>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-steps>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
 ## L1 Token 变量（92 个，必须用 var(--*) 引用）
 
@@ -115,6 +115,8 @@
 | `<af-progress>` | 进度条 | value, max, color | — |
 | `<af-steps>` | 步骤条 | steps, current | — |
 | `<af-countdown>` | 倒计时 | time, autostart | af-countdown:change, af-countdown:end |
+| `<af-number-keyboard>` | 数字键盘（支付/验证码，配 af-password-input） | value, maxlength, random, title | af-number-keyboard:input, af-number-keyboard:delete, af-number-keyboard:complete, af-number-keyboard:close |
+| `<af-password-input>` | 密码/验证码格子输入（配 af-number-keyboard） | value, length, mask, focused | af-password-input:complete |
 | `<af-chart-line>` | 折线/面积/散点/迷你图（charts 子库） | data, labels, series, variant, smooth, show-axis, height, legend, loading, error | af-chart-line:select, af-chart-line:retry |
 | `<af-chart-bar>` | 柱状/条形/堆叠/分组图（charts 子库） | data, labels, series, variant, max-count, height, legend, loading, error | af-chart-bar:select, af-chart-bar:retry |
 | `<af-chart-pie>` | 饼/环形/半环/玫瑰图（charts 子库） | data, variant, inner-radius, center-text, height, legend, loading, error | af-chart-pie:select, af-chart-pie:retry |

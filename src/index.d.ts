@@ -897,6 +897,81 @@ export class AfCountdown extends AfElement {
 }
 
 // ============================================================
+// af-number-keyboard（P1 · 数字键盘）
+// ============================================================
+
+/** af-number-keyboard:input 事件 detail */
+export interface NumberKeyboardInputDetail extends AfEventDetail {
+  /** 按下的数字键 */
+  key: string;
+  /** 按键后的完整值 */
+  value: string;
+}
+
+/** af-number-keyboard:delete 事件 detail */
+export interface NumberKeyboardDeleteDetail extends AfEventDetail {
+  /** 删除后的完整值 */
+  value: string;
+}
+
+/** af-number-keyboard:complete 事件 detail（输入达到 maxlength） */
+export interface NumberKeyboardCompleteDetail extends AfEventDetail {
+  /** 输入完成时的完整值 */
+  value: string;
+}
+
+/** af-number-keyboard:close 事件 detail */
+export interface NumberKeyboardCloseDetail extends AfEventDetail {
+  /** 关闭来源：close 按钮 / esc / backdrop */
+  source: 'close' | 'esc' | 'backdrop';
+}
+
+export class AfNumberKeyboard extends AfElement {
+  static useShadow: true;
+  /** 当前输入值 */
+  value: string;
+  /** 最大长度（0 不限制） */
+  maxlength: number;
+  /** 随机数字顺序（支付防肩窥，每次 open 重新洗牌） */
+  random: boolean;
+  /** 标题栏文案 */
+  title: string;
+  /** 是否已打开（只读） */
+  readonly isOpen: boolean;
+  /** 打开键盘 */
+  open(): void;
+  /** 关闭键盘 */
+  close(source?: string): void;
+  addEventListener(type: 'af-number-keyboard:input', listener: (e: CustomEvent<NumberKeyboardInputDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-number-keyboard:delete', listener: (e: CustomEvent<NumberKeyboardDeleteDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-number-keyboard:complete', listener: (e: CustomEvent<NumberKeyboardCompleteDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-number-keyboard:close', listener: (e: CustomEvent<NumberKeyboardCloseDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
+// af-password-input（P1 · 密码/验证码格子输入）
+// ============================================================
+
+/** af-password-input:complete 事件 detail（value 恰好填满 length） */
+export interface PasswordInputCompleteDetail extends AfEventDetail {
+  /** 输入完成时的完整值 */
+  value: string;
+}
+
+export class AfPasswordInput extends AfElement {
+  static useShadow: true;
+  /** 当前值 */
+  value: string;
+  /** 格子数 */
+  length: number;
+  /** 掩码显示（true 圆点 / false 明文验证码） */
+  mask: boolean;
+  /** 聚焦态（显示光标；配合 af-number-keyboard open/close 设置） */
+  focused: boolean;
+  addEventListener(type: 'af-password-input:complete', listener: (e: CustomEvent<PasswordInputCompleteDetail>) => void, options?: boolean | AddEventListenerOptions): void;
+}
+
+// ============================================================
 // 注册接口
 // ============================================================
 

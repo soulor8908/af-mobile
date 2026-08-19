@@ -30,22 +30,14 @@ npm i @af-mobile/ui
    import '@af-mobile/ui/css';
    ```
 
-2. **注册组件**：`@af-mobile/ui` 是原生 Custom Elements，需将标签注册到 `customElements`。它提供两类注册 API（见 `src/index.js`）：
-
-   - 全量注册 `registerAll()` —— 一次注册全部 28 个 `af-*` 组件（不推荐，会失去 Tree Shaking）；
-   - 按需注册 `register('af-dialog')` —— 变参，可同时传入多个标签名（推荐）：
-
-   ```js
-   import { registerAll } from '@af-mobile/ui';
-   registerAll(); // 全量注册 28 个组件
-   ```
+2. **注册组件**：`@af-mobile/ui` 是原生 Custom Elements，需将标签注册到 `customElements`。按需注册 `register('af-dialog', ...)` —— 变参，可同时传入多个标签名（见 `src/index.js`）：
 
    ```js
    import { register } from '@af-mobile/ui';
-   register('af-dialog', 'af-toast'); // 按需注册
+   register('af-dialog', 'af-toast'); // 按需注册（推荐，保留 Tree Shaking）
    ```
 
-   > 注意：`import '@af-mobile/ui'` 只是一次纯导入，**不会**自动注册组件。必须显式调用 `registerAll()` / `register()`，或直接取具名类用 `customElements.define`。另外，`main` / `exports` 指向源码分发（裸 ESM），消费端需要有打包器（Vite / webpack / Rollup）；若需浏览器直引，用 `dist/af-mobile.umd.js`。
+   > 注意：`import '@af-mobile/ui'` 只是一次纯导入，**不会**自动注册组件。必须显式调用 `register()`，或直接取具名类用 `customElements.define`（全量注册 `registerAll()` 已移除——禁止一次性注册全部 30 个组件）。另外，`main` / `exports` 指向源码分发（裸 ESM），消费端需要有打包器（Vite / webpack / Rollup）；若需浏览器直引，用 `dist/af-mobile.umd.js`。
 
 ## 首个组件示例
 

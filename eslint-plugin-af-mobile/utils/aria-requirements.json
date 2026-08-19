@@ -39,6 +39,15 @@
     "role": "listbox",
     "description": "选择器列需要 role=listbox"
   },
+  "af-number-keyboard": {
+    "role": "dialog",
+    "ariaLabel": true,
+    "description": "数字键盘弹层需要 role=dialog 和 aria-label；按键为原生 button 天然支持键盘操作"
+  },
+  "af-password-input": {
+    "ariaLabel": true,
+    "description": "密码格子容器需要 aria-label（含输入进度播报）"
+  },
   "af-img": {
     "description": "图片组件无强制 ARIA 要求"
   },

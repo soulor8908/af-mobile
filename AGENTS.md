@@ -235,7 +235,7 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 │  └─ 受完整 AI 规则约束（白名单 / 禁内联 style / 禁 Tailwind 语法）
 │
 └─ 消费端页面（本仓库外）
-   └─ 只能用 164 白名单 class + 33 个 af-* 组件标签
+   └─ 只能用 164 白名单 class + 35 个 af-* 组件标签
 ```
 
 ### 3.5 消费端项目必须用脚手架生成（铁律）

@@ -24,7 +24,7 @@ demo/
 ├── perf.html               # web-vitals 性能监测
 ├── playground.html          # 交互调试台：手机壳 + props 面板，import.meta.glob 装载场景
 ├── props-panel.js           # 共享属性面板工厂（createPropsPanel），组件 demo 统一引用
-├── components/              # 组件单页 demo（33 个，每组件一页）
+├── components/              # 组件单页 demo（35 个，每组件一页）
 │   ├── af-list.html
 │   ├── af-dialog.html
 │   └── ...                  # 命名约定：af-{组件}.html，与组件标签同名

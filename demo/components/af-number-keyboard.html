@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-number-keyboard demo - af-mobile</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <p class="eyebrow"><a href="../index.html" class="subtitle">← 返回</a></p>
+      <h1 class="display">af-number-keyboard 数字键盘</h1>
+    </section>
+
+    <div class="actions">
+      <button class="btn" id="open">打开键盘</button>
+      <button class="btn" id="open-random">打开随机键盘</button>
+    </div>
+
+    <af-number-keyboard id="kb" title="数字键盘" maxlength="6"></af-number-keyboard>
+
+    <p class="caption" id="log">点击按键输入 · maxlength=6 达成自动提示</p>
+
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { AfNumberKeyboard } from '../../src/components/af-number-keyboard.js';
+    customElements.define('af-number-keyboard', AfNumberKeyboard);
+    import { createPropsPanel } from '../props-panel.js';
+
+    const kb = document.getElementById('kb');
+    const log = document.getElementById('log');
+    document.getElementById('open').addEventListener('click', () => { kb.random = false; kb.open(); });
+    document.getElementById('open-random').addEventListener('click', () => { kb.random = true; kb.open(); });
+
+    kb.addEventListener('af-number-keyboard:input', (e) => { log.textContent = `输入 ${e.detail.key} → ${e.detail.value}`; });
+    kb.addEventListener('af-number-keyboard:delete', (e) => { log.textContent = `删除 → ${e.detail.value || '（空）'}`; });
+    kb.addEventListener('af-number-keyboard:complete', (e) => { log.textContent = `完成：${e.detail.value}`; });
+    kb.addEventListener('af-number-keyboard:close', (e) => { log.textContent = `关闭（${e.detail.source}）`; });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'title', label: '标题', type: 'string' },
+      { prop: 'maxlength', label: '最大长度', type: 'number', min: 0, max: 8, step: 1 },
+      { prop: 'random', label: '随机布局', type: 'boolean' },
+    ], kb);
+  </script>
+</body>
+</html>

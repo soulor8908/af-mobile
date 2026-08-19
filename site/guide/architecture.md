@@ -8,7 +8,7 @@
 |---|---|---|---|
 | **L1 Token** | 设计变量（颜色/间距/字号/行高/字重/圆角/阴影/z-index/动效）+ reset + base | `src/tokens.css` | 颜色 `--c-*`、间距 `--s-*`、字号 `--t-*` 等变量族 |
 | **L2 配方 + 原子** | 156 个白名单封闭集 class（104 配方 + 52 原子，`btn`/`card`/`p-4` 等） | `src/recipes.css` / `src/atomic.css` | 156 |
-| **L3 真组件** | 原生 Custom Elements（`af-list`/`af-dialog`/…），ESM 命名导出 + Tree Shaking | `src/components/` | **28** |
+| **L3 真组件** | 原生 Custom Elements（`af-list`/`af-dialog`/…），ESM 命名导出 + Tree Shaking | `src/components/` | **30** |
 | **L3.5 Block** | 同质化业务大块组件 | `src/blocks/` | **2** |
 | **Charts 子库** | 独立入口 `@af-mobile/ui/charts`，SVG 原生图表，不进主包 | `src/charts/` | **5** |
 
@@ -20,9 +20,9 @@
 
 复合视觉单元的 class 集合：配方如 `.btn` / `.card` / `.list-item`，原子如 `.p-4`。消费端代码被约束在 **156 个白名单 class 封闭集**内，白名单外 class 会触发 ESLint error（见「AI 协作」）。
 
-### L3 — 真组件（28 个 af-\*，`src/components/`）
+### L3 — 真组件（30 个 af-\*，`src/components/`）
 
-封装交互行为的原生 Web Components，事件名遵循 `af-{组件}:{动作}` 格式。Light DOM 与 Shadow DOM 组件并存（如 `af-list` 为 Light，`af-dialog`/`af-swiper`/`af-picker` 为 Shadow），支持按需注册与 Tree Shaking。由 `src/index.js` 汇总导出，`registerAll()` 全量注册、`register('af-dialog')` 按需注册。
+封装交互行为的原生 Web Components，事件名遵循 `af-{组件}:{动作}` 格式。Light DOM 与 Shadow DOM 组件并存（如 `af-list` 为 Light，`af-dialog`/`af-swiper`/`af-picker` 为 Shadow），支持按需注册与 Tree Shaking。由 `src/index.js` 汇总导出，`register('af-dialog', ...)` 变参按需注册（`registerAll()` 已移除）。
 
 ### L3.5 — Block（2 个 af-\*，`src/blocks/`）
 

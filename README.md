@@ -4,12 +4,12 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 
 - **L1 Token**：88 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效，含 8 档灰阶，关键组合 WCAG AA 对比度由 CI 断言）
 - **L2 配方 + 原子**：185 个白名单封闭集 class（118 配方 + 67 原子，`btn`/`card`/`p-4`/...）
-- **L3 真组件**：28 个原生 Custom Elements（`af-list`/`af-dialog`/...），ESM 命名导出 + Tree Shaking
+- **L3 真组件**：30 个原生 Custom Elements（`af-list`/`af-dialog`/`...`），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 20 规则兜底 + CI 保护
 
 ## 在线 Demo
 
-33 个核心/交互组件 + 5 个图表组件的可交互 demo，每个组件一页，含属性配置、事件演示与源码对照，覆盖核心组件、交互组件、图表组件与联动场景：
+35 个核心/交互组件 + 5 个图表组件的可交互 demo，每个组件一页，含属性配置、事件演示与源码对照，覆盖核心组件、交互组件、图表组件与联动场景：
 
 👉 **<https://soulor8908.github.io/af-mobile/demo/index.html>**
 
@@ -134,6 +134,8 @@ npm install @af-mobile/ui
 | 底部标签栏 | `<af-tabbar>` | `tabs` `active-index` `fixed` | `af-tabbar:change` | `setActive()` |
 | 步进器 | `<af-stepper>` | `value` `min` `max` `step` `disabled` | `af-stepper:change` | `setValue()` |
 | 表单字段 | `<af-field>` | `label` `icon` `type` `input-type` `value` `placeholder` `help` `error` `disabled` `readonly` | `af-field:input` `af-field:change` | `setError()` `focus()`；slot `input`（透传自定义控件） |
+| 数字键盘 | `<af-number-keyboard>` | `value` `maxlength` `random` `title` | `af-number-keyboard:input` `af-number-keyboard:delete` `af-number-keyboard:complete` `af-number-keyboard:close` | `open()` `close()` |
+| 密码/验证码输入 | `<af-password-input>` | `value` `length` `mask` `focused` | `af-password-input:complete` | 配对 `af-number-keyboard` 驱动输入 |
 | 下拉刷新 | `<af-pull-refresh>` | `refreshing` | `af-pull-refresh:refresh` | `endRefresh()` |
 | 滑动单元格 | `<af-swipe-cell>` | `disabled` | `af-swipe-cell:action` | `open()` `close()`；slot `content` / `right` |
 | 级联选择器 | `<af-cascade-picker>` | `tree` `values` `title` | `af-cascade-picker:change` `af-cascade-picker:confirm` | — |
@@ -507,7 +509,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 |---|---|---|
 | 1 | 白名单三源同步（CSS/JS ↔ whitelist.json ↔ Prompt 注入） | `npm run whitelist:check` |
 | 1b | d.ts 与源码组件数同步（防类型声明漂移） | `npm run types:check` |
-| 2 | 体积预算（L1+L2 CSS ≤ 6.0KB / 全量 28 组件+基类 ≤ 20.4KB / 按需2组件 ≤ 6.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 2.0KB / 核心运行时 ≤ 6.8KB） | `npm run size` |
+| 2 | 体积预算（L1+L2 CSS ≤ 6.0KB / 全量 30 组件+基类 ≤ 23.0KB / 按需2组件 ≤ 6.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 2.0KB / 核心运行时 ≤ 6.8KB） | `npm run size` |
 | 3 | 单元测试（jsdom） | `npm test` |
 | 4 | ESLint 20 规则（13 error + 7 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
 | 5 | 发布前检查（build + Tree Shaking + sideEffects + types-sync + npm pack） | `npm run publish:check` |
@@ -525,7 +527,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 
 | 包 | 用途 | 安装/接入 |
 |---|---|---|
-| `@af-mobile/ui` | 主包：28 组件 + 路由/状态/主题/i18n + charts 图表子库（`/charts` 入口，5 图表组件）+ CLI | `npm i @af-mobile/ui` / `npm create af-mobile` |
+| `@af-mobile/ui` | 主包：30 组件 + 路由/状态/主题/i18n + charts 图表子库（`/charts` 入口，5 图表组件）+ CLI | `npm i @af-mobile/ui` / `npm create af-mobile` |
 | `create-af-mobile` | 脚手架薄壳（npm create 约定入口，转发主包 CLI） | `npm create af-mobile@latest my-app` |
 | `@af-mobile/eslint-plugin` | 20 条 AI 约束规则（白名单/禁令/组件质量） | devDependency + flat config |
 | `@af-mobile/mcp` | MCP Server：`get_prompt` / `check_compliance` / `fix_code` / `generate_page` / `flywheel_report` | `npx @af-mobile/mcp`（注册进 TRAE / Claude Code / Cursor） |

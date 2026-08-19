@@ -27,7 +27,7 @@
 
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| duration | `number` | 2000 | 显示时长（ms） |
+| duration | `number` | 2500 | 显示时长（ms）；传 0 表示常驻，需手动 dismiss() |
 | message *(readonly)* | `string` |  | 当前消息（只读） |
 
 ### 事件
@@ -40,6 +40,7 @@
 
 | 签名 | 说明 |
 | --- | --- |
-| `show(message: string, duration?: number): void` | 显示提示 |
+| `show(message: string, duration?: number): void` |  |
+| `show(message: string, options?: ToastShowOptions): void` | 显示提示（对象形式，可指定 type / duration / closeOnClick） |
 | `dismiss(): void` | 关闭提示 |
 <!-- gen:end:api -->

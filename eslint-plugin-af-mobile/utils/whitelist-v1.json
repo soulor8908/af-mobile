@@ -214,6 +214,8 @@
     "af-list",
     "af-navbar",
     "af-notice-bar",
+    "af-number-keyboard",
+    "af-password-input",
     "af-picker",
     "af-progress",
     "af-pull-refresh",

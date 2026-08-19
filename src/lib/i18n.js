@@ -51,6 +51,11 @@ export const messages = {
     'ch.em': '暂无数据',
     'ch.rt': '重试',
     'ch.otr': '其他',
+    'nk.al': '数字键盘',
+    'nk.cl': '关闭',
+    'nk.del': '删除',
+    'pi.al': '密码输入',
+    'pi.n': '已输入 {n}/{total} 位',
   },
   'en-US': {
     'bt.al': 'Back to top',
@@ -94,6 +99,11 @@ export const messages = {
     'ch.em': 'No data',
     'ch.rt': 'Retry',
     'ch.otr': 'Others',
+    'nk.al': 'Number keyboard',
+    'nk.cl': 'Close',
+    'nk.del': 'Delete',
+    'pi.al': 'Password input',
+    'pi.n': '{n} of {total} entered',
   },
 };
 

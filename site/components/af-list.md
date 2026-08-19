@@ -11,7 +11,12 @@
 ### 长列表
 
 ```html
-<af-list id="list"></af-list>
+<style>
+          /* subtitle 拆段配色：货币符号 muted，价格品牌色高亮（var(--*) 不硬编码） */
+          .subtitle [data-role="currency"] { color: var(--c-muted); }
+          .subtitle [data-role="price"] { color: var(--c-brand); font-weight: var(--fw-medium); }
+        </style>
+        <af-list id="list"></af-list>
 ```
 
 ## API

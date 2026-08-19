@@ -3,7 +3,7 @@
 // 依据 docs/design/l3-detailed-design.md §8.5 CI 体积监控（数字与下方 BUDGET 一致）
 //   单组件 JS gzip ≤ 2.8KB   PR 阻断（CSS 计入 L1+L2 总预算，不单测）
 //   基类 AfElement gzip     ≤ 2.0KB  PR 阻断
-//   全部 28 组件 + 基类 gzip ≤ 20.4KB PR 阻断
+//   全部 30 组件 + 基类 gzip ≤ 23.0KB PR 阻断
 //   按需引入 2 组件 gzip    ≤ 6.5KB   warn
 //   (核心运行时 state+fetch+router+i18n+page+bind ≤ 6.8KB，独立预算不计入 total)
 // 实现：esbuild 打包+minify，Node zlib 测 gzip（原生，无 gzip-size 依赖）
@@ -80,11 +80,13 @@ const SRC = join(ROOT, 'src');
 //   新增 6 个缺口原子类：fi/shrink-0/lh-tight/lh-normal/bg-card/ellipsis（消费端高频，原先只能违规私建）
 //   CSS 预算口径修正：raw 拼接 gzip → esbuild minify 后 gzip（与消费端 vite 构建一致，原口径虚高约 3.3KB 掩盖真实增长）
 //   预算 9.0→6.0KB（minify 口径），原子类补齐后实测 ~5.6KB
+// v4.3 调整（支付组件对 af-number-keyboard + af-password-input，用户已确认）：
+//   total 20.4→23.0KB：新增 2 组件（30 组件 + 基类），预估 +2.5KB 含容差
 const BUDGET = {
   css: 6.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径，v4.1 实测 ~5.6KB）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
-  total: 20.4,         // KB，28 组件 + 基类（v4.2：af-picker/af-action-sheet/af-dropdown 支持 string[] 归一化等功能修复后实测 20.317KB，上调容纳必要增量）
+  total: 23.0,         // KB，30 组件 + 基类（v4.3：新增 af-number-keyboard/af-password-input，20.4 上调容纳）
   onDemand2: 6.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 6.8,    // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind）
   // charts 子库（charts-sublibrary-detailed-design.md §7）：独立入口 ./charts，不计入 total
@@ -131,6 +133,8 @@ const FILE_TO_NAME = {
   'af-progress.js': 'AfProgress',
   'af-steps.js': 'AfSteps',
   'af-countdown.js': 'AfCountdown',
+  'af-number-keyboard.js': 'AfNumberKeyboard',
+  'af-password-input.js': 'AfPasswordInput',
 };
 // 类名 → 文件名
 const NAME_TO_FILE = Object.fromEntries(
@@ -239,7 +243,7 @@ async function main() {
     compSizes.push({ file: f, gz });
   }
 
-  // 3. 全量 bundle（index.js，含基类 + 28 组件，不含 coreRuntime）
+  // 3. 全量 bundle（index.js，含基类 + 30 组件，不含 coreRuntime）
   // coreRuntime（router/state/fetch/i18n/resource/theme/page/bind）独立预算，external 掉避免计入 total
   const totalRes = await build({
     entryPoints: [join(SRC, 'index.js')],
@@ -306,7 +310,7 @@ async function main() {
   // 全量
   console.log('');
   const totalOver = totalGz > BUDGET.total * KB;
-  console.log(`全量（28 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
+  console.log(`全量（30 组件+基类）  ${fmt(totalGz).padStart(10)}  预算 ≤ ${BUDGET.total}KB  ${totalOver ? '✗ 超限' : '✓'}`);
   if (totalOver) violations.push(`全量 ${fmt(totalGz)} > ${BUDGET.total}KB`);
 
   // 按需 2

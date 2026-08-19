@@ -5,6 +5,10 @@ import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+// 场景配置可能 import 组件源码（如 demo/scenarios/af-list.js 引 html 工具），
+// af-element.js 模块求值需要 HTMLElement——纯 Node 无 DOM，垫空基类（不参与渲染）
+globalThis.HTMLElement ??= class {};
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 // 组件类名 → 标签：AfActionSheet → af-action-sheet
@@ -126,4 +130,4 @@ export async function main() {
   console.log(`✓ gen-docs: 生成/更新 ${n} 个组件文档页`);
 }
 
-if (process.argv[1] && import.meta.url === 'file://' + process.argv[1]) main().catch((e) => { console.error(e); process.exit(1); });
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main().catch((e) => { console.error(e); process.exit(1); });

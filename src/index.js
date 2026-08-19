@@ -37,8 +37,10 @@ import { AfNoticeBar } from './components/af-notice-bar.js';
 import { AfProgress } from './components/af-progress.js';
 import { AfSteps } from './components/af-steps.js';
 import { AfCountdown } from './components/af-countdown.js';
+import { AfNumberKeyboard } from './components/af-number-keyboard.js';
+import { AfPasswordInput } from './components/af-password-input.js';
 
-export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfCascadePicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfCalendar, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate, AfNoticeBar, AfProgress, AfSteps, AfCountdown };
+export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, AfCascadePicker, AfDropdown, AfImg, AfBacktop, AfBadge, AfCalendar, AfSwitch, AfSearchBar, AfSkeletonPage, AfUpload, AfNavbar, AfTabbar, AfStepper, AfField, AfPullRefresh, AfSwipeCell, AfRate, AfNoticeBar, AfProgress, AfSteps, AfCountdown, AfNumberKeyboard, AfPasswordInput };
 
 // 显式 tag→Ctor 注册表：不依赖 Function.name（minify 下类名会被压缩为 a/b/c，
 // 基于 name 的推导会失效）。改用字面量 tag 字符串，任何打包器压缩下都稳定。
@@ -71,6 +73,8 @@ export const REGISTRY = [
   ['af-progress', AfProgress],
   ['af-steps', AfSteps],
   ['af-countdown', AfCountdown],
+  ['af-number-keyboard', AfNumberKeyboard],
+  ['af-password-input', AfPasswordInput],
 ];
 
 // 变参按需注册：register('af-list') 或 register('af-list', 'af-dialog')，与 no-register-all 规则推荐用法一致

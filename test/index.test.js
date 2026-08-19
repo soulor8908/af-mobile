@@ -48,7 +48,7 @@ describe('minify 安全注册', () => {
   // 模拟打包器类名压缩：把类名改短，旧实现基于 Ctor.name 推导 tag 会失效
   it('REGISTRY 用字面量 tag，与类名解耦', () => {
     expect(Array.isArray(AfMobile.REGISTRY)).toBe(true);
-    expect(AfMobile.REGISTRY.length).toBe(28);
+    expect(AfMobile.REGISTRY.length).toBe(30);
     // 每个 entry 是 [string, function]，tag 与类名无关
     for (const [tag, Ctor] of AfMobile.REGISTRY) {
       expect(typeof tag).toBe('string');
@@ -57,7 +57,7 @@ describe('minify 安全注册', () => {
     }
   });
 
-  it('register 全部 28 个 tag 均来自 REGISTRY 字面量（即使类名被压缩）', () => {
+  it('register 全部 30 个 tag 均来自 REGISTRY 字面量（即使类名被压缩）', () => {
     // 逐个按需注册（registerAll 已移除），所有 tag 应能被注册
     for (const [tag] of AfMobile.REGISTRY) {
       expect(() => AfMobile.register(tag)).not.toThrow();

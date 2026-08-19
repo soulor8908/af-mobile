@@ -198,6 +198,8 @@ const COMPONENT_META = [
   { tag: 'af-progress', purpose: '进度条', props: 'value, max, color', events: '—' },
   { tag: 'af-steps', purpose: '步骤条', props: 'steps, current', events: '—' },
   { tag: 'af-countdown', purpose: '倒计时', props: 'time, autostart', events: 'af-countdown:change, af-countdown:end' },
+  { tag: 'af-number-keyboard', purpose: '数字键盘（支付/验证码，配 af-password-input）', props: 'value, maxlength, random, title', events: 'af-number-keyboard:input, af-number-keyboard:delete, af-number-keyboard:complete, af-number-keyboard:close' },
+  { tag: 'af-password-input', purpose: '密码/验证码格子输入（配 af-number-keyboard）', props: 'value, length, mask, focused', events: 'af-password-input:complete' },
   { tag: 'af-chart-line', purpose: '折线/面积/散点/迷你图（charts 子库）', props: 'data, labels, series, variant, smooth, show-axis, height, legend, loading, error', events: 'af-chart-line:select, af-chart-line:retry' },
   { tag: 'af-chart-bar', purpose: '柱状/条形/堆叠/分组图（charts 子库）', props: 'data, labels, series, variant, max-count, height, legend, loading, error', events: 'af-chart-bar:select, af-chart-bar:retry' },
   { tag: 'af-chart-pie', purpose: '饼/环形/半环/玫瑰图（charts 子库）', props: 'data, variant, inner-radius, center-text, height, legend, loading, error', events: 'af-chart-pie:select, af-chart-pie:retry' },

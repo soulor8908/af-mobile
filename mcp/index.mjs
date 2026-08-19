@@ -194,7 +194,7 @@ export async function flywheelReport({ since, topN = 10 } = {}) {
 
 // ===== MCP Server =====
 const server = new Server(
-  { name: 'af-mobile-mcp', version: '2.0.0' },
+  { name: 'af-mobile-mcp', version: '1.5.1' },
   { capabilities: { tools: {} } },
 );
 

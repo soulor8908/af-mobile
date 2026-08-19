@@ -4,7 +4,7 @@
 
 > 早期版本（v1.0.0 ~ v1.3.x）未维护本文件，变更记录自 v1.4.0 起。
 
-## [2.0.0] - 2026-08-19
+## [1.5.1] - 2026-08-19
 
 > 深度性能优化（结构性去重 + 白名单类名简写）。含**类名破坏性变更**（33 项，纯改名零行为差异），迁移见 `docs/migration-guide.md` § UI v7。
 
@@ -23,11 +23,11 @@
 - `eslint-plugin` typo 建议测试样本随白名单更新（`chekout-bar → checkout-bar` 样本失效，换 `sk-lin → sk-ln`，编辑距离 1 触发最近邻建议）
 
 ### Published
-- `@af-mobile/ui@2.0.0`（白名单 188：recipe 121 + atomic 67，数量不变纯改名）、`@af-mobile/eslint-plugin`（白名单同步）、`@af-mobile/prompt`（assets 同步）
+- `@af-mobile/ui@1.5.1`（白名单 188：recipe 121 + atomic 67，数量不变纯改名）、`@af-mobile/eslint-plugin`（白名单同步）、`@af-mobile/prompt`（assets 同步）
 
 ### 体积基线对照（Step 0 基线 vs 终态）
 
-| 指标 | 1.5.0 基线 | 2.0.0 终态 | 预算 |
+| 指标 | 1.5.0 基线 | 1.5.1 终态 | 预算 |
 |------|-----------|-----------|------|
 | L1+L2 CSS | 5.990KB | 5.969KB | ≤ 6KB |
 | 基类 AfElement | 1.951KB | 1.951KB（未动） | ≤ 2KB |
@@ -85,7 +85,7 @@
 - 脚手架模板依赖改为 npm 版本号（`^1.4.x`，禁 `file:` 本地依赖），生成工程自动自举 af-mobile-grill skill
 
 ### Published
-- **首个 npm 发布补全**：新增并发布 `@af-mobile/mcp@1.0.0`（MCP Server）、`@af-mobile/prompt@2.0.0`（System Prompt builder）、`@af-mobile/adapters@0.1.0`（supabase scheme 适配器）
+- **首个 npm 发布补全**：新增并发布 `@af-mobile/mcp@1.0.0`（MCP Server）、`@af-mobile/prompt@1.5.1`（System Prompt builder）、`@af-mobile/adapters@0.1.0`（supabase scheme 适配器）
   - 修复发布前问题：`@af-mobile/adapters` peer 依赖 `@af-mobile/ui` 校正为 `^1.4.0`（`registerBackend` 于 1.4.0 引入）；`@af-mobile/mcp` 的 `@modelcontextprotocol/sdk` 从 `*` 收紧为 `^1.30.0`
   - `.gitattributes` 为 mcp/prompt 的 assets 副本与 `system-prompt.md` 钉 `text eol=lf`，根治 Windows 下 pkg-assets / build-prompt 快照闸门因 autocrlf 反复误报
   - 三包补充 README（依赖缺失时发布页面将随下个 patch 版更新）

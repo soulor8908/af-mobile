@@ -180,7 +180,7 @@ npm run eval:dry          # v1 遗漏
 **闸门**：CI 全闸门 14 项全绿（whitelist/types/prompt/aria/skill/size/test/e2e/eslint/build/publish:check/eval:dry；vitest 1180/1180、e2e 37/37、eslint 0 error 0 warning）。
 
 **收益实测 vs 预期（诚实记录）**：
-| 指标 | 基线 1.5.0 | 终态 2.0.0 | 实测 | §7.4 预期 |
+| 指标 | 基线 1.5.0 | 终态 1.5.1 | 实测 | §7.4 预期 |
 |------|-----------|-----------|------|-----------|
 | L1+L2 CSS | 5.990KB | 5.969KB | **-21B** | P0 恢复 ≥0.2KB —— **未达成** |
 | 全量 JS | 22.015KB | 22.004KB | **-11B** | 下降 0.2~0.5KB —— **未达成** |

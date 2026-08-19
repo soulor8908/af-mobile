@@ -1,6 +1,6 @@
 # af-mobile v2.0 迁移指南
 
-> 适用范围：v1.3.x → v2.0.0（运行时）+ v1.5.0 → v2.0.0（白名单类名简写，见「UI v7」章节）
+> 适用范围：v1.3.x → v2.0.0（运行时）+ v1.5.0 → v1.5.1（白名单类名简写，见「UI v7」章节）
 > 目标：L0 运行时架构修复（Owner pattern / createPage 实例化 / router 增强 / i18n 复数 / theme 系统主题）。
 > 本文档只覆盖**行为变化与迁移动作**；完整设计见 `docs/design/af-mobile-evolution-v3.md`。
 
@@ -18,7 +18,7 @@
 | 依赖 `.btn` 按压位移/高光反馈 | 已删 `translateY`/inset 高光 | 无需动作；如需更强反馈可监听 `:active` 换底色（内置已生效） |
 | 给 `.input`/`.textarea`/`.search-input` 叠加过 `t-sm`/`t-xs` | 控件字号恒 `--t-input` 16px | 删除小字号叠加（ESLint 规则 05 现在会报错）；帮助文字放 `.form-err`/`.label` |
 | 页面假设 cell/list-item 高 52px | min-height 48px | 检查虚拟列表 `item-height` 之类的硬编码（`af-list` 传 48 或自适应） |
-| 自定义 1px 分隔线 | `.list`/`.navbar`/`.tabbar` 内置 0.5px hairline | 自建分隔改用 `.hl-t`/`.hl-b`（v2.0 前称 `.hairline-top`/`.hairline-bottom`，见下方 UI v7 对照表） |
+| 自定义 1px 分隔线 | `.list`/`.navbar`/`.tabbar` 内置 0.5px hairline | 自建分隔改用 `.hl-t`/`.hl-b`（v1.5.1 前称 `.hairline-top`/`.hairline-bottom`，见下方 UI v7 对照表） |
 | 黄底 warn 场景用白字 | `.tag-warn`/`.notice`/`.toast-warning` 已改 `--c-onwarn` | 若曾手动用 `text-fff` 之类补丁，可删除 |
 | 依赖旧灰阶 token（5 角色） | 灰阶扩为 8 档 | 旧 token 全保留，无破坏；新分层用 `--c-gray-1..8` |
 
@@ -34,14 +34,14 @@
 
 ---
 
-## UI v7（v1.5.0 → v2.0.0，白名单类名简写）
+## UI v7（v1.5.0 → v1.5.1，白名单类名简写）
 
 > 纯 class 改名，**零行为变化**：选择器规格、视觉表现、ESLint 约束完全一致。共 33 项，按家族对照替换即可。
 > `toast` 家族与 `progress` 家族**不在改名范围**（`toast-${type}`/`progress-${color}` 为运行时动态拼接，且 `<progress>` 为原生标签，保持原名）。
 
 ### 类名对照表（33 项）
 
-| 家族 | 旧名（≤1.5.0） | 新名（2.0.0） |
+| 家族 | 旧名（≤1.5.0） | 新名（1.5.1） |
 |------|----------------|---------------|
 | 骨架屏 | `skeleton` | `sk` |
 | 骨架屏 | `skeleton-line` | `sk-ln` |

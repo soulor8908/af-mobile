@@ -93,6 +93,8 @@ const BUDGET = {
   chartsRuntime: 4.5,  // KB，charts 内核（scale+geometry+render+chart-theme+tooltip+chart-base，Phase 2 radar/funnel 复用）
   chartsPerComponent: 2.8, // KB，单图表组件（同主库 perComponent 语义）
   chartsTotal: 15.0,   // KB，charts 全量（Phase 1 预估 ~11KB，预留 Phase 2 radar+funnel ~2.5KB + 容差）
+  // chat 子库（src/chat，独立入口 @af-mobile/ui/chat，不计入主库 total）：AI 对话会话核心（OpenAI SSE + 工具循环）
+  chatRuntime: 2.5,    // KB，session+message+stream+tool 内核（独立预算；实测 1.600KB，与 charts 同量级余量）
 };
 
 const KB = 1024;
@@ -221,6 +223,29 @@ async function measureCoreRuntime() {
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
 
+// chat 子库内核：session + message + stream + tool 合计 gzip（独立入口 @af-mobile/ui/chat，不计入主库 total）
+// 框架无关（无 DOM/CSS/第三方依赖），纯函数式，同一套 防 tree-shake 引用法
+async function measureChatRuntime() {
+  const dir = mkdtempSync(join(tmpdir(), 'af-mobile-chat-'));
+  const entry = join(dir, 'entry.js');
+  const toPosix = (p) => p.replace(/\\/g, '/');
+  const chat = (f) => toPosix(join(SRC, 'chat', f));
+  writeFileSync(entry,
+    `import { createSession } from '${chat('session.js')}';\n` +
+    `import { createMessage } from '${chat('message.js')}';\n` +
+    `import { parseSSE } from '${chat('stream.js')}';\n` +
+    `import { defineTool } from '${chat('tool.js')}';\n` +
+    `// 引用以防 tree-shake 摇除\n` +
+    `globalThis.__afMobile_chat = [createSession, createMessage, parseSSE, defineTool];\n`
+  );
+  const res = await build({
+    entryPoints: [entry],
+    bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+    absWorkingDir: ROOT,
+  });
+  return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
+}
+
 async function main() {
   // 核心运行时模块（CORE_EXT）在基类/组件/onDemand2 测量中均 external 掉
   // af-cascade-picker 复用 af-picker（子类继承滚轮内核）：af-picker 单独测一次，级联组件只测增量
@@ -337,6 +362,13 @@ async function main() {
   const chartsTotalOver = chartsTotalGz > BUDGET.chartsTotal * KB;
   console.log(`charts 全量（${chartCompSizes.length} 组件+内核）${fmt(chartsTotalGz).padStart(9)}  预算 ≤ ${BUDGET.chartsTotal}KB  ${chartsTotalOver ? '✗ 超限' : '✓'}`);
   if (chartsTotalOver) violations.push(`charts 全量 ${fmt(chartsTotalGz)} > ${BUDGET.chartsTotal}KB`);
+
+  // chat 子库（独立入口 ./chat，不计入主库 total）
+  console.log('\n── chat 子库（@af-mobile/ui/chat，独立预算）──');
+  const chatRuntimeGz = await measureChatRuntime();
+  const chatRuntimeOver = chatRuntimeGz > BUDGET.chatRuntime * KB;
+  console.log(`chat 内核（session+message+stream+tool）${fmt(chatRuntimeGz).padStart(6)}  预算 ≤ ${BUDGET.chatRuntime}KB  ${chatRuntimeOver ? '✗ 超限' : '✓'}`);
+  if (chatRuntimeOver) violations.push(`chat 内核 ${fmt(chatRuntimeGz)} > ${BUDGET.chatRuntime}KB`);
 
   // 汇总
   console.log('\n──────────────────────────────────────────────────────────');

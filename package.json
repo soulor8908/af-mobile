@@ -21,6 +21,11 @@
       "types": "./src/charts/index.d.ts",
       "default": "./src/charts/index.js"
     },
+    "./chat": {
+      "import": "./src/chat/index.js",
+      "types": "./src/chat/index.d.ts",
+      "default": "./src/chat/index.js"
+    },
     "./css": "./src/index.css",
     "./af-mobile.css": "./src/index.css",
     "./tokens.css": "./src/tokens.css",

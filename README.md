@@ -183,6 +183,42 @@ registerChart('af-chart-line');   // 或 registerCharts() 全量 5 个
 
 设计与分期详见 [docs/design/charts-sublibrary-detailed-design.md](docs/design/charts-sublibrary-detailed-design.md)。
 
+## AI 对话子库（@af-mobile/ui/chat）
+
+> 独立入口，**不进主包**——不 `import '@af-mobile/ui/chat'` 就零字节加载，主库体积预算不受影响。框架无关（无 DOM/CSS 依赖）的 OpenAI 兼容 SSE 会话核心：流式消息累积 + function calling 工具循环，可配任意 UI 层。
+
+```js
+import { createSession, defineTool } from '@af-mobile/ui/chat';
+
+const session = createSession({
+  endpoint: '/api/chat',            // OpenAI 兼容 /chat/completions
+  systemPrompt: '你是一名记账助手',
+  tools: [
+    defineTool({
+      name: 'get_balance',
+      description: '查询账户余额',
+      parameters: { type: 'object', properties: { id: { type: 'string' } } },
+      async execute(args) { return db.getBalance(args.id); },
+    }),
+  ],
+  onMessage: (msg) => console.log(msg), // 每产生一条消息回调（流式分片聚合后）
+});
+
+await session.send('你好');
+console.log(session.messages);      // 会话历史（含工具调用/结果块）
+```
+
+| 导出 | 说明 |
+|---|---|
+| `createSession(opts)` | 会话：消息历史 + SSE 流式 + 工具调用循环（默认 ≤6 轮）+ `send`/`append`/`abort`/`subscribe` |
+| `createMessage(init?)` | 创建消息对象（`{ role, id, content: ContentBlock[] }`） |
+| `parseSSE(res)` | 解析 `Response` 为 OpenAI 标准 SSE 事件异步生成器 |
+| `defineTool(tool)` | 定义可注册工具（`name`/`description`/`parameters`/`execute`） |
+
+- **协议**：OpenAI 标准 SSE——`data: {"choices":[{"delta":{"content":"你"}}]}`；`delta.tool_calls` 按 index 聚合（name/arguments 可跨帧）
+- **传输**：默认 `fetch`，可传 `requestFn` 注入鉴权头 / 走代理 / 组装 URL；`systemPrompt` 支持函数（每轮动态取最新值）
+- **体积预算**（CI 阻断）：内核 `chatRuntime` ≤ 2.5KB gzip（独立预算，不计入主库 total）
+
 ## SSR / Hydration 使用指南
 
 @af-mobile/ui 是浏览器端 Custom Elements 库，`customElements` 在 Node 服务端不存在，直接 `import` 会抛错。本节给出 SSR 框架接入方式。
@@ -527,7 +563,7 @@ PR 触发 CI 7 步检查（任一失败即阻断合并）：
 
 | 包 | 用途 | 安装/接入 |
 |---|---|---|
-| `@af-mobile/ui` | 主包：30 组件 + 路由/状态/主题/i18n + charts 图表子库（`/charts` 入口，5 图表组件）+ CLI | `npm i @af-mobile/ui` / `npm create af-mobile` |
+| `@af-mobile/ui` | 主包：30 组件 + 路由/状态/主题/i18n + charts 图表子库（`/charts` 入口，5 图表组件）+ chat 对话子库（`/chat` 入口，SSE 会话核心）+ CLI | `npm i @af-mobile/ui` / `npm create af-mobile` |
 | `create-af-mobile` | 脚手架薄壳（npm create 约定入口，转发主包 CLI） | `npm create af-mobile@latest my-app` |
 | `@af-mobile/eslint-plugin` | 20 条 AI 约束规则（白名单/禁令/组件质量） | devDependency + flat config |
 | `@af-mobile/mcp` | MCP Server：`get_prompt` / `check_compliance` / `fix_code` / `generate_page` / `flywheel_report` | `npx @af-mobile/mcp`（注册进 TRAE / Claude Code / Cursor） |

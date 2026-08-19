@@ -205,6 +205,7 @@ const COMPONENT_META = [
   { tag: 'af-chart-pie', purpose: '饼/环形/半环/玫瑰图（charts 子库）', props: 'data, variant, inner-radius, center-text, height, legend, loading, error', events: 'af-chart-pie:select, af-chart-pie:retry' },
   { tag: 'af-chart-radar', purpose: '雷达图，多维能力画像，单/双主体对比（charts 子库）', props: 'data, series, shape, height, legend, loading, error', events: 'af-chart-radar:select, af-chart-radar:retry' },
   { tag: 'af-chart-funnel', purpose: '漏斗图，转化漏斗 + 层间转化率（charts 子库）', props: 'data, show-rate, height, legend, loading, error', events: 'af-chart-funnel:select, af-chart-funnel:retry' },
+  { tag: 'af-chat', purpose: 'AI 对话容器，气泡流 + composer + 卡片（chat 子库）', props: 'session, messages, placeholder, busy', events: 'af-chat:send, af-chat:action, af-chat:confirm, af-chat:abort, af-chat:error' },
 ];
 
 // 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）

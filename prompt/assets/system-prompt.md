@@ -11,7 +11,7 @@
 
 - **L1 Token（92 变量）**：颜色/间距/圆角/字号/阴影/层级/动效 → 必须用 `var(--c-*)` / `var(--s-*)` 等引用，禁止硬编码
 - **L2 配方（121）+ 原子（67）= 188 个白名单 class** → 白名单外 class 触发 ESLint error 阻断
-- **L3 真组件（35 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
+- **L3 真组件（36 个 af-\* 自定义元素）** → 需要 JS 行为时使用（详见下方简表；完整 API 文档见 docs/design/l3-detailed-design.md）
 - **L4 约束层**：ESLint 20 规则（13 error + 7 warn）+ 最多 3 轮自动修正 → 请务必遵守禁令
 
 ---
@@ -68,9 +68,9 @@
 - `sheet`：底部弹出层容器（自定义 action-sheet 内容时用）
 - `input-err`：输入框错误态红框，form-err 为表单行错误文案
 
-## L3 真组件标签（35 个）
+## L3 真组件标签（36 个）
 
-`<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-calendar>` `<af-cascade-picker>` `<af-chart-bar>` `<af-chart-funnel>` `<af-chart-line>` `<af-chart-pie>` `<af-chart-radar>` `<af-countdown>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-notice-bar>` `<af-number-keyboard>` `<af-password-input>` `<af-picker>` `<af-progress>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-steps>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
+`<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-calendar>` `<af-cascade-picker>` `<af-chart-bar>` `<af-chart-funnel>` `<af-chart-line>` `<af-chart-pie>` `<af-chart-radar>` `<af-chat>` `<af-countdown>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-notice-bar>` `<af-number-keyboard>` `<af-password-input>` `<af-picker>` `<af-progress>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-steps>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
 ## L1 Token 变量（92 个，必须用 var(--*) 引用）
 
@@ -121,10 +121,21 @@
 | `<af-chart-pie>` | 饼/环形/半环/玫瑰图（charts 子库） | data, variant, inner-radius, center-text, height, legend, loading, error | af-chart-pie:select, af-chart-pie:retry |
 | `<af-chart-radar>` | 雷达图，多维能力画像，单/双主体对比（charts 子库） | data, series, shape, height, legend, loading, error | af-chart-radar:select, af-chart-radar:retry |
 | `<af-chart-funnel>` | 漏斗图，转化漏斗 + 层间转化率（charts 子库） | data, show-rate, height, legend, loading, error | af-chart-funnel:select, af-chart-funnel:retry |
+| `<af-chat>` | AI 对话容器，气泡流 + composer + 卡片（chat 子库） | session, messages, placeholder, busy | af-chat:send, af-chat:action, af-chat:confirm, af-chat:abort, af-chat:error |
 
 注：方法签名与事件 payload 见包内 `src/index.d.ts`（已安装项目读 `node_modules/@af-mobile/ui/src/index.d.ts`，一次读全，禁止逐个读组件源码）。
 
 **通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`。
+
+---
+
+# 子库入口（按需引入，不占主包）
+
+## AI 对话（@af-mobile/ui/chat）
+- 需要聊天能力时：`import { registerChat, createSession, defineTool } from '@af-mobile/ui/chat'` → `registerChat()` → `<af-chat>`
+- JS 属性：`session`（绑定 createSession 实例，推荐）/ `messages`（受控渲染）/ `placeholder` / `busy`（只读）
+- 事件：`af-chat:send` / `af-chat:action` / `af-chat:confirm` / `af-chat:abort` / `af-chat:error`
+- 卡片消息（ContentBlock `type:'card'`，封闭集三种）：`confirm`（title/rows/confirmText/cancelText/danger）/ `list`（title/items）/ `actions`（options → 快捷回复 chips）
 
 ---
 

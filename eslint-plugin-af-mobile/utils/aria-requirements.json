@@ -92,5 +92,10 @@
     "role": "img",
     "ariaLabel": true,
     "description": "漏斗图 svg 需要 role=img 和 aria-label 摘要（全量数据由 sr-table 提供）"
+  },
+  "af-chat": {
+    "role": "log",
+    "ariaLive": true,
+    "description": "对话记录容器需要 role=log 和 aria-live=polite（流式文本 aria-hidden，完成时 sr-only 一次性播报）"
   }
 }

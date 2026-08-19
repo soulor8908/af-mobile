@@ -94,7 +94,10 @@ const BUDGET = {
   chartsPerComponent: 2.8, // KB，单图表组件（同主库 perComponent 语义）
   chartsTotal: 15.0,   // KB，charts 全量（Phase 1 预估 ~11KB，预留 Phase 2 radar+funnel ~2.5KB + 容差）
   // chat 子库（src/chat，独立入口 @af-mobile/ui/chat，不计入主库 total）：AI 对话会话核心（OpenAI SSE + 工具循环）
-  chatRuntime: 2.5,    // KB，session+message+stream+tool 内核（独立预算；实测 1.600KB，与 charts 同量级余量）
+  chatRuntime: 2.5,    // KB，session+message+stream+tool 内核 + ct.* 字典（独立预算；实测 1.860KB，与 charts 同量级余量）
+  // chatUI 3.0→3.3（v2.0.0 实施）：af-chat 为复合容器（气泡流+composer+chips+错误重试+回底+卡片渲染管线），
+  // 计划期 3.0KB 参照单组件预估错位；压缩已尽（3.338→3.212KB）。总量约束不变：设计文档 §9 合计 ≤ 5.5KB（实测 1.860+3.212=5.072KB ✓）
+  chatUI: 3.3,         // KB，af-chat 组件 + render 渲染器（UI 层；基类/with-i18n/i18n 与主库共享 external，session 经 property 注入不静态依赖）
 };
 
 const KB = 1024;
@@ -223,8 +226,9 @@ async function measureCoreRuntime() {
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
 
-// chat 子库内核：session + message + stream + tool 合计 gzip（独立入口 @af-mobile/ui/chat，不计入主库 total）
+// chat 子库内核：session + message + stream + tool + i18n 字典 合计 gzip（独立入口 @af-mobile/ui/chat，不计入主库 total）
 // 框架无关（无 DOM/CSS/第三方依赖），纯函数式，同一套 防 tree-shake 引用法
+// ct.* 字典在 chat/i18n.js（addMessages 注册，不占主库核心运行时），随入口发布 → 计入本口径
 async function measureChatRuntime() {
   const dir = mkdtempSync(join(tmpdir(), 'af-mobile-chat-'));
   const entry = join(dir, 'entry.js');
@@ -235,6 +239,7 @@ async function measureChatRuntime() {
     `import { createMessage } from '${chat('message.js')}';\n` +
     `import { parseSSE } from '${chat('stream.js')}';\n` +
     `import { defineTool } from '${chat('tool.js')}';\n` +
+    `import '${chat('i18n.js')}';\n` +
     `// 引用以防 tree-shake 摇除\n` +
     `globalThis.__afMobile_chat = [createSession, createMessage, parseSSE, defineTool];\n`
   );
@@ -242,6 +247,29 @@ async function measureChatRuntime() {
     entryPoints: [entry],
     bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
     absWorkingDir: ROOT,
+    external: ['../lib/i18n.js'], // i18n 运行时与主库共享（chat/i18n.js 仅注册 ct.* 字典）
+  });
+  return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
+}
+
+// chat 子库 UI 层：af-chat 组件 + render 渲染器（随 @af-mobile/ui/chat 入口发布，不计入主库 total）
+// 基类 af-element/with-i18n/i18n 与主库共享，external 掉（与主库组件测量口径一致）
+// 注意：直接从组件文件导入（不经 chat/index.js）——组件对 session 是 property 注入而非静态 import，
+// 从 index.js 导入会把 session/message/stream/tool 一并打进 chatUI 口径
+async function measureChatUI() {
+  const dir = mkdtempSync(join(tmpdir(), 'af-mobile-chat-ui-'));
+  const entry = join(dir, 'entry.js');
+  const toPosix = (p) => p.replace(/\\/g, '/');
+  writeFileSync(entry,
+    `import { AfChat } from '${toPosix(join(SRC, 'chat/components/af-chat.js'))}';\n` +
+    `// 引用以防 tree-shake 摇除\n` +
+    `globalThis.__afMobile_chatUI = [AfChat];\n`
+  );
+  const res = await build({
+    entryPoints: [entry],
+    bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+    absWorkingDir: ROOT,
+    external: [...CORE_EXT, '../../lib/af-element.js', '../../lib/with-i18n.js'],
   });
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
@@ -367,8 +395,12 @@ async function main() {
   console.log('\n── chat 子库（@af-mobile/ui/chat，独立预算）──');
   const chatRuntimeGz = await measureChatRuntime();
   const chatRuntimeOver = chatRuntimeGz > BUDGET.chatRuntime * KB;
-  console.log(`chat 内核（session+message+stream+tool）${fmt(chatRuntimeGz).padStart(6)}  预算 ≤ ${BUDGET.chatRuntime}KB  ${chatRuntimeOver ? '✗ 超限' : '✓'}`);
+  console.log(`chat 内核（session+message+stream+tool+i18n）${fmt(chatRuntimeGz).padStart(4)}  预算 ≤ ${BUDGET.chatRuntime}KB  ${chatRuntimeOver ? '✗ 超限' : '✓'}`);
   if (chatRuntimeOver) violations.push(`chat 内核 ${fmt(chatRuntimeGz)} > ${BUDGET.chatRuntime}KB`);
+  const chatUIGz = await measureChatUI();
+  const chatUIOver = chatUIGz > BUDGET.chatUI * KB;
+  console.log(`chat UI（af-chat+render）  ${fmt(chatUIGz).padStart(10)}  预算 ≤ ${BUDGET.chatUI}KB  ${chatUIOver ? '✗ 超限' : '✓'}`);
+  if (chatUIOver) violations.push(`chat UI ${fmt(chatUIGz)} > ${BUDGET.chatUI}KB`);
 
   // 汇总
   console.log('\n──────────────────────────────────────────────────────────');

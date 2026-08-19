@@ -41,7 +41,8 @@
     "af-mobile": "./scripts/af-mobile.mjs"
   },
   "sideEffects": [
-    "**/*.css"
+    "**/*.css",
+    "src/chat/i18n.js"
   ],
   "files": [
     "src",

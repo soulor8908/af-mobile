@@ -30,6 +30,16 @@
 
 ---
 
+# 子库入口（按需引入，不占主包）
+
+## AI 对话（@af-mobile/ui/chat）
+- 需要聊天能力时：`import { registerChat, createSession, defineTool } from '@af-mobile/ui/chat'` → `registerChat()` → `<af-chat>`
+- JS 属性：`session`（绑定 createSession 实例，推荐）/ `messages`（受控渲染）/ `placeholder` / `busy`（只读）
+- 事件：`af-chat:send` / `af-chat:action` / `af-chat:confirm` / `af-chat:abort` / `af-chat:error`
+- 卡片消息（ContentBlock `type:'card'`，封闭集三种）：`confirm`（title/rows/confirmText/cancelText/danger）/ `list`（title/items）/ `actions`（options → 快捷回复 chips）
+
+---
+
 # 25 条禁令（ESLint error 级，务必遵守）
 
 01. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`

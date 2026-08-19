@@ -17,7 +17,22 @@ export interface ToolResultBlock {
   id: string;
   result: unknown;
 }
-export type ContentBlock = TextBlock | ToolCallBlock | ToolResultBlock;
+export interface CardPayload {
+  kind: 'confirm' | 'list' | 'actions';
+  title?: string;
+  rows?: Array<{ label: string; value: string }>;
+  confirmText?: string;
+  cancelText?: string;
+  danger?: boolean;
+  items?: Array<{ title: string; desc?: string; meta?: string }>;
+  options?: Array<{ label: string; value: string }>;
+}
+export interface CardBlock {
+  type: 'card';
+  id?: string;
+  card: CardPayload;
+}
+export type ContentBlock = TextBlock | ToolCallBlock | ToolResultBlock | CardBlock;
 
 export interface Message {
   role: 'user' | 'assistant' | 'tool' | 'system';
@@ -55,3 +70,27 @@ export declare function createSession(opts: SessionOptions): Session;
 export declare function createMessage(init?: Partial<Message>): Message;
 export declare function parseSSE(res: Response): AsyncGenerator<{ event: string; data: string }, void, unknown>;
 export declare function defineTool(tool: Tool): Tool;
+
+export class AfChat extends HTMLElement {
+  messages: Message[];
+  session: Session | null;
+  placeholder: string | null;
+  busy: boolean;
+  focus(): void;
+  scrollToBottom(): void;
+  addEventListener<K extends keyof AfChatEventMap>(
+    type: K, listener: (this: AfChat, ev: AfChatEventMap[K]) => void, options?: boolean | AddEventListenerOptions
+  ): void;
+  addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+}
+
+export interface AfChatEventMap {
+  'af-chat:send': CustomEvent<{ text: string }>;
+  'af-chat:action': CustomEvent<{ cardId: string | null; value: string }>;
+  'af-chat:confirm': CustomEvent<{ cardId: string; accepted: boolean }>;
+  'af-chat:abort': CustomEvent<Record<string, never>>;
+  'af-chat:error': CustomEvent<{ message: string }>;
+}
+
+export declare const CHAT_TAGS: { 'af-chat': CustomElementConstructor };
+export declare function registerChat(tag?: string): void;

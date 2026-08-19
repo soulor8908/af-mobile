@@ -28,9 +28,12 @@ const ALLOWED_KEYS = new Set([...REQUIREMENT_FIELDS, 'description']);
 export function computeAriaSyncProblems(requirements, ruleSource, checkFiles = true) {
   const problems = [];
   for (const [comp, req] of Object.entries(requirements)) {
-    // 组件文件存在性：主库 src/components/ 或 charts 子库 src/charts/components/
-    if (checkFiles && !existsSync(join(COMPONENTS_DIR, comp + '.js')) && !existsSync(join(ROOT, 'src/charts/components', comp + '.js'))) {
-      problems.push(`组件 '${comp}' 在 aria-requirements.json 声明，但 src/components/（或 src/charts/components/）下不存在`);
+    // 组件文件存在性：主库 src/components/ 或 charts/chat 子库 src/{charts,chat}/components/
+    if (checkFiles
+      && !existsSync(join(COMPONENTS_DIR, comp + '.js'))
+      && !existsSync(join(ROOT, 'src/charts/components', comp + '.js'))
+      && !existsSync(join(ROOT, 'src/chat/components', comp + '.js'))) {
+      problems.push(`组件 '${comp}' 在 aria-requirements.json 声明，但 src/components/（或 src/{charts,chat}/components/）下不存在`);
     }
     for (const key of Object.keys(req)) {
       if (!ALLOWED_KEYS.has(key)) {

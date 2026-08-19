@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>af-chat demo - af-mobile</title>
+  <link rel="stylesheet" href="../../src/index.css">
+  <style>
+    .phone { max-width: 420px; margin: 0 auto; height: 640px; display: flex; flex-direction: column; border: 1px solid var(--c-border); border-radius: var(--r-l); overflow: hidden; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <p class="eyebrow"><a href="../index.html" class="subtitle">← 返回</a></p>
+      <h1 class="display">af-chat AI 对话容器</h1>
+    </section>
+
+    <section class="phone">
+      <af-chat id="chat" placeholder="问我任何问题…"></af-chat>
+    </section>
+
+    <p class="caption" id="log">试试：直接说话（流式回复）/「上海天气」（工具调用）/「删除我的草稿」（confirm 卡）/ 任何含「列表」的话（list 卡）</p>
+    <section id="props" class="card"></section>
+  </main>
+
+  <script type="module">
+    import { registerChat, createSession, defineTool } from '../../src/chat/index.js';
+    registerChat();
+    import { createPropsPanel } from '../props-panel.js';
+
+    // ---- mock 后端（与 playground 场景同思路：合成 SSE 流）----
+    const enc = new TextEncoder();
+    const mockStream = (frames, after) => new Response(new ReadableStream({
+      start(c) {
+        let i = 0;
+        const tick = () => i < frames.length ? (c.enqueue(enc.encode(frames[i++])), setTimeout(tick, 30)) : (after?.(), c.close());
+        tick();
+      },
+    }), { status: 200, headers: { 'Content-Type': 'text/event-stream' } });
+    const sse = (d) => `data: ${JSON.stringify(d)}\n\n`;
+    const deltas = (t, n = 4) => Array.from({ length: Math.ceil(t.length / n) }, (_, i) =>
+      sse({ choices: [{ delta: { content: t.slice(i * n, i * n + n) } }] })).concat('data: [DONE]\n\n');
+
+    let chatSession;
+    const session = createSession({
+      endpoint: '/mock',
+      systemPrompt: '你是 af-mobile 演示助手。',
+      tools: [defineTool({
+        name: 'get_weather',
+        description: '查询城市天气',
+        parameters: { type: 'object', properties: { city: { type: 'string' } } },
+        execute: async (args) => ({ city: args.city, weather: '晴', temp: 25 }),
+      })],
+      requestFn: async (_url, init) => {
+        const body = JSON.parse(init.body || '{}');
+        const last = body.messages.at(-1);
+        const text = last?.content ?? '';
+        if (text.includes('天气')) {
+          // 工具调用流 → session 内执行 get_weather → 工具结果回传 → 二轮空流收尾
+          return mockStream([sse({ choices: [{ delta: { tool_calls: [{ index: 0, id: 't1', function: { name: 'get_weather', arguments: '{"city":"上海"}' } }] } }] }), 'data: [DONE]\n\n']);
+        }
+        if (text.includes('删除')) {
+          // 文本流播完 → 注入 confirm 卡片消息（工具芯片链路外的本地卡片）
+          const card = { type: 'card', id: 'c1', card: { kind: 'confirm', title: '确认删除', rows: [{ label: '对象', value: '草稿「周报」' }], danger: true } };
+          return mockStream([sse({ choices: [{ delta: { content: '这个操作不可撤销，请确认：' } }] }), 'data: [DONE]\n\n'],
+            () => chatSession.append({ role: 'assistant', content: [card] }));
+        }
+        if (text.includes('列表')) {
+          const card = { type: 'card', id: 'c2', card: { kind: 'list', title: '最近的待办', items: [{ title: 'review PR #42', desc: '今天 18:00 前' }, { title: '发周报', meta: '明天' }] } };
+          chatSession.append({ role: 'assistant', content: [card] });
+          return mockStream(['data: [DONE]\n\n']);
+        }
+        return mockStream(deltas(`（模拟流式回复）你说了「${text}」。逐字渲染，可点「停止」中断。`));
+      },
+    });
+    chatSession = session;
+
+    const chatEl = document.getElementById('chat');
+    chatEl.session = session;
+    chatEl.addEventListener('af-chat:confirm', (e) => {
+      document.getElementById('log').textContent = `confirm 卡：${e.detail.cardId} → ${e.detail.accepted ? '已确认' : '已取消'}`;
+    });
+    session.append({ role: 'assistant', content: [{ type: 'text', text: '你好，我是 af-chat 演示。卡片由白名单 class 渲染，气泡在 Shadow DOM 内。' }] });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'placeholder', label: '占位文案', type: 'text' },
+      { prop: 'busy', label: '流式中（只读）', type: 'boolean', readonly: true },
+    ], chatEl);
+  </script>
+</body>
+</html>

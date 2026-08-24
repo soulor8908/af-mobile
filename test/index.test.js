@@ -27,19 +27,19 @@ describe('index.js 汇总导出', () => {
     expect(typeof AfMobile.register).toBe('function');
   });
 
-  it('register(name) 注册单个组件', () => {
-    expect(() => AfMobile.register('af-list')).not.toThrow();
+  it('register(name) 注册单个组件', async () => {
+    await AfMobile.register('af-list');
     expect(customElements.get('af-list')).toBe(AfMobile.AfList);
   });
 
-  it('register(...names) 变参注册多个组件（与 no-register-all 规则推荐用法一致）', () => {
-    expect(() => AfMobile.register('af-tabs', 'af-dialog')).not.toThrow();
+  it('register(...names) 变参注册多个组件（与 no-register-all 规则推荐用法一致）', async () => {
+    await AfMobile.register('af-tabs', 'af-dialog');
     expect(customElements.get('af-tabs')).toBe(AfMobile.AfTabs);
     expect(customElements.get('af-dialog')).toBe(AfMobile.AfDialog);
   });
 
-  it('register(未知名) 抛错', () => {
-    expect(() => AfMobile.register('af-unknown')).toThrow(/unknown component/);
+  it('register(未知名) 抛错', async () => {
+    await expect(AfMobile.register('af-unknown')).rejects.toThrow(/unknown component/);
   });
 });
 
@@ -57,17 +57,17 @@ describe('minify 安全注册', () => {
     }
   });
 
-  it('register 全部 30 个 tag 均来自 REGISTRY 字面量（即使类名被压缩）', () => {
-    // 逐个按需注册（registerAll 已移除），所有 tag 应能被注册
+  it('register 全部 30 个 tag 均来自 REGISTRY 字面量（即使类名被压缩）', async () => {
+    // 逐个按需注册（registerAll 已移除），所有 tag 应能被注册（懒加载 → await 后 upgrade 完成）
+    await AfMobile.register(...AfMobile.REGISTRY.map(([tag]) => tag));
     for (const [tag] of AfMobile.REGISTRY) {
-      expect(() => AfMobile.register(tag)).not.toThrow();
       expect(customElements.get(tag)).toBeDefined();
     }
   });
 
-  it('register(tag) 按 REGISTRY 字面量查找，不依赖类名', () => {
-    // af-badge 由 register 单独注册
-    expect(() => AfMobile.register('af-badge')).not.toThrow();
+  it('register(tag) 按 REGISTRY 字面量查找，不依赖类名', async () => {
+    // af-badge 由 register 单独注册（懒加载 → await 后 upgrade 完成）
+    await AfMobile.register('af-badge');
     expect(customElements.get('af-badge')).toBe(AfMobile.AfBadge);
   });
 });

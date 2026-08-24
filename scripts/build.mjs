@@ -34,7 +34,7 @@ await build({
   legalComments: 'none',
   sourcemap: false,
   minify: true, // 生产产物压缩；ESM minify 不影响打包器 Tree Shaking
-  keepNames: true, // 保留类原始 name（调试友好；注册走 REGISTRY 字面量，不依赖类名）
+  keepNames: true, // 保留类原始 name（调试友好；注册走 LAZY/tag 字面量，不依赖类名）
   absWorkingDir: ROOT,
 });
 console.log('✓ dist/index.js (ESM bundle)');

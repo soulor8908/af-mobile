@@ -52,7 +52,7 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
   - 数据层写成假 store（内存对象 + 读写函数），函数签名与拆分表数据模型一致——Phase 5 只换函数体实现（localStorage/Supabase），页面调用代码零改动
 - **组件必须按需引入**（铁律，禁止 UMD / 禁止 registerAll / 禁止全局引入）：
   - CSS：`<link rel="stylesheet" href="node_modules/@af-mobile/ui/src/index.css">`
-  - JS：`<script type="module">` 内 `import { AfList, AfDialog } from 'node_modules/@af-mobile/ui/src/index.js'; customElements.define('af-list', AfList); ...`（或 `register('af-list', 'af-dialog')`），只引页面用到的组件
+  - JS：`<script type="module">` 内 `import { AfList, AfDialog } from 'node_modules/@af-mobile/ui/src/index.js'; customElements.define('af-list', AfList); ...`（或 `await register('af-list', 'af-dialog')`），只引页面用到的组件
   - ❌ 禁止 `<script src=".../af-mobile.umd.js">`、禁止 `registerAll()`、禁止全局对象
 - 工程内预览用 `node_modules/@af-mobile/ui/src/index.css` + ESM import
 - **交互行为真实**（点击/切换/弹窗可用），数据走假 store，不做持久化
@@ -99,7 +99,7 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 
 - `src/pages/<name>.js` ← demo 的 createPage 页面函数原样复制，仅改 import 来源为 `@af-mobile/ui`（`node_modules/@af-mobile/ui/src/index.js` → 包名），其余逻辑（含 mount/unmount 生命周期）不动
 - 数据层（如 `src/store.js`）← demo 假 store 原样复制，**只替换读写函数体**为真实实现（localStorage / Supabase，per 拆分表），函数签名与页面调用不动
-- `src/main.js` → 替换路由表（保留 `initTheme/start('#app', { hash: true })` 两件套；**组件注册用显式 `register(...names)`**，禁止 `registerAll()`，否则触发 `af-mobile/no-register-all` 且失去 Tree Shaking）
+- `src/main.js` → 替换路由表（保留 `initTheme/start('#app', { hash: true })` 两件套；**组件注册用显式 `await register(...names)`**，禁止 `registerAll()`，否则触发 `af-mobile/no-register-all` 且失去 Tree Shaking）
 - `src/styles.css` → 项目级自定义样式（只用 `var(--*)` token；白名单外 class 必须在 `eslint.config.js` 用 `extraClass` 登记）
 
 规则：事件名 `af-{组件}:{动作}`；分页判停 `endLoadMore`；暗色 FOUC 用 `<head>` 内联同步脚本设 `data-theme`；假数据换成真实数据层（per 拆分表）。
@@ -149,7 +149,7 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 - 原子：`p-0..10 m-0..4 g-0..4 f fc aic jcc jcsb jce flex-1 w-full r-0/s/m/l/f t-xs..xl t-b t-m text-brand text-muted text-danger text-success bg-brand bg-muted shadow-sm/md/lg t-left t-center t-right ws-nowrap`
 
 **核心禁令：**
-- **组件一律按需引入（铁律）**：ESM `import { AfX }` + `customElements.define` 或 `register('af-x', ...)`；**禁止 UMD**（`<script src=".../af-mobile.umd.js">`）、**禁止 `registerAll()`**（全量注册 = 全局引入）、**禁止全局对象**（`window.AfMobile` 等）
+- **组件一律按需引入（铁律）**：ESM `import { AfX }` + `customElements.define` 或 `await register('af-x', ...)`；**禁止 UMD**（`<script src=".../af-mobile.umd.js">`）、**禁止 `registerAll()`**（全量注册 = 全局引入）、**禁止全局对象**（`window.AfMobile` 等）
 - 禁止白名单外 class、禁止内联 style 设视觉属性、禁止 Tailwind/任意值语法
 - 用户输入插 innerHTML 前必须转义；事件名 `af-{组件}:{动作}`
 - 颜色/间距/字号必须 `var(--c-*)` 等 L1 token，禁止硬编码

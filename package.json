@@ -1,6 +1,6 @@
 {
   "name": "@af-mobile/ui",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Mobile-first Web Components library with L1/L2/L3 layered design system",
   "workspaces": [
     "eslint-plugin-af-mobile",

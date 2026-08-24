@@ -242,8 +242,8 @@ import homePage from './pages/home.js';
 import docsPage from './pages/docs.js';
 
 // 按需注册页面用到的 af-* 组件（禁止 registerAll()，会失去 Tree Shaking）
-// 例：register('af-list', 'af-dialog', 'af-field', 'af-toast');
-register();
+// 例：await register('af-list', 'af-dialog', 'af-field', 'af-toast');
+await register();
 
 initTheme();
 

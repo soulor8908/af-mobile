@@ -975,8 +975,8 @@ export class AfPasswordInput extends AfElement {
 // 注册接口
 // ============================================================
 
-/** 按需注册组件（变参，传入一个或多个标签名，与 no-register-all 规则推荐用法一致） */
-export function register(...names: string[]): void;
+/** 按需注册组件（懒加载，变参传入一个或多个标签名；渲染前 await，确保 property 绑定在 upgrade 后设置） */
+export function register(...names: string[]): Promise<void>;
 
 // 铁律：禁止全量注册（registerAll 已移除）与 UMD 直引——组件一律按需引入
 

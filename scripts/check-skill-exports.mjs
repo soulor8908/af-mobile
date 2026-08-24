@@ -72,7 +72,7 @@ export function extractPkgExports(code) {
       if (n && /^[A-Za-z_$][\w$]*$/.test(n)) names.add(n);
     }
   }
-  for (const m of code.matchAll(/export\s+(?:const|function|class)\s+([A-Za-z_$][\w$]*)/g)) names.add(m[1]);
+  for (const m of code.matchAll(/export\s+(?:async\s+)?(?:const|function|class)\s+([A-Za-z_$][\w$]*)/g)) names.add(m[1]);
   return names;
 }
 

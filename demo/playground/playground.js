@@ -137,8 +137,9 @@ COMPONENTS.forEach((tag) => {
 });
 const initial = new URLSearchParams(location.search).get('c') || 'af-dialog';
 sel.value = initial;
-register('af-dialog', 'af-list', 'af-swiper', 'af-tabs', 'af-toast', 'af-action-sheet', 'af-picker', 'af-dropdown', 'af-switch', 'af-navbar');
-loadComponent(initial).then((spec) => { if (spec) renderScenario(spec, spec.scenarios[0]); });
+register('af-dialog', 'af-list', 'af-swiper', 'af-tabs', 'af-toast', 'af-action-sheet', 'af-picker', 'af-dropdown', 'af-switch', 'af-navbar')
+  .then(() => loadComponent(initial))
+  .then((spec) => { if (spec) renderScenario(spec, spec.scenarios[0]); });
 
 // 组件下拉切换
 sel.addEventListener('change', async () => {

@@ -8,7 +8,8 @@ import listPage from './pages/list.js';
 import detailPage from './pages/detail.js';
 
 // 显式注册页面用到的 af-* 组件（禁止 registerAll()，会失去 Tree Shaking）
-register('af-list', 'af-search-bar', 'af-navbar', 'af-img', 'af-field');
+// register 懒加载：await 确保组件定义后再渲染（property 绑定需在 upgrade 后设置）
+await register('af-list', 'af-search-bar', 'af-navbar', 'af-img', 'af-field');
 
 route('/login', loginPage);
 route('/', listPage);

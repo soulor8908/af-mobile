@@ -4,7 +4,7 @@
 //   import { AfList, AfDialog } from '@af-mobile/ui';
 //   customElements.define('af-list', AfList);
 //   customElements.define('af-dialog', AfDialog);
-// 或：register('af-list', 'af-dialog')
+// 或：await register('af-list', 'af-dialog')（懒加载 import()：只把用到的组件打进分包，Tree Shaking 友好）
 
 export { AfElement, escapeHtml, html } from './lib/af-element.js';
 export { getTheme, setTheme, toggleTheme, initTheme } from './lib/theme.js';
@@ -44,6 +44,8 @@ export { AfList, AfSwiper, AfTabs, AfDialog, AfToast, AfActionSheet, AfPicker, A
 
 // 显式 tag→Ctor 注册表：不依赖 Function.name（minify 下类名会被压缩为 a/b/c，
 // 基于 name 的推导会失效）。改用字面量 tag 字符串，任何打包器压缩下都稳定。
+// 仅用于内省/工具链（eval、minify 安全测试）；register 走下方 LAZY 懒加载，不引用本表
+// （未被引用时连同 30 个 ctor import 一并被 Tree Shaking 摇掉）。
 export const REGISTRY = [
   ['af-list', AfList],
   ['af-swiper', AfSwiper],
@@ -77,15 +79,52 @@ export const REGISTRY = [
   ['af-password-input', AfPasswordInput],
 ];
 
-// 变参按需注册：register('af-list') 或 register('af-list', 'af-dialog')，与 no-register-all 规则推荐用法一致
+// 懒注册表：tag → 动态 import()。路径/导出名为字面量 → 打包器可静态分析，
+// register 页面只携带用到的组件（Tree Shaking + 按需分包）。
+// dist 单文件构建（bundle 无 splitting）时 esbuild 会内联这些 import()，脚本直引行为不变。
+const L = (path, key) => () => import(path).then((m) => m[key]);
+const LAZY = {
+  'af-list': L('./components/af-list.js', 'AfList'),
+  'af-swiper': L('./components/af-swiper.js', 'AfSwiper'),
+  'af-tabs': L('./components/af-tabs.js', 'AfTabs'),
+  'af-dialog': L('./components/af-dialog.js', 'AfDialog'),
+  'af-toast': L('./components/af-toast.js', 'AfToast'),
+  'af-action-sheet': L('./components/af-action-sheet.js', 'AfActionSheet'),
+  'af-picker': L('./components/af-picker.js', 'AfPicker'),
+  'af-cascade-picker': L('./components/af-cascade-picker.js', 'AfCascadePicker'),
+  'af-dropdown': L('./components/af-dropdown.js', 'AfDropdown'),
+  'af-img': L('./components/af-img.js', 'AfImg'),
+  'af-backtop': L('./components/af-backtop.js', 'AfBacktop'),
+  'af-badge': L('./components/af-badge.js', 'AfBadge'),
+  'af-calendar': L('./components/af-calendar.js', 'AfCalendar'),
+  'af-switch': L('./components/af-switch.js', 'AfSwitch'),
+  'af-search-bar': L('./components/af-search-bar.js', 'AfSearchBar'),
+  'af-skeleton-page': L('./components/af-skeleton-page.js', 'AfSkeletonPage'),
+  'af-upload': L('./components/af-upload.js', 'AfUpload'),
+  'af-navbar': L('./components/af-navbar.js', 'AfNavbar'),
+  'af-tabbar': L('./components/af-tabbar.js', 'AfTabbar'),
+  'af-stepper': L('./components/af-stepper.js', 'AfStepper'),
+  'af-field': L('./components/af-field.js', 'AfField'),
+  'af-pull-refresh': L('./components/af-pull-refresh.js', 'AfPullRefresh'),
+  'af-swipe-cell': L('./components/af-swipe-cell.js', 'AfSwipeCell'),
+  'af-rate': L('./components/af-rate.js', 'AfRate'),
+  'af-notice-bar': L('./components/af-notice-bar.js', 'AfNoticeBar'),
+  'af-progress': L('./components/af-progress.js', 'AfProgress'),
+  'af-steps': L('./components/af-steps.js', 'AfSteps'),
+  'af-countdown': L('./components/af-countdown.js', 'AfCountdown'),
+  'af-number-keyboard': L('./components/af-number-keyboard.js', 'AfNumberKeyboard'),
+  'af-password-input': L('./components/af-password-input.js', 'AfPasswordInput'),
+};
+
+// 变参按需注册（懒加载）：await register('af-list') 或 register('af-list', 'af-dialog')，与 no-register-all 规则推荐用法一致
 // 铁律：禁止全量注册（原 registerAll 已移除）——只注册页面实际用到的组件，保证 Tree Shaking
-export function register(...names) {
-  for (const name of names) {
-    const entry = REGISTRY.find(([tag]) => tag === name);
-    if (!entry) throw new Error(`[@af-mobile/ui] unknown component: ${name}`);
-    const Ctor = entry[1];
-    if (!customElements.get(name)) customElements.define(name, Ctor);
-  }
+// 返回 Promise：渲染前 await，确保 property 绑定在元素 upgrade 之后设置
+export async function register(...names) {
+  await Promise.all(names.map(async (name) => {
+    const load = LAZY[name];
+    if (!load) throw new Error(`[@af-mobile/ui] unknown component: ${name}`);
+    if (!customElements.get(name)) customElements.define(name, await load());
+  }));
 }
 
 // ============================================================

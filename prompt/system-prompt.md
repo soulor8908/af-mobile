@@ -611,7 +611,7 @@ export default function listPage(params, ctx) {
 
 **app-shell 范式要点：**
 - `index.html`：`#app`（路由 outlet）+ `<af-tabbar>`（常驻底部导航，在 outlet 外避免路由销毁）
-- `main.js`：显式 `customElements.define` 或 `register('af-x', ...)` 按需注册（**禁止 registerAll / 禁止 UMD 直引**）→ `route()` → `start({ hash: true })`
+- `main.js`：显式 `customElements.define` 或 `await register('af-x', ...)` 按需注册（**禁止 registerAll / 禁止 UMD 直引**）→ `route()` → `start({ hash: true })`
 - 页面统一 createPage 范式：`createPage({ state, computed, actions, setup })` → `ctx.outlet.innerHTML` → `page.mount(ctx.outlet)` → `ctx.signal` abort 时 `page.unmount()` 级联清理
 - 响应式重渲染写在 `setup` 内 `effect()`（归属页面 root，unmount 自动清理）；store signal（如 `todos()`）在 effect 内读取即自动追踪；组件属性用 `:attr="state.x"` / `:attr="derived.x"` 响应式绑定
 - 页面用 `.page-col` + `.scroll-y` + `.navbar-fixed` 组建骨架（不私建 class）

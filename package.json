@@ -1,6 +1,6 @@
 {
   "name": "@af-mobile/ui",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "description": "Mobile-first Web Components library with L1/L2/L3 layered design system",
   "workspaces": [
     "eslint-plugin-af-mobile",
@@ -15,6 +15,11 @@
       "import": "./src/index.js",
       "types": "./src/index.d.ts",
       "default": "./src/index.js"
+    },
+    "./k": {
+      "import": "./src/k/index.js",
+      "types": "./src/k/index.d.ts",
+      "default": "./src/k/index.js"
     },
     "./charts": {
       "import": "./src/charts/index.js",

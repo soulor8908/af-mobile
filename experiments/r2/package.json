@@ -1,0 +1,16 @@
+{
+  "name": "af-mobile-r2-experiment",
+  "private": true,
+  "type": "module",
+  "description": "R2 风险验证：k 词表跨模型泛化实验（任务书 + 评分器）",
+  "scripts": {
+    "score": "node run.mjs"
+  },
+  "dependencies": {
+    "@af-mobile/ui": "^1.5.2",
+    "jsdom": "^24.0.0"
+  },
+  "devDependencies": {
+    "gpt-tokenizer": "^2.9.0"
+  }
+}

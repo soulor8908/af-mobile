@@ -1,25 +1,12 @@
-import { signal, effect, html } from '@af-mobile/ui';
+import { signal, effect } from '@af-mobile/ui';
 
-export function mount(el) {
-  el.innerHTML = `
-    <div id="app">
-      <div>计数：<span id="c">0</span></div>
-      <div>平方：<span id="sq">0</span></div>
-      <button id="inc">+1</button>
-      <button id="dec">-1</button>
-    </div>
-  `;
-
-  const count = signal(0);
-  const cEl = el.querySelector('#c');
-  const sqEl = el.querySelector('#sq');
-
-  effect(() => {
-    const v = count();
-    cEl.textContent = v;
-    sqEl.textContent = v * v;
-  });
-
-  el.querySelector('#inc').addEventListener('click', () => count.set(v => v + 1));
-  el.querySelector('#dec').addEventListener('click', () => count.set(v => v - 1));
+export function mount(el, opts) {
+  el.innerHTML = '<span id="c">0</span> <span id="sq">0</span> <button id="inc">+1</button> <button id="dec">-1</button>';
+  const c = el.querySelector('#c');
+  const sq = el.querySelector('#sq');
+  const n = signal(0);
+  effect(() => { c.textContent = n(); });
+  effect(() => { sq.textContent = n() * n(); });
+  el.querySelector('#inc').addEventListener('click', () => n.set(v => v + 1));
+  el.querySelector('#dec').addEventListener('click', () => n.set(v => v - 1));
 }

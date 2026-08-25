@@ -1,31 +1,14 @@
-import { signal, effect, computed, html, escapeHtml } from '@af-mobile/ui';
+import { signal, computed, effect, html } from '@af-mobile/ui';
 
-export function mount(el) {
-  el.innerHTML = `
-    <div id="app">
-      <input id="kw" placeholder="搜索" />
-      <div id="count"></div>
-      <ul id="list"></ul>
-    </div>
-  `;
-
-  const allItems = ['手机壳', '数据线', '手机膜', '充电器', '手机支架'];
-  const kw = signal('');
-  const filtered = computed(() => {
-    const k = kw();
-    return k ? allItems.filter(it => it.includes(k)) : allItems;
-  });
-
-  const countEl = el.querySelector('#count');
-  const listEl = el.querySelector('#list');
-
-  effect(() => {
-    const arr = filtered();
-    countEl.textContent = `共${arr.length}条`;
-    listEl.innerHTML = arr.map(it => html`<li>${escapeHtml(it)}</li>`).join('');
-  });
-
-  el.querySelector('#kw').addEventListener('input', (e) => {
-    kw.set(e.target.value);
-  });
+export function mount(el, opts) {
+  el.innerHTML = '<input id="kw" placeholder="搜索"><div id="count">共5条</div><ul id="list"></ul>';
+  const kw = el.querySelector('#kw');
+  const count = el.querySelector('#count');
+  const list = el.querySelector('#list');
+  const data = ['手机壳', '数据线', '手机膜', '充电器', '手机支架'];
+  const keyword = signal('');
+  const items = computed(() => data.filter(d => d.includes(keyword())));
+  effect(() => { count.textContent = `共${items().length}条`; });
+  effect(() => { list.innerHTML = items().map(d => html`<li>${d}</li>`).join(''); });
+  kw.addEventListener('input', () => keyword.set(kw.value));
 }

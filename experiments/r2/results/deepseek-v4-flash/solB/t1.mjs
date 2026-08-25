@@ -1,15 +1,11 @@
-import { html, signal, computed, render } from './k-flow.js'
+import { html, signal, render } from './k-flow.js';
 
-export function mount(el) {
-  const count = signal(0)
-  const sq = computed(() => count() ** 2)
-
-  render(() => html`
-    <div>
-      <span id="c">${count}</span>
-      <span id="sq">${sq}</span>
-      <button id="inc" @click=${() => count.set(v => v + 1)}>+1</button>
-      <button id="dec" @click=${() => count.set(v => v - 1)}>-1</button>
-    </div>
-  `, el)
+export function mount(el, opts) {
+  const n = signal(0);
+  render(html`
+    <button id="inc" @click=${() => n.set(v => v + 1)}>+1</button>
+    <button id="dec" @click=${() => n.set(v => v - 1)}>-1</button>
+    <div id="c">${n}</div>
+    <div id="sq">${() => n() ** 2}</div>
+  `, el);
 }

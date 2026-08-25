@@ -1,55 +1,31 @@
-import { signal, effect, html, escapeHtml } from '@af-mobile/ui';
+import { signal, effect, html } from '@af-mobile/ui';
 
 export function mount(el, opts) {
-  el.innerHTML = `
-    <div id="app">
-      <button id="load">加载</button>
-      <div id="status"></div>
-      <ul id="list"></ul>
-      <button id="retry" style="display:none">重试</button>
-    </div>
-  `;
-
-  const status = signal('');
+  el.innerHTML = '<button id="load">加载</button><div id="status"></div><ul id="list"></ul><button id="retry" style="display:none">重试</button>';
+  const status = el.querySelector('#status');
+  const list = el.querySelector('#list');
+  const retry = el.querySelector('#retry');
+  const loadData = opts.loadData || globalThis.window?.__loadData;
+  const state = signal('idle');
   const items = signal([]);
-  const loading = signal(false);
-  const statusEl = el.querySelector('#status');
-  const listEl = el.querySelector('#list');
-  const retryEl = el.querySelector('#retry');
-  const loadEl = el.querySelector('#load');
-
-  effect(() => {
-    statusEl.textContent = status();
-  });
-
-  effect(() => {
-    const arr = items();
-    listEl.innerHTML = arr.map(it => html`<li>${escapeHtml(it)}</li>`).join('');
-  });
-
-  effect(() => {
-    retryEl.style.display = loading() === 'error' ? '' : 'none';
-  });
-
-  async function doLoad() {
-    status.set('加载中');
-    items.set([]);
-    loading.set('pending');
+  async function run() {
+    state.set('pending');
     try {
-      const data = await opts.loadData();
-      if (data.length === 0) {
-        status.set('空');
-      } else {
-        status.set('');
-        items.set(data);
-      }
-      loading.set('done');
+      const data = await loadData();
+      items.set(data);
+      state.set(data.length ? 'done' : 'empty');
     } catch {
-      status.set('加载失败');
-      loading.set('error');
+      state.set('error');
     }
   }
-
-  loadEl.addEventListener('click', doLoad);
-  retryEl.addEventListener('click', doLoad);
+  effect(() => {
+    const s = state();
+    status.textContent = s === 'pending' ? '加载中' : s === 'empty' ? '空' : s === 'error' ? '加载失败' : '';
+    retry.style.display = s === 'error' ? '' : 'none';
+  });
+  effect(() => {
+    list.innerHTML = items().map(it => html`<li>${it}</li>`).join('');
+  });
+  el.querySelector('#load').addEventListener('click', run);
+  retry.addEventListener('click', run);
 }

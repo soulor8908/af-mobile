@@ -1,37 +1,29 @@
-import { html, signal, render, Show, For } from './k-flow.js'
+import { html, signal, render, Switch, For } from './k-flow.js';
 
 export function mount(el, opts) {
-  const state = signal('idle')
-  const data = signal([])
-
-  const load = async () => {
-    state.set('loading')
+  const load = opts.loadData || window.__loadData;
+  const status = signal('idle');
+  const items = signal([]);
+  const run = async () => {
+    status.set('loading');
     try {
-      const res = await opts.loadData()
-      data.set(res)
-      state.set(res.length === 0 ? 'empty' : 'success')
+      const data = await load();
+      items.set(data);
+      status.set(data.length ? 'ok' : 'empty');
     } catch {
-      state.set('error')
+      status.set('err');
     }
-  }
-
-  render(() => html`
-    <div>
-      <button id="load" @click=${load}>加载</button>
-      <span id="status">${() => {
-        const s = state()
-        return s === 'loading' ? '加载中' : s === 'error' ? '加载失败' : s === 'empty' ? '空' : ''
-      }}</span>
-      ${() => Show({
-        when: () => state() === 'error',
-        kids: () => html`<button id="retry" @click=${load}>重试</button>`
-      })}
-      <ul id="list">
-        ${() => state() === 'success' ? For({
-          each: () => data(),
-          kids: (item) => html`<li>${item}</li>`
-        }) : ''}
-      </ul>
-    </div>
-  `, el)
+  };
+  render(html`
+    <button id="load" @click=${run}>加载</button>
+    ${Switch({
+      when: status,
+      cases: {
+        loading: () => html`<div id="status">加载中</div>`,
+        err: () => html`<div id="status">加载失败</div><button id="retry" @click=${run}>重试</button>`,
+        empty: () => html`<div id="status">空</div>`,
+      },
+    })}
+    <ul id="list">${For({ each: items, kids: (x) => html`<li>${x}</li>` })}</ul>
+  `, el);
 }

@@ -98,6 +98,9 @@ const BUDGET = {
   // chatUI 3.0→3.3（v2.0.0 实施）：af-chat 为复合容器（气泡流+composer+chips+错误重试+回底+卡片渲染管线），
   // 计划期 3.0KB 参照单组件预估错位；压缩已尽（3.338→3.212KB）。总量约束不变：设计文档 §9 合计 ≤ 5.5KB（实测 1.860+3.212=5.072KB ✓）
   chatUI: 3.3,         // KB，af-chat 组件 + render 渲染器（UI 层；基类/with-i18n/i18n 与主库共享 external，session 经 property 注入不静态依赖）
+  // k 渲染层（src/k，独立入口 @af-mobile/ui/k，不计入主库 total）：html`` 声明式模板 + 细粒度响应式绑定
+  // 响应式核心复用 lib/state.js（external 共享，不重复计费）；实测 1.399KB，与 chat 内核同量级
+  kRuntime: 2.0,       // KB，html``+Show/For/Switch+render/clean（B3 实验：代码量 -23%，会话成本 -24%）
 };
 
 const KB = 1024;
@@ -274,6 +277,26 @@ async function measureChatUI() {
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
 
+// k 渲染层（独立入口 @af-mobile/ui/k，不计入主库 total）：html``+Show/For/Switch+render/clean
+// 响应式核心 lib/state.js 与主库共享，external 掉（与 coreRuntime 同法，防重复计费）
+async function measureKRuntime() {
+  const dir = mkdtempSync(join(tmpdir(), 'af-mobile-k-'));
+  const entry = join(dir, 'entry.js');
+  const toPosix = (p) => p.replace(/\\/g, '/');
+  writeFileSync(entry,
+    `import { html, Show, For, Switch, render, clean } from '${toPosix(join(SRC, 'k/index.js'))}';\n` +
+    `// 引用以防 tree-shake 摇除\n` +
+    `globalThis.__afMobile_k = [html, Show, For, Switch, render, clean];\n`
+  );
+  const res = await build({
+    entryPoints: [entry],
+    bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+    absWorkingDir: ROOT,
+    external: ['../lib/state.js', './state.js'],
+  });
+  return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
+}
+
 async function main() {
   // 核心运行时模块（CORE_EXT）在基类/组件/onDemand2 测量中均 external 掉
   // af-cascade-picker 复用 af-picker（子类继承滚轮内核）：af-picker 单独测一次，级联组件只测增量
@@ -401,6 +424,13 @@ async function main() {
   const chatUIOver = chatUIGz > BUDGET.chatUI * KB;
   console.log(`chat UI（af-chat+render）  ${fmt(chatUIGz).padStart(10)}  预算 ≤ ${BUDGET.chatUI}KB  ${chatUIOver ? '✗ 超限' : '✓'}`);
   if (chatUIOver) violations.push(`chat UI ${fmt(chatUIGz)} > ${BUDGET.chatUI}KB`);
+
+  // k 渲染层（独立入口 ./k，不计入主库 total）
+  console.log('\n── k 渲染层（@af-mobile/ui/k，独立预算）──');
+  const kGz = await measureKRuntime();
+  const kOver = kGz > BUDGET.kRuntime * KB;
+  console.log(`k 渲染层（html模板+控制流）  ${fmt(kGz).padStart(10)}  预算 ≤ ${BUDGET.kRuntime}KB  ${kOver ? '✗ 超限' : '✓'}`);
+  if (kOver) violations.push(`k 渲染层 ${fmt(kGz)} > ${BUDGET.kRuntime}KB`);
 
   // 汇总
   console.log('\n──────────────────────────────────────────────────────────');

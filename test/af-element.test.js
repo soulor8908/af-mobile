@@ -67,6 +67,43 @@ describe('AfElement 基类', () => {
     expect(el._listeners.length).toBe(before);
   });
 
+  it('_listen 去重：同 (target,type,handler) 重复绑定只留一条登记且不重复触发', () => {
+    const el = new TestEl();
+    document.body.appendChild(el);
+    const log = [];
+    const h = () => log.push(1);
+    el._listen(window, 'test-listen-event', h);
+    el._listen(window, 'test-listen-event', h);
+    expect(el._listeners.filter(([t, ty]) => t === window && ty === 'test-listen-event')).toHaveLength(1);
+    window.dispatchEvent(new Event('test-listen-event'));
+    expect(log.length).toBe(1);
+  });
+
+  it('_listen 惰性回收：innerHTML 重渲染后脱离文档的旧目标条目被清除', () => {
+    const el = new TestEl();
+    document.body.appendChild(el);
+    const btn1 = document.createElement('button');
+    el.appendChild(btn1);
+    el._listen(btn1, 'click', () => {});
+    expect(el._listeners.some(([t]) => t === btn1)).toBe(true);
+    el.innerHTML = '';
+    const btn2 = document.createElement('button');
+    el.appendChild(btn2);
+    el._listen(btn2, 'click', () => {});
+    expect(el._listeners.some(([t]) => t === btn1)).toBe(false);
+    expect(el._listeners.some(([t]) => t === btn2)).toBe(true);
+  });
+
+  it('_listen 回收不误伤：window 与 documentElement 条目保留', () => {
+    const el = new TestEl();
+    document.body.appendChild(el);
+    const before = el._listeners.length; // onThemeChange 登记的 documentElement 条目
+    el._listen(window, 'test-listen-event', () => {});
+    expect(el._listeners.some(([t]) => t === window)).toBe(true);
+    expect(el._listeners.some(([t]) => t === document.documentElement)).toBe(true);
+    expect(el._listeners.length).toBe(before + 1);
+  });
+
   it('defineProp 双向同步：property → attribute', () => {
     const el = new TestEl();
     document.body.appendChild(el);

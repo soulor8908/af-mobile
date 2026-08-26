@@ -3,23 +3,8 @@
 // 子类声明 static useShadow = true/false 决定是否 attachShadow
 // v3.0：移除 i18n（_applyI18n/onLocaleChange/import t 迁至 withI18n mixin），基类无 i18n 依赖
 
-// HTML 转义：注入数据到 innerHTML 前必经，防 XSS
-// 使用命名实体（&lt; &gt; &amp; &quot;）+ 数值实体（&#39;）匹配浏览器 DOM 行为
-const _ENT = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-export const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => _ENT[c]);
-
-// 安全 HTML 模板标签：${value} 插值自动转义，${{ raw: '<b>html</b>' }} 标记可信 HTML
-// 用法：html`<div class="body">${item.title}</div>` ← title 自动转义
-//       html`<div>${{ raw: '<b>加粗</b>' }}</div>` ← 显式声明可信 HTML 不转义
-// 强制 af-list.renderItem / af-dropdown._renderList 等动态 HTML 拼接使用，杜绝 XSS
-export function html(strings, ...values) {
-  let r = '';
-  for (let i = 0; i < strings.length; i++) {
-    r += strings[i];
-    if (i < values.length) r += values[i]?.raw ?? escapeHtml(values[i]);
-  }
-  return r;
-}
+// HTML 转义工具已拆分至 ./html.js（与 router/state 等 lib 共享模块同模式），再导出保持 API 兼容
+export { escapeHtml, html } from './html.js';
 
 export class AfElement extends HTMLElement {
   constructor() {
@@ -69,10 +54,8 @@ export class AfElement extends HTMLElement {
   disconnectedCallback() {
     this.unmounted?.();
     // 统一解绑 _listen 登记的监听并清空登记表：重连时由 mounted 重新绑定
-    if (this._listeners) {
-      for (const [target, type, handler, opts] of this._listeners) target.removeEventListener(type, handler, opts);
-      this._listeners = null;
-    }
+    this._listeners?.forEach((e) => e[0].removeEventListener(e[1], e[2], e[3]));
+    this._listeners = null;
     // 复位挂载标志：下次 connectedCallback 重新执行 mounted，重建监听与 DOM
     this._mounted = false;
   }
@@ -95,11 +78,19 @@ export class AfElement extends HTMLElement {
   }
 
   // 事件绑定登记：断开时由 disconnectedCallback 统一解绑，组件重连由 mounted 重新绑定，
-  // 杜绝重复监听；子类不再需要在 unmounted() 手写 removeEventListener。target 为空时安全跳过
+  // 杜绝重复监听；子类不再需要在 unmounted() 手写 removeEventListener。target 为空时安全跳过。
+  // 已挂载时惰性回收脱离文档的死条目（innerHTML 重渲染后旧节点不再被登记表强引用）；
+  // 同一 (target,type,handler,capture) 去重（DOM 原生合并相同监听，登记表不去重随重复绑定膨胀）
   _listen(target, type, handler, opts) {
     if (!target) return;
+    const reg = (this._listeners ??= []);
+    if (this.isConnected)
+      for (let i = reg.length; i--;)
+        reg[i][0].isConnected === false && reg.splice(i, 1);
+    const cap = !!opts?.capture;
+    const idx = reg.findIndex((e) => e[0] === target && e[1] === type && e[2] === handler && !!e[3]?.capture === cap);
     target.addEventListener(type, handler, opts);
-    (this._listeners ??= []).push([target, type, handler, opts]);
+    idx < 0 ? reg.push([target, type, handler, opts]) : (reg[idx][3] = opts);
   }
 
   // === 渲染监控（P2：onRender/onUpdate 钩子 + DevTools 集成） ===

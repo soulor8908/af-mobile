@@ -82,6 +82,10 @@ const SRC = join(ROOT, 'src');
 //   预算 9.0→6.0KB（minify 口径），原子类补齐后实测 ~5.6KB
 // v4.3 调整（支付组件对 af-number-keyboard + af-password-input，用户已确认）：
 //   total 20.4→23.0KB：新增 2 组件（30 组件 + 基类），预估 +2.5KB 含容差
+// v4.4 调整（P1 监听器注册表加固 + 体积压回，走 AGENTS §2 失败处理表「优化实现」路径，未动任何预算）：
+//   _listen 新增死条目惰性回收 + (target,type,handler,capture) 去重后 base 一度 2.070KB 超限；
+//   escapeHtml/html 拆分至 lib/html.js（共享运行时模块，非生命周期核心），CORE_MODULES 登记 'html'，
+//   基类一行再导出保持全部既有 import 路径兼容——base 回落 ≤ 2KB，total 不升（lib 共享模块本就不计入 total）
 const BUDGET = {
   css: 7.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径；v1.6.1 上调 6.0→7.0：新增 40 个高视觉 class，用户已确认，实测 ~6.9KB）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
@@ -108,7 +112,7 @@ const fmt = (b) => (b / KB).toFixed(3) + 'KB';
 
 // 核心运行时模块：所有组件侧测量（total / 单组件 / 按需 / 基类）一律 external，不计入组件体积
 // 路径变体：index.js 写 './lib/x.js'，组件写 '../lib/x.js'，lib 内部互引写 './x.js'——漏一种就会被误打包（v3.9 前的测量泄漏根源）
-const CORE_MODULES = ['router', 'state', 'fetch', 'i18n', 'resource', 'theme', 'page', 'bind', 'data-ref'];
+const CORE_MODULES = ['router', 'state', 'fetch', 'i18n', 'resource', 'theme', 'page', 'bind', 'data-ref', 'html'];
 const CORE_EXT = CORE_MODULES.flatMap((m) => [`./lib/${m}.js`, `../lib/${m}.js`, `./${m}.js`]);
 
 // esbuild minify 单文件（external 掉基类/theme，只测本组件代码）

@@ -16,7 +16,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # 需 npm >=11：npm 10 无法把根包 overrides("@af-mobile/ui":"file:.") 应用到
+          # create-af-mobile 的 ^1.7.0 解析，会 ETARGET（该版本尚未发布）
+          node-version: '24'
           cache: 'npm'
 
       - run: npm ci

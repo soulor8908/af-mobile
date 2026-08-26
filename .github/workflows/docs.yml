@@ -30,7 +30,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          # 同 ci.yml：需 npm >=11 才能解析 overrides 到工作区根
+          node-version: '24'
           cache: 'npm'
 
       - run: npm ci

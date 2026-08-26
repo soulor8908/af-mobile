@@ -1,7 +1,7 @@
 {
   "name": "@af-mobile/eslint-plugin",
-  "version": "2.0.4",
-  "description": "af-mobile UI ESLint plugin — 27 rules (L1/L2/L3/L3.5) enforcing design-system + Web Component constraints",
+  "version": "2.1.0",
+  "description": "af-mobile UI ESLint plugin — 21 rules (L1/L2/L3/L3.5) enforcing design-system + Web Component constraints",
   "type": "module",
   "main": "./index.js",
   "module": "./index.js",

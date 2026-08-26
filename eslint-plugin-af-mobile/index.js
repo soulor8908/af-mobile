@@ -1,5 +1,5 @@
 // af-mobile UI —— eslint-plugin-af-mobile 入口（ESLint 9 flat config 兼容）
-// 20 条规则：L1(2) + L2(7) + L3(6) + L3.5(5)
+// 21 条规则：L1(2) + L2(8) + L3(6) + L3.5(5)
 // （definePage 消费端 7 条规则已随 definePage 全局单例移除）
 import noTokenModification from './rules/no-token-modification.js';
 import noInlineStyle from './rules/no-inline-style.js';
@@ -10,6 +10,7 @@ import noArbitraryValue from './rules/no-arbitrary-value.js';
 import noTailwindSyntax from './rules/no-tailwind-syntax.js';
 import preferComponent from './rules/prefer-component.js';
 import atomicDuplicate from './rules/atomic-duplicate.js';
+import noEmojiIcon from './rules/no-emoji-icon.js';
 import noRegisterAll from './rules/no-register-all.js';
 import wcLightNoStyle from './rules/wc-light-no-style.js';
 import wcShadowUseToken from './rules/wc-shadow-use-token.js';
@@ -23,13 +24,13 @@ import wcBlockStates from './rules/wc-block-states.js';
 import wcBlockVariantEnum from './rules/wc-block-variant-enum.js';
 
 const plugin = {
-  meta: { name: 'eslint-plugin-af-mobile', version: '2.0.4' },
+  meta: { name: 'eslint-plugin-af-mobile', version: '2.1.0' },
   rules: {
     // L1（2 条，全部 error；tokens-css-locked 由 CODEOWNERS + 分支保护，非 ESLint 规则）
     'no-token-modification': noTokenModification,
     'no-inline-style': noInlineStyle,
     // L1-3 tokens-css-locked 是 CODEOWNERS + 分支保护，非 ESLint 规则
-    // L2（7 条：4 error + 3 warn）
+    // L2（8 条：4 error + 4 warn）
     'token-whitelist': tokenWhitelist,
     'no-recipe-break': noRecipeBreak,
     'no-variant-conflict': noVariantConflict,
@@ -37,6 +38,7 @@ const plugin = {
     'no-tailwind-syntax': noTailwindSyntax,
     'prefer-component': preferComponent,
     'atomic-duplicate': atomicDuplicate,
+    'no-emoji-icon': noEmojiIcon,
     // L3（6 条：4 error + 2 warn）
     'wc-light-no-style': wcLightNoStyle,
     'wc-shadow-use-token': wcShadowUseToken,
@@ -73,6 +75,7 @@ Object.assign(plugin.configs, {
       'af-mobile/no-variant-conflict': 'warn',
       'af-mobile/prefer-component': 'warn',
       'af-mobile/atomic-duplicate': 'warn',
+      'af-mobile/no-emoji-icon': 'warn',
       // L3 error
       'af-mobile/wc-light-no-style': 'error',
       'af-mobile/wc-shadow-use-token': 'error',

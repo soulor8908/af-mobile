@@ -3,13 +3,29 @@
 // variant: default / grid
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';
+import { addMessages } from '../lib/i18n.js';
+
+// pc.* 字典随本模块注册（同 chat/i18n.js 先例：不占主库核心运行时体积）
+addMessages('zh-CN', {
+  'pc.al': '商品卡片',
+  'pc.em': '暂无商品',
+  'pc.ld': '加载中…',
+  'pc.er': '加载失败',
+  'pc.rt': '重试',
+});
+addMessages('en-US', {
+  'pc.al': 'Product card',
+  'pc.em': 'No products',
+  'pc.ld': 'Loading...',
+  'pc.er': 'Load failed',
+  'pc.rt': 'Retry',
+});
 
 const ARROW = '›';
 const SKEL_ROWS = 4;
 
 export class AfProductCard extends withI18n(AfElement) {
   static useShadow = false;
-  static i18nKeys = ['pc.al', 'pc.em', 'pc.ld', 'pc.er', 'pc.rt'];
   static i18n = {
     '@': ['aria-label', 'pc.al'],
     '[data-role="empty-text"]': ['', 'pc.em'],

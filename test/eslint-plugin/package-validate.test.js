@@ -24,9 +24,9 @@ describe('@af-mobile/eslint-plugin 独立包', () => {
     expect(pkg.peerDependencies.eslint).toBe('>=9.0.0');
   });
 
-  it('导出完整 20 条规则（L1(2)+L2(7)+L3(6)+L3.5(5)）', () => {
+  it('导出完整 21 条规则（L1(2)+L2(8)+L3(6)+L3.5(5)）', () => {
     const names = Object.keys(plugin.rules);
-    expect(names).toHaveLength(20);
+    expect(names).toHaveLength(21);
     // 抽查三层代表规则
     expect(plugin.rules['no-token-modification']).toBeDefined();
     expect(plugin.rules['wc-light-no-style']).toBeDefined();

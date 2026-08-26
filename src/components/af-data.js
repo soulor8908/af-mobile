@@ -35,6 +35,8 @@ export class AfData extends AfElement {
   }
 
   async _fetch() {
+    const seq = (this._fetchSeq ?? 0) + 1;
+    this._fetchSeq = seq;
     this._loadingSignal.set(true);
     this._errorSignal.set(null);
     try {
@@ -42,15 +44,17 @@ export class AfData extends AfElement {
         cache: this.cache,
         cacheTtl: this.cacheTtl,
       });
+      if (seq !== this._fetchSeq || !this.isConnected) return;
       const data = getPath(raw, this.dataPath);
       this._dataSignal.set(data);
       this._totalSignal.set(this._resolveTotal(raw, data));
       this.emit('af-data:load', { data });
     } catch (err) {
+      if (seq !== this._fetchSeq || !this.isConnected) return;
       this._errorSignal.set(err);
       this.emit('af-data:error', { error: err });
     } finally {
-      this._loadingSignal.set(false);
+      if (seq === this._fetchSeq) this._loadingSignal.set(false);
     }
   }
 

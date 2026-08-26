@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AfProductCard } from '../src/blocks/af-product-card.js';
+import { setLocale } from '../src/lib/i18n.js';
 customElements.define('af-product-card', AfProductCard);
 
 function makeEl(props = {}) {
@@ -22,6 +23,21 @@ describe('af-product-card 五态', () => {
   it('空 items 渲染 empty 态', () => {
     const el = makeEl({ items: [], title: '商品卡片' });
     expect(el.$('[data-role="empty"]')).not.toBeNull();
+  });
+
+  it('i18n：空态文案翻译为中文而非裸 key（pc.* 已注册）', () => {
+    const el = makeEl({ items: [], title: '商品卡片' });
+    expect(el.$('[data-role="empty-text"]').textContent).toBe('暂无商品');
+  });
+
+  it('i18n：切换 en-US 时空态文案跟随切换', () => {
+    setLocale('en-US');
+    try {
+      const el = makeEl({ items: [], title: '商品卡片' });
+      expect(el.$('[data-role="empty-text"]').textContent).toBe('No products');
+    } finally {
+      setLocale('zh-CN');
+    }
   });
 
   it('setError 触发 error 态 + 重试按钮', () => {

@@ -66,13 +66,15 @@ export default {
       additionalProperties: false,
     }],
     messages: {
-      forbidden: "Inline style '{{value}}' is forbidden. Use class instead",
+      // v1.6.1：报错带具体违规属性名（旧报错只给整段 style，AI 修正时只能整段删掉重猜，加剧样式削平）
+      forbidden: "Inline style property '{{prop}}' is forbidden in '{{value}}'. Use class instead",
     },
   },
 
   create(context) {
     const options = context.options[0] || {};
     const extraAllow = new Set(options.allowProperties || []);
+    const nodeText = (node) => (context.sourceCode || context.getSourceCode()).getText(node);
 
     return {
       // 检测字符串字面量（含 template literal）
@@ -81,7 +83,7 @@ export default {
         const violations = checkStyleString(node.value);
         for (const v of violations) {
           if (extraAllow.has(v.prop)) continue;
-          context.report({ node, messageId: 'forbidden', data: { value: v.value } });
+          context.report({ node, messageId: 'forbidden', data: { prop: v.prop, value: v.value } });
         }
       },
       TemplateElement(node) {
@@ -89,7 +91,7 @@ export default {
         const violations = checkStyleString(node.value.raw);
         for (const v of violations) {
           if (extraAllow.has(v.prop)) continue;
-          context.report({ node, messageId: 'forbidden', data: { value: v.value } });
+          context.report({ node, messageId: 'forbidden', data: { prop: v.prop, value: v.value } });
         }
       },
       // 检测 el.style.setProperty('color', ...) / el.style.xxx = '...' 绕过
@@ -106,7 +108,7 @@ export default {
         if (propArg.value.startsWith('--')) return;
         const prop = propArg.value.toLowerCase();
         if (FORBIDDEN.has(prop) && !ALLOWED_LAYOUT.has(prop) && !extraAllow.has(prop)) {
-          context.report({ node, messageId: 'forbidden', data: { value: `${prop}` } });
+          context.report({ node, messageId: 'forbidden', data: { prop, value: nodeText(node) } });
         }
       },
       AssignmentExpression(node) {
@@ -119,7 +121,7 @@ export default {
         // kebab-case 转换：backgroundColor → background-color
         const kebab = propName.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
         if (FORBIDDEN.has(kebab) && !ALLOWED_LAYOUT.has(kebab) && !extraAllow.has(kebab)) {
-          context.report({ node, messageId: 'forbidden', data: { value: kebab } });
+          context.report({ node, messageId: 'forbidden', data: { prop: kebab, value: nodeText(node) } });
         }
       },
     };

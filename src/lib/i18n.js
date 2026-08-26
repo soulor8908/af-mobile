@@ -57,6 +57,7 @@ export const messages = {
     'pi.al': '密码输入',
     'pi.n': '已输入 {n}/{total} 位',
     // ct.*（chat）在 src/chat/i18n.js，随 @af-mobile/ui/chat 入口注册（不占核心运行时体积）
+    // pc.*（product-card）在 src/blocks/af-product-card.js 内注册（同上，不占核心运行时体积）
   },
   'en-US': {
     'bt.al': 'Back to top',

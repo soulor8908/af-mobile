@@ -324,4 +324,19 @@ describe('af-chat composer 与事件', () => {
     expect(s.send).toHaveBeenCalledTimes(2);
     expect(s.send).toHaveBeenLastCalledWith('hi');
   });
+
+  it('绑定模式中止：send 抛 AbortError 不渲染错误条不发 af-chat:error', async () => {
+    const el = makeChat();
+    const abortErr = new Error('stop');
+    abortErr.name = 'AbortError';
+    const s = mockSession({ send: vi.fn().mockRejectedValue(abortErr) });
+    el.session = s;
+    const errHandler = vi.fn();
+    el.addEventListener('af-chat:error', errHandler);
+    el.$('.in').value = 'hi';
+    el.$('.sd').click();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(errHandler).not.toHaveBeenCalled();
+    expect(el.$('.eb')).toBeNull();
+  });
 });

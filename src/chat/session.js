@@ -146,6 +146,10 @@ export function createSession(opts) {
       }
       state = 'idle';
     } catch (err) {
+      if (err?.name === 'AbortError' || controller?.signal.aborted) {
+        state = 'idle';
+        return;
+      }
       state = 'error';
       throw err;
     } finally {

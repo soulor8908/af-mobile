@@ -110,6 +110,22 @@ describe('createSession', () => {
     expect(session.state).toBe('error');
   });
 
+  it('abort 中止流式：复位 idle 且不向上抛错', async () => {
+    const fetchMock = vi.fn((url, init) => new Promise((resolve, reject) => {
+      init.signal.addEventListener('abort', () => {
+        const err = new Error('The operation was aborted');
+        err.name = 'AbortError';
+        reject(err);
+      });
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    const session = createSession({ endpoint: '/api/chat' });
+    const p = session.send('hi');
+    session.abort();
+    await expect(p).resolves.toBeUndefined();
+    expect(session.state).toBe('idle');
+  });
+
   it('非法 JSON 帧被忽略不崩溃', async () => {
     const fetchMock = mockFetch({ chunks: ['data: not-json\n\n', 'data: [DONE]\n\n'] });
     vi.stubGlobal('fetch', fetchMock);

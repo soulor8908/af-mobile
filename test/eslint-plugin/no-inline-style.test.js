@@ -28,6 +28,26 @@ describe('af-mobile/no-inline-style', () => {
     });
   });
 
+  it('报错信息带具体违规属性名（v1.6.1：不再只给整段 style）', () => {
+    ruleTester.run('no-inline-style', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: 'const html = `<div style="padding: 16px">x</div>`;',
+          errors: [{ message: "Inline style property 'padding' is forbidden in 'padding: 16px'. Use class instead" }],
+        },
+        {
+          code: 'el.style.setProperty("border-radius", "8px");',
+          errors: [{ message: 'Inline style property \'border-radius\' is forbidden in \'el.style.setProperty("border-radius", "8px")\'. Use class instead' }],
+        },
+        {
+          code: 'el.style.color = "red";',
+          errors: [{ message: 'Inline style property \'color\' is forbidden in \'el.style.color = "red"\'. Use class instead' }],
+        },
+      ],
+    });
+  });
+
   it('布局属性 display：放行', () => {
     ruleTester.run('no-inline-style', rule, {
       valid: [{ code: 'const html = `<div style="display: flex">x</div>`;' }],

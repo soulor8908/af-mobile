@@ -35,8 +35,8 @@ describe('af-field', () => {
   });
 
   it('icon 渲染为 data-role=icon', () => {
-    const el = makeField({ icon: '🔍' });
-    expect(el.$('[data-role="icon"]').textContent).toBe('🔍');
+    const el = makeField({ icon: '¥' });
+    expect(el.$('[data-role="icon"]').textContent).toBe('¥');
   });
 
   it('help 渲染为 .caption', () => {

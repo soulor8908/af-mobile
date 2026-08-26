@@ -2,13 +2,21 @@
 // 检测：同一 class 属性内出现两个同属性原子（如 p-4 p-2），保留最后一个
 import { extractAllClassLists } from '../utils/helpers.js';
 
-// 属性前缀映射：p-* → padding, m-* → margin, t-* → font-size, r-* → border-radius
+// 字重类与字号类共享 t- 前缀但作用于不同属性（font-weight vs font-size），必须分桶判定：
+// t-xl t-b 是"大字号+粗体"的合法排版组合，不是字号重复
+// （v1.6.1 修复：旧前缀正则曾把两者混为 font-size，autofix 直接删掉字号类，破坏视觉强调）
+const FONT_SIZE = new Set(['t-display', 't-xs', 't-sm', 't-md', 't-lg', 't-xl']);
+const FONT_WEIGHT = new Set(['t-b', 't-m', 't-semibold']);
+
+// 属性桶：p-* → padding, m-* → margin, t-* → font-size, r-* → border-radius, 字重类 → font-weight
 function getPropPrefix(cls) {
+  if (FONT_WEIGHT.has(cls)) return 'fw';
+  if (FONT_SIZE.has(cls)) return 't';
   const m = cls.match(/^([pmtr])-(.+)$/);
   return m ? m[1] : null;
 }
 
-const PROP_LABELS = { p: 'padding', m: 'margin', t: 'font-size', r: 'border-radius' };
+const PROP_LABELS = { p: 'padding', m: 'margin', t: 'font-size', r: 'border-radius', fw: 'font-weight' };
 
 export default {
   meta: {

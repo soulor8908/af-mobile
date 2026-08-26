@@ -171,6 +171,7 @@ export class AfChat extends withI18n(AfElement) {
     try {
       await this._session.send(value);
     } catch (err) {
+      if (err?.name === 'AbortError') return;
       this._err(err);
       this.emit('af-chat:error', { message: String(err?.message ?? err) });
     }

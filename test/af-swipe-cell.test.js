@@ -142,3 +142,56 @@ describe('af-swipe-cell 点击收起（补充分支）', () => {
     expect(closeSpy).not.toHaveBeenCalled();
   });
 });
+
+describe('af-swipe-cell disabled + 键盘可达', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('disabled 时触摸拖拽不生效', () => {
+    const el = makeSwipeCell({ content: '内容', right: '<button>删除</button>' });
+    Object.defineProperty(el.$('[data-role="right"]'), 'offsetWidth', { value: 100, configurable: true });
+    el.disabled = true;
+    touch(el, 'touchstart', 100, 0);
+    touch(el, 'touchmove', 40, 0);
+    touch(el, 'touchend', 40, 0);
+    expect(el.$('[data-role="track"]').style.getPropertyValue('--af-swipe-x')).toBe('');
+  });
+
+  it('disabled 时 open() 不展开', () => {
+    const el = makeSwipeCell({ content: '内容', right: '<button>删除</button>' });
+    Object.defineProperty(el.$('[data-role="right"]'), 'offsetWidth', { value: 80, configurable: true });
+    el.disabled = true;
+    el.open();
+    expect(el.$('[data-role="track"]').style.getPropertyValue('--af-swipe-x')).toBe('');
+  });
+
+  it('disabled 时点击操作按钮不发事件', () => {
+    const el = makeSwipeCell({ content: '内容', right: '<button data-action="delete">删除</button>' });
+    const handler = vi.fn();
+    el.addEventListener('af-swipe-cell:action', handler);
+    el.disabled = true;
+    el.$('[data-role="right"]').querySelector('button').click();
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('track 可聚焦，Enter 打开 / Escape 关闭', () => {
+    const el = makeSwipeCell({ content: '内容', right: '<button>删除</button>' });
+    Object.defineProperty(el.$('[data-role="right"]'), 'offsetWidth', { value: 80, configurable: true });
+    const track = el.$('[data-role="track"]');
+    expect(track.getAttribute('tabindex')).toBe('0');
+    track.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    expect(track.style.getPropertyValue('--af-swipe-x')).toBe('-80px');
+    track.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(track.style.getPropertyValue('--af-swipe-x')).toBe('0px');
+  });
+
+  it('设置 disabled 同步 aria-disabled 且已打开时自动收起', () => {
+    const el = makeSwipeCell({ content: '内容', right: '<button>删除</button>' });
+    Object.defineProperty(el.$('[data-role="right"]'), 'offsetWidth', { value: 80, configurable: true });
+    el.open();
+    el.disabled = true;
+    expect(el.getAttribute('aria-disabled')).toBe('true');
+    expect(el.$('[data-role="track"]').style.getPropertyValue('--af-swipe-x')).toBe('0px');
+    el.disabled = false;
+    expect(el.hasAttribute('aria-disabled')).toBe(false);
+  });
+});

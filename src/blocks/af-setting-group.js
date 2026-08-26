@@ -9,7 +9,6 @@ const SKEL_ROWS = 4;
 
 export class AfSettingGroup extends withI18n(AfElement) {
   static useShadow = false;
-  static i18nKeys = ['sg.al', 'sg.em', 'sg.ld', 'sg.er', 'sg.rt'];
   static i18n = {
     '@': ['aria-label', 'sg.al'],
     '[data-role="empty-text"]': ['', 'sg.em'],

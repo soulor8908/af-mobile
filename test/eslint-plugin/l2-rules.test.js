@@ -230,6 +230,62 @@ describe('L2-3 af-mobile/no-variant-conflict', () => {
       }],
     });
   });
+  it('纯色背景 + 渐变背景冲突报错（v1.6.1 新增背景类）', () => {
+    ruleTester.run('no-variant-conflict', noVariantConflict, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<div class="bg-brand bg-grad-brand">x</div>`;',
+        output: 'const html = `<div class="bg-grad-brand">x</div>`;',
+        errors: [{ messageId: 'conflict' }],
+      }],
+    });
+  });
+  it('px 定向间距重复冲突报错（v1.6.1）', () => {
+    ruleTester.run('no-variant-conflict', noVariantConflict, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<div class="px-3 px-4">x</div>`;',
+        output: 'const html = `<div class="px-4">x</div>`;',
+        errors: [{ messageId: 'conflict' }],
+      }],
+    });
+  });
+  it('px 与 py 正交放行（不同属性）', () => {
+    ruleTester.run('no-variant-conflict', noVariantConflict, {
+      valid: [{ code: 'const html = `<div class="px-4 py-3">x</div>`;' }],
+      invalid: [],
+    });
+  });
+  it('grid 网格类冲突报错（v1.6.1）', () => {
+    ruleTester.run('no-variant-conflict', noVariantConflict, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<div class="grid-2 grid-3">x</div>`;',
+        output: 'const html = `<div class="grid-3">x</div>`;',
+        errors: [{ messageId: 'conflict' }],
+      }],
+    });
+  });
+  it('tag-plain 语义色变体互斥报错（v1.6.1）', () => {
+    ruleTester.run('no-variant-conflict', noVariantConflict, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<span class="tag-plain-ok tag-plain-danger">x</span>`;',
+        output: 'const html = `<span class="tag-plain-danger">x</span>`;',
+        errors: [{ messageId: 'conflict' }],
+      }],
+    });
+  });
+  it('aspect 比例类冲突报错（v1.6.1）', () => {
+    ruleTester.run('no-variant-conflict', noVariantConflict, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<img class="aspect-1 aspect-16-9" src="a.png" alt="">`;',
+        output: 'const html = `<img class="aspect-16-9" src="a.png" alt="">`;',
+        errors: [{ messageId: 'conflict' }],
+      }],
+    });
+  });
 });
 
 describe('L2-4 af-mobile/no-arbitrary-value', () => {
@@ -327,6 +383,36 @@ describe('L2-7 af-mobile/atomic-duplicate', () => {
       invalid: [{
         code: 'const html = `<span class="t-md t-lg">x</span>`;',
         output: 'const html = `<span class="t-lg">x</span>`;',
+        errors: [{ messageId: 'duplicate' }],
+      }],
+    });
+  });
+  it('字号 + 字重组合放行（t-xl t-b 不再误判，v1.6.1 修复）', () => {
+    ruleTester.run('atomic-duplicate', atomicDuplicate, {
+      valid: [
+        { code: 'const html = `<span class="t-xl t-b text-danger">¥68</span>`;' },
+        { code: 'const html = `<span class="t-lg t-semibold">4.9</span>`;' },
+        { code: 'const html = `<span class="t-b t-md">x</span>`;' },
+      ],
+      invalid: [],
+    });
+  });
+  it('两个字重类重复报 warn（font-weight 桶）', () => {
+    ruleTester.run('atomic-duplicate', atomicDuplicate, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<span class="t-b t-m">x</span>`;',
+        output: 'const html = `<span class="t-m">x</span>`;',
+        errors: [{ message: "Duplicate font-weight: 't-b' is overwritten by 't-m'. Keep only 't-m'" }],
+      }],
+    });
+  });
+  it('字号 + 字重 + 字号重复：只报字号对，autofix 只删首个字号类', () => {
+    ruleTester.run('atomic-duplicate', atomicDuplicate, {
+      valid: [],
+      invalid: [{
+        code: 'const html = `<span class="t-xl t-b t-lg">x</span>`;',
+        output: 'const html = `<span class="t-b t-lg">x</span>`;',
         errors: [{ messageId: 'duplicate' }],
       }],
     });

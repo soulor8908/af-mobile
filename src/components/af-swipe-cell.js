@@ -22,6 +22,8 @@ export class AfSwipeCell extends AfElement {
     this._render();
     this._bindTouch();
     this._bindClick();
+    this._bindKeydown();
+    if (this.disabled) this.setAttribute('aria-disabled', 'true');
   }
 
   _render() {
@@ -29,7 +31,7 @@ export class AfSwipeCell extends AfElement {
     const slottedContent = this.$$('[slot="content"]');
     const slottedRight = this.$$('[slot="right"]');
     this.innerHTML = `
-      <div data-role="track">
+      <div data-role="track" tabindex="0">
         <div data-role="content"></div>
         <div data-role="right"></div>
       </div>
@@ -43,6 +45,7 @@ export class AfSwipeCell extends AfElement {
 
   _bindTouch() {
     this._onTouchStart = (e) => {
+      if (this.disabled) return;
       this._pulling = true;
       this._startX = e.touches[0].clientX;
       this._startY = e.touches[0].clientY;
@@ -95,6 +98,7 @@ export class AfSwipeCell extends AfElement {
 
   _bindClick() {
     this._onClick = (e) => {
+      if (this.disabled) return;
       const action = e.target.closest('[data-action]');
       if (!action) {
         // 点击非操作区域时收起
@@ -107,8 +111,21 @@ export class AfSwipeCell extends AfElement {
     this._listen(this, 'click', this._onClick);
   }
 
+  _bindKeydown() {
+    this._listen(this._track, 'keydown', (e) => {
+      if (this.disabled) return;
+      if ((e.key === 'Enter' || e.key === 'ArrowLeft') && this._offset === 0) {
+        e.preventDefault();
+        this.open();
+      } else if ((e.key === 'Escape' || e.key === 'ArrowRight') && this._offset !== 0) {
+        e.preventDefault();
+        this.close();
+      }
+    });
+  }
+
   open() {
-    if (!this._right) return;
+    if (this.disabled || !this._right) return;
     this._offset = -this._right.offsetWidth;
     this._track.style.setProperty('--af-swipe-x', this._offset + 'px');
   }
@@ -116,6 +133,16 @@ export class AfSwipeCell extends AfElement {
   close() {
     this._offset = 0;
     this._track.style.setProperty('--af-swipe-x', '0px');
+  }
+
+  onAttributeChange(name) {
+    if (name !== 'disabled' || !this._track) return;
+    if (this.disabled) {
+      this.setAttribute('aria-disabled', 'true');
+      if (this._offset !== 0) this.close();
+    } else {
+      this.removeAttribute('aria-disabled');
+    }
   }
 }
 

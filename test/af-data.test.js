@@ -59,6 +59,25 @@ describe('af-data 基础', () => {
     await vi.waitFor(() => expect(fetchPage).toHaveBeenCalledTimes(2));
   });
 
+  it('竞态守卫：旧请求慢返回时不覆盖新数据、不误发 load 事件', async () => {
+    const { fetchPage } = await import('../src/lib/fetch.js');
+    let resolveStale;
+    fetchPage.mockImplementationOnce(() => new Promise((resolve) => { resolveStale = resolve; }));
+    const el = makeData({ src: '/api/x' });
+    await vi.waitFor(() => expect(fetchPage).toHaveBeenCalledTimes(1));
+    fetchPage.mockResolvedValueOnce(['new']);
+    const loadHandler = vi.fn();
+    el.addEventListener('af-data:load', loadHandler);
+    el.refresh();
+    await vi.waitFor(() => expect(el.getData()).toEqual(['new']));
+    expect(el.getLoading()).toBe(false);
+    resolveStale(['stale']);
+    await new Promise((r) => setTimeout(r, 0));
+    expect(el.getData()).toEqual(['new']);
+    expect(el.getLoading()).toBe(false);
+    expect(loadHandler).toHaveBeenCalledTimes(1);
+  });
+
   it('af-data:load 事件触发', async () => {
     const { fetchPage } = await import('../src/lib/fetch.js');
     fetchPage.mockResolvedValue({ ok: 1 });

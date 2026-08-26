@@ -10,7 +10,7 @@ function makeTabbar(props = {}) {
 }
 
 const TABS = [
-  { label: '首页', value: 'home', icon: '🏠' },
+  { label: '首页', value: 'home', icon: '⌂' },
   { label: '发现', value: 'discover' },
   { label: '我的', value: 'me', badge: '5' },
 ];
@@ -32,7 +32,7 @@ describe('af-tabbar', () => {
 
   it('icon 与 label 渲染到对应 data-role', () => {
     const el = makeTabbar({ tabs: TABS });
-    expect(el.$$('.tab-item')[0].querySelector('[data-role="icon"]').textContent).toBe('🏠');
+    expect(el.$$('.tab-item')[0].querySelector('[data-role="icon"]').textContent).toBe('⌂');
     expect(el.$$('.tab-item')[0].querySelector('[data-role="label"]').textContent).toBe('首页');
   });
 

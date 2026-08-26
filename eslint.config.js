@@ -75,9 +75,9 @@ export default [
     plugins: { 'af-mobile': afMobilePlugin },
     rules: { ...AI_RULES },
   },
-  // ESLint 规则测试夹具 + ai-fix 循环测试 + MCP 工具测试 + lint 采集测试：含故意违规用例以验证规则/修复/采集本身，关闭 AI 约束
+  // ESLint 规则测试夹具 + ai-fix 循环测试 + 修复循环回归测试 + MCP 工具测试 + lint 采集测试：含故意违规用例以验证规则/修复/采集本身，关闭 AI 约束
   {
-    files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js', 'test/mcp.test.js', 'test/mcp-bundle.test.js', 'test/lint-flywheel.test.js'],
+    files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js', 'test/fix-loop-regression.test.js', 'test/mcp.test.js', 'test/mcp-bundle.test.js', 'test/lint-flywheel.test.js'],
     plugins: { 'af-mobile': afMobilePlugin },
     rules: {
       'af-mobile/token-whitelist': 'off',
@@ -88,6 +88,7 @@ export default [
       'af-mobile/no-tailwind-syntax': 'off',
       'af-mobile/prefer-component': 'off',
       'af-mobile/atomic-duplicate': 'off',
+      'af-mobile/no-emoji-icon': 'off',
     },
   },
 ];

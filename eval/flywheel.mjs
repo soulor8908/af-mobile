@@ -171,14 +171,30 @@ export function mineArbitraryValues(events) {
 }
 
 // ===== 分析主入口 =====
-// 输出：{ total, perRule, whitelistCandidates, arbitraryValues, hintsGap, fixableCoverage, convergence }
+// 输出：{ total, lintTotal, perRule, whitelistCandidates, arbitraryValues, hintsGap, fixableCoverage, convergence, sceneDemand }
 export async function analyze(events, opts = {}) {
   const sinceTs = parseSince(opts.since);
   const filtered = sinceTs ? events.filter(e => Date.parse(e.ts) >= sinceTs) : events;
 
+  // 事件分流：prompt 事件（get_prompt 需求）只喂场景分布；lint 事件（旧数据无 kind 字段按 lint 处理）喂规则榜/收敛度
+  const lintEvents = filtered.filter(e => (e.kind || 'lint') === 'lint');
+
+  // 场景需求分布：kind='prompt' 事件的 scene 命中计数（多标签，一次需求可命中多品类）
+  // 用途：场景包落地优先级的数据依据（Top 品类先落地，不拍脑袋）
+  const sceneDemand = {};
+  for (const ev of filtered) {
+    if ((ev.kind || 'lint') !== 'prompt') continue;
+    for (const key of ev.scene || []) {
+      const s = sceneDemand[key] = sceneDemand[key] || { key, count: 0, bySource: {} };
+      s.count++;
+      s.bySource[ev.source] = (s.bySource[ev.source] || 0) + 1;
+    }
+  }
+  const sceneDemandList = Object.values(sceneDemand).sort((a, b) => b.count - a.count);
+
   // 按 规则 × 来源 × 工具 聚合（加权：真实使用 > 合成 eval）
   const perRule = {};
-  for (const ev of filtered) {
+  for (const ev of lintEvents) {
     const weight = SOURCE_WEIGHTS[ev.source] || 1;
     for (const v of ev.violations || []) {
       const r = perRule[v.rule] = perRule[v.rule] || { rule: v.rule, count: 0, weighted: 0, bySource: {}, byTool: {}, recent: 0, before: 0 };
@@ -192,9 +208,9 @@ export async function analyze(events, opts = {}) {
   }
   const perRuleList = Object.values(perRule).sort((a, b) => b.weighted - a.weighted);
 
-  // 收敛度：source=mcp 按 tool 分组的 passed 比率（hints 有效则上升）
+  // 收敛度：source=mcp 按 tool 分组的 passed 比率（hints 有效则上升；仅 lint 事件，prompt 事件不掺水）
   const convergence = {};
-  for (const ev of filtered) {
+  for (const ev of lintEvents) {
     if (ev.source !== 'mcp') continue;
     const c = convergence[ev.tool] = convergence[ev.tool] || { runs: 0, passed: 0 };
     c.runs++;
@@ -217,12 +233,14 @@ export async function analyze(events, opts = {}) {
 
   return {
     total: filtered.length,
+    lintTotal: lintEvents.length,
     perRule: perRuleList,
-    whitelistCandidates: mineWhitelistCandidates(filtered),
-    arbitraryValues: mineArbitraryValues(filtered),
+    whitelistCandidates: mineWhitelistCandidates(lintEvents),
+    arbitraryValues: mineArbitraryValues(lintEvents),
     hintsGap,
     fixableCoverage,
     convergence,
+    sceneDemand: sceneDemandList,
   };
 }
 
@@ -233,9 +251,23 @@ export function renderReport(a, opts = {}) {
   const lines = [];
   lines.push('# [数据飞轮 v2] 多源违规分析 & 改进建议');
   lines.push('');
-  lines.push(`> 事件数：${a.total}${opts.since ? `（近 ${opts.since}）` : ''}；来源权重：mcp×3 / cli×2 / ci×2 / eval×1`);
+  lines.push(`> 事件数：${a.total}（lint ${a.lintTotal ?? a.total}）${opts.since ? `（近 ${opts.since}）` : ''}；来源权重：mcp×3 / cli×2 / ci×2 / eval×1`);
   lines.push(`> 生成时间：${new Date().toISOString()}`);
   lines.push('');
+
+  // 场景需求分布（kind='prompt' 事件）：场景包落地优先级的数据依据
+  if (a.sceneDemand && a.sceneDemand.length) {
+    lines.push('## 场景需求分布（get_prompt 需求命中，多标签）');
+    lines.push('');
+    lines.push('| 场景包 | 命中次数 | 来源分布 |');
+    lines.push('|---|---|---|');
+    for (const s of a.sceneDemand) {
+      lines.push(`| ${s.key} | ${s.count} | ${JSON.stringify(s.bySource)} |`);
+    }
+    lines.push('');
+    lines.push('> 用途：Top 品类优先落地场景包（build-prompt.mjs SCENARIO_PACKS 按 implemented 顺序注入），不拍脑袋。');
+    lines.push('');
+  }
 
   if (a.perRule.length === 0) {
     lines.push('✓ 无违规记录——飞轮暂无输入。跑 `npm run lint:flywheel <paths>` 或通过 MCP `check_compliance` 喂数据。');
@@ -305,8 +337,8 @@ export function renderReport(a, opts = {}) {
     lines.push('');
   }
 
-  // PR 草稿（v1 兼容输出：超阈值规则的诊断与行动清单）
-  const total = Math.max(a.total, 1);
+  // PR 草稿（v1 兼容输出：超阈值规则的诊断与行动清单；分母用 lint 事件数——prompt 事件不稀释比率）
+  const total = Math.max(a.lintTotal ?? a.total, 1);
   const findings = a.perRule.filter(r => r.count / total > threshold);
   if (findings.length) {
     lines.push(`## 建议的修改清单（阈值 ${threshold * 100}%）`);

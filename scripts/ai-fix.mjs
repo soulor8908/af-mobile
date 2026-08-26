@@ -73,19 +73,25 @@ export async function runEslint(code, opts = {}) {
 export const RULE_HINTS = {
   'af-mobile/no-token-modification': '不要重定义 L1 token 变量。如需新 token，写在 tokens.css 或 tokens.project.css',
   'af-mobile/no-inline-style': '改用对应的 atomic class：padding:16px → p-4；color:var(--c-brand) → text-brand；border-radius:8px → r-m',
-  'af-mobile/token-whitelist': '该 class 不在 115 白名单内。改用最接近的 L2 配方/原子，或在 .eslintrc 的 extraClass 登记',
+  'af-mobile/token-whitelist': '该 class 不在白名单封闭集内。改用 System Prompt 白名单清单中最接近的 L2 配方/原子 class，或在项目 eslint.config.js 的 extraClass 登记',
   'af-mobile/no-recipe-break': '该 class 组合会破坏配方：.btn 不要叠加 text-* 颜色；.input 不要叠加 t-sm/t-xs；.cell 不要叠加 f/fc',
   'af-mobile/no-variant-conflict': '互斥变体只能保留最后一个：btn-sm+btn-lg → 删 btn-sm',
   'af-mobile/no-arbitrary-value': '改用最接近的原子档位：p-[13px] → p-3 (12px)；p-7 → p-6 (32px)',
+  'af-mobile/no-emoji-icon': '用 24px stroke SVG 替代 emoji 图标（prompt 图标 path 库可直接复用）；af-tabbar 需要图标时省略 icon 字段用纯文字标签',
   'af-mobile/no-tailwind-syntax': '不要用 Tailwind 前缀语法（md:/hover:/dark: 等）。响应式请用 @container in recipes.project.css',
   'af-mobile/prefer-component': '改用对应 L3 真组件：.toast → <af-toast>；.sheet → <af-action-sheet>',
   'af-mobile/atomic-duplicate': '同属性原子重复，保留最后一个：p-4 p-2 → 只留 p-2',
+  'af-mobile/no-register-all': '禁止 registerAll() 全量注册。改为显式列名：register("af-dialog", "af-toast")，或 ESM import { AfDialog } + customElements.define 按需引入',
   'af-mobile/wc-light-no-style': 'Light DOM 组件不能用内联 style、<style> 标签或 innerHTML 中的 style="..." 属性。改用 L2 配方/原子 class 或迁移到 Shadow 组件',
   'af-mobile/wc-shadow-use-token': 'Shadow CSS 必须用 var(--*) 引用 token。例：color: #fff → color: var(--c-onbrand)',
   'af-mobile/wc-part-naming': 'part 名必须 kebab-case：DialogContent → dialog-content',
   'af-mobile/wc-event-naming': '事件名必须 af-{组件}:{动作}：afList_LoadMore → af-list:loadmore',
   'af-mobile/wc-aria-required': '补全必需 ARIA 角色/属性。详见 aria-requirements.json',
   'af-mobile/wc-cleanup': 'unmounted() 内补对应的清理调用：addEventListener → removeEventListener；setInterval → clearInterval',
+  'af-mobile/wc-block-no-internal-ref': '禁止穿透 Block 边界访问内部（querySelector 内部节点/直改内部 data-role）。Block 只通过公开 props/事件交互',
+  'af-mobile/wc-block-props-count': 'Block props 数必须在 2-5。相近语义 props 合并为对象传参，或拆分 Block 职责',
+  'af-mobile/wc-block-states': 'Block 必须实现 loading/error/empty 三态分支（缺哪个补哪个，用 data-state 驱动）',
+  'af-mobile/wc-block-variant-enum': 'variant 必须是封闭枚举值。把自由字符串改成枚举约束（attribute 静态检测 + JSDoc 声明合法值）',
 };
 
 export function buildFixPrompt(messages, originalCode) {

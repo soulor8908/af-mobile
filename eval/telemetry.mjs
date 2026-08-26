@@ -46,12 +46,15 @@ export function sanitizeMessage(rule, message) {
   return msg.length > MAX_MESSAGE_LEN ? msg.slice(0, MAX_MESSAGE_LEN) + '…' : msg;
 }
 
-// 记录一次 lint 运行（违规或干净均可；violations 空数组 + passed=true 表示干净运行）
+// 记录一次运行（违规或干净均可；violations 空数组 + passed=true 表示干净运行）
 // violations: [{ rule, severity, line, message }]
-export function recordRun({ source, tool, file, passed, violations }) {
+// kind: 'lint'（默认，合规检查）| 'prompt'（get_prompt 需求事件——只喂场景分布分析，不计入收敛度/规则榜）
+// scene: 需求命中的场景包 key 数组（封闭集，kind='prompt' 时有效；不落需求原文，隐私红线）
+export function recordRun({ source, tool, file, passed, violations, scene = null, kind = 'lint' }) {
   const event = {
     v: 1,
     ts: new Date().toISOString(),
+    kind,
     source,
     tool: tool || detectTool(),
     file,
@@ -63,6 +66,7 @@ export function recordRun({ source, tool, file, passed, violations }) {
       message: sanitizeMessage(v.rule, v.message || ''),
     })),
   };
+  if (scene && scene.length) event.scene = scene;
   const dir = telemetryDir();
   mkdirSync(dir, { recursive: true });
   appendFileSync(telemetryPath(), JSON.stringify(event) + '\n');

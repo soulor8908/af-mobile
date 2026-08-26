@@ -103,6 +103,12 @@ const CLASS_DESC = [
   ['actions', '按钮组容器（卡片/表单底部操作区），内部配 .btn'],
   ['stats-grid', '数据统计网格（数字+标签卡片）'],
   ['hero', '首屏主视觉区（大标题+副文案），eyebrow 为其上方小标签'],
+  ['hero-grad', '品牌渐变主视觉区（自带浅字体系：eyebrow/display/title/subtitle 可直接用）'],
+  ['card-media', '全出血图卡（图片贴边 cover），内容区用 px-*/py-* 组合排版节奏'],
+  ['stat-num', '大数字强调，配 stats-grid + text-brand/text-success 上色'],
+  ['chips', '标签流容器（自动换行），配 tag / tag-plain 系'],
+  ['dots', '轮播圆点指示器容器，配 dot / dot-on（当前项）'],
+  ['icon-badge', '分类图标底座（48px 浅品牌底），内嵌 24px stroke SVG'],
   ['tag', '状态标签，配 tag-ok / tag-warn / tag-danger 语义色'],
   ['spinner', '加载中旋转图标（spinner-sm / spinner-lg），配 .empty 可做加载态'],
   ['sheet', '底部弹出层容器（自定义 action-sheet 内容时用）'],
@@ -238,6 +244,73 @@ export function buildProjectExtensionSection(items) {
   return lines.join('\n');
 }
 
+// ===== 场景包（按需求关键词自动注入 + 需求分布探测）=====
+// 双职责：
+//   1. implemented=true 的包：命中关键词时注入 SCENARIO_PACK_INJECTION_POINT 占位符（prompt 增效）
+//   2. 全部包：参与 detectSceneDemand 需求探测（遥测记品类分布，不落需求原文——关键词是封闭集，隐私安全）
+// 场景包只提供"品类骨架"（品类专属布局约定），页面模式（list/detail/form…）由 few-shot 层负责，两层不重复。
+// 落地顺序按 C 端消费类优先级：marketing（已落地）→ ecommerce → o2o → content → social → education/tool/enterprise。
+const SCENARIO_PACKS = [
+  {
+    key: 'marketing',
+    category: 'marketing',
+    implemented: true,
+    keywords: ['首页', '主页', '营销', 'landing', '点单', '活动页', '推广页', 'landing page'],
+    // 误命中防护：企业后台/管理端的"首页"不是营销高视觉场景，命中负向词则不注入
+    negativeKeywords: ['后台', '管理端', 'dashboard', '仪表盘', '审批', '工单', '内部系统', 'admin', 'erp', 'OA'],
+    title: '场景包：营销/首页（高视觉基准）',
+    body: [
+      '本需求属于营销/首页类高视觉场景，在通用规范之上追加以下要求：',
+      '- 首屏必须 hero-grad 品牌渐变主视觉（eyebrow + display 大标题 + subtitle），或 card-media 全出血大图 banner（aspect-16-9）',
+      '- 数据/卖点区用 stats-grid + stat-num 彩色大数字（text-brand / text-success 交替上色）',
+      '- 分类宫格用 grid-2 / grid-3 + icon-badge（每格 24px stroke SVG + caption 标签）',
+      '- 推荐位用 card-media 图卡（aspect-1 商品图 + 标题 + price + tag 语义角标），两列排布用 grid-2 或 f wrap g-2',
+      '- 标签流一律 chips 容器 + tag / tag-plain 系',
+      '- 底部导航 tabbar；主 CTA 用 .btn（品牌实心），次操作 btn-plain',
+      '- 交付前检查：渐变主视觉 ✓ 彩色数字 ✓ 图卡 ✓ chips ✓ 图标无 emoji ✓',
+    ].join('\n'),
+  },
+  // ===== 以下为需求探测包（implemented=false：只记遥测不注入 prompt，落地时补 body 并置 true）=====
+  { key: 'ecommerce', category: 'ecommerce', implemented: false,
+    keywords: ['购物车', '加购', '下单', '订单', '优惠券', '秒杀', '电商', '商城', '商品', '店铺', 'sku', 'cart', 'checkout'] },
+  { key: 'o2o', category: 'o2o', implemented: false,
+    keywords: ['预订', '预约', '门店', '到店', '外卖', '配送', '骑手', '点餐', '排号', '取号', 'booking', '美团', '大众点评'] },
+  { key: 'content', category: 'content', implemented: false,
+    keywords: ['文章', '资讯', '视频', '信息流', 'feed', '帖子', '动态', '博客', '笔记', '内容社区'] },
+  { key: 'social', category: 'social', implemented: false,
+    keywords: ['聊天', '私信', '消息', '好友', '关注', '粉丝', '朋友圈', 'community', '社交'] },
+  { key: 'education', category: 'education', implemented: false,
+    keywords: ['课程', '排课', '考试', '题库', '学习', '作业', '打卡', 'course', 'exam'] },
+  { key: 'tool', category: 'tool', implemented: false,
+    keywords: ['计算器', '单位转换', '汇率', '天气', '指南', 'guide', '查询结果'] },
+  { key: 'enterprise', category: 'enterprise', implemented: false,
+    keywords: ['后台', '管理端', 'dashboard', '仪表盘', '审批', '工单', '任务', 'admin', 'erp', 'OA', '内部系统', '报表'] },
+];
+
+// 单包匹配：命中任一关键词且不命中任何负向词
+function packMatches(p, userPrompt) {
+  if (!userPrompt) return false;
+  if (p.negativeKeywords && p.negativeKeywords.some(k => userPrompt.includes(k))) return false;
+  return p.keywords.some(k => userPrompt.includes(k));
+}
+
+// 从需求描述检索应注入的场景包（仅 implemented 且命中）；无命中返回 []
+export function pickScenarioPacks(userPrompt) {
+  if (!userPrompt) return [];
+  return SCENARIO_PACKS.filter(p => p.implemented && packMatches(p, userPrompt));
+}
+
+// 需求分布探测：全部包（含未落地）的关键词命中，多标签，供遥测记品类需求（不落需求原文）
+export function detectSceneDemand(userPrompt) {
+  if (!userPrompt) return [];
+  return SCENARIO_PACKS.filter(p => packMatches(p, userPrompt)).map(p => p.key);
+}
+
+export function buildScenarioSection(packs) {
+  if (!packs.length) return '';
+  return packs.map(p => `## ${p.title}\n\n${p.body}`).join('\n\n');
+}
+
 // ===== 2B 模块化：Few-shot 动态检索 =====
 // 需求关键词 → page 模式（与模板「模式选择决策树」同源）
 const FEWSHOT_KEYWORDS = {
@@ -298,6 +371,9 @@ export function buildPrompt({ components = [], categories = null, userPrompt = '
   let out = tpl
     .replaceAll('<!-- {{{ WHITELIST_INJECTION_POINT }}} -->', wlSection)
     .replaceAll('<!-- {{{ COMPONENT_TABLE_INJECTION_POINT }}} -->', compSection);
+
+  // 场景包：按需求关键词注入（无命中替换为空串，防占位符残留）
+  out = out.replaceAll('<!-- {{{ SCENARIO_PACK_INJECTION_POINT }}} -->', buildScenarioSection(pickScenarioPacks(userPrompt)));
 
   // 动态检索 few-shot：显式 categories 优先，否则按 userPrompt 关键词自动选
   const cats = categories || (userPrompt ? pickCategories(userPrompt) : null);

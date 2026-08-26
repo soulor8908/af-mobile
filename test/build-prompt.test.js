@@ -12,6 +12,9 @@ import {
   buildComponentTableSection,
   pickCategories,
   filterFewshots,
+  pickScenarioPacks,
+  detectSceneDemand,
+  buildScenarioSection,
   buildPrompt,
 } from '../scripts/build-prompt.mjs';
 
@@ -314,5 +317,69 @@ describe('build-prompt / buildPrompt（Prompt 即 API）', () => {
     expect(p.startsWith('# 模型特化：Claude')).toBe(true);
     expect(p).toContain('## 项目 Token');
     expect(p).toContain('| `<af-list>` |');
+  });
+});
+
+describe('build-prompt / 场景包（P1-2 营销/首页 + 需求探测）', () => {
+  it('pickScenarioPacks 关键词命中营销场景包', () => {
+    const packs = pickScenarioPacks('咖啡点单首页，含推荐商品和分类');
+    expect(packs.map(p => p.key)).toContain('marketing');
+  });
+  it('空输入 / 无命中返回空数组', () => {
+    expect(pickScenarioPacks('')).toEqual([]);
+    expect(pickScenarioPacks('登录页')).toEqual([]);
+  });
+  it('buildScenarioSection 无命中返回空串', () => {
+    expect(buildScenarioSection([])).toBe('');
+  });
+  it('userPrompt 命中时注入场景包段（含 hero-grad/card-media 检查清单）', () => {
+    const p = buildPrompt({ userPrompt: '咖啡点单首页' });
+    expect(p).toContain('场景包：营销/首页（高视觉基准）');
+    expect(p).toContain('hero-grad');
+    expect(p).not.toContain('SCENARIO_PACK_INJECTION_POINT');
+  });
+  it('默认全量构建无场景包残留', () => {
+    const p = buildPrompt();
+    expect(p).not.toContain('场景包：营销/首页');
+    expect(p).not.toContain('SCENARIO_PACK_INJECTION_POINT');
+  });
+});
+
+describe('build-prompt / 场景包误命中防护（negativeKeywords）', () => {
+  it('企业后台/管理端的"首页"不注入营销高视觉场景包', () => {
+    const reqs = [
+      '企业后台首页 dashboard',
+      '内部管理端审批首页',
+      'OA 系统的工作台首页',
+      'admin 后台报表首页',
+    ];
+    for (const req of reqs) {
+      expect(pickScenarioPacks(req), req).toEqual([]);
+    }
+  });
+  it('纯消费场景的"首页"仍正常注入', () => {
+    expect(pickScenarioPacks('咖啡店品牌首页').map(p => p.key)).toEqual(['marketing']);
+  });
+});
+
+describe('build-prompt / detectSceneDemand（需求分布探测，喂遥测）', () => {
+  it('多标签：一次需求可命中多个品类（含未落地包）', () => {
+    const keys = detectSceneDemand('咖啡点单 App：门店预订 + 优惠券 + 点单首页');
+    expect(keys).toContain('marketing');
+    expect(keys).toContain('o2o');      // 预订/门店
+    expect(keys).toContain('ecommerce'); // 优惠券
+  });
+  it('未落地包也参与探测（品类需求先记数据，落地由分布驱动）', () => {
+    const keys = detectSceneDemand('在线课程学习打卡');
+    expect(keys).toEqual(['education']);
+  });
+  it('负向词同样拦截探测：企业后台需求记 enterprise 不记 marketing', () => {
+    const keys = detectSceneDemand('企业管理后台首页，工单审批');
+    expect(keys).toContain('enterprise');
+    expect(keys).not.toContain('marketing');
+  });
+  it('空输入 / 无命中返回空数组', () => {
+    expect(detectSceneDemand('')).toEqual([]);
+    expect(detectSceneDemand('一段完全无关的描述')).toEqual([]);
   });
 });

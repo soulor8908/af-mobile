@@ -451,6 +451,10 @@
   .tag-danger { background: var(--c-danger);  color: var(--c-onbrand); }
   /* v6 新增：plain 描边式标签（浅底场景弱强调，不与实心彩底争抢视觉层级） */
   .tag-plain  { background: transparent; color: var(--c-brand); border: 1px solid var(--c-brand); }
+  /* v1.6.1 新增：描边式语义色标签（规格胶囊/状态列表低饱和强调，同组互斥） */
+  .tag-plain-ok     { background: transparent; color: var(--c-success); border: 1px solid var(--c-success); }
+  .tag-plain-warn   { background: transparent; color: var(--c-onwarn);   border: 1px solid var(--c-warn); }
+  .tag-plain-danger { background: transparent; color: var(--c-danger);  border: 1px solid var(--c-danger); }
 
   /* v5：badge padding 5px → var(--s-1)（修魔数） */
   .badge {
@@ -925,13 +929,114 @@
                 color var(--dur-fast) var(--ease-out);
   }
   .seg-it[aria-selected="true"] {
-    background: var(--c-card);
-    color: var(--c-text);
+    background: var(--seg-it-bg, var(--c-card));
+    color: var(--seg-it-color, var(--c-text));
     font-weight: var(--fw-medium);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--seg-it-shadow, var(--shadow-sm));
   }
   .seg-it:active:not([aria-selected="true"]) { background: var(--c-border); }
   .seg-blk { display: flex; width: 100%; }
+  /* v1.6.1 新增：品牌色变体（电商规格/强调选择场景）：选中态浅品牌底 + 品牌字（--progress-color 同款变量派生模式） */
+  .seg-brand { --seg-it-bg: var(--c-brand-soft); --seg-it-color: var(--c-brand); --seg-it-shadow: none; }
+
+  /* === 主视觉（2） === */
+  /* v1.6.1 新增：消费级高视觉配方。hero-grad：品牌渐变主视觉区（自带浅字体系），
+     配 eyebrow / display / title / subtitle，白字对比度由派生 token 保证 */
+  .hero-grad {
+    position: relative;
+    padding: var(--s-6) var(--s-5);
+    background: linear-gradient(135deg, var(--c-brand), var(--c-brand-strong));
+    text-align: center;
+    border-radius: var(--r-l);
+    margin-bottom: var(--s-4);
+    overflow: hidden;
+    color: var(--c-onbrand);
+  }
+  .hero-grad::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--c-onbrand) 16%, transparent), transparent 60%);
+    pointer-events: none;
+  }
+  .hero-grad > * { position: relative; }
+  /* 渐变底上的文本层级覆盖（副级文字降不透明度保持层次） */
+  .hero-grad .eyebrow,
+  .hero-grad .subtitle,
+  .hero-grad .caption { color: color-mix(in srgb, var(--c-onbrand) 76%, transparent); }
+  .hero-grad .title,
+  .hero-grad .display { color: var(--c-onbrand); }
+  .hero-grad .body { color: color-mix(in srgb, var(--c-onbrand) 92%, transparent); }
+
+  /* 沉浸式透明导航：叠在大图头部上（父容器 position:relative + 大图 + nav-transparent 覆盖其上） */
+  .nav-transparent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-sticky);
+    background: transparent;
+    border-bottom: none;
+    color: var(--c-onbrand);
+  }
+
+  /* === 媒体卡（2） === */
+  /* v1.6.1 新增：card-media 全出血图卡（图片贴边），内容区用定向 padding 原子（px、py 系列）组合排版节奏 */
+  .card-media {
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-l);
+    overflow: hidden;
+  }
+  .card-media > img { width: 100%; display: block; object-fit: cover; }
+  /* card 投影变体：浮层/强调场景可选叠加（默认扁平基线不变） */
+  .card-shadow { box-shadow: var(--shadow-md); }
+
+  /* === 数据强调（2） === */
+  /* v1.6.1 新增：stat-num 大数字（配 stats-grid + text-* 上色）；price-lg 价格放大档（叠加 .price） */
+  .stat-num {
+    font-size: var(--t-xl);
+    font-weight: var(--fw-semibold);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--ls-display);
+  }
+  .price-lg { font-size: var(--t-xl); }
+
+  /* === 标签流（1） === */
+  /* v1.6.1 新增：chips 标签流容器（自动换行），配 .tag / .tag-plain 系（搜索历史/口味/筛选场景） */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+
+  /* === 指示器（3） === */
+  /* v1.6.1 新增：轮播圆点指示器（dot-on 为当前项），配 af-swiper / 自建图集 */
+  .dots {
+    display: flex;
+    justify-content: center;
+    gap: var(--s-1);
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--c-text) 18%, transparent);
+  }
+  .dot-on { background: var(--c-brand); }
+
+  /* === 图标底座（1） === */
+  /* v1.6.1 新增：分类图标底座（48px 浅品牌底圆角方），内嵌 24px stroke SVG，配 grid-2/grid-3 宫格 */
+  .icon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--r-m);
+    background: var(--c-brand-soft);
+    color: var(--c-brand);
+  }
 
   /* === Light DOM 组件宿主样式（替代 JS setProperty，遵守 wc-light-no-style） === */
   af-list, af-img, af-tabs, af-dropdown { display: block; }

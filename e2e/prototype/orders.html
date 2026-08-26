@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="../../src/index.css">
+<title>拾光咖啡 · 订单列表</title>
+</head>
+<body>
+<div class="page p-0">
+
+  <header class="navbar navbar-fixed">
+    <h1 class="title flex-1">我的订单</h1>
+    <button class="btn btn-ghost btn-sm">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      搜索订单
+    </button>
+  </header>
+
+  <div class="px-4 py-3 fc g-3">
+
+    <div class="seg seg-blk">
+      <button class="seg-it" aria-selected="true">全部</button>
+      <button class="seg-it">进行中</button>
+      <button class="seg-it">已完成</button>
+      <button class="seg-it">已取消</button>
+    </div>
+
+    <section class="card fc g-2">
+      <div class="f aic jcsb">
+        <span class="body t-m">拾光咖啡 · 静安店</span>
+        <span class="tag tag-warn">制作中</span>
+      </div>
+      <div class="f g-3 aic">
+        <img class="thumb" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Caramel%20macchiato%20in%20tall%20glass%20takeaway%20cup%2C%20product%20photography%2C%20clean%20background&image_size=square" alt="焦糖玛奇朵">
+        <div class="flex-1 fc g-1 min-w-0">
+          <span class="body">焦糖玛奇朵 × 2</span>
+          <span class="caption text-gray-7 ellipsis">大杯 · 标准糖 · 8 分钟前下单</span>
+          <div class="f aic jcsb">
+            <span class="price">¥64</span>
+            <button class="btn btn-mini btn-plain">查看进度</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card fc g-2">
+      <div class="f aic jcsb">
+        <span class="body t-m">拾光咖啡 · 静安店</span>
+        <span class="tag tag-ok">已完成</span>
+      </div>
+      <div class="f g-3 aic">
+        <img class="thumb" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Iced%20americano%20takeaway%20cup%20with%20condensation%2C%20product%20photography%2C%20clean%20background&image_size=square" alt="冰美式">
+        <div class="flex-1 fc g-1 min-w-0">
+          <span class="body">冰美式 × 1 · 可颂 × 1</span>
+          <span class="caption text-gray-7 ellipsis">昨天 14:32 · 自取</span>
+          <div class="f aic jcsb">
+            <span class="price">¥36</span>
+            <button class="btn btn-mini btn-plain">再来一单</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card fc g-2">
+      <div class="f aic jcsb">
+        <span class="body t-m">拾光咖啡 · 徐汇店</span>
+        <span class="tag tag-ok">已完成</span>
+      </div>
+      <div class="f g-3 aic">
+        <img class="thumb" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Matcha%20latte%20takeaway%20cup%2C%20soft%20green%20tone%2C%20product%20photography%2C%20clean%20background&image_size=square" alt="抹茶拿铁">
+        <div class="flex-1 fc g-1 min-w-0">
+          <span class="body">抹茶拿铁 × 2</span>
+          <span class="caption text-gray-7 ellipsis">8 月 24 日 · 外送</span>
+          <div class="f aic jcsb">
+            <span class="price">¥52</span>
+            <button class="btn btn-mini btn-plain">再来一单</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card fc g-2">
+      <div class="f aic jcsb">
+        <span class="body t-m">拾光咖啡 · 徐汇店</span>
+        <span class="tag tag-danger">已取消</span>
+      </div>
+      <div class="f g-3 aic">
+        <img class="thumb" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Croissant%20on%20paper%20bag%2C%20bakery%20product%20photography%2C%20clean%20background&image_size=square" alt="可颂套餐">
+        <div class="flex-1 fc g-1 min-w-0">
+          <span class="body">可颂套餐 × 1</span>
+          <span class="caption text-gray-7 ellipsis">8 月 22 日 · 已退款</span>
+          <div class="f aic jcsb">
+            <span class="price">¥32</span>
+            <button class="btn btn-mini btn-ghost">删除记录</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="empty">
+      <span class="caption">仅展示近 30 天订单</span>
+    </div>
+  </div>
+
+  <nav class="tabbar tabbar-fixed">
+    <button class="tab-item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V10z"/></svg>
+      首页
+    </button>
+    <button class="tab-item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+      点单
+    </button>
+    <button class="tab-item" aria-selected="true">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6h6M8 6V4h8v2M7 6l1 14h8l1-14"/></svg>
+      订单
+    </button>
+    <button class="tab-item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+      我的
+    </button>
+  </nav>
+
+  <div style="height:66px"></div>
+</div>
+</body>
+</html>

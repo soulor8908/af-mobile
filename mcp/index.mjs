@@ -108,6 +108,18 @@ function recordMcpRun(file, passed, messages) {
 }
 
 export async function getPrompt({ prompt, promptMode = 'tailored' }) {
+  // 需求分布遥测（kind='prompt'）：只记命中的场景包 key（封闭集），不落需求原文（隐私红线）
+  // 数据用途：flywheel 报告的"场景需求分布"——决定场景包落地优先级的数据来源
+  const { detectSceneDemand } = await import('../scripts/build-prompt.mjs');
+  recordRun({
+    source: 'mcp',
+    tool: detectTool(),
+    file: '(get_prompt)',
+    kind: 'prompt',
+    passed: true,
+    violations: [],
+    scene: detectSceneDemand(prompt),
+  });
   if (promptMode === 'full') {
     const p = resolveAsset('prompt/system-prompt.md');
     const systemPrompt = existsSync(p)

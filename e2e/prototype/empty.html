@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="../../src/index.css">
+<title>拾光咖啡 · 订单（空态）</title>
+</head>
+<body>
+<div class="page p-0">
+
+  <header class="navbar navbar-fixed">
+    <button class="btn btn-ghost btn-sm">‹ 返回</button>
+    <span class="flex-1"></span>
+  </header>
+
+  <!-- 空态：page-empty 模式（icon + 主文案 + 次文案 + CTA） -->
+  <div class="page center fc g-3 p-4">
+    <span class="icon-badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 8h1a3 3 0 0 1 0 6h-1M3 8h14v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><path d="M7 2v3M11 2v3M15 2v3"/></svg></span>
+    <div class="fc aic g-1">
+      <span class="title">还没有订单</span>
+      <span class="body text-muted">下单第一杯，第二杯半价</span>
+    </div>
+    <a class="btn" href="index.html">去点单</a>
+  </div>
+
+  <nav class="tabbar tabbar-fixed">
+    <button class="tab-item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V10z"/></svg>
+      首页
+    </button>
+    <button class="tab-item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+      点单
+    </button>
+    <button class="tab-item" aria-selected="true">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6h6M8 6V4h8v2M7 6l1 14h8l1-14"/></svg>
+      订单
+    </button>
+    <button class="tab-item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+      我的
+    </button>
+  </nav>
+
+  <div style="height:66px"></div>
+</div>
+</body>
+</html>

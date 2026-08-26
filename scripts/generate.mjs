@@ -7,6 +7,7 @@ import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runAiFixLoop } from './ai-fix.mjs';
+import { recordRun, detectTool } from '../eval/telemetry.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CACHE_DIR = join(ROOT, '.cache/generate');
@@ -46,7 +47,7 @@ export async function generate(userPrompt, opts = {}) {
   mkdirSync(dirname(outputPath), { recursive: true });
 
   // 按需构建 system prompt：tailored 用 buildPrompt({ userPrompt }) 自动检索 few-shot + 组件 API
-  const { buildPrompt } = await import('./build-prompt.mjs');
+  const { buildPrompt, detectSceneDemand } = await import('./build-prompt.mjs');
   const { resolveAsset } = await import('./resolve-asset.mjs');
   const snapshot = resolveAsset('prompt/system-prompt.md');
   const systemPrompt = opts.promptMode === 'full'
@@ -54,6 +55,17 @@ export async function generate(userPrompt, opts = {}) {
         ? readFileSync(snapshot, 'utf8')
         : '(System Prompt 未构建，请先运行 npm run prompt)')
     : buildPrompt({ userPrompt });
+
+  // 需求分布遥测（kind='prompt'）：只记命中的场景包 key（封闭集），不落需求原文（隐私红线）
+  recordRun({
+    source: 'cli',
+    tool: detectTool(),
+    file: '(get_prompt)',
+    kind: 'prompt',
+    passed: true,
+    violations: [],
+    scene: detectSceneDemand(userPrompt),
+  });
 
   // Step 1: 调 LLM 生成首版
   let firstCode;

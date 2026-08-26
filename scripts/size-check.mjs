@@ -83,7 +83,7 @@ const SRC = join(ROOT, 'src');
 // v4.3 调整（支付组件对 af-number-keyboard + af-password-input，用户已确认）：
 //   total 20.4→23.0KB：新增 2 组件（30 组件 + 基类），预估 +2.5KB 含容差
 const BUDGET = {
-  css: 6.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径，v4.1 实测 ~5.6KB）
+  css: 7.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径；v1.6.1 上调 6.0→7.0：新增 40 个高视觉 class，用户已确认，实测 ~6.9KB）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
   total: 23.0,         // KB，30 组件 + 基类（v4.3：新增 af-number-keyboard/af-password-input，20.4 上调容纳）

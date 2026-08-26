@@ -99,9 +99,9 @@ describe('flywheel / analyze', () => {
 
   it('RULE_HINTS 缺口：高频（≥3）且无提示的规则入选', async () => {
     const events = [
-      ev('cli', 'unknown', [{ rule: 'af-mobile/no-register-all', message: 'x' }]),
-      ev('cli', 'unknown', [{ rule: 'af-mobile/no-register-all', message: 'x' }]),
-      ev('cli', 'unknown', [{ rule: 'af-mobile/no-register-all', message: 'x' }]),
+      ev('cli', 'unknown', [{ rule: 'af-mobile/future-rule', message: 'x' }]),
+      ev('cli', 'unknown', [{ rule: 'af-mobile/future-rule', message: 'x' }]),
+      ev('cli', 'unknown', [{ rule: 'af-mobile/future-rule', message: 'x' }]),
       // 有 hints 的规则不入选
       ev('cli', 'unknown', [
         { rule: 'af-mobile/no-inline-style', message: 'x' },
@@ -110,8 +110,38 @@ describe('flywheel / analyze', () => {
       ]),
     ];
     const a = await analyze(events);
-    expect(a.hintsGap).toContain('af-mobile/no-register-all');
+    expect(a.hintsGap).toContain('af-mobile/future-rule');
     expect(a.hintsGap).not.toContain('af-mobile/no-inline-style');
+  });
+
+  it('场景需求分布：kind=prompt 事件喂 sceneDemand，不掺水规则榜/收敛度', async () => {
+    const events = [
+      // 2 次 prompt 需求（多标签：marketing+o2o；单标签：ecommerce）
+      { ...ev('mcp', 'trae-code', []), kind: 'prompt', file: '(get_prompt)', scene: ['marketing', 'o2o'] },
+      { ...ev('cli', 'unknown', []), kind: 'prompt', file: '(get_prompt)', scene: ['ecommerce'] },
+      // 1 次 lint 违规
+      ev('mcp', 'trae-code', [{ rule: 'af-mobile/token-whitelist', message: 'x' }]),
+    ];
+    const a = await analyze(events);
+    // 总数含 prompt 事件，lint 计数分开
+    expect(a.total).toBe(3);
+    expect(a.lintTotal).toBe(1);
+    // 场景分布按命中计数降序
+    const demand = Object.fromEntries(a.sceneDemand.map(s => [s.key, s.count]));
+    expect(demand).toEqual({ marketing: 1, o2o: 1, ecommerce: 1 });
+    expect(a.sceneDemand[0].bySource).toBeTruthy();
+    // prompt 事件不计入收敛度（runs 只算 lint 的 1 次）
+    expect(a.convergence['trae-code']).toEqual({ runs: 1, passed: 0 });
+    // prompt 事件的 violations 不进规则榜
+    expect(a.perRule).toHaveLength(1);
+  });
+
+  it('旧事件（无 kind 字段）按 lint 处理，行为不变', async () => {
+    const events = [ev('mcp', 'trae-code', [])]; // 无 kind 字段
+    const a = await analyze(events);
+    expect(a.lintTotal).toBe(1);
+    expect(a.convergence['trae-code']).toEqual({ runs: 1, passed: 1 });
+    expect(a.sceneDemand).toEqual([]);
   });
 
   it('--since 过滤旧事件', async () => {
@@ -151,6 +181,19 @@ describe('flywheel / renderReport', () => {
       expect(md).toContain('白名单候选');
       expect(md).toContain('card-wrap');
       expect(md).toContain('收敛度');
+    });
+  });
+
+  it('含场景需求分布段（场景包落地优先级依据）', () => {
+    const events = [
+      { ...ev('mcp', 'trae-code', []), kind: 'prompt', file: '(get_prompt)', scene: ['o2o', 'marketing'] },
+      { ...ev('mcp', 'claude-code', []), kind: 'prompt', file: '(get_prompt)', scene: ['o2o'] },
+    ];
+    return analyze(events).then(a => {
+      const md = renderReport(a);
+      expect(md).toContain('场景需求分布');
+      expect(md).toContain('| o2o | 2 |');
+      expect(md).toContain('| marketing | 1 |');
     });
   });
 });

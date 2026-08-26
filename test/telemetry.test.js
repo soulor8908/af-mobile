@@ -46,6 +46,22 @@ describe('telemetry / recordRun + readTelemetry', () => {
     expect(events[0].violations).toHaveLength(0);
   });
 
+  it('默认 kind=lint；prompt 事件带 kind + scene（场景需求分布数据源）', () => {
+    recordRun({ source: 'mcp', file: 'a.html', passed: true, violations: [] });
+    recordRun({ source: 'mcp', file: '(get_prompt)', passed: true, violations: [], kind: 'prompt', scene: ['marketing', 'o2o'] });
+    const events = readTelemetry();
+    // 默认 lint
+    expect(events[0].kind).toBe('lint');
+    expect(events[0].scene).toBeUndefined();
+    // prompt 事件：kind + scene 落盘，violations 为空
+    expect(events[1].kind).toBe('prompt');
+    expect(events[1].scene).toEqual(['marketing', 'o2o']);
+    expect(events[1].violations).toHaveLength(0);
+    // scene 空数组不落字段（需求未命中任何场景包时记录最小事件）
+    recordRun({ source: 'cli', file: '(get_prompt)', passed: true, violations: [], kind: 'prompt', scene: [] });
+    expect(readTelemetry()[2].scene).toBeUndefined();
+  });
+
   it('坏行跳过不崩（AGENTS #6）', () => {
     appendFileSync(join(tmpDir, 'telemetry.jsonl'), '{broken json\n');
     recordRun({ source: 'cli', file: 'c.js', passed: false, violations: [{ rule: 'x', message: '' }] });

@@ -34,6 +34,12 @@ export function withBlockList(Base, tag) {
       return `<section class="card" role="group"${al}${liveAttr}>${head}${body}</section>`;
     }
 
+    // 子类可覆写的渲染钩子：列表容器 class（默认 .list 边框列表；网格类 Block 可改 'grid g-2'）
+    _listClass() { return 'list'; }
+
+    // 子类可覆写的渲染钩子：条目选择器（键盘导航/焦点管理用，须与 _renderItem 根元素匹配）
+    _itemSel() { return '.list-item[data-index]'; }
+
     _render() {
       if (this.loading) {
         this.setAttribute('aria-busy', 'true');
@@ -57,15 +63,15 @@ export function withBlockList(Base, tag) {
         return;
       }
       const rows = this.items.map((it, i) => this._renderItem(it, i)).join('');
-      this.innerHTML = this._wrap(`<div class="list" role="list" tabindex="0" data-role="list">${rows}</div>`, 'aria-live="polite"');
+      this.innerHTML = this._wrap(`<div class="${this._listClass()}" role="list" tabindex="0" data-role="list">${rows}</div>`, 'aria-live="polite"');
       this._listEl = this.$('[data-role="list"]');
-      this._itemEls = this.$$('.list-item[data-index]');
+      this._itemEls = this.$$(this._itemSel());
       this._bindItemClicks();
     }
 
     _bindItemClicks() {
       this._onClick = (e) => {
-        const row = e.target.closest('.list-item[data-index]');
+        const row = e.target.closest(this._itemSel());
         if (!row || row.hasAttribute('aria-disabled')) return;
         const idx = Number(row.dataset.index);
         this.emit(`${tag}:itemclick`, { index: idx, item: this.items[idx] });

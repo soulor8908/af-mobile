@@ -214,6 +214,54 @@ const COMPONENT_META = [
   { tag: 'af-chat', purpose: 'AI 对话容器，气泡流 + composer + 卡片（chat 子库）', props: 'session, messages, placeholder, busy', events: 'af-chat:send, af-chat:action, af-chat:confirm, af-chat:abort, af-chat:error' },
 ];
 
+// L3.5 Block 元数据（A/B 实验专用，blocks:true 时注入；默认 System Prompt 不含——见 l3.5-block-detailed-design.md 冻结声明）
+// 颗粒度约束：每 Block props ≤ 5、强制五态 + 键盘导航 + a11y（wc-block-* 规则保障）
+const BLOCK_META = [
+  { tag: 'af-product-grid', purpose: '商品网格/列表块（one-column 横排卡片 / two-column 两列网格），五态+键盘导航', props: 'variant(one-column/two-column), title, items, loading', events: 'af-product-grid:itemclick, af-product-grid:retry' },
+  { tag: 'af-order-list', purpose: '订单列表块（simple / detailed 含缩略图），五态+键盘导航', props: 'variant(simple/detailed), title, items, loading', events: 'af-order-list:itemclick, af-order-list:retry' },
+  { tag: 'af-auth-form', purpose: '登录/注册表单块（phone-code 验证码 / password 密码），内置校验+发送验证码倒计时', props: 'variant(phone-code/password), title, subtitle, submit-text, loading', events: 'af-auth-form:sendcode, af-auth-form:submit' },
+  { tag: 'af-product-card', purpose: '商品卡片列表块，五态 + 键盘导航', props: 'title, price, items, loading', events: 'af-product-card:itemclick, af-product-card:retry' },
+  { tag: 'af-setting-group', purpose: '设置分组列表块，五态 + with-switch/with-value 变体', props: 'variant, title, items, loading', events: 'af-setting-group:itemclick, af-setting-group:change, af-setting-group:retry' },
+];
+
+// Block 优先指引 + 用法示例（blocks:true 时追加在组件简表之后）
+function buildBlockSection(meta = BLOCK_META) {
+  const rows = meta.map((c) => `| \`<${c.tag}>\` | ${c.purpose} | ${c.props} | ${c.events} |`);
+  return [
+    '## L3.5 Block（业务积木，命中场景必须优先选用）',
+    '',
+    '下列高频业务区块已封装为 Block：五态（loading/error/empty/success/idle）、键盘导航、a11y 全部内置。',
+    '需求命中这些场景时**必须用 Block，禁止用 L2/L3 手拼等价结构**（结构完整性由 Block 构造保证）：',
+    '',
+    '| 标签 | 用途 | 核心属性 | 核心事件 |',
+    '|---|---|---|---|',
+    ...rows,
+    '',
+    '用法（items 是 JSON 数组属性，直接写在标签上）：',
+    '',
+    '```html',
+    '<script type="module">',
+    "  import { registerBlocks } from '/af-mobile-blocks.js';",
+    "  registerBlocks('af-product-grid'); // 或 registerBlocks() 注册全部",
+    '</script>',
+    '<af-product-grid title="热销商品" items=\'[',
+    '  {"img":"/a.jpg","title":"无线耳机","subtitle":"降噪","price":"¥199","priceDel":"¥299"},',
+    '  {"img":"/b.jpg","title":"充电宝","price":"¥99"}',
+    ']\'></af-product-grid>',
+    '```',
+    '',
+    '```javascript',
+    "// 事件接线（外层只管业务，不碰 Block 内部结构）",
+    "document.querySelector('af-product-grid').addEventListener('af-product-grid:itemclick', (e) => {",
+    '  const { index, item } = e.detail; // 跳详情等',
+    '});',
+    '```',
+    '',
+    '错误态用 `el.setError(err)`，重试经 `af-{block}:retry` 事件回流；loading 直接设 `el.loading = true`。',
+    '表单值不落属性：af-auth-form 提交时经 `af-auth-form:submit` 事件外发 `{ phone, code }` / `{ phone, password, confirm }`。',
+  ].join('\n');
+}
+
 // 生成 L3 组件简表 markdown（注入模板，替代硬编码表格，防与源码漂移）
 // components 非空时按需只生成指定组件行（组件 API 按需加载）
 export function buildComponentTableSection(meta = COMPONENT_META, components = []) {
@@ -359,14 +407,16 @@ export function filterFewshots(tpl, categories) {
 // buildPrompt({ components, categories }) = 显式指定组件表与 few-shot
 // buildPrompt({ model }) = 拼 prompt/models/{model}.md 模型特化头
 // buildPrompt({ theme }) = 注入项目 Token 段（数组=[名字...] 或 对象={名字: 值}）
-export function buildPrompt({ components = [], categories = null, userPrompt = '', projectRecipes = null, model = '', theme = null } = {}) {
+// buildPrompt({ blocks: true }) = 追加 L3.5 Block 表 + 优先指引（A/B 实验处理组专用，默认快照不含）
+export function buildPrompt({ components = [], categories = null, userPrompt = '', projectRecipes = null, model = '', theme = null, blocks = false } = {}) {
   const tpl = readFileSync(TEMPLATE, 'utf8');
   const wl = JSON.parse(readFileSync(WHITELIST, 'utf8'));
   const recipeGroups = extractGroupsFromCss(readFileSync(RECIPES_CSS, 'utf8'));
   const atomicGroups = extractGroupsFromCss(readFileSync(ATOMIC_CSS, 'utf8'));
 
   const wlSection = buildWhitelistSection(wl, recipeGroups, atomicGroups);
-  const compSection = buildComponentTableSection(COMPONENT_META, components);
+  let compSection = buildComponentTableSection(COMPONENT_META, components);
+  if (blocks) compSection += '\n\n' + buildBlockSection();
 
   let out = tpl
     .replaceAll('<!-- {{{ WHITELIST_INJECTION_POINT }}} -->', wlSection)

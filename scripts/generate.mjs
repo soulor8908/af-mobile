@@ -41,6 +41,7 @@ function stripCodeFence(text) {
 // 端到端生成闭环
 // 输入：需求描述字符串 + { outputPath, promptMode }
 // promptMode: 'full'（全量，读 system-prompt.md 快照）| 'tailored'（buildPrompt 按需求裁剪，默认）
+//           | 'blocks'（tailored + L3.5 Block 表/优先指引，A/B 实验处理组）
 // 输出：{ ok, code, rounds, exitCode, lastErrors, outputPath }
 export async function generate(userPrompt, opts = {}) {
   const outputPath = opts.outputPath || join(CACHE_DIR, `gen-${Date.now()}.html`);
@@ -54,7 +55,7 @@ export async function generate(userPrompt, opts = {}) {
     ? (existsSync(snapshot)
         ? readFileSync(snapshot, 'utf8')
         : '(System Prompt 未构建，请先运行 npm run prompt)')
-    : buildPrompt({ userPrompt });
+    : buildPrompt({ userPrompt, blocks: opts.promptMode === 'blocks' });
 
   // 需求分布遥测（kind='prompt'）：只记命中的场景包 key（封闭集），不落需求原文（隐私红线）
   recordRun({

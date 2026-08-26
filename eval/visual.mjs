@@ -25,6 +25,9 @@ const ROUTES = {
 // 使 af-* 元素在页面脚本执行前 upgrade，属性 setter 才能生效。
 const WRAP_MOD = (name) => `import * as m from '${name}';try{await Promise.all((m.REGISTRY||[]).map(([tag])=>m.register(tag)))}catch(e){console.error('af-mobile register',e)}export * from '${name}';`;
 
+// /af-mobile-blocks.js 的包装模块：注册全部 L3.5 Block 后 re-export（Block 版生成页用）
+const BLOCK_WRAP_MOD = (name) => `import * as m from '${name}';try{m.registerBlocks()}catch(e){console.error('af-mobile registerBlocks',e)}export * from '${name}';`;
+
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -64,6 +67,11 @@ export function startServer(port = 0) {
       // /af-mobile.js：返回同步注册组件的包装模块（见 WRAP_MOD）
       if (url.pathname.split('?')[0] === '/af-mobile.js') {
         res.end(WRAP_MOD('/index.js'));
+        return;
+      }
+      // /af-mobile-blocks.js：返回注册全部 Block 的包装模块（见 BLOCK_WRAP_MOD）
+      if (url.pathname.split('?')[0] === '/af-mobile-blocks.js') {
+        res.end(BLOCK_WRAP_MOD('/blocks.js'));
         return;
       }
       res.end(readFileSync(file));

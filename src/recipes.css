@@ -1066,6 +1066,10 @@
   af-img:not(.thumb):not(.avatar) img,
   af-img:not(.thumb):not(.avatar) [data-role="placeholder"] { height: auto; aspect-ratio: 1 / 1; }
   af-img [data-role="error"] { width: 100%; height: 100%; }
+  /* af-product-grid（L3.5 Block）：两列网格变体。元素+data 属性选择器，不新增白名单 class */
+  af-product-grid[data-variant="two-column"] [data-role="list"] { grid-template-columns: 1fr 1fr; }
+  af-product-grid .thumb { width: 96px; height: 96px; border-radius: var(--r-s); object-fit: cover; flex: none; }
+  af-product-grid[data-variant="two-column"] .thumb { width: 100%; height: auto; aspect-ratio: 1 / 1; }
   af-backtop {
     display: block; position: fixed; z-index: var(--z-dropdown);
     bottom: calc(var(--s-4) + env(safe-area-inset-bottom));

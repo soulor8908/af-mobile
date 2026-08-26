@@ -35,6 +35,12 @@
       "types": "./src/chat/index.d.ts",
       "default": "./src/chat/index.js"
     },
+    "./blocks": {
+      "import": "./src/blocks/index.js",
+      "types": "./src/blocks/index.d.ts",
+      "default": "./src/blocks/index.js"
+    },
+    "./blocks/*": "./src/blocks/*",
     "./css": "./src/index.css",
     "./af-mobile.css": "./src/index.css",
     "./tokens.css": "./src/tokens.css",
@@ -44,7 +50,9 @@
     "./components/*": "./src/components/*",
     "./lib/*": "./src/lib/*",
     "./dist": "./dist/index.js",
-    "./dist/css": "./dist/index.css"
+    "./dist/css": "./dist/index.css",
+    "./dist/components.css": "./dist/components.css",
+    "./dist/blocks": "./dist/blocks.js"
   },
   "bin": {
     "af-mobile": "./scripts/af-mobile.mjs"

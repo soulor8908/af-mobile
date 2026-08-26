@@ -105,6 +105,13 @@ const BUDGET = {
   // k 渲染层（src/k，独立入口 @af-mobile/ui/k，不计入主库 total）：html`` 声明式模板 + 细粒度响应式绑定
   // 响应式核心复用 lib/state.js（external 共享，不重复计费）；实测 1.399KB，与 chat 内核同量级
   kRuntime: 2.0,       // KB，html``+Show/For/Switch+render/clean（B3 实验：代码量 -23%，会话成本 -24%）
+  // blocks 子库（src/blocks，独立入口 @af-mobile/ui/blocks，不计入主库 total）：L3.5 业务积木
+  // A/B 实验期 5 个（product-grid/order-list/auth-form/product-card/setting-group）；
+  // 基类/i18n 与主库共享 external。auth-form 为最复杂 Block（双 variant+校验+倒计时+28 条双语文典），
+  // 实测字典占 ~0.6KB 为 gzip 地板，单 Block 上限取 2.1KB（设计文档 §9.1"复杂 Block 可至 2KB"+字典容差）
+  blocksBase: 2.0,         // KB，list-block 共享基座（五态机 + 键盘导航 + 点击委托）
+  blocksPerComponent: 2.1, // KB，单 Block（auth-form 实测 2.010KB，字典地板）
+  blocksTotal: 12.0,       // KB，5 Block + 基座 + 入口（设计文档 42 Block 全量 ≤ 15KB 的实验期子集预算）
 };
 
 const KB = 1024;
@@ -435,6 +442,31 @@ async function main() {
   const kOver = kGz > BUDGET.kRuntime * KB;
   console.log(`k 渲染层（html模板+控制流）  ${fmt(kGz).padStart(10)}  预算 ≤ ${BUDGET.kRuntime}KB  ${kOver ? '✗ 超限' : '✓'}`);
   if (kOver) violations.push(`k 渲染层 ${fmt(kGz)} > ${BUDGET.kRuntime}KB`);
+
+  // blocks 子库（独立入口 ./blocks，不计入主库 total）：基类/i18n external 共享，基座单测
+  console.log('\n── blocks 子库（@af-mobile/ui/blocks，独立预算）──');
+  const blocksLibExternal = ['../lib/af-element.js', '../lib/with-i18n.js', '../lib/i18n.js'];
+  const { gz: blocksBaseGz } = await minifyGz(join(SRC, 'blocks/list-block.js'), blocksLibExternal);
+  const blocksBaseOver = blocksBaseGz > BUDGET.blocksBase * KB;
+  console.log(`list-block 基座     ${fmt(blocksBaseGz).padStart(10)}  预算 ≤ ${BUDGET.blocksBase}KB  ${blocksBaseOver ? '✗ 超限' : '✓'}`);
+  if (blocksBaseOver) violations.push(`blocks 基座 ${fmt(blocksBaseGz)} > ${BUDGET.blocksBase}KB`);
+  const blocksComps = readdirSync(join(SRC, 'blocks')).filter(f => /^af-.*\.js$/.test(f)).sort();
+  for (const f of blocksComps) {
+    const { gz } = await minifyGz(join(SRC, 'blocks', f), [...blocksLibExternal, './list-block.js']);
+    const over = gz > BUDGET.blocksPerComponent * KB;
+    console.log(`  ${f.padEnd(22)} ${fmt(gz).padStart(9)}  预算 ≤ ${BUDGET.blocksPerComponent}KB  ${over ? '✗ 超限' : '✓'}`);
+    if (over) violations.push(`blocks/${f} ${fmt(gz)} > ${BUDGET.blocksPerComponent}KB`);
+  }
+  const blocksTotalRes = await build({
+    entryPoints: [join(SRC, 'blocks/index.js')],
+    bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+    absWorkingDir: ROOT,
+    external: blocksLibExternal,
+  });
+  const blocksTotalGz = gzipSync(Buffer.from(blocksTotalRes.outputFiles[0].text)).length;
+  const blocksTotalOver = blocksTotalGz > BUDGET.blocksTotal * KB;
+  console.log(`blocks 全量（${blocksComps.length} Block+基座）${fmt(blocksTotalGz).padStart(9)}  预算 ≤ ${BUDGET.blocksTotal}KB  ${blocksTotalOver ? '✗ 超限' : '✓'}`);
+  if (blocksTotalOver) violations.push(`blocks 全量 ${fmt(blocksTotalGz)} > ${BUDGET.blocksTotal}KB`);
 
   // 汇总
   console.log('\n──────────────────────────────────────────────────────────');

@@ -44,7 +44,8 @@ export async function lintAndHarvest(inputs, opts = {}) {
   if (files.length === 0) return { byFile: [], exitCode: 0, linted: 0 };
 
   // HTML 抽 script + 整体嵌入（与 ai-fix 同策略）；JS/MJS 直接读
-  rmSync(TMP_DIR, { recursive: true, force: true });
+  // 清理 best-effort：沙箱 shim 下 rmSync 可能失败，TMP_DIR 内容随后被覆盖写入，无需强删
+  try { rmSync(TMP_DIR, { recursive: true, force: true }); } catch { /* 同 finally 策略 */ }
   mkdirSync(TMP_DIR, { recursive: true });
   const snippets = files.map((f, i) => {
     const ext = extname(f).toLowerCase();
@@ -64,7 +65,8 @@ export async function lintAndHarvest(inputs, opts = {}) {
   try {
     results = await engine.lintFiles(snippets.map(target));
   } finally {
-    rmSync(TMP_DIR, { recursive: true, force: true });
+    // 清理 best-effort：沙箱环境（WorkBuddy safe-delete shim）删临时目录可能失败，残留由 .cache/ 兜底
+    try { rmSync(TMP_DIR, { recursive: true, force: true }); } catch { /* 与 ai-fix.mjs runEslint 同策略 */ }
   }
   const bySnippet = new Map(results.map(r => [r.filePath, r]));
 

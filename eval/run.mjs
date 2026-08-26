@@ -5,7 +5,9 @@
 //   AFMOBILE_AI_API_URL=... node eval/run.mjs                    # 跑全部
 //   AFMOBILE_AI_API_URL=... node eval/run.mjs --limit 5          # 只跑前 5 条
 //   AFMOBILE_AI_API_URL=... node eval/run.mjs --category list    # 只跑某类
+//   AFMOBILE_AI_API_URL=... node eval/run.mjs --ids 001,002      # 只跑指定 id
 //   AFMOBILE_AI_API_URL=... node eval/run.mjs --pass-k 3         # pass@k（每条跑 k 次取最优）
+//   AFMOBILE_AI_API_URL=... node eval/run.mjs --variant blocks   # A/B 处理组（Block 版 prompt）
 //   node eval/run.mjs --dry-run                                # 不调 LLM，只验证 prompts.jsonl 格式
 //   node eval/run.mjs --resume                                  # 断点续跑：加载 raw.json 已完成的，只补缺失项
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -16,10 +18,9 @@ import { generate } from '../scripts/generate.mjs';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PROMPTS_PATH = join(ROOT, 'eval/prompts.jsonl');
 const RESULTS_DIR = join(ROOT, 'eval/results');
-const CACHE_PATH = join(RESULTS_DIR, 'raw.json'); // 固定名增量缓存，断点续跑用
 
 // 读 prompts.jsonl
-function loadPrompts() {
+export function loadPrompts() {
   const lines = readFileSync(PROMPTS_PATH, 'utf8').split('\n').filter(l => l.trim());
   return lines.map((line, i) => {
     const obj = JSON.parse(line);
@@ -34,10 +35,10 @@ function loadPrompts() {
 }
 
 // 单条 eval 运行：生成 + ai-fix 闭环
-async function runOne(item, passK = 1, promptMode = 'tailored') {
+export async function runOne(item, passK = 1, promptMode = 'tailored', variant = 'current') {
   const attempts = [];
   for (let k = 0; k < passK; k++) {
-    const outputPath = join(RESULTS_DIR, `${item.id}-k${k}.html`);
+    const outputPath = join(RESULTS_DIR, `${item.id}-k${k}-${variant}.html`);
     const result = await generate(item.prompt, { outputPath, promptMode });
     attempts.push({
       ok: result.ok,
@@ -60,18 +61,22 @@ async function main() {
   const args = process.argv.slice(2);
   let limit = 0;
   let category = '';
+  let ids = [];
   let passK = 1;
   let dryRun = false;
-  let promptMode = 'tailored';
+  let variant = 'current'; // current（现行 prompt）| blocks（Block 版 prompt，A/B 处理组）
   let resume = false;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--limit') limit = parseInt(args[++i]);
     else if (args[i] === '--category') category = args[++i];
+    else if (args[i] === '--ids') ids = args[++i].split(',').filter(Boolean);
     else if (args[i] === '--pass-k') passK = parseInt(args[++i]);
-    else if (args[i] === '--prompt') promptMode = args[++i] === 'full' ? 'full' : 'tailored';
+    else if (args[i] === '--variant') variant = args[++i] === 'blocks' ? 'blocks' : 'current';
     else if (args[i] === '--dry-run') dryRun = true;
     else if (args[i] === '--resume') resume = true;
   }
+  const promptMode = variant === 'blocks' ? 'blocks' : 'tailored';
+  const CACHE_PATH = join(RESULTS_DIR, variant === 'blocks' ? 'raw-blocks.json' : 'raw.json');
 
   const prompts = loadPrompts();
   console.error(`✓ 加载 ${prompts.length} 条 eval prompt`);
@@ -87,7 +92,8 @@ async function main() {
     process.exit(2);
   }
 
-  const filtered = prompts.filter(p => !category || p.category === category);
+  const filtered = prompts.filter(p =>
+    (!category || p.category === category) && (!ids.length || ids.includes(p.id)));
   const target = limit > 0 ? filtered.slice(0, limit) : filtered;
 
   mkdirSync(RESULTS_DIR, { recursive: true });
@@ -97,16 +103,16 @@ async function main() {
   if (resume && existsSync(CACHE_PATH)) {
     try {
       for (const r of JSON.parse(readFileSync(CACHE_PATH, 'utf8'))) done.set(r.id, r);
-    } catch { console.error('⚠ 缓存 raw.json 解析失败，忽略'); }
+    } catch { console.error('⚠ 缓存解析失败，忽略'); }
     console.error(`✓ 续跑：已缓存 ${done.size} 条，跳过已完成的`);
   }
   const remaining = target.filter(item => !done.has(item.id));
-  console.error(`▶ 运行 ${remaining.length} 条（pass@${passK}，prompt=${promptMode}）...`);
+  console.error(`▶ 运行 ${remaining.length} 条（variant=${variant}，pass@${passK}，prompt=${promptMode}）...`);
 
   const results = [];
   for (const item of remaining) {
     process.stderr.write(`  [${item.id}] ${item.category} ... `);
-    const r = await runOne(item, passK, promptMode);
+    const r = await runOne(item, passK, promptMode, variant);
     // 每条即落盘到增量缓存，中断不丢已完成的
     done.set(item.id, r);
     writeFileSync(CACHE_PATH, JSON.stringify([...done.values()], null, 2));
@@ -117,21 +123,22 @@ async function main() {
 
   // 写原始结果
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
-  const rawPath = join(RESULTS_DIR, `raw-${ts}.json`);
+  const rawPath = join(RESULTS_DIR, `raw-${variant}-${ts}.json`);
   writeFileSync(rawPath, JSON.stringify(allResults, null, 2));
   console.error(`\n✓ 原始结果 → ${rawPath}`);
 
   // 调 judge 聚合（lint + 视觉：渲染截图 + LLM 评审）
   const { fullJudge } = await import('./judge.mjs');
   const report = await fullJudge(allResults, { passK });
-  const reportPath = join(RESULTS_DIR, `report-${ts}.json`);
+  report.variant = variant;
+  const reportPath = join(RESULTS_DIR, `report-${variant}-${ts}.json`);
   writeFileSync(reportPath, JSON.stringify(report, null, 2));
   console.error(`✓ 聚合报告 → ${reportPath}`);
 
   // 控制台摘要
   console.error('\n════════════════════════════════════════════');
-  console.error(`lint pass@${passK}: ${report.lintPassRate} (${report.lintPassed}/${report.total})`);
-  console.error(`视觉 pass@${passK}: ${report.visualPassRate} (${report.visualPassed}/${report.total})`);
+  console.error(`[variant=${variant}] lint pass@${passK}: ${report.lintPassRate} (${report.lintPassed}/${report.total})`);
+  console.error(`[variant=${variant}] 视觉 pass@${passK}: ${report.visualPassRate} (${report.visualPassed}/${report.total})`);
   console.error(`平均轮数: ${report.avgRounds}`);
   console.error('\n按规则聚合失败率:');
   for (const [rule, n] of Object.entries(report.errorsByRule).sort((a, b) => b[1] - a[1])) {
@@ -150,4 +157,5 @@ async function main() {
   console.error('════════════════════════════════════════════');
 }
 
-main().catch(e => { console.error(e); process.exit(2); });
+const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMain) main().catch(e => { console.error(e); process.exit(2); });

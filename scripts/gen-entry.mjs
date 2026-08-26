@@ -51,9 +51,9 @@ const LAZY = {
 ${comps.map((c) => `  '${c.tag}': L('${base}/${c.file}', '${c.cls}'),`).join('\n')}
 };`;
 
-// charts CHART_TAGS：标签 → 类映射（registerChart 用）
-const renderTags = (comps) => `// 标签 → 类映射（registerChart 用）
-export const CHART_TAGS = {
+// charts CHART_TAGS / blocks BLOCK_TAGS：标签 → 类映射（注册器用），导出名由 target.tagsVar 指定
+const renderTags = (comps, t) => `// 标签 → 类映射（${t.registerFn} 用）
+export const ${t.tagsVar} = {
 ${comps.map((c) => `  '${c.tag}': ${c.cls},`).join('\n')}
 };`;
 
@@ -78,6 +78,21 @@ export const TARGETS = [
     dir: 'src/charts/components',
     base: './components',
     exclude: [],
+    tagsVar: 'CHART_TAGS',
+    registerFn: 'registerChart',
+    regions: {
+      entry: (c, t) => renderEntry(c, t.base),
+      tags: renderTags,
+    },
+  },
+  {
+    label: 'blocks',
+    file: 'src/blocks/index.js',
+    dir: 'src/blocks',
+    base: '.',
+    exclude: [],
+    tagsVar: 'BLOCK_TAGS',
+    registerFn: 'registerBlocks',
     regions: {
       entry: (c, t) => renderEntry(c, t.base),
       tags: renderTags,

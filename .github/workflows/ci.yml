@@ -58,6 +58,14 @@ jobs:
       - name: i18n sync (refs ↔ dictionaries)
         run: npm run i18n:check
 
+      # Step 1g: tokens 双源同步（tokens.json ↔ tokens.css）
+      - name: Tokens sync (json ↔ css)
+        run: npm run tokens:check
+
+      # Step 1h: 入口生成幂等校验（src/index.js ↔ src/components/，防新组件漏注册导出）
+      - name: Entry sync (index.js ↔ components)
+        run: npm run entry:check
+
       # Step 2: 体积检查（L1+L2 CSS + L3 JS）
       - name: Size budget check
         run: npm run size
@@ -79,9 +87,9 @@ jobs:
       # Lighthouse 在共享 runner 上耗时长且结果受负载影响，不适合作为 PR 阻断闸门
 
       # Step 4: ESLint 规则闸门（消费端 AI_RULES 21 条 / 库源码 COMPONENT_RULES，分目录生效）—— error 级直接阻断 PR
-      # 范围覆盖全部含 JS 的目录（含 eslint-plugin-af-mobile 工作区与 .mjs，AGENTS.md #9）
+      # 范围覆盖全部含 JS 的目录（含 e2e spec / prompt CLI / eslint-plugin-af-mobile 工作区与 .mjs，AGENTS.md #9）
       - name: ESLint check
-        run: npx eslint src/ test/ scripts/ eval/ mcp/ eslint-plugin-af-mobile/ adapters/ starter/src/ --max-warnings 0
+        run: npx eslint src/ test/ scripts/ e2e/ prompt/ eval/ mcp/ eslint-plugin-af-mobile/ adapters/ starter/src/ --max-warnings 0
 
       # Step 4b: 数据飞轮采集 + 分析 + 报告 artifact（不阻断；lint 闸门已由上一步保证）
       # demo/ 不在 ESLint 闸门范围内，是真实违规信号来源；闸门目录贡献干净运行记录。

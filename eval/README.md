@@ -74,6 +74,25 @@ node eval/flywheel.mjs eval/results/raw.json --threshold 10
 
 阈值默认 20%（`>=`），可用 `--threshold` 调整。
 
+## Agent 模式（生评分离，0 API key 依赖）
+
+生成器与评审器解耦：judge/flywheel 只消费 `raw.json` + HTML，生成可由任何 agent（WorkBuddy / Trae 等）执行，无需 `AFMOBILE_AI_API_URL`。
+
+```bash
+# 1. 输出任务清单（JSON），agent 按 outputPath 生成页面
+node eval/agent-run.mjs --emit --limit 5 --variant agent-x
+
+# 2. agent 生成后自检 + 自修（纯程序，0 token，exit 1 = 有 error）
+node eval/agent-run.mjs --lint eval/results/001-k0-agent-x.html
+
+# 3. 权威重跑 lint + 组装 raw.json，接回原管道
+node eval/agent-run.mjs --collect --variant agent-x
+node eval/judge.mjs eval/results/raw-agent-x.json --visual
+node eval/flywheel.mjs eval/results/raw-agent-x.json
+```
+
+约定：文件命名 `<id>-k<k>-<variant>.html`（与 run.mjs 一致）；variant 建议 `agent-<模型>` 存档（如 `agent-kimi`），pass 率跨生成器不可直接比。exitCode 沿用 ai-fix 约定：0=通过，1=lint 失败，3=异常。
+
 ## 前置
 
 - Playwright chromium：`npx playwright install chromium && npx playwright install-deps chromium`

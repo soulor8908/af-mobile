@@ -103,7 +103,7 @@
 
 **#9 CI 的 ESLint 范围必须覆盖所有含 JS 的目录**
 - 反模式：`npx eslint src/` 漏掉 test/ 和 scripts/，导致测试/脚本中的违规不被检测
-- 正确做法：`npx eslint src/ test/ scripts/ --max-warnings 0`
+- 正确做法：`npx eslint src/ test/ scripts/ e2e/ prompt/ eval/ mcp/ eslint-plugin-af-mobile/ adapters/ starter/src/ --max-warnings 0`
 - 适用范围：修改 `.github/workflows/ci.yml` 的 ESLint 步骤时
 
 **#10 布尔属性 setter 为 false 时必须 removeAttribute**
@@ -119,7 +119,7 @@
 
 ```bash
 # 1. ESLint（全目录，0 warning 0 error）
-npx eslint src/ test/ scripts/ --max-warnings 0
+npx eslint src/ test/ scripts/ e2e/ prompt/ eval/ mcp/ eslint-plugin-af-mobile/ adapters/ starter/src/ --max-warnings 0
 
 # 2. 单元测试（全绿）
 npx vitest run

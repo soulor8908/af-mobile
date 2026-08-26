@@ -57,7 +57,9 @@ export async function runEslint(code, opts = {}) {
   try {
     results = await engine.lintFiles([jsPath]);
   } finally {
-    rmSync(dir, { recursive: true, force: true });
+    // 清理是 best-effort：沙箱环境（如 WorkBuddy safe-delete 把 rmSync  shim 成 trash）
+    // 删临时目录可能失败，但 .cache/ 已 gitignore，残留无害，不应让清理失败淹没 lint 结果
+    try { rmSync(dir, { recursive: true, force: true }); } catch { /* 残留临时目录由 .cache/ 兜底 */ }
   }
   const messages = results.flatMap(r => r.messages.map(m => ({
     file: r.filePath,

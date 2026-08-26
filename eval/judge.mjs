@@ -145,8 +145,8 @@ export async function fullJudge(results, opts = {}) {
   return { ...lint, ...visual, byCategory };
 }
 
-// CLI 独立调用
-const isMain = process.argv[1] && import.meta.url === `file://${process.argv[1]}`;
+// CLI 独立调用（Windows 兼容：与 run.mjs 同款判定，import.meta.url 与 argv[1] 分隔符/盘符差异归一化）
+const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   const args = process.argv.slice(2);
   const file = args.find(a => !a.startsWith('--'));

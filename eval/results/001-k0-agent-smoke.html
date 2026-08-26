@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>商品列表</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <div class="page">
+    <div class="card">
+      <div class="f g-3 aic">
+        <img class="avatar r-m" src="https://placehold.co/96x96" alt="商品图">
+        <div class="fc g-1 flex-1">
+          <div class="title">云境咖啡豆 200g</div>
+          <div class="subtitle">中度烘焙 · 坚果风味</div>
+          <div class="f aic g-2">
+            <span class="price">¥39.90</span>
+            <span class="price-del">¥59.00</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-block m-3" type="button">加入购物车</button>
+    </div>
+  </div>
+  <script type="module">
+    import { register } from '../../src/index.js';
+    register('af-toast');
+    const btn = document.querySelector('.btn');
+    btn.addEventListener('click', () => {
+      const toast = document.createElement('af-toast');
+      document.body.appendChild(toast);
+    });
+  </script>
+</body>
+</html>

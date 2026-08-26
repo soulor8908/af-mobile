@@ -38,6 +38,8 @@ const main = cmp3('main', 'src/components', 'src/index.js', 'src/index.d.ts', ['
 const charts = cmp3('charts', 'src/charts/components', 'src/charts/index.js', 'src/charts/index.d.ts');
 // chat 子库（af-chat 组件）
 const chat = cmp3('chat', 'src/chat/components', 'src/chat/index.js', 'src/chat/index.d.ts');
+// blocks 子库（L3.5 业务积木：af-product-card / af-setting-group）
+const blocks = cmp3('blocks', 'src/blocks', 'src/blocks/index.js', 'src/blocks/index.d.ts');
 
 if (problems.length) {
   console.error('✗ types-sync 失败（d.ts / index.js / src/components 三源不一致）:');
@@ -51,6 +53,9 @@ if (problems.length) {
   console.error(`  [chat]   components:     ${chat.srcClasses.length} (${chat.srcClasses.join(', ')})`);
   console.error(`  [chat]   index.js:       ${chat.imports.length} (${chat.imports.join(', ')})`);
   console.error(`  [chat]   index.d.ts:     ${chat.dts.length} (${chat.dts.join(', ')})`);
+  console.error(`  [blocks] components:     ${blocks.srcClasses.length} (${blocks.srcClasses.join(', ')})`);
+  console.error(`  [blocks] index.js:       ${blocks.imports.length} (${blocks.imports.join(', ')})`);
+  console.error(`  [blocks] index.d.ts:     ${blocks.dts.length} (${blocks.dts.join(', ')})`);
   process.exit(1);
 }
-console.log(`✓ types-sync: 三源一致，主库 ${main.srcClasses.length} + charts ${charts.srcClasses.length} + chat ${chat.srcClasses.length} 个组件类`);
+console.log(`✓ types-sync: 三源一致，主库 ${main.srcClasses.length} + charts ${charts.srcClasses.length} + chat ${chat.srcClasses.length} + blocks ${blocks.srcClasses.length} 个组件类`);

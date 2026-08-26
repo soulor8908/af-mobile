@@ -5,7 +5,8 @@ import afMobilePlugin from '@af-mobile/eslint-plugin';
 
 export default [
   {
-    ignores: ['node_modules/**'],
+    // dist 为构建产物（内嵌 prompt 机制源码字面量，非消费端代码），不参与 lint
+    ignores: ['node_modules/**', 'dist/**'],
   },
   {
     files: ['**/*.js', '**/*.mjs'],

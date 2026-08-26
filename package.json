@@ -75,6 +75,7 @@
     "whitelist": "node scripts/gen-whitelist.mjs",
     "whitelist:check": "node scripts/check-whitelist-sync.mjs",
     "aria:check": "node scripts/check-aria-sync.mjs",
+    "i18n:check": "node scripts/check-i18n.mjs",
     "tokens": "node scripts/gen-tokens.mjs",
     "tokens:check": "node scripts/check-tokens-sync.mjs",
     "prompt:check": "node scripts/check-prompt-sync.mjs",

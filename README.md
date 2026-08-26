@@ -2,14 +2,14 @@
 
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
 
-- **L1 Token**：88 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效，含 8 档灰阶，关键组合 WCAG AA 对比度由 CI 断言）
-- **L2 配方 + 原子**：185 个白名单封闭集 class（118 配方 + 67 原子，`btn`/`card`/`p-4`/...）
+- **L1 Token**：92 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效，含 8 档灰阶，关键组合 WCAG AA 对比度由 CI 断言）
+- **L2 配方 + 原子**：228 个白名单封闭集 class（136 配方 + 92 原子，`btn`/`card`/`p-4`/...）
 - **L3 真组件**：30 个原生 Custom Elements（`af-list`/`af-dialog`/`...`），ESM 命名导出 + Tree Shaking
-- **L4 AI 约束层**：System Prompt 引导 + ESLint 20 规则兜底 + CI 保护
+- **L4 AI 约束层**：System Prompt 引导 + ESLint 21 条规则兜底 + CI 保护
 
 ## 在线 Demo
 
-35 个核心/交互组件 + 5 个图表组件的可交互 demo，每个组件一页，含属性配置、事件演示与源码对照，覆盖核心组件、交互组件、图表组件与联动场景：
+30 个核心/交互组件 + 5 个图表组件的可交互 demo，每个组件一页，含属性配置、事件演示与源码对照，覆盖核心组件、交互组件、图表组件与联动场景：
 
 👉 **<https://soulor8908.github.io/af-mobile/demo/index.html>**
 
@@ -539,15 +539,20 @@ export default [
 
 ## CI 保护链路
 
-PR 触发 CI 7 步检查（任一失败即阻断合并）：
+PR 触发 CI 检查链路（任一失败即阻断合并）：
 
 | Step | 检查项 | 命令 |
 |---|---|---|
 | 1 | 白名单三源同步（CSS/JS ↔ whitelist.json ↔ Prompt 注入） | `npm run whitelist:check` |
 | 1b | d.ts 与源码组件数同步（防类型声明漂移） | `npm run types:check` |
+| 1c | Prompt 快照与运行时构建一致性（防 prompt 过期） | `npm run prompt:check` |
+| 1d | ARIA 要求同步（JSON 声明 ↔ 规则检测分支） | `npm run aria:check` |
+| 1e | Skill 文档代码块 API 漂移检查 | `npm run skill:check` |
+| 1f | i18n key 注册与 zh-CN ↔ en-US 字典对齐 | `npm run i18n:check` |
 | 2 | 体积预算（L1+L2 CSS ≤ 6.0KB / 全量 30 组件+基类 ≤ 23.0KB / 按需2组件 ≤ 6.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 2.0KB / 核心运行时 ≤ 6.8KB） | `npm run size` |
 | 3 | 单元测试（jsdom） | `npm test` |
-| 4 | ESLint 20 规则（13 error + 7 warn，warn 不阻断） | `npx eslint src/ --max-warnings 0` |
+| 3b | e2e 冒烟（Playwright：showModal/popover/scroll-snap/touch 等浏览器原生行为） | `npm run test:e2e` |
+| 4 | ESLint 规则闸门（消费端 AI_RULES 21 条：14 error + 7 warn；分目录生效） | `npx eslint src/ test/ scripts/ eval/ mcp/ eslint-plugin-af-mobile/ adapters/ starter/src/ --max-warnings 0` |
 | 5 | 发布前检查（build + Tree Shaking + sideEffects + types-sync + npm pack） | `npm run publish:check` |
 | 6 | eval 集格式闸门（校验 prompts.jsonl 结构） | `npm run eval:dry` |
 

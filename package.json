@@ -4,7 +4,11 @@
   "description": "Mobile-first Web Components library with L1/L2/L3 layered design system",
   "workspaces": [
     "eslint-plugin-af-mobile",
-    "create-af-mobile"
+    "create-af-mobile",
+    "mcp",
+    "prompt",
+    "adapters",
+    "tokens"
   ],
   "type": "module",
   "main": "./src/index.js",
@@ -81,6 +85,8 @@
     "prompt:check": "node scripts/check-prompt-sync.mjs",
     "skill:check": "node scripts/check-skill-exports.mjs",
     "types:check": "node scripts/check-types-sync.mjs",
+    "entry": "node scripts/gen-entry.mjs",
+    "entry:check": "node scripts/gen-entry.mjs --check",
     "prompt": "bash scripts/build-prompt.sh",
     "prompt:build": "node scripts/build-prompt.mjs -o prompt/system-prompt.md",
     "ai-fix": "node scripts/ai-fix.mjs",
@@ -91,11 +97,18 @@
     "pkg:assets": "node scripts/sync-pkg-assets.mjs",
     "build:mcp": "node scripts/build-mcp.mjs",
     "build:prompt": "node scripts/build-prompt-pkg.mjs",
+    "pub:mcp": "npm run build:mcp && npm publish --workspace=@af-mobile/mcp",
+    "pub:prompt": "npm run build:prompt && npm publish --workspace=@af-mobile/prompt",
+    "pub:tokens": "node scripts/build-tokens-pkg.mjs && npm publish --workspace=@af-mobile/tokens",
     "mcp": "node mcp/index.mjs",
     "eval": "node eval/run.mjs",
     "eval:dry": "node eval/run.mjs --dry-run",
     "eval:flywheel": "node eval/flywheel.mjs",
     "publish:check": "node scripts/publish-check.mjs",
+    "changeset": "changeset",
+    "changeset:check": "changeset status --since=main",
+    "version-packages": "changeset version",
+    "release": "changeset publish",
     "build": "node scripts/build.mjs",
     "prepublishOnly": "npm run build && npm run publish:check",
     "ci": "node scripts/check-contrast.mjs && vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs && node scripts/check-tokens-sync.mjs && node scripts/check-types-sync.mjs && node scripts/check-aria-sync.mjs",
@@ -116,6 +129,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@changesets/cli": "^3.0.1",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@playwright/test": "^1.62.1",
     "@vitest/coverage-v8": "^1.6.0",
@@ -128,5 +142,8 @@
     "vitepress": "^1.6.4",
     "vitest": "^1.6.0",
     "web-vitals": "^4.2.4"
+  },
+  "overrides": {
+    "@af-mobile/ui": "file:."
   }
 }

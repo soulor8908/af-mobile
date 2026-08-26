@@ -4,6 +4,16 @@
 
 > 早期版本（v1.0.0 ~ v1.3.x）未维护本文件，变更记录自 v1.4.0 起。
 
+## [Unreleased]
+
+### Added
+- **i18n 治理闸门**：`scripts/check-i18n.mjs` 静态扫描组件/blocks 的字典定义（messages 对象与 addMessages 两种形态）与引用，校验 key 已注册且 zh-CN ↔ en-US 对齐；npm script `i18n:check` + CI Step 1f（11 单测）
+
+### Changed
+- **监听器注册表防膨胀**：`AfElement._listen` 新增已挂载期死条目惰性回收与 `(target, type, handler, capture)` 去重，innerHTML 重渲染不再使登记表膨胀；`escapeHtml`/`html` 拆分至 `lib/html.js`（基类一行再导出，全部 import 路径兼容），基类 gzip 回落 1.969KB ≤ 2KB 预算
+- **blocks 五态渲染收敛**：新增 `list-block.js` 的 `withBlockList(Base, tag)` 工厂统一 loading/error(重试)/empty/success 骨架与列表键盘导航，af-product-card / af-setting-group 改为差异化渲染，净删约 150 行
+- **escapeHtml 转义结果缓存**：有界 Map（256 条满即清空、超 512 字符不入缓存防内存膨胀），html 模板插值与手动 esc() 共用单一咽喉点；列表重渲染热路径实测约 16x 加速（200 标签 ×51 轮基准），新增缓存命中/互不污染行为测试 ×2
+
 ## [1.7.0] - 2026-08-26
 
 > **1.6.x 至 1.7.0 首次实际 npm 发布**（v1.5.3/1.6.0 仅本地标记，未推送到 registry，npm 上 latest 仍指向 1.5.2）。本条目汇总自 v1.5.2 以来的累积变更：v1.5.3 懒加载注册 + v1.6.0 k 渲染层子库 + 本次 v1.7.0 视觉改进。

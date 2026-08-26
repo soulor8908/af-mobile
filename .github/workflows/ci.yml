@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # changeset status 需对比 baseBranch（main）的完整历史
 
       - uses: actions/setup-node@v4
         with:
@@ -18,6 +20,11 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
+
+      # Step 0: changesets 闸门（仅 PR）—— 有包改动但缺 changeset 时阻断，需先 `npm run changeset`
+      - name: Changesets check (PR only)
+        if: github.event_name == 'pull_request'
+        run: npm run changeset:check
 
       # Step 1: 白名单三源同步检查（A 源码 ↔ B whitelist-v1.json ↔ C Prompt 注入）
       - name: Whitelist sync (3-source diff)
@@ -39,6 +46,10 @@ jobs:
       - name: Skill docs API drift check
         run: npm run skill:check
 
+      # Step 1f: i18n key 注册校验（引用 key 已注册 + zh-CN ↔ en-US 字典对齐）
+      - name: i18n sync (refs ↔ dictionaries)
+        run: npm run i18n:check
+
       # Step 2: 体积检查（L1+L2 CSS + L3 JS）
       - name: Size budget check
         run: npm run size
@@ -59,7 +70,7 @@ jobs:
       # Step 3c: 性能基线已移至 .github/workflows/perf.yml（定时任务）
       # Lighthouse 在共享 runner 上耗时长且结果受负载影响，不适合作为 PR 阻断闸门
 
-      # Step 4: ESLint 15 规则（L1+L2+L3）—— error 级直接阻断 PR
+      # Step 4: ESLint 规则闸门（消费端 AI_RULES 21 条 / 库源码 COMPONENT_RULES，分目录生效）—— error 级直接阻断 PR
       # 范围覆盖全部含 JS 的目录（含 eslint-plugin-af-mobile 工作区与 .mjs，AGENTS.md #9）
       - name: ESLint check
         run: npx eslint src/ test/ scripts/ eval/ mcp/ eslint-plugin-af-mobile/ adapters/ starter/src/ --max-warnings 0

@@ -329,6 +329,19 @@ describe('html 安全模板标签', () => {
     expect(escapeHtml('<b>&"\'</b>')).toBe('&lt;b&gt;&amp;&quot;&#39;&lt;/b&gt;');
   });
 
+  it('escapeHtml 缓存命中不改变转义语义', () => {
+    const first = escapeHtml('<b>A&B</b>');
+    expect(escapeHtml('<b>A&B</b>')).toBe(first);
+    expect(first).toBe('&lt;b&gt;A&amp;B&lt;/b&gt;');
+  });
+
+  it('escapeHtml 缓存下不同输入互不污染', () => {
+    const first = escapeHtml('<b>1</b>');
+    const second = escapeHtml('<i>2</i>');
+    expect(escapeHtml('<b>1</b>')).toBe(first);
+    expect(second).toBe('&lt;i&gt;2&lt;/i&gt;');
+  });
+
   it('html 标签防 XSS：onerror 不存活', () => {
     const evil = '<img src=x onerror=alert(1)>';
     const el = document.createElement('div');

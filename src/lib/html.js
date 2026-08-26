@@ -3,8 +3,21 @@
 
 // HTML 转义：注入数据到 innerHTML 前必经，防 XSS
 // 使用命名实体（&lt; &gt; &amp; &quot;）+ 数值实体（&#39;）匹配浏览器 DOM 行为
+// 转义结果有界缓存：列表重渲染对同一文案（标题/标签名）反复转义，命中即省正则扫描；
+// 超 256 条整体清空、超长串（>512 字符）不入缓存，防不可信输入撑爆内存
 const _ENT = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-export const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => _ENT[c]);
+const _escCache = new Map();
+export const escapeHtml = (s) => {
+  s = String(s ?? '');
+  const hit = _escCache.get(s);
+  if (hit !== undefined) return hit;
+  const out = s.replace(/[&<>"']/g, (c) => _ENT[c]);
+  if (s.length <= 512) {
+    if (_escCache.size >= 256) _escCache.clear();
+    _escCache.set(s, out);
+  }
+  return out;
+};
 
 // 安全 HTML 模板标签：${value} 插值自动转义，${{ raw: '<b>html</b>' }} 标记可信 HTML
 // 用法：html`<div class="body">${item.title}</div>` ← title 自动转义

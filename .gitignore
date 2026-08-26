@@ -23,6 +23,10 @@ demo-dist/
 .cache/
 *.tsbuildinfo
 
+# 包资产快照（发布态构建产物，由 build-mcp / build-prompt-pkg 自动生成，不入库）
+mcp/assets/
+prompt/assets/
+
 # Env
 .env
 .env.local

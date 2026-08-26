@@ -10,7 +10,7 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { writeFileSync, readFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
+import { writeFileSync, readFileSync, mkdirSync, unlinkSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
@@ -137,7 +137,7 @@ export async function checkCompliance({ code, filename = 'snippet.html' }) {
   mkdirSync(TMP_DIR, { recursive: true });
   writeFileSync(tmpPath, code);
   const { js } = extractCode(tmpPath);
-  rmSync(TMP_DIR, { recursive: true, force: true });
+  unlinkSync(tmpPath);
   const { messages } = await runEslint(js, ESLINT_OPTS);
   const errors = messages.filter(m => m.severity === 'error');
   const warnings = messages.filter(m => m.severity === 'warn');
@@ -157,7 +157,7 @@ export async function fixCode({ code, filename = 'snippet.html' }) {
   const tmpPath = join(TMP_DIR, filename);
   writeFileSync(tmpPath, code);
   const result = await runAiFixLoop(tmpPath, null, null, ESLINT_OPTS);
-  rmSync(TMP_DIR, { recursive: true, force: true });
+  unlinkSync(tmpPath);
   if (result.ok) {
     recordMcpRun(filename, true, []);
     return { passed: true, rounds: result.rounds, message: 'ESLint 通过' };

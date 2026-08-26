@@ -15,6 +15,5 @@
     "dist/",
     "assets/"
   ],
-  "license": "MIT",
-  "prepublishOnly": "node ../scripts/sync-pkg-assets.mjs && node ../scripts/build-prompt-pkg.mjs"
+  "license": "MIT"
 }

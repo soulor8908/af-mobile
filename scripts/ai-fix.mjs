@@ -10,7 +10,7 @@
 //   4. ≥1 error → 构造修正 prompt（含每条错误具体建议，D4）
 //   5. 调用 LLM API（若配置）→ 重写 → 回到 Step 2
 //   6. 3 轮失败 → 末尾打 <!-- AFMOBILE_LINT_FAILED ... --> 标记（§4.3）
-import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, rmSync, mkdtempSync } from 'node:fs';
 import { join, resolve, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resolveAsset } from './resolve-asset.mjs';
@@ -48,9 +48,9 @@ export async function runEslint(code, opts = {}) {
   const engine = new ESLint(opts.configFile
     ? { overrideConfigFile: opts.configFile, cwd: opts.cwd || ROOT }
     : { cwd: ROOT });
-  const dir = opts.tmpDir || join(ROOT, '.cache/ai-fix');
-  rmSync(dir, { recursive: true, force: true });
-  mkdirSync(dir, { recursive: true });
+  const root = opts.tmpDir || join(ROOT, '.cache/ai-fix');
+  mkdirSync(root, { recursive: true });
+  const dir = mkdtempSync(join(root, 'run-'));
   const jsPath = join(dir, 'snippet.js');
   writeFileSync(jsPath, code);
   let results;

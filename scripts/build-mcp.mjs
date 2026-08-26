@@ -4,8 +4,11 @@
 import { build } from 'esbuild';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { syncAssetsTo } from './sync-pkg-assets.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+syncAssetsTo(join(ROOT, 'mcp/assets'));
 
 await build({
   entryPoints: [join(ROOT, 'mcp/index.mjs')],

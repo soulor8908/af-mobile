@@ -21,7 +21,27 @@ jobs:
           node-version: '24'
           cache: 'npm'
 
-      - run: npm ci
+      - name: Env diagnostic (temporary)
+        run: |
+          echo "::debug::node=$(node -v) npm=$(npm -v) platform=$(uname -m) cache=$(ls ~/.npm/_logs/ 2>/dev/null | tail -3)"
+          node -e "const l=require('./package-lock.json'); console.log('lock ver', l.lockfileVersion); console.log('ui pkg:', JSON.stringify(l.packages[''].devDependencies && l.packages[''].devDependencies['@af-mobile/ui']))"
+          git status --porcelain package-lock.json package.json || true
+
+      - name: npm ci
+        run: |
+          set +e
+          npm ci > /tmp/npmci.log 2>&1
+          code=$?
+          if [ $code -ne 0 ]; then
+            echo "=== npm ci FAILED exit=$code ==="
+            i=0
+            while IFS= read -r line && [ $i -lt 25 ]; do
+              [ -n "$line" ] && echo "::error file=ci.yml::npmci|$line"
+              i=$((i+1))
+            done < /tmp/npmci.log
+            exit $code
+          fi
+          echo "=== npm ci OK ==="
 
       # Step 0: changesets 闸门（仅 PR）—— 有包改动但缺 changeset 时阻断，需先 `npm run changeset`
       - name: Changesets check (PR only)

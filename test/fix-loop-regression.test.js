@@ -41,11 +41,16 @@ const WARN_RULES = [
   'af-mobile/no-emoji-icon',       // 📋 当图标
 ];
 
+// 清理 best-effort：沙箱 safe-delete shim 下 rmSync 可能失败，.cache/ 已 gitignore 残留无害
+function cleanTmp() {
+  try { rmSync(TMP, { recursive: true, force: true }); } catch { /* 下轮 beforeEach 重建 */ }
+}
+
 beforeEach(() => {
-  rmSync(TMP, { recursive: true, force: true });
+  cleanTmp();
   mkdirSync(TMP, { recursive: true });
 });
-afterEach(() => rmSync(TMP, { recursive: true, force: true }));
+afterEach(() => cleanTmp());
 
 // ESLint snippet 落盘目录隔离：默认 .cache/ai-fix 会被并行测试文件（ai-fix.test.js）争抢删除
 const ESLINT_OPTS = { tmpDir: join(TMP, 'eslint-snippet') };

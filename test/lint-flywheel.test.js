@@ -19,7 +19,8 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  rmSync(tmpDir, { recursive: true, force: true });
+  // 清理 best-effort：沙箱 safe-delete shim 下 rmSync 可能失败，os 临时目录残留无害
+  try { rmSync(tmpDir, { recursive: true, force: true }); } catch { /* 下轮 mkdtemp 新目录 */ }
   if (savedTelemetryDir === undefined) delete process.env.AFMOBILE_TELEMETRY_DIR;
   else process.env.AFMOBILE_TELEMETRY_DIR = savedTelemetryDir;
   if (savedCI === undefined) delete process.env.CI;

@@ -16,13 +16,18 @@ function writeTmp(name, content) {
   return p;
 }
 
+// 清理 best-effort：沙箱 safe-delete shim 下 rmSync 可能失败，.cache/ 已 gitignore 残留无害
+function cleanTmp() {
+  try { rmSync(TMP, { recursive: true, force: true }); } catch { /* 下轮 beforeEach 重建 */ }
+}
+
 beforeEach(() => {
-  rmSync(TMP, { recursive: true, force: true });
+  cleanTmp();
   mkdirSync(TMP, { recursive: true });
 });
 
 afterEach(() => {
-  rmSync(TMP, { recursive: true, force: true });
+  cleanTmp();
 });
 
 describe('ai-fix / extractCode', () => {

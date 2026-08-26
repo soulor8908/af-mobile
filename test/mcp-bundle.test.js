@@ -11,17 +11,20 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'mcp/dist/index.mjs');
 
 let savedTelemetryDir;
+let createdTelemetryDir;
 
 beforeAll(() => {
   savedTelemetryDir = process.env.AFMOBILE_TELEMETRY_DIR;
-  process.env.AFMOBILE_TELEMETRY_DIR = mkdtempSync(join(tmpdir(), 'af-mobile-mcp-bundle-'));
+  createdTelemetryDir = mkdtempSync(join(tmpdir(), 'af-mobile-mcp-bundle-'));
+  process.env.AFMOBILE_TELEMETRY_DIR = createdTelemetryDir;
   // 原位构建（bundle 的资产解析依赖 dist 相对位置，不能构建到临时目录）
   execFileSync('node', [join(ROOT, 'scripts/build-mcp.mjs')], { stdio: 'pipe' });
   execFileSync('node', [join(ROOT, 'scripts/build-prompt-pkg.mjs')], { stdio: 'pipe' });
   return () => {
     if (savedTelemetryDir === undefined) delete process.env.AFMOBILE_TELEMETRY_DIR;
     else process.env.AFMOBILE_TELEMETRY_DIR = savedTelemetryDir;
-    rmSync(process.env.AFMOBILE_TELEMETRY_DIR || '', { recursive: true, force: true });
+    // 清 beforeAll 创建的临时目录（恢复 env 后再读 env 会拿到 '' 误删 cwd）；best-effort 防沙箱 shim 拦截
+    try { rmSync(createdTelemetryDir, { recursive: true, force: true }); } catch { /* 临时目录残留无害 */ }
   };
 });
 

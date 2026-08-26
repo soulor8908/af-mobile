@@ -50,11 +50,12 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 - **demo 按工程同构写法写**（铁律：demo 即工程雏形，Phase 5 复制替换而非重写）：
   - 页面逻辑写成 createPage 页面函数（与脚手架 `src/pages/*.js` 同构，铁律）：`import { createPage } from '@af-mobile/ui'`（demo 内从 `node_modules/@af-mobile/ui/src/index.js` 引入），骨架固定——`const page = createPage({ state, computed, actions, setup })` → `ctx.outlet.innerHTML = ...`（组件属性用 `:attr="state.x"` 响应式绑定，事件 `addEventListener('click', page.actions.x)`）→ `page.mount(ctx.outlet)` → `ctx.signal.addEventListener('abort', () => page.unmount())`；在 demo 的 `<script type="module">` 内定义并调用，渲染到 `#app`
   - 数据层写成假 store（内存对象 + 读写函数），函数签名与拆分表数据模型一致——Phase 5 只换函数体实现（localStorage/Supabase），页面调用代码零改动
-- **组件必须按需引入**（铁律，禁止 UMD / 禁止 registerAll / 禁止全局引入）：
-  - CSS：`<link rel="stylesheet" href="node_modules/@af-mobile/ui/src/index.css">`
+- **组件按需引入 + CSS 全量静态引入**（铁律，禁止 UMD / 禁止 registerAll / 禁止全局引入）：
+  - CSS（工程内预览，Vite）：`<script type="module">` 内 `import '@af-mobile/ui/css';` —— 必须用 JS 裸导入走 `exports`，与脚手架 `src/main.js` 完全同构，Phase 5 复制零改动
+  - ⚠️ **禁止 `<link rel="stylesheet" href="@af-mobile/ui/css">`（裸包名 `<link>`）**：Vite 不支持 `<link>` 裸导入，会当 SPA 路由回退、静默返回 HTML 而非 CSS，导致全部样式丢失且**不报任何错**（AGENTS.md #11）
+  - 无构建双击打开场景例外：可用 `<link rel="stylesheet" href="node_modules/@af-mobile/ui/src/index.css">`（相对路径不受上文裸名限制）
   - JS：`<script type="module">` 内 `import { AfList, AfDialog } from 'node_modules/@af-mobile/ui/src/index.js'; customElements.define('af-list', AfList); ...`（或 `await register('af-list', 'af-dialog')`），只引页面用到的组件
   - ❌ 禁止 `<script src=".../af-mobile.umd.js">`、禁止 `registerAll()`、禁止全局对象
-- 工程内预览用 `node_modules/@af-mobile/ui/src/index.css` + ESM import
 - **交互行为真实**（点击/切换/弹窗可用），数据走假 store，不做持久化
 - 严格遵循下方规范速查；生成后校验：项目内 `npm run lint`（若在 af-mobile 库仓库内，改用 `node scripts/lint-flywheel.mjs <路径>` 或 MCP `check_compliance`），违规按建议修正至全绿
 

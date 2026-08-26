@@ -111,6 +111,12 @@
 - 正确做法：`defineProp` 中 Boolean 类型 setter：true → `setAttribute`，false → `removeAttribute`
 - 同时：属性解析时 `"false"` 字符串应解析为 false（允许显式关闭）
 
+**#11 有构建工程（Vite）内的样式引入必须用 JS `import`，禁止裸包名 `<link>`**
+- 反模式：`<link rel="stylesheet" href="@af-mobile/ui/css">`（裸包名 `<link>`），或把库的 deep import 路径写错（`@af-mobile/ui/src/components/*`）撞 exports 墙
+- 后果：Vite 不支持 `<link>` 裸导入，会当 SPA 路由回退，**静默返回 573B HTML 而非 CSS**，样式整包丢失且**不报任何错**——肉眼看似正常渲染，实为下降到浏览器默认样式
+- 正确做法：CSS 一律在 `<script type="module">` 内 `import '@af-mobile/ui/css'`（走 exports，与脚手架 `src/main.js` 一致）；组件按需引入用 `@af-mobile/ui/components/af-x.js`；`<link>` 仅限无构建双击打开场景用相对路径 `node_modules/@af-mobile/ui/src/index.css`
+- 交付前用 `getComputedStyle` 抽查按钮/文字色值与圆角，确认非浏览器默认值；核对 `document.styleSheets` 含 `.btn` 规则、CSS 请求 `content-type: text/css`
+
 ---
 
 ## 2. 提交前必须运行的自检命令

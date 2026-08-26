@@ -173,10 +173,10 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 
 | 维度 | 库开发（src/） | 消费端（用户页面） |
 |---|---|---|
-| **ESLint 规则集** | COMPONENT_RULES（L3 的 6 条 wc-* 规则） | AI_RULES（L1+L2+L3 全部 15 条） |
-| **白名单约束** | 不约束（`token-whitelist: off`） | 严格约束（164 class 封闭集） |
+| **ESLint 规则集** | COMPONENT_RULES（L3 的 6 条 wc-* 规则） | AI_RULES（L1+L2+L3+L3.5 全部 21 条） |
+| **白名单约束** | 不约束（`token-whitelist: off`） | 严格约束（228 class 封闭集） |
 | **内联 style** | Light DOM 组件禁止（`wc-light-no-style`），Shadow DOM 允许 | 完全禁止（`no-inline-style`） |
-| **自定义 class** | 允许（库源码自有设计约束） | 禁止（只能用 164 白名单 class） |
+| **自定义 class** | 允许（库源码自有设计约束） | 禁止（只能用 228 白名单 class） |
 | **Tailwind 语法** | 不约束 | 禁止（`no-tailwind-syntax`） |
 | **任意值语法** | 不约束 | 禁止（`no-arbitrary-value`） |
 | **配方破坏** | 不约束 | 禁止（`no-recipe-break`） |
@@ -206,7 +206,7 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 
 **场景 B：在消费端误用库开发自由度**
 - 错误：在用户页面 HTML 中写 `<div class="my-custom-card">`（非白名单 class）
-- 事实：消费端只能用 156 白名单 class，自定义 class 会触发 ESLint error
+- 事实：消费端只能用 228 白名单 class，自定义 class 会触发 ESLint error
 
 **场景 C：在 Light DOM 组件中写内联 style**
 - 错误：在 `af-img.js`（Light DOM）中写 `this.style.width = '100%'`
@@ -235,7 +235,7 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 │  └─ 受完整 AI 规则约束（白名单 / 禁内联 style / 禁 Tailwind 语法）
 │
 └─ 消费端页面（本仓库外）
-   └─ 只能用 164 白名单 class + 35 个 af-* 组件标签
+   └─ 只能用 228 白名单 class + 36 个 af-* 组件标签
 ```
 
 ### 3.5 消费端项目必须用脚手架生成（铁律）

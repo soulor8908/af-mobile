@@ -4,6 +4,32 @@
 
 > 早期版本（v1.0.0 ~ v1.3.x）未维护本文件，变更记录自 v1.4.0 起。
 
+## [1.7.0] - 2026-08-26
+
+> **1.6.x 至 1.7.0 首次实际 npm 发布**（v1.5.3/1.6.0 仅本地标记，未推送到 registry，npm 上 latest 仍指向 1.5.2）。本条目汇总自 v1.5.2 以来的累积变更：v1.5.3 懒加载注册 + v1.6.0 k 渲染层子库 + 本次 v1.7.0 视觉改进。
+
+### Added（本次新增）
+
+- **视觉改进 P0/P1**（v1.6.1 规则化落地，详见 `.workbuddy/原型样式诊断/改进方案.md`）：
+  - 白名单 188 → 228 class（新增 25 原子 + 15 配方），三源同步通过
+  - CSS 体积预算 6.0 → 7.0KB（用户确认，实测 6.516KB）；全量 JS 预算 23KB 不变
+  - Prompt 新增视觉设计规范章节（对标小红书/美团/Apple H5），场景包按需注入，token 成本 -29%
+  - 新增 ESLint 规则 `no-emoji-icon`（warn，L2-8）：禁止 emoji 当图标，改用 24px stroke SVG
+  - 修复：`atomic-duplicate` 字号/字重分桶（`t-*` vs `fw-*`）误判；`no-inline-style` 报错信息带具体违规属性
+- **k 渲染层**（v1.6.0 本地标记，`./k` 子入口）：html 模板 + 控制流，1.352KB
+- **懒加载注册**（v1.5.3 本地标记）：组件注册改动态 import，启用 Tree Shaking
+- **数据飞轮需求分布环**：遥测新增 `kind`（lint/prompt）与 `scene`（场景包 key 封闭集，不落需求原文）字段；`get_prompt`（MCP）/ `generate`（CLI）记录需求事件；flywheel 报告新增"场景需求分布"段（prompt 事件不掺水规则榜/收敛度）——场景包落地优先级由真实需求数据驱动
+- **场景包治理**：8 品类关键词探测（含未落地包）；营销包 negativeKeywords 误命中防护（企业后台"首页"不注入高视觉基准）；场景包（品类骨架）与 Few-shot（页面模式）双层分工定型（`.trae/documents/场景包与页面模式边界设计.md`）
+- **验证矩阵升级**：原型 3 页 + 空态/错误态共 5 个 e2e 夹具，17 个视觉模式断言（hero-grad/grid-3/card-media/tabbar/dots/seg-brand/cob/stats 彩数字/订单三态），`e2e/prototype.spec.js`；修复循环回归测试 `test/fix-loop-regression.test.js`（fixPrompt 引导力 + RULE_HINTS 全规则覆盖闸门）；修复 ai-fix 陈旧文案（"115 白名单"计数 + `.eslintrc` 引用）并补 5 条 L3.5 规则 hint
+
+### Published
+
+- `@af-mobile/ui@1.7.0`（白名单 228：recipe 136 + atomic 92）
+- `@af-mobile/eslint-plugin@2.1.0`（新增 no-emoji-icon + lint 规则修复）
+- `create-af-mobile@1.4.4`（依赖 `@af-mobile/ui` `^1.5.2` → `^1.7.0`）
+- `@af-mobile/prompt@2.1.0`（视觉设计规范章节 + 白名单同步）
+- `@af-mobile/mcp@1.0.4`（assets 同步）
+
 ## [1.5.2] - 2026-08-19
 
 > **1.5.x line 首次实际 npm 发布**（v1.5.0/1.5.1 仅本地标记，未推送到 registry，npm 上 latest 仍指向 1.4.3）。本条目汇总自 v1.4.3 以来的累积变更：v1.5.0 视觉基线重构 + v1.5.1 类名简写 + 本次的 af-chat AI 对话子库新增。

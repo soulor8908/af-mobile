@@ -16,32 +16,18 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # 需 npm >=11：npm 10 无法把根包 overrides("@af-mobile/ui":"file:.") 应用到
-          # create-af-mobile 的 ^1.7.0 解析，会 ETARGET（该版本尚未发布）
           node-version: '24'
           cache: 'npm'
 
-      - name: Env diagnostic (temporary)
-        run: |
-          echo "::debug::node=$(node -v) npm=$(npm -v) platform=$(uname -m) cache=$(ls ~/.npm/_logs/ 2>/dev/null | tail -3)"
-          node -e "const l=require('./package-lock.json'); console.log('lock ver', l.lockfileVersion); console.log('ui pkg:', JSON.stringify(l.packages[''].devDependencies && l.packages[''].devDependencies['@af-mobile/ui']))"
-          git status --porcelain package-lock.json package.json || true
+      # 固定 npm 版本（与本地开发 Node 24.14 / npm 11.9.0 对齐）。
+      # 根包 overrides("@af-mobile/ui":"file:.") 依赖 npm 11 的解析行为：
+      #  - Node 20 自带的 npm 10 会忽略该 override → create-af-mobile 的 ^1.7.0 去注册表解析 → ETARGET（1.7.0 尚未发布）
+      #  - 较旧 npm 11 小版本重写 adapters 的 peer ^1.4.0 时又报 ERESOLVE
+      # 11.9.0 经本地验证可同时正确处理，故在此锁定，避免 runner 自带 npm 的版本漂移。
+      - name: Pin npm version
+        run: npm install -g npm@11.9.0
 
-      - name: npm ci
-        run: |
-          set +e
-          npm ci > /tmp/npmci.log 2>&1
-          code=$?
-          if [ $code -ne 0 ]; then
-            echo "=== npm ci FAILED exit=$code ==="
-            i=0
-            while IFS= read -r line && [ $i -lt 25 ]; do
-              [ -n "$line" ] && echo "::error file=ci.yml::npmci|$line"
-              i=$((i+1))
-            done < /tmp/npmci.log
-            exit $code
-          fi
-          echo "=== npm ci OK ==="
+      - run: npm ci
 
       # Step 0: changesets 闸门（仅 PR）—— 有包改动但缺 changeset 时阻断，需先 `npm run changeset`
       - name: Changesets check (PR only)

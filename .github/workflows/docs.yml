@@ -30,9 +30,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # 同 ci.yml：需 npm >=11 才能解析 overrides 到工作区根
           node-version: '24'
           cache: 'npm'
+
+      # 同 ci.yml：根 overrides 依赖 npm 11 解析行为，锁定与本地一致的版本
+      - name: Pin npm version
+        run: npm install -g npm@11.9.0
 
       - run: npm ci
 

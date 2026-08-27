@@ -164,3 +164,38 @@ describe('k 重导出响应式核心', () => {
     expect(b()).toBe(12);
   });
 });
+
+describe('k 模板占位符位置校验（报警器：坏位置响亮失败）', () => {
+  it('属性值混合插值（带引号）：缓存 miss 时告警一次，占位符按字面量留在属性值', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const f = html`<div class="btn ${'x'}"></div>`;
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain('class');
+    // 行为不变（只告警不拦截）：占位符留在属性值里
+    expect(f.querySelector('div').getAttribute('class')).toContain('\u0001');
+    warn.mockRestore();
+  });
+
+  it('属性名位插值：告警一次，绑定被忽略', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    html`<div ${'data-x'}="v"></div>`;
+    expect(warn).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
+  });
+
+  it('合法绑定不告警：无引号完整值 / @ev / .prop / 子位混合文本', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const s = signal('a');
+    html`<a href=${() => s()} @click=${() => {}} .title=${'t'}>a${1}b</a>`;
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('相同模板二次渲染走缓存，不重复告警', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    html`<i class="a${'b'}"></i>`;
+    html`<i class="a${'b'}"></i>`;
+    expect(warn).toHaveBeenCalledTimes(1);
+    warn.mockRestore();
+  });
+});

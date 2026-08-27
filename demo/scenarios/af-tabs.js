@@ -6,6 +6,13 @@ export default {
   scenarios: [
     {
       name: '基础标签页',
+      fewshot: {
+        html: '<af-tabs id="tt"></af-tabs>',
+        js: `const tt = document.getElementById('tt');
+tt.tabs = [{ label: '商品' }, { label: '评价' }, { label: '详情' }];
+tt.addEventListener('af-tabs:change', (e) => console.log(e.detail.index, e.detail.value));`,
+        note: 'tabs 数组（label/value/disabled 可选）+ active-index；setActive(i) 编程切换；选中态由 aria-selected 驱动；面板内容自行联动 change 事件',
+      },
       html: `
         <af-tabs id="tabs"></af-tabs>
       `,

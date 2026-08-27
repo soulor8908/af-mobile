@@ -6,6 +6,13 @@ export default {
   scenarios: [
     {
       name: '步骤切换',
+      fewshot: {
+        html: '<af-steps id="st"></af-steps>',
+        js: `const st = document.getElementById('st');
+st.steps = ['提交订单', '付款', '发货', '收货'];
+st.current = 2; // 当前进行到第 3 步`,
+        note: 'steps 字符串数组或 {label} 对象数组；current 高亮当前步',
+      },
       html: `
         <af-steps id="s1" current="2"></af-steps>
         <p class="caption">点击按钮切换当前步骤</p>

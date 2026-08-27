@@ -8,6 +8,15 @@ export default {
   scenarios: [
     {
       name: '基础',
+      fewshot: {
+        html: '<af-chart-line id="c" smooth legend></af-chart-line>',
+        js: `import { registerChart } from '../../src/charts/index.js'; // 子库注册，禁主入口 register
+await registerChart('af-chart-line');
+const c = document.getElementById('c');
+c.labels = ['周一', '周二', '周三'];
+c.series = [{ name: '销售额', values: [1280, 960, 540] }];`,
+        note: '子库注册（registerChart）；labels + series[{name, values}]；variant：line/area/scatter/spark，select/retry 事件',
+      },
       html: '<af-chart-line id="demo" legend></af-chart-line>',
       main: { selector: '#demo' },
       props: [

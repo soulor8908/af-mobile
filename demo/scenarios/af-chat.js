@@ -75,6 +75,16 @@ export default {
   scenarios: [
     {
       name: '流式对话',
+      fewshot: {
+        html: '<af-chat placeholder="请输入您的问题"></af-chat>',
+        js: `import { registerChat, createSession } from '../../src/chat/index.js'; // 子库注册，禁主入口 register
+await registerChat();
+const session = createSession({ endpoint: '/api/chat' });
+const el = document.querySelector('af-chat');
+el.session = session;
+el.addEventListener('af-chat:send', (e) => console.log(e.detail.text));`,
+        note: '子库注册（registerChat）+ session 绑定为推荐接入；send/action/confirm/abort/error 事件；messages 受控渲染为备选',
+      },
       html: CHAT_HTML,
       main: { selector: '#chat' },
       props: [],

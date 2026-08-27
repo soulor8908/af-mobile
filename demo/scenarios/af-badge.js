@@ -6,6 +6,10 @@ export default {
   scenarios: [
     {
       name: '基础用法',
+      fewshot: {
+        html: '<af-badge content="8"></af-badge>\n<af-badge content="99" max="99"></af-badge>\n<af-badge dot></af-badge>',
+        note: 'content 数字/文字；max 封顶显示 99+；dot 纯红点（无数字）',
+      },
       html: `
         <div class="card">
           <div class="cell f aic g-2">

@@ -6,6 +6,16 @@ export default {
   scenarios: [
     {
       name: '左滑操作',
+      fewshot: {
+        html: `<af-swipe-cell>
+  <div slot="content" class="list-item">消息内容</div>
+  <div slot="right"><button class="btn btn-danger" data-action="delete">删除</button></div>
+</af-swipe-cell>`,
+        js: `document.querySelector('af-swipe-cell').addEventListener('af-swipe-cell:action', (e) => {
+  if (e.detail.action === 'delete') /* 移除该项 */;
+});`,
+        note: 'slot=content 主内容 / slot=right 操作区；操作按钮 data-action 值进载荷 e.detail.action',
+      },
       html: `
         <div class="list">
           <af-swipe-cell>

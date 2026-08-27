@@ -6,6 +6,13 @@ export default {
   scenarios: [
     {
       name: '图片上传',
+      fewshot: {
+        html: '<af-upload accept="image/*" multiple max-count="3" button-text="上传图片"></af-upload>',
+        js: `document.querySelector('af-upload').addEventListener('af-upload:change', (e) => {
+  console.log(e.detail.files, e.detail.errors); // files: [{ file, url, name, size }]
+});`,
+        note: 'accept/multiple/max-count/max-size/button-text 属性；change 载荷 { files, errors }；超限走 af-upload:error',
+      },
       html: `
         <section class="card">
           <p class="body">图片多选 · 限制 3 张 · 单张 ≤ 2MB</p>

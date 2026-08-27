@@ -7,6 +7,13 @@ export default {
   scenarios: [
     {
       name: '城市选择',
+      fewshot: {
+        html: '<af-dropdown id="dd" placeholder="请选择城市"></af-dropdown>',
+        js: `const dd = document.getElementById('dd');
+dd.options = ['北京', '上海', '广州', '深圳']; // 数组注入须在 register 之后
+dd.addEventListener('af-dropdown:select', (e) => console.log(e.detail.index, e.detail.value));`,
+        note: 'options 数组注入；value/placeholder/disabled 属性；选中派发 select（载荷 index/value）',
+      },
       html: `
         <div class="card p-3">
           <p class="body">选择收货城市</p>

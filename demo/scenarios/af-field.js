@@ -6,6 +6,15 @@ export default {
   scenarios: [
     {
       name: '输入与校验',
+      fewshot: {
+        html: `<af-field label="用户名" placeholder="请输入用户名" help="3-20 位字符"></af-field>
+<af-field label="密码" input-type="password" placeholder="请输入密码"></af-field>
+<af-field label="留言" type="textarea"></af-field>`,
+        js: `const f = document.querySelector('af-field');
+f.addEventListener('af-field:input', (e) => console.log(e.detail.value));
+f.setError('格式不正确'); // 动态写错误态；setError('') 清除`,
+        note: 'label/input-type/type=textarea/help/error 属性；值经 e.detail.value 外发；setError(msg) 动态校验',
+      },
       html: `
         <div class="card">
           <af-field id="f1" label="用户名" placeholder="请输入用户名" help="3-20 位字符"></af-field>

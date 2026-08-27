@@ -8,6 +8,15 @@ export default {
   scenarios: [
     {
       name: '基础',
+      fewshot: {
+        html: '<af-chart-radar id="c" shape="circle"></af-chart-radar>',
+        js: `import { registerChart } from '../../src/charts/index.js'; // 子库注册，禁主入口 register
+await registerChart('af-chart-radar');
+const c = document.getElementById('c');
+c.data = [{ label: '性能', max: 100 }, { label: '易用', max: 100 }];
+c.series = [{ name: '机型 A', values: [90, 75] }];`,
+        note: '子库注册（registerChart）；data=[{label, max}] 定维度 + series[{name, values}] 定主体；shape：polygon/circle',
+      },
       html: '<af-chart-radar id="demo" legend></af-chart-radar>',
       main: { selector: '#demo' },
       props: [

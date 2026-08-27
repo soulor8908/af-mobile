@@ -8,6 +8,17 @@ export default {
   scenarios: [
     {
       name: '基础',
+      fewshot: {
+        html: '<af-chart-funnel id="c" show-rate></af-chart-funnel>',
+        js: `import { registerChart } from '../../src/charts/index.js'; // 子库注册，禁主入口 register
+await registerChart('af-chart-funnel');
+document.getElementById('c').data = [
+  { label: '曝光', value: 10000 },
+  { label: '点击', value: 6200 },
+  { label: '支付', value: 980 },
+];`,
+        note: '子库注册（registerChart）；data=[{label, value}]，show-rate 显示层间转化率；层色可 data.color 覆盖',
+      },
       html: '<af-chart-funnel id="demo"></af-chart-funnel>',
       main: { selector: '#demo' },
       props: [

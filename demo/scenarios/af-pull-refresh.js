@@ -6,6 +6,16 @@ export default {
   scenarios: [
     {
       name: '下拉触发刷新',
+      fewshot: {
+        html: `<af-pull-refresh id="pr">
+  <div class="list"><div class="list-item">列表项</div></div>
+</af-pull-refresh>`,
+        js: `const pr = document.getElementById('pr');
+pr.addEventListener('af-pull-refresh:refresh', () => {
+  setTimeout(() => { pr.refreshing = false; }, 1500); // 数据加载完成后复位
+});`,
+        note: '包裹列表内容；refreshing 属性单向输入，refresh 事件里加载数据后手动置 false 复位',
+      },
       html: `
         <af-pull-refresh id="pr">
           <div class="list">

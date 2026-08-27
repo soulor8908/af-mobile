@@ -8,6 +8,16 @@ export default {
   scenarios: [
     {
       name: '基础',
+      fewshot: {
+        html: '<af-chart-pie id="c" variant="donut" center-text="总量"></af-chart-pie>',
+        js: `import { registerChart } from '../../src/charts/index.js'; // 子库注册，禁主入口 register
+await registerChart('af-chart-pie');
+document.getElementById('c').data = [
+  { label: '直接访问', value: 400 },
+  { label: '搜索引擎', value: 310 },
+];`,
+        note: '子库注册（registerChart）；data=[{label, value}]；variant：pie/donut/half/rose，center-text 中心文案',
+      },
       html: '<af-chart-pie id="demo" legend></af-chart-pie>',
       main: { selector: '#demo' },
       props: [

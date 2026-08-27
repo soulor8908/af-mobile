@@ -6,6 +6,13 @@ export default {
   scenarios: [
     {
       name: '开关列表',
+      fewshot: {
+        html: '<div class="cell"><span class="body">通知推送</span><af-switch id="sw" checked></af-switch></div>',
+        js: `const sw = document.getElementById('sw');
+sw.addEventListener('af-switch:change', (e) => console.log(e.detail.checked));
+sw.toggle(true); // 受控切换：与当前态相同时不派发事件`,
+        note: 'checked/loading/disabled/size 属性；toggle(force) 受控切换；载荷 e.detail.checked',
+      },
       html: `
         <div class="card">
           <div class="cell"><span class="body">通知推送</span><af-switch id="s1"></af-switch></div>

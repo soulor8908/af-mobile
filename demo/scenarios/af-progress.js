@@ -6,6 +6,10 @@ export default {
   scenarios: [
     {
       name: '进度推进',
+      fewshot: {
+        html: '<af-progress value="680" max="1000"></af-progress>',
+        note: 'value/max 属性；颜色可用 --c-brand 等令牌覆盖',
+      },
       html: `
         <div class="card">
           <div class="cell"><span class="body">默认</span><af-progress id="p1" value="60"></af-progress></div>

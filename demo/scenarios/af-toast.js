@@ -6,6 +6,14 @@ export default {
   scenarios: [
     {
       name: '四种类型',
+      fewshot: {
+        html: '<af-toast id="toast"></af-toast>',
+        js: `const toast = document.getElementById('toast');
+toast.show('操作成功', { type: 'success' }); // success / warning / error / loading
+toast.show('加载中…', { type: 'loading', duration: 0, closeOnClick: true }); // duration=0 常驻
+toast.dismiss(); // 手动关闭，派发 af-toast:dismiss`,
+        note: '单例组件：页面放一个 <af-toast>，全部提示走 show()；duration 默认自动消失',
+      },
       html: `
         <div class="actions">
           <button class="btn" id="t-success">成功</button>

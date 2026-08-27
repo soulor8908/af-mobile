@@ -6,6 +6,14 @@ export default {
   scenarios: [
     {
       name: '轮播滑动',
+      fewshot: {
+        html: `<af-swiper autoplay="3000" loop>
+  <div>slide 1</div>
+  <div>slide 2</div>
+  <div>slide 3</div>
+</af-swiper>`,
+        note: '子元素即 slide（slot 分发）；autoplay(ms)/loop/showDots 属性；goTo(i)/next()/prev() 编程切换；触摸横竖向判定防误滚页面',
+      },
       html: `
         <style>
           /* 豁免：slide 占位块需固定高度与居中，白名单无高度 utility

@@ -6,6 +6,11 @@ export default {
   scenarios: [
     {
       name: '数量选择',
+      fewshot: {
+        html: '<af-stepper id="sp" value="1" min="1" max="99"></af-stepper>',
+        js: `document.getElementById('sp').addEventListener('af-stepper:change', (e) => console.log(e.detail.value));`,
+        note: 'value/min/max/step/disabled 属性；change 载荷 e.detail.value；setValue(i) 编程赋值',
+      },
       html: `
         <div class="card p-3">
           <div class="cell"><span class="body">购买数量</span><af-stepper id="st" value="2"></af-stepper></div>

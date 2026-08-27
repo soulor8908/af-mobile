@@ -6,6 +6,13 @@ export default {
   scenarios: [
     {
       name: '倒计时控制',
+      fewshot: {
+        html: '<af-countdown id="cd" time="3600" autostart></af-countdown>',
+        js: `const cd = document.getElementById('cd');
+cd.addEventListener('af-countdown:change', (e) => console.log(e.detail.remaining, '/', e.detail.total));
+cd.addEventListener('af-countdown:end', () => console.log('已结束'));`,
+        note: 'time 单位秒；autostart 自动开始；change 载荷 {remaining, total}，归零触发 end',
+      },
       html: `
         <div class="card">
           <div class="cell"><span class="body">倒计时</span><af-countdown id="cd" time="90"></af-countdown></div>

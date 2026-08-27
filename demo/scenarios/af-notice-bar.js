@@ -6,6 +6,10 @@ export default {
   scenarios: [
     {
       name: '横向滚动',
+      fewshot: {
+        html: '<af-notice-bar text="活动公告：全场满 199 减 30" scroll></af-notice-bar>',
+        note: 'text 公告文案；scroll 循环滚动（缺省静态）',
+      },
       html: `
         <div class="card">
           <af-notice-bar id="n1" text="系统将于今晚 23:00 进行维护升级，届时服务暂停 10 分钟"></af-notice-bar>

@@ -7,6 +7,13 @@ export default {
   scenarios: [
     {
       name: '支付密码（配对 af-number-keyboard）',
+      fewshot: {
+        html: '<af-password-input id="pi" length="6" mask focused></af-password-input>',
+        js: `const pi = document.getElementById('pi');
+pi.addEventListener('af-password-input:complete', () => console.log('输入完成，可发起校验'));
+pi.addEventListener('af-password-input:change', (e) => console.log(e.detail.value));`,
+        note: 'length/mask/focused 属性；输满 length 触发 complete；值经 e.detail.value 外发；配 af-number-keyboard 使用',
+      },
       html: `
         <div class="card fc g-3 center p-3">
           <af-password-input id="pi" length="6" mask></af-password-input>

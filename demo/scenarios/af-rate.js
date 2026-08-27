@@ -6,6 +6,11 @@ export default {
   scenarios: [
     {
       name: '星级评分',
+      fewshot: {
+        html: '<af-rate id="rt" value="4" max="5"></af-rate>',
+        js: `document.getElementById('rt').addEventListener('af-rate:change', (e) => console.log(e.detail.value));`,
+        note: 'value/max/readonly/size 属性；change 载荷 e.detail.value',
+      },
       html: `
         <div class="card">
           <div class="cell"><span class="body">默认</span><af-rate id="r1" value="3"></af-rate></div>

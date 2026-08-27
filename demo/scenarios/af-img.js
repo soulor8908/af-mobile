@@ -6,6 +6,10 @@ export default {
   scenarios: [
     {
       name: '加载状态',
+      fewshot: {
+        html: '<af-img src="goods.jpg" alt="商品图" placeholder-src="ph.jpg" fail-src="fail.jpg" variant="thumb"></af-img>',
+        note: '懒加载（IntersectionObserver）；placeholder-src 占位 / fail-src 失败兜底；variant：default/thumb/avatar',
+      },
       html: `
         <af-img id="img" alt="示例图片"
           src="https://picsum.photos/360/200"

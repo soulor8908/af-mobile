@@ -7,6 +7,13 @@ export default {
   scenarios: [
     {
       name: '基础导航栏',
+      fewshot: {
+        html: `<af-navbar title="商品详情" show-back back-text="返回">
+  <button slot="right" class="btn btn-ghost btn-sm">分享</button>
+</af-navbar>`,
+        js: `document.querySelector('af-navbar').addEventListener('af-navbar:back', () => history.back());`,
+        note: 'title/show-back/back-text 属性；右侧自定义内容 slot="right"；sticky 定位自带 safe-area 适配',
+      },
       html: `
         <af-navbar id="nb" title="商品详情" show-back back-text="返回"></af-navbar>
         <div class="card">

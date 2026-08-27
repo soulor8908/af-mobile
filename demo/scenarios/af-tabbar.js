@@ -6,6 +6,17 @@ export default {
   scenarios: [
     {
       name: '标签切换',
+      fewshot: {
+        html: '<af-tabbar id="tb" active-index="0"></af-tabbar>',
+        js: `const tb = document.getElementById('tb');
+tb.tabs = [
+  { label: '首页', value: 'home' },
+  { label: '消息', value: 'msg', badge: '3' }, // badge 可选
+  { label: '我的', value: 'me' },
+];
+tb.addEventListener('af-tabbar:change', (e) => console.log(e.detail.index, e.detail.value));`,
+        note: 'tabs 数组注入（label/value/badge 可选）；默认吸底 + safe-area，fixed="false" 取消；icon 省略即纯文字（禁 emoji）',
+      },
       html: `
         <af-tabbar id="tb" active-index="0"></af-tabbar>
         <p class="caption" id="tb-log">切换触发 af-tabbar:change</p>

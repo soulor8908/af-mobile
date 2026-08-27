@@ -4,54 +4,56 @@
 ### <af-action-sheet>
 
 ```html
-<af-action-sheet id="sheet" title="选择操作"></af-action-sheet>
+<af-action-sheet id="as" title="选择操作" show-cancel></af-action-sheet>
 ```
 
 ```js
-const el = document.querySelector('af-action-sheet');
-el.addEventListener('af-action-sheet:open', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-action-sheet:select', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-action-sheet:close', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const as = document.getElementById('as');
+as.options = [
+  { label: '微信好友', value: 'wx' },
+  { label: '删除', value: 'del', danger: true }, // danger 红色项
+];
+as.addEventListener('af-action-sheet:select', (e) => console.log(e.detail.index, e.detail.value));
+as.showPopover(); // 显隐必须走 popover API，禁手动 display 切换
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- options 数组（label/value/danger/disabled）；showPopover()/hidePopover() 控制显隐
 
 ### <af-backtop>
 
 ```html
-<af-backtop id="bt" target='[data-role="bt-scroller"]' threshold="120" text="↑"></af-backtop>
+<af-backtop threshold="120" text="↑"></af-backtop>
 ```
 
 ```js
-const el = document.querySelector('af-backtop');
-el.addEventListener('af-backtop:click', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-backtop:show', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-backtop:hide', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+document.querySelector('af-backtop').addEventListener('af-backtop:click', () => console.log('回顶'));
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- threshold 触发阈值；target 指定滚动容器选择器（缺省 window）；fixed 定位，click 平滑回顶
 
 ### <af-badge>
 
 ```html
-<af-badge id="b1" content="8"></af-badge>
+<af-badge content="8"></af-badge>
+<af-badge content="99" max="99"></af-badge>
+<af-badge dot></af-badge>
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- content 数字/文字；max 封顶显示 99+；dot 纯红点（无数字）
 
 ### <af-calendar>
 
 ```html
-<af-calendar id="cal"></af-calendar>
+<af-calendar id="cal" min="2026-01-01"></af-calendar>
 ```
 
 ```js
-const el = document.querySelector('af-calendar');
-el.addEventListener('af-calendar:select', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-calendar:monthchange', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const cal = document.getElementById('cal');
+cal.addEventListener('af-calendar:select', (e) => console.log(e.detail.date));
+cal.addEventListener('af-calendar:monthchange', (e) => console.log(e.detail.month));
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- value/min/max（YYYY-MM-DD）；select 载荷 e.detail.date，翻月触发 monthchange
 
 ### <af-cascade-picker>
 
@@ -60,109 +62,130 @@ el.addEventListener('af-calendar:monthchange', (e) => console.log(e.detail)); //
 ```
 
 ```js
-const el = document.querySelector('af-cascade-picker');
-el.addEventListener('af-picker:confirm', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-picker:cancel', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const cp = document.getElementById('cp');
+cp.tree = [
+  { label: '浙江省', value: 'zj', children: [{ label: '杭州市', value: 'hz' }, { label: '宁波市', value: 'nb' }] },
+  { label: '广东省', value: 'gd', children: [{ label: '广州市', value: 'gz' }] },
+];
+cp.addEventListener('af-picker:confirm', (e) => console.log(e.detail.values));
+cp.open();
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- tree 树形数据（children 缺省为叶节点）；事件沿用 af-picker:*；confirm 载荷 e.detail.values
 
 ### <af-chart-bar>
 
 ```html
-<af-chart-bar id="demo" legend></af-chart-bar>
+<af-chart-bar id="c" legend></af-chart-bar>
 ```
 
 ```js
-const el = document.querySelector('af-chart-bar');
-el.addEventListener('af-chart-bar:select', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-chart-bar:retry', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+import { registerChart } from '../../src/charts/index.js'; // 子库注册，禁主入口 register
+await registerChart('af-chart-bar');
+const c = document.getElementById('c');
+c.labels = ['一月', '二月', '三月', '四月'];
+c.series = [{ name: '销售额', values: [1280, 960, 540, 420] }];
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- 子库注册（registerChart）；labels + series[{name, values}]；variant：column/bar/stacked/grouped
 
 ### <af-chart-funnel>
 
 ```html
-<af-chart-funnel id="demo"></af-chart-funnel>
+<af-chart-funnel id="c" show-rate></af-chart-funnel>
 ```
 
 ```js
-const el = document.querySelector('af-chart-funnel');
-el.addEventListener('af-chart-funnel:select', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-chart-funnel:retry', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+import { registerChart } from '../../src/charts/index.js'; // 子库注册，禁主入口 register
+await registerChart('af-chart-funnel');
+document.getElementById('c').data = [
+  { label: '曝光', value: 10000 },
+  { label: '点击', value: 6200 },
+  { label: '支付', value: 980 },
+];
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- 子库注册（registerChart）；data=[{label, value}]，show-rate 显示层间转化率；层色可 data.color 覆盖
 
 ### <af-chart-line>
 
 ```html
-<af-chart-line id="demo" legend></af-chart-line>
+<af-chart-line id="c" smooth legend></af-chart-line>
 ```
 
 ```js
-const el = document.querySelector('af-chart-line');
-el.addEventListener('af-chart-line:select', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-chart-line:retry', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+import { registerChart } from '../../src/charts/index.js'; // 子库注册，禁主入口 register
+await registerChart('af-chart-line');
+const c = document.getElementById('c');
+c.labels = ['周一', '周二', '周三'];
+c.series = [{ name: '销售额', values: [1280, 960, 540] }];
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- 子库注册（registerChart）；labels + series[{name, values}]；variant：line/area/scatter/spark，select/retry 事件
 
 ### <af-chart-pie>
 
 ```html
-<af-chart-pie id="demo" legend></af-chart-pie>
+<af-chart-pie id="c" variant="donut" center-text="总量"></af-chart-pie>
 ```
 
 ```js
-const el = document.querySelector('af-chart-pie');
-el.addEventListener('af-chart-pie:select', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-chart-pie:retry', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+import { registerChart } from '../../src/charts/index.js'; // 子库注册，禁主入口 register
+await registerChart('af-chart-pie');
+document.getElementById('c').data = [
+  { label: '直接访问', value: 400 },
+  { label: '搜索引擎', value: 310 },
+];
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- 子库注册（registerChart）；data=[{label, value}]；variant：pie/donut/half/rose，center-text 中心文案
 
 ### <af-chart-radar>
 
 ```html
-<af-chart-radar id="demo" legend></af-chart-radar>
+<af-chart-radar id="c" shape="circle"></af-chart-radar>
 ```
 
 ```js
-const el = document.querySelector('af-chart-radar');
-el.addEventListener('af-chart-radar:select', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-chart-radar:retry', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+import { registerChart } from '../../src/charts/index.js'; // 子库注册，禁主入口 register
+await registerChart('af-chart-radar');
+const c = document.getElementById('c');
+c.data = [{ label: '性能', max: 100 }, { label: '易用', max: 100 }];
+c.series = [{ name: '机型 A', values: [90, 75] }];
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- 子库注册（registerChart）；data=[{label, max}] 定维度 + series[{name, values}] 定主体；shape：polygon/circle
 
 ### <af-chat>
 
 ```html
-<af-chat id="chat" class="flex-1"></af-chat>
+<af-chat placeholder="请输入您的问题"></af-chat>
 ```
 
 ```js
+import { registerChat, createSession } from '../../src/chat/index.js'; // 子库注册，禁主入口 register
+await registerChat();
+const session = createSession({ endpoint: '/api/chat' });
 const el = document.querySelector('af-chat');
-el.addEventListener('af-chat:send', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+el.session = session;
+el.addEventListener('af-chat:send', (e) => console.log(e.detail.text));
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- 子库注册（registerChat）+ session 绑定为推荐接入；send/action/confirm/abort/error 事件；messages 受控渲染为备选
 
 ### <af-countdown>
 
 ```html
-<af-countdown id="cd" time="90"></af-countdown>
+<af-countdown id="cd" time="3600" autostart></af-countdown>
 ```
 
 ```js
-const el = document.querySelector('af-countdown');
-el.addEventListener('af-countdown:end', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-countdown:change', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const cd = document.getElementById('cd');
+cd.addEventListener('af-countdown:change', (e) => console.log(e.detail.remaining, '/', e.detail.total));
+cd.addEventListener('af-countdown:end', () => console.log('已结束'));
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- time 单位秒；autostart 自动开始；change 载荷 {remaining, total}，归零触发 end
 
 ### <af-dialog>
 
@@ -192,40 +215,36 @@ d.addEventListener('af-dialog:close', (e) => console.log(e.detail.action)); // '
 ```
 
 ```js
-const el = document.querySelector('af-dropdown');
-el.addEventListener('af-dropdown:select', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-dropdown:close', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const dd = document.getElementById('dd');
+dd.options = ['北京', '上海', '广州', '深圳']; // 数组注入须在 register 之后
+dd.addEventListener('af-dropdown:select', (e) => console.log(e.detail.index, e.detail.value));
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- options 数组注入；value/placeholder/disabled 属性；选中派发 select（载荷 index/value）
 
 ### <af-field>
 
 ```html
-<af-field id="f1" label="用户名" placeholder="请输入用户名" help="3-20 位字符"></af-field>
+<af-field label="用户名" placeholder="请输入用户名" help="3-20 位字符"></af-field>
+<af-field label="密码" input-type="password" placeholder="请输入密码"></af-field>
+<af-field label="留言" type="textarea"></af-field>
 ```
 
 ```js
-const el = document.querySelector('af-field');
-el.addEventListener('af-field:input', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-field:change', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const f = document.querySelector('af-field');
+f.addEventListener('af-field:input', (e) => console.log(e.detail.value));
+f.setError('格式不正确'); // 动态写错误态；setError('') 清除
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- label/input-type/type=textarea/help/error 属性；值经 e.detail.value 外发；setError(msg) 动态校验
 
 ### <af-img>
 
 ```html
-<af-img id="img" alt="示例图片" src="https://picsum.photos/360/200" placeholder-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='200'%3E%3Crect fill='%23eee' width='360' height='200'/%3E%3C/svg%3E"></af-img>
+<af-img src="goods.jpg" alt="商品图" placeholder-src="ph.jpg" fail-src="fail.jpg" variant="thumb"></af-img>
 ```
 
-```js
-const el = document.querySelector('af-img');
-el.addEventListener('af-img:load', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-img:error', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-```
-
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- 懒加载（IntersectionObserver）；placeholder-src 占位 / fail-src 失败兜底；variant：default/thumb/avatar
 
 ### <af-list>
 
@@ -245,52 +264,55 @@ list.addEventListener('af-list:loadmore', () => list.endLoadMore(false)); // 已
 ### <af-navbar>
 
 ```html
-<af-navbar id="nb" title="商品详情" show-back back-text="返回"></af-navbar>
+<af-navbar title="商品详情" show-back back-text="返回">
+  <button slot="right" class="btn btn-ghost btn-sm">分享</button>
+</af-navbar>
 ```
 
 ```js
-const el = document.querySelector('af-navbar');
-el.addEventListener('af-navbar:back', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+document.querySelector('af-navbar').addEventListener('af-navbar:back', () => history.back());
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- title/show-back/back-text 属性；右侧自定义内容 slot="right"；sticky 定位自带 safe-area 适配
 
 ### <af-notice-bar>
 
 ```html
-<af-notice-bar id="n1" text="系统将于今晚 23:00 进行维护升级，届时服务暂停 10 分钟"></af-notice-bar>
+<af-notice-bar text="活动公告：全场满 199 减 30" scroll></af-notice-bar>
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- text 公告文案；scroll 循环滚动（缺省静态）
 
 ### <af-number-keyboard>
 
 ```html
-<af-number-keyboard id="kb" title="安全键盘" maxlength="6" random></af-number-keyboard>
+<af-password-input id="pi" length="6" mask></af-password-input>
+<af-number-keyboard id="kb" random title="输入密码"></af-number-keyboard>
 ```
 
 ```js
-const el = document.querySelector('af-number-keyboard');
-el.addEventListener('af-number-keyboard:input', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-number-keyboard:delete', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-number-keyboard:complete', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-number-keyboard:close', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const kb = document.getElementById('kb');
+const pi = document.getElementById('pi');
+kb.addEventListener('af-number-keyboard:input', (e) => { pi.value = e.detail.value; });
+kb.addEventListener('af-number-keyboard:complete', (e) => console.log('完成:', e.detail.value));
+kb.addEventListener('af-number-keyboard:delete', (e) => { pi.value = e.detail.value; });
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- random 随机布局键盘；input 载荷 { key, value }，输满 maxlength 派发 complete；与 af-password-input 配对使用
 
 ### <af-password-input>
 
 ```html
-<af-password-input id="pi" length="6" mask></af-password-input>
+<af-password-input id="pi" length="6" mask focused></af-password-input>
 ```
 
 ```js
-const el = document.querySelector('af-password-input');
-el.addEventListener('af-password-input:complete', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const pi = document.getElementById('pi');
+pi.addEventListener('af-password-input:complete', () => console.log('输入完成，可发起校验'));
+pi.addEventListener('af-password-input:change', (e) => console.log(e.detail.value));
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- length/mask/focused 属性；输满 length 触发 complete；值经 e.detail.value 外发；配 af-number-keyboard 使用
 
 ### <af-picker>
 
@@ -311,36 +333,39 @@ p.addEventListener('af-picker:confirm', (e) => console.log(e.detail.values)); //
 ### <af-progress>
 
 ```html
-<af-progress id="p1" value="60"></af-progress>
+<af-progress value="680" max="1000"></af-progress>
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- value/max 属性；颜色可用 --c-brand 等令牌覆盖
 
 ### <af-pull-refresh>
 
 ```html
-<af-pull-refresh id="pr"></af-pull-refresh>
+<af-pull-refresh id="pr">
+  <div class="list"><div class="list-item">列表项</div></div>
+</af-pull-refresh>
 ```
 
 ```js
-const el = document.querySelector('af-pull-refresh');
-el.addEventListener('af-pull-refresh:refresh', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const pr = document.getElementById('pr');
+pr.addEventListener('af-pull-refresh:refresh', () => {
+  setTimeout(() => { pr.refreshing = false; }, 1500); // 数据加载完成后复位
+});
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- 包裹列表内容；refreshing 属性单向输入，refresh 事件里加载数据后手动置 false 复位
 
 ### <af-rate>
 
 ```html
-<af-rate id="r1" value="3"></af-rate>
+<af-rate id="rt" value="4" max="5"></af-rate>
 ```
 
 ```js
-const el = document.querySelector('af-rate');
-el.addEventListener('af-rate:change', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+document.getElementById('rt').addEventListener('af-rate:change', (e) => console.log(e.detail.value));
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- value/max/readonly/size 属性；change 载荷 e.detail.value
 
 ### <af-search-bar>
 
@@ -349,81 +374,90 @@ el.addEventListener('af-rate:change', (e) => console.log(e.detail)); // 载荷�
 ```
 
 ```js
-const el = document.querySelector('af-search-bar');
-el.addEventListener('af-search-bar:input', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-search-bar:search', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-search-bar:clear', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const sb = document.getElementById('sb');
+sb.addEventListener('af-search-bar:search', (e) => console.log(e.detail.value)); // 防抖确认后触发
+sb.addEventListener('af-search-bar:clear', (e) => console.log(e.detail.value)); // 清除后自动聚焦
+sb.focus();
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- value/placeholder/debounce 属性；input 实时 / search 防抖确认 / clear 清除三事件；有值时自带清除按钮
 
 ### <af-skeleton-page>
 
 ```html
-<af-skeleton-page id="sk" variant="list"></af-skeleton-page>
+<af-skeleton-page variant="list"></af-skeleton-page>
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- variant 四选一：list / detail / profile / card；加载完成后移除元素换成真实内容
 
 ### <af-stepper>
 
 ```html
-<af-stepper id="st" value="2"></af-stepper>
+<af-stepper id="sp" value="1" min="1" max="99"></af-stepper>
 ```
 
 ```js
-const el = document.querySelector('af-stepper');
-el.addEventListener('af-stepper:change', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+document.getElementById('sp').addEventListener('af-stepper:change', (e) => console.log(e.detail.value));
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- value/min/max/step/disabled 属性；change 载荷 e.detail.value；setValue(i) 编程赋值
 
 ### <af-steps>
 
 ```html
-<af-steps id="s1" current="2"></af-steps>
+<af-steps id="st"></af-steps>
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+```js
+const st = document.getElementById('st');
+st.steps = ['提交订单', '付款', '发货', '收货'];
+st.current = 2; // 当前进行到第 3 步
+```
+
+- steps 字符串数组或 {label} 对象数组；current 高亮当前步
 
 ### <af-swipe-cell>
 
 ```html
-<af-swipe-cell></af-swipe-cell>
+<af-swipe-cell>
+  <div slot="content" class="list-item">消息内容</div>
+  <div slot="right"><button class="btn btn-danger" data-action="delete">删除</button></div>
+</af-swipe-cell>
 ```
 
 ```js
-const el = document.querySelector('af-swipe-cell');
-el.addEventListener('af-swipe-cell:action', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+document.querySelector('af-swipe-cell').addEventListener('af-swipe-cell:action', (e) => {
+  if (e.detail.action === 'delete') /* 移除该项 */;
+});
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- slot=content 主内容 / slot=right 操作区；操作按钮 data-action 值进载荷 e.detail.action
 
 ### <af-swiper>
 
 ```html
-<af-swiper id="swiper"></af-swiper>
+<af-swiper autoplay="3000" loop>
+  <div>slide 1</div>
+  <div>slide 2</div>
+  <div>slide 3</div>
+</af-swiper>
 ```
 
-```js
-const el = document.querySelector('af-swiper');
-el.addEventListener('af-swiper:change', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-```
-
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- 子元素即 slide（slot 分发）；autoplay(ms)/loop/showDots 属性；goTo(i)/next()/prev() 编程切换；触摸横竖向判定防误滚页面
 
 ### <af-switch>
 
 ```html
-<af-switch id="s1"></af-switch>
+<div class="cell"><span class="body">通知推送</span><af-switch id="sw" checked></af-switch></div>
 ```
 
 ```js
-const el = document.querySelector('af-switch');
-el.addEventListener('af-switch:change', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const sw = document.getElementById('sw');
+sw.addEventListener('af-switch:change', (e) => console.log(e.detail.checked));
+sw.toggle(true); // 受控切换：与当前态相同时不派发事件
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- checked/loading/disabled/size 属性；toggle(force) 受控切换；载荷 e.detail.checked
 
 ### <af-tabbar>
 
@@ -432,24 +466,30 @@ el.addEventListener('af-switch:change', (e) => console.log(e.detail)); // 载荷
 ```
 
 ```js
-const el = document.querySelector('af-tabbar');
-el.addEventListener('af-tabbar:change', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const tb = document.getElementById('tb');
+tb.tabs = [
+  { label: '首页', value: 'home' },
+  { label: '消息', value: 'msg', badge: '3' }, // badge 可选
+  { label: '我的', value: 'me' },
+];
+tb.addEventListener('af-tabbar:change', (e) => console.log(e.detail.index, e.detail.value));
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- tabs 数组注入（label/value/badge 可选）；默认吸底 + safe-area，fixed="false" 取消；icon 省略即纯文字（禁 emoji）
 
 ### <af-tabs>
 
 ```html
-<af-tabs id="tabs"></af-tabs>
+<af-tabs id="tt"></af-tabs>
 ```
 
 ```js
-const el = document.querySelector('af-tabs');
-el.addEventListener('af-tabs:change', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const tt = document.getElementById('tt');
+tt.tabs = [{ label: '商品' }, { label: '评价' }, { label: '详情' }];
+tt.addEventListener('af-tabs:change', (e) => console.log(e.detail.index, e.detail.value));
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- tabs 数组（label/value/disabled 可选）+ active-index；setActive(i) 编程切换；选中态由 aria-selected 驱动；面板内容自行联动 change 事件
 
 ### <af-toast>
 
@@ -458,22 +498,24 @@ el.addEventListener('af-tabs:change', (e) => console.log(e.detail)); // 载荷�
 ```
 
 ```js
-const el = document.querySelector('af-toast');
-el.addEventListener('af-toast:dismiss', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+const toast = document.getElementById('toast');
+toast.show('操作成功', { type: 'success' }); // success / warning / error / loading
+toast.show('加载中…', { type: 'loading', duration: 0, closeOnClick: true }); // duration=0 常驻
+toast.dismiss(); // 手动关闭，派发 af-toast:dismiss
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- 单例组件：页面放一个 <af-toast>，全部提示走 show()；duration 默认自动消失
 
 ### <af-upload>
 
 ```html
-<af-upload id="upload" accept="image/*" multiple max-count="3" max-size="2097152"></af-upload>
+<af-upload accept="image/*" multiple max-count="3" button-text="上传图片"></af-upload>
 ```
 
 ```js
-const el = document.querySelector('af-upload');
-el.addEventListener('af-upload:change', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
-el.addEventListener('af-upload:error', (e) => console.log(e.detail)); // 载荷字段以 src/index.d.ts 为准
+document.querySelector('af-upload').addEventListener('af-upload:change', (e) => {
+  console.log(e.detail.files, e.detail.errors); // files: [{ file, url, name, size }]
+});
 ```
 
-- 最小骨架（回退生成）；完整场景读本文件 scenarios
+- accept/multiple/max-count/max-size/button-text 属性；change 载荷 { files, errors }；超限走 af-upload:error

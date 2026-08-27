@@ -6,6 +6,17 @@ export default {
   scenarios: [
     {
       name: '省市区选择',
+      fewshot: {
+        html: '<af-cascade-picker id="cp" title="选择地区"></af-cascade-picker>',
+        js: `const cp = document.getElementById('cp');
+cp.tree = [
+  { label: '浙江省', value: 'zj', children: [{ label: '杭州市', value: 'hz' }, { label: '宁波市', value: 'nb' }] },
+  { label: '广东省', value: 'gd', children: [{ label: '广州市', value: 'gz' }] },
+];
+cp.addEventListener('af-picker:confirm', (e) => console.log(e.detail.values));
+cp.open();`,
+        note: 'tree 树形数据（children 缺省为叶节点）；事件沿用 af-picker:*；confirm 载荷 e.detail.values',
+      },
       html: `
         <div class="card">
           <div class="cell"><span class="body">地区</span><button class="btn btn-sm btn-ghost" onclick="document.getElementById('cp').open()">选择</button></div>

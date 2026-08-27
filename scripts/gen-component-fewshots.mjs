@@ -74,7 +74,7 @@ function compileShot(mod, wl) {
     };
   }
   const errors = validateShot(tag, shot, wl);
-  return { tag, shot, errors };
+  return { tag, shot, errors, manual: !!withShot };
 }
 
 // ===== 产物渲染 =====
@@ -166,8 +166,9 @@ async function main() {
   }
 
   writeFileSync(OUT, md);
-  console.log(`✓ prompt/component-fewshots.md 生成（${names.length} 组件，回退骨架 ${skipped.length}）`);
-  if (skipped.length) console.log('  无场景/无标签跳过：' + skipped.join(', '));
+  const manualN = names.filter(n => shots[n].manual).length;
+  console.log(`✓ prompt/component-fewshots.md 生成（${names.length} 组件：手写 fewshot ${manualN} / 回退骨架 ${names.length - manualN}）`);
+  if (skipped.length) console.log(`  跳过（blocks / 无标签）：${skipped.join(', ')}`);
 }
 
 main();

@@ -6,6 +6,11 @@ export default {
   scenarios: [
     {
       name: '滚动出现',
+      fewshot: {
+        html: '<af-backtop threshold="120" text="↑"></af-backtop>',
+        js: `document.querySelector('af-backtop').addEventListener('af-backtop:click', () => console.log('回顶'));`,
+        note: 'threshold 触发阈值；target 指定滚动容器选择器（缺省 window）；fixed 定位，click 平滑回顶',
+      },
       html: `
         <style>
           /* 豁免：af-backtop 默认 fixed 定位，本场景需在局部滚动容器内 absolute 定位，组件未提供该变体

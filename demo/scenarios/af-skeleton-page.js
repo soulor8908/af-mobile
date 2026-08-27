@@ -7,6 +7,10 @@ export default {
   scenarios: [
     {
       name: '布局变体',
+      fewshot: {
+        html: '<af-skeleton-page variant="list"></af-skeleton-page>',
+        note: 'variant 四选一：list / detail / profile / card；加载完成后移除元素换成真实内容',
+      },
       html: `
         <af-skeleton-page id="sk" variant="list"></af-skeleton-page>
         <p class="caption">切换「变体」实时重建骨架布局。</p>

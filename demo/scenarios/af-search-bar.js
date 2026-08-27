@@ -6,6 +6,14 @@ export default {
   scenarios: [
     {
       name: '搜索栏',
+      fewshot: {
+        html: '<af-search-bar id="sb" placeholder="搜索商品、店铺"></af-search-bar>',
+        js: `const sb = document.getElementById('sb');
+sb.addEventListener('af-search-bar:search', (e) => console.log(e.detail.value)); // 防抖确认后触发
+sb.addEventListener('af-search-bar:clear', (e) => console.log(e.detail.value)); // 清除后自动聚焦
+sb.focus();`,
+        note: 'value/placeholder/debounce 属性；input 实时 / search 防抖确认 / clear 清除三事件；有值时自带清除按钮',
+      },
       html: `
         <div class="actions">
           <button class="btn btn-ghost btn-block" id="sb-focus">聚焦搜索</button>

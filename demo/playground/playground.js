@@ -195,3 +195,11 @@ document.querySelectorAll('.pg-tab').forEach((b) =>
     document.querySelectorAll('.pg-tab').forEach((x) => x.classList.toggle('is-active', x === b));
     document.querySelectorAll('.pg-tabpanel').forEach((p) => p.classList.toggle('is-active', p.dataset.panel === b.dataset.tab));
   }));
+
+// 移动端 预览/调试 视图切换（窄屏下预览与调试面板二选一，避免双栏挤压）
+document.querySelectorAll('.pg-mobile-switch button').forEach((b) =>
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.pg-mobile-switch button').forEach((x) => x.classList.toggle('is-active', x === b));
+    document.body.classList.remove('pg-view-stage', 'pg-view-panel');
+    document.body.classList.add(`pg-view-${b.dataset.view}`);
+  }));

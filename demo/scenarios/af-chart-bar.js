@@ -9,6 +9,15 @@ export default {
   scenarios: [
     {
       name: '基础',
+      fewshot: {
+        html: '<af-chart-bar id="c" legend></af-chart-bar>',
+        js: `import { registerChart } from '../../src/charts/index.js'; // 子库注册，禁主入口 register
+await registerChart('af-chart-bar');
+const c = document.getElementById('c');
+c.labels = ['一月', '二月', '三月', '四月'];
+c.series = [{ name: '销售额', values: [1280, 960, 540, 420] }];`,
+        note: '子库注册（registerChart）；labels + series[{name, values}]；variant：column/bar/stacked/grouped',
+      },
       html: '<af-chart-bar id="demo" legend></af-chart-bar>',
       main: { selector: '#demo' },
       props: [

@@ -6,6 +6,13 @@ export default {
   scenarios: [
     {
       name: '日期选择',
+      fewshot: {
+        html: '<af-calendar id="cal" min="2026-01-01"></af-calendar>',
+        js: `const cal = document.getElementById('cal');
+cal.addEventListener('af-calendar:select', (e) => console.log(e.detail.date));
+cal.addEventListener('af-calendar:monthchange', (e) => console.log(e.detail.month));`,
+        note: 'value/min/max（YYYY-MM-DD）；select 载荷 e.detail.date，翻月触发 monthchange',
+      },
       html: `<af-calendar id="cal"></af-calendar>`,
       main: { selector: 'af-calendar' },
       props: [

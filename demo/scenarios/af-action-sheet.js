@@ -6,6 +6,17 @@ export default {
   scenarios: [
     {
       name: '基础操作',
+      fewshot: {
+        html: '<af-action-sheet id="as" title="选择操作" show-cancel></af-action-sheet>',
+        js: `const as = document.getElementById('as');
+as.options = [
+  { label: '微信好友', value: 'wx' },
+  { label: '删除', value: 'del', danger: true }, // danger 红色项
+];
+as.addEventListener('af-action-sheet:select', (e) => console.log(e.detail.index, e.detail.value));
+as.showPopover(); // 显隐必须走 popover API，禁手动 display 切换`,
+        note: 'options 数组（label/value/danger/disabled）；showPopover()/hidePopover() 控制显隐',
+      },
       html: `
         <div class="actions">
           <button class="btn" id="as-open">打开操作面板</button>

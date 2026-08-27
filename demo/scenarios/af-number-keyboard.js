@@ -7,6 +7,16 @@ export default {
   scenarios: [
     {
       name: '安全键盘（随机布局 + maxlength）',
+      fewshot: {
+        html: `<af-password-input id="pi" length="6" mask></af-password-input>
+<af-number-keyboard id="kb" random title="输入密码"></af-number-keyboard>`,
+        js: `const kb = document.getElementById('kb');
+const pi = document.getElementById('pi');
+kb.addEventListener('af-number-keyboard:input', (e) => { pi.value = e.detail.value; });
+kb.addEventListener('af-number-keyboard:complete', (e) => console.log('完成:', e.detail.value));
+kb.addEventListener('af-number-keyboard:delete', (e) => { pi.value = e.detail.value; });`,
+        note: 'random 随机布局键盘；input 载荷 { key, value }，输满 maxlength 派发 complete；与 af-password-input 配对使用',
+      },
       html: `
         <div class="actions">
           <button class="btn" id="nk-open">打开安全键盘</button>

@@ -25,3 +25,52 @@ body { margin: 0; font-family: system-ui, sans-serif; background: #f5f6f8; }
 .pg-empty { color: #999; font-size: 13px; padding: 16px; text-align: center; }
 #pg-event-clear { margin-top: 8px; }
 #pg-style-code { min-height: 60px; margin-top: 8px; }
+
+/* 移动端切换按钮：桌面隐藏 */
+.pg-mobile-switch { display: none; }
+
+/* —— 移动端适配 —— */
+@media (max-width: 820px) {
+  .pg-topbar { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+  .pg-topbar select { flex: 1; min-width: 0; font-size: 16px; /* ≥16px 防 iOS 聚焦缩放 */ }
+  .pg-main { flex-direction: column; padding: 12px; gap: 12px; align-items: stretch; }
+  .pg-device { width: 100% !important; /* 覆盖 JS 写入的 375/414px 内联宽度，避免横向滚动 */ }
+  .pg-device-bar { border-radius: 12px 12px 0 0; }
+  .pg-device-bar .pg-btn { padding: 8px 14px; font-size: 13px; }
+  .pg-device-screen { max-height: none; min-height: 320px; }
+  .pg-panel { width: 100%; }
+  .pg-tab { padding: 12px; font-size: 15px; }
+  .pg-row input[type="text"], .pg-row input[type="number"], .pg-row select { font-size: 16px; }
+  .pg-btn { padding: 8px 14px; font-size: 13px; }
+  .pg-scenarios { padding: 12px; }
+  .pg-log { max-height: 200px; }
+
+  /* 预览 / 调试 二选一视图 */
+  .pg-mobile-switch {
+    display: flex;
+    position: fixed;
+    left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 10;
+    background: #333;
+    border-radius: 24px;
+    padding: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+  }
+  .pg-mobile-switch button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    background: transparent;
+    color: rgba(255,255,255,.7);
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .pg-mobile-switch button.is-active { background: #2563eb; color: #fff; }
+  body.pg-view-panel .pg-stage { display: none; }
+  body.pg-view-stage .pg-panel { display: none; }
+  body.pg-view-panel { padding-bottom: 72px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pg-device { transition: none; }
+}

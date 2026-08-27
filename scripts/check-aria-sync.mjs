@@ -1,4 +1,4 @@
-// af-mobile UI —— ARIA 要求同步检查（CI 闸门，AGENTS.md #5）
+// af-mobile UI —— ARIA 要求同步检查（CI 闸门，docs/incidents.md #5）
 // 双向校验：
 //   1. aria-requirements.json 声明的每个必需字段，wc-aria-required.js 都有对应检测分支
 //      （防止反模式：JSON 加了 "ariaChecked": true，但规则 JS 没写 if (req.ariaChecked && ...)）
@@ -76,7 +76,7 @@ function main() {
   console.log(`\n✗ ${problems.length} 项不同步：`);
   for (const p of problems) console.log('  - ' + p);
   console.log('\n  修复：');
-  console.log('  - JSON 与规则不同步：在 wc-aria-required.js 补对应检测分支（AGENTS.md #5）');
+  console.log('  - JSON 与规则不同步：在 wc-aria-required.js 补对应检测分支（docs/incidents.md #5）');
   console.log('  - 组件不存在：修正 aria-requirements.json 中的组件名拼写');
   console.log('  - 未识别字段：修正字段名拼写或删除多余字段');
   process.exit(1);

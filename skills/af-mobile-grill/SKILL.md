@@ -52,7 +52,7 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
   - 数据层写成假 store（内存对象 + 读写函数），函数签名与拆分表数据模型一致——Phase 5 只换函数体实现（localStorage/Supabase），页面调用代码零改动
 - **组件按需引入 + CSS 全量静态引入**（铁律，禁止 UMD / 禁止 registerAll / 禁止全局引入）：
   - CSS（工程内预览，Vite）：`<script type="module">` 内 `import '@af-mobile/ui/css';` —— 必须用 JS 裸导入走 `exports`，与脚手架 `src/main.js` 完全同构，Phase 5 复制零改动
-  - ⚠️ **禁止 `<link rel="stylesheet" href="@af-mobile/ui/css">`（裸包名 `<link>`）**：Vite 不支持 `<link>` 裸导入，会当 SPA 路由回退、静默返回 HTML 而非 CSS，导致全部样式丢失且**不报任何错**（AGENTS.md #11）
+  - ⚠️ **禁止 `<link rel="stylesheet" href="@af-mobile/ui/css">`（裸包名 `<link>`）**：Vite 不支持 `<link>` 裸导入，会当 SPA 路由回退、静默返回 HTML 而非 CSS，导致全部样式丢失且**不报任何错**（docs/incidents.md #11）
   - 无构建双击打开场景例外：可用 `<link rel="stylesheet" href="node_modules/@af-mobile/ui/src/index.css">`（相对路径不受上文裸名限制）
   - JS：`<script type="module">` 内 `import { AfList, AfDialog } from 'node_modules/@af-mobile/ui/src/index.js'; customElements.define('af-list', AfList); ...`（或 `await register('af-list', 'af-dialog')`），只引页面用到的组件
   - ❌ 禁止 `<script src=".../af-mobile.umd.js">`、禁止 `registerAll()`、禁止全局对象

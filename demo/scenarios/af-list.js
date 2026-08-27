@@ -29,7 +29,7 @@ export default {
         const list = document.getElementById('list');
 
         // 自定义 renderItem：拆 currency + price 两段渲染
-        // - html 模板自动 esc 不可信字段，防 XSS（AGENTS.md #1）
+        // - html 模板自动 esc 不可信字段，防 XSS（docs/incidents.md #1）
         // - data-role 绕开白名单；配色用 var(--*) 不硬编码
         list.renderItem = (item, idx) => html`<div class="list-item" data-list-index="${idx}">
           <div class="flex-1">

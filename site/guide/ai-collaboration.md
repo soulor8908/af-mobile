@@ -2,9 +2,9 @@
 
 ## 理念：库是 AI-first
 
-@af-mobile/ui 在立项之初就把 AI 当作一等公民——设计体系（L1/L2/L3）本身就是要让"AI 生成合规模板 HTML"这件事变得可约束、可验证。README 称之为 **L4 AI 约束层**（System Prompt 引导 + ESLint 规则兜底 + CI 保护）；AGENTS.md §5「AI 开发工具接入」给出了具体的协作协议。
+@af-mobile/ui 在立项之初就把 AI 当作一等公民——设计体系（L1/L2/L3）本身就是要让"AI 生成合规模板 HTML"这件事变得可约束、可验证。README 称之为 **L4 AI 约束层**（System Prompt 引导 + ESLint 规则兜底 + CI 保护）；AGENTS.md §4「AI 工具接入」给出了具体的协作协议。
 
-核心原则（AGENTS.md §5）：**调用方即 LLM**——库不内置任何 LLM，只用你自己的模型写代码，库侧只提供确定性的 prompt / lint / 修正建议。你不需要配置任何 `AFMOBILE_AI_API_URL` 就能用完整工作流（MCP 与 CLI 默认即可跑）。
+核心原则（AGENTS.md §4）：**调用方即 LLM**——库不内置任何 LLM，只用你自己的模型写代码，库侧只提供确定性的 prompt / lint / 修正建议。你不需要配置任何 `AFMOBILE_AI_API_URL` 就能用完整工作流（MCP 与 CLI 默认即可跑）。
 
 ## 给人类开发者：怎么带 AI 干活
 
@@ -28,12 +28,12 @@ node scripts/generate.mjs "商品列表页带图"
 
 ## 给 AI Agent：约束从哪来
 
-AI 面对的核心约束有两层（AGENTS.md §3）：
+AI 面对的核心约束有两层（AGENTS.md §2）：
 
 1. **压缩版 System Prompt**：`prompt/system-prompt.md` 是 token 优化的生成提示——角色、设计体系速查、白名单、组件 API、few-shot 全部内联，由 `npm run prompt:build`（`scripts/build-prompt.mjs`）从白名单/类型/组件源码汇聚生成。AI 首先要遵守它的禁令（事件 `af-{组件}:{动作}`、Shadow 用 `var(--*)`、禁内联 style 等）。
 2. **ESLint 规则集兜底**：`eslint-plugin-af-mobile` 的规则把 prompt 里的软约束变成硬错误。其中**白名单封闭集**最常用——消费端只能用 156 个白名单 class（104 配方 + 52 原子），白名单外 class 或自定义组件标签触发 ESLint error。
 
-库源码（`src/`）与消费端（脚手架生成工程）用不同的规则集：源码走组件质量规则，消费端走完整 AI 规则集（白名单/禁内联 style/禁 Tailwind 语法），两者界限在 AGENTS.md §3 中明确划分。消费端项目必须由脚手架生成（`npm create af-mobile` / `node scripts/create-app.mjs`），这是项目骨架的单一真相源。
+库源码（`src/`）与消费端（脚手架生成工程）用不同的规则集：源码走组件质量规则，消费端走完整 AI 规则集（白名单/禁内联 style/禁 Tailwind 语法），两者界限在 AGENTS.md §2 与 docs/incidents.md「二」中明确划分。消费端项目必须由脚手架生成（`npm create af-mobile` / `node scripts/create-app.mjs`），这是项目骨架的单一真相源。
 
 ## 数据飞轮 v2
 

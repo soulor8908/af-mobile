@@ -73,7 +73,7 @@ export function recordRun({ source, tool, file, passed, violations, scene = null
   return event;
 }
 
-// 读取全部事件（逐行解析，坏行跳过不崩——AGENTS #6）
+// 读取全部事件（逐行解析，坏行跳过不崩——docs/incidents.md #6）
 export function readTelemetry() {
   const p = telemetryPath();
   if (!existsSync(p)) return [];

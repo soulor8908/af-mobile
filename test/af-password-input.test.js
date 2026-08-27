@@ -100,7 +100,7 @@ describe('af-password-input Shadow DOM', () => {
     el.length = 4;
     expect(el.$$('.cell').length).toBe(4);
     el.value = '1';
-    // 显式属性关闭掩码（AGENTS.md #10："false" 字符串解析为 false；
+    // 显式属性关闭掩码（docs/incidents.md #10："false" 字符串解析为 false；
     // property 路径 default-true 布尔设 false 走 removeAttribute 空操作，不触发变更回调）
     el.setAttribute('mask', 'false');
     expect(el.$$('.cell')[0].textContent).toBe('1');

@@ -1,4 +1,4 @@
-// ARIA 要求同步检查测试（aria-requirements.json ↔ wc-aria-required.js，AGENTS.md #5）
+// ARIA 要求同步检查测试（aria-requirements.json ↔ wc-aria-required.js，docs/incidents.md #5）
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
@@ -27,7 +27,7 @@ describe('aria-sync / computeAriaSyncProblems', () => {
     expect(computeAriaSyncProblems(req, RULE_WITH_ALL_BRANCHES, false)).toEqual([]);
   });
 
-  it('JSON 声明但规则 JS 缺检测分支 → 报告（AGENTS.md #5 反模式）', () => {
+  it('JSON 声明但规则 JS 缺检测分支 → 报告（docs/incidents.md #5 反模式）', () => {
     const req = { 'af-switch': { role: 'switch', ariaChecked: true } };
     // 规则缺 ariaChecked 分支
     const rule = `

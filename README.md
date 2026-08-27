@@ -587,7 +587,7 @@ PR 触发 CI 检查链路（任一失败即阻断合并）：
 | `@af-mobile/prompt` | System Prompt 构建器（按需求裁剪白名单+组件 API+few-shot） | `import { buildPrompt } from '@af-mobile/prompt'` |
 | `@af-mobile/adapters` | 后端 scheme 适配器：`supabase://table?...` → PostgREST（零 BaaS SDK） | `npm i @af-mobile/adapters`（peer 依赖主包） |
 
-> MCP 五个工具的完整用法与数据飞轮机制见 [AGENTS.md §5](AGENTS.md)；CLI 与 skill 工作流见上文「快速开始」。
+> MCP 五个工具的完整用法与数据飞轮机制见 [AGENTS.md §4](AGENTS.md)（细节：docs/incidents.md「四」）；CLI 与 skill 工作流见上文「快速开始」。
 
 ## 本地开发
 

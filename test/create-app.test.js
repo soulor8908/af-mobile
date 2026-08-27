@@ -58,7 +58,7 @@ describe('create-app scaffold', () => {
     const main = readFileSync(join(dir, 'src/main.js'), 'utf8');
     expect(main).toContain("start('#app', { hash: true })");
 
-    // 页面范式收敛到 createPage（grill 与脚手架同构，AGENTS.md §3.5）
+    // 页面范式收敛到 createPage（grill 与脚手架同构，AGENTS.md §3）
     const home = readFileSync(join(dir, 'src/pages/home.js'), 'utf8');
     expect(home).toContain('createPage(');
     expect(home).toContain(':value="derived.pct"');            // :bind 响应式绑定

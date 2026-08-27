@@ -1,6 +1,6 @@
 ---
 name: "af-mobile-release-prep"
-description: "Release pre-flight for @af-mobile/ui workspaces. Runs §2 self-checks, diffs local vs npm versions, finds unpublished changes per workspace, bumps versions, emits publish commands. Invoke when preparing a release or asking which packages to republish."
+description: "Release pre-flight for @af-mobile/ui workspaces. Runs §1 gate self-checks, diffs local vs npm versions, finds unpublished changes per workspace, bumps versions, emits publish commands. Invoke when preparing a release or asking which packages to republish."
 ---
 
 # af-mobile Release Prep —— 发布前准备与版本发布
@@ -9,9 +9,9 @@ description: "Release pre-flight for @af-mobile/ui workspaces. Runs §2 self-che
 
 ## 适用范围
 
-仓库 `d:\projects\aiflow-ui`（npm workspaces：`@af-mobile/ui` + `@af-mobile/eslint-plugin` + `create-af-mobile`）。AGENTS.md §2 的自检命令是硬约束，跳过即返工。
+仓库 `d:\projects\aiflow-ui`（npm workspaces：`@af-mobile/ui` + `@af-mobile/eslint-plugin` + `create-af-mobile`）。AGENTS.md §1 的提交门禁是硬约束，跳过即返工。
 
-## Phase 1 — 跑 §2 自检（并行）
+## Phase 1 — 跑 §1 门禁（并行）
 
 7 项 + 2 项补充，全部通过才能发布。先并行跑最耗时的两项（ESLint + vitest），再并行跑剩余 5 项独立的同步检查：
 
@@ -176,10 +176,10 @@ cd ..
 
 ## Phase 6 — 偏差坦白（合规要求）
 
-按 AGENTS.md §0.5「坦白须定位规则」：自报偏差时必须给出**该偏差对应的规则文件路径与行号**或文档引用。
+按 AGENTS.md §0 原则 5「坦白须定位」：自报偏差时必须给出**该偏差对应的规则文件路径与行号**或文档引用。
 
 合规示例：
-- `"未跑 §2 第 4 步 whitelist:check（AGENTS.md L141）"`
+- `"未跑 §1 门禁第 4 步 whitelist:check（AGENTS.md §1）"`
 - `"npm publish 受沙盒限制未执行（skill Phase 5.3）"`
 
 禁止表演性坦白：拿不出引用 = 未根因定位 = 坦白不算数。
@@ -191,7 +191,7 @@ cd ..
 
 **版本**：x.y.z（工作区状态 + 本地 vs origin 同步情况）
 
-### 自检结果（§2 全部通过）
+### 自检结果（§1 全部通过）
 
 | # | 检查项 | 状态 |
 |---|---|---|
@@ -210,7 +210,7 @@ cd ..
 
 ## 边界
 
-- **仅 af-mobile/ui 仓库**：其他仓库的 §2 自检命令不同，不要套用
+- **仅 af-mobile/ui 仓库**：其他仓库的 §1 门禁命令不同，不要套用
 - **不替用户发布**：`npm publish` 是破坏性公开操作，必须用户在沙盒外执行
-- **不擅自调大预算**：size 失败时优化代码，不调 `package.json` 的 budget 字段（AGENTS.md §2）
-- **不跳过自检**：不允许 `eslint-disable` / `vitest skip` / `whitelist 删检查` 绕过（AGENTS.md §2 失败处理表）
+- **不擅自调大预算**：size 失败时优化代码，不调 `package.json` 的 budget 字段（AGENTS.md §1）
+- **不跳过自检**：不允许 `eslint-disable` / `vitest skip` / `whitelist 删检查` 绕过（AGENTS.md §1 失败处理）

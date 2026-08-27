@@ -62,7 +62,7 @@ describe('telemetry / recordRun + readTelemetry', () => {
     expect(readTelemetry()[2].scene).toBeUndefined();
   });
 
-  it('坏行跳过不崩（AGENTS #6）', () => {
+  it('坏行跳过不崩（docs/incidents.md #6）', () => {
     appendFileSync(join(tmpDir, 'telemetry.jsonl'), '{broken json\n');
     recordRun({ source: 'cli', file: 'c.js', passed: false, violations: [{ rule: 'x', message: '' }] });
     appendFileSync(join(tmpDir, 'telemetry.jsonl'), 'also broken\n');

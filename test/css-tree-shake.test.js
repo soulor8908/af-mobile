@@ -1,5 +1,5 @@
 // CSS Tree Shaking 脚本测试
-// 测试夹具含非白名单 class 字符串（如 'should-ignore' / 'btn-danger'），按 AGENTS.md §2 测试夹具例外豁免
+// 测试夹具含非白名单 class 字符串（如 'should-ignore' / 'btn-danger'），按 AGENTS.md §1 测试夹具例外豁免
 /* eslint-disable af-mobile/token-whitelist */
 import { describe, it, expect } from 'vitest';
 import { scanUsedClasses, shakeCss, extractAnimationNames } from '../scripts/css-tree-shake.mjs';

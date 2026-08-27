@@ -62,7 +62,7 @@ export default [
     },
   },
   // AI 生成的代码 / 测试文件 / 脚本 / prompt 构建 / e2e / ai-fix 临时文件：启用完整 AI 规则集
-  // .mjs 一并覆盖（AGENTS #9：ESLint 范围必须覆盖所有含 JS 的目录）
+  // .mjs 一并覆盖（docs/incidents.md #9：ESLint 范围必须覆盖所有含 JS 的目录）
   // scripts/ 与 .cache/ 含 Block 标签字面量（build-prompt BLOCK_META / Block 臂生成页）→ extraComponents 放行
   {
     files: ['**/*.test.js', 'test/**/*.js', 'scripts/**/*.js', 'scripts/**/*.mjs', 'e2e/**/*.js', 'mcp/**/*.js', 'mcp/**/*.mjs', 'eval/**/*.mjs'],

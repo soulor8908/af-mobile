@@ -2,7 +2,11 @@ import { describe, it, expect, vi } from 'vitest';
 import {
   html, Show, For, Switch, render, clean,
   signal, computed, effect, batch,
+  createResource, route, go, back, forward,
+  beforeEach as kBeforeEach, afterEach as kAfterEach,
+  notFound, current, start, RouterError,
 } from '../src/k/index.js';
+import { _resetRouter } from '../src/lib/router.js';
 
 // k 渲染层：html`` 四种绑定 + Show/For/Switch 控制流 + render/clean 作用域清理
 // 契约与 experiments/r2 词表卡一致（B3 实验任务集的同款 API 面）
@@ -162,6 +166,34 @@ describe('k 重导出响应式核心', () => {
     await Promise.resolve();
     expect(seen).toBe(2); // 初始 1 次 + batch 合并后 1 次
     expect(b()).toBe(12);
+  });
+});
+
+describe('k 应用原语（D-001=B：res/route 从 k 入口直达）', () => {
+  it('createResource 可从 k 入口使用：拉取 + signal 式读取', async () => {
+    const r = createResource(1, (k) => Promise.resolve(k * 10));
+    expect(r.isLoading()).toBe(true);
+    await vi.waitFor(() => expect(r.data()).toBe(10));
+    expect(r.isLoading()).toBe(false);
+    expect(r.isError()).toBe(false);
+  });
+
+  it('router 全套 API 可从 k 入口使用：route/go/current', async () => {
+    _resetRouter();
+    document.body.innerHTML = '<div id="outlet"></div>';
+    const cancel = kAfterEach(() => {});
+    cancel();
+    kBeforeEach(() => {});
+    route('/k-home', () => {});
+    const stop = start('#outlet', { hash: false });
+    await go('/k-home');
+    expect(current()?.path).toBe('/k-home');
+    expect([back, forward, notFound].every(fn => typeof fn === 'function')).toBe(true);
+    expect(new RouterError('x')).toBeInstanceOf(Error);
+    stop();
+    _resetRouter();
+    history.replaceState(null, '', '/');
+    document.body.innerHTML = '';
   });
 });
 

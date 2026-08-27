@@ -1,8 +1,8 @@
 # @af-mobile/ui/k —— 声明式应用层（演进中）
 
 > 定位：从可选渲染层演进为应用层（独立入口，不进主包 index.js）。
-> 状态：**推广中**（见仓库 docs/DECISIONS.md D-001）——渲染核心（html\`\` + 控制流 + state）已定版；
-> 应用能力（res / route 入口重导出、k 层 lint）按闭环计划分阶段补齐。
+> 状态：**推广中**（见仓库 docs/DECISIONS.md D-001）——渲染核心 + res/route 应用原语已从本入口直达；
+> k 层 lint 规则按闭环计划分阶段补齐。
 
 ## 与主包 `html\`\`` 的区别（勿混用）
 
@@ -16,7 +16,7 @@
 
 ## 词表卡（全部能力 = 以下 API，无其他）
 
-导入：`import { html, signal, computed, effect, batch, Show, For, Switch, render, clean } from '@af-mobile/ui/k'`
+导入：`import { html, signal, computed, effect, batch, Show, For, Switch, render, clean, createResource, route, go, back, forward, beforeEach, afterEach, notFound, current, start } from '@af-mobile/ui/k'`
 
 `html\`\`` 返回真实 DOM。四种绑定：
 
@@ -39,6 +39,19 @@ un(); // 卸载并清理全部副作用
 - `Switch({ when: fn, cases: { a: () => html\`\` }, def: () => html\`\` })`：分支，def 兜底
 - `render(app, el)`：app 为 html\`\` 或 () => html\`\`，渲染进 el（可为选择器），返回 unmount
 - `clean(fn)`：注册清理
+
+**res / route（应用原语）**：
+
+- `createResource(source, fetcher)`：响应式资源，返回 `{ data, isLoading, error, isError }`（均 signal 式读取）；source 变化自动重新拉取
+- `route(path, handler)`：注册路由；`start('#outlet', { hash? })` 启动（返回 stop）；`go(path)` 导航、`back()` / `forward()` 历史、`current()` 当前路由信息
+- `beforeEach(guard)` / `afterEach(hook)`：全局守卫/钩子；`notFound(handler)`：404
+
+```js
+import { html, signal, render, createResource } from '@af-mobile/ui/k';
+const q = signal('a');
+const res = createResource(() => q(), (key) => fetch(`/api/items?q=${key}`).then(r => r.json()));
+render(html`<ul>${() => res.data()?.map(i => html`<li>${i.name}</li>`)}</ul>`, '#app');
+```
 
 Show/For/Switch 返回节点，可直接放 `${}` 子位。
 

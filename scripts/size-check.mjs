@@ -289,21 +289,26 @@ async function measureChatUI() {
 }
 
 // k 渲染层（独立入口 @af-mobile/ui/k，不计入主库 total）：html``+Show/For/Switch+render/clean
-// 响应式核心 lib/state.js 与主库共享，external 掉（与 coreRuntime 同法，防重复计费）
+// D-001=B：入口另含 res/route 原语（createResource + router 全套）
+// 共享运行时 lib/state.js、lib/resource.js、lib/router.js 与主库同模块单份，external 掉（防重复计费）
 async function measureKRuntime() {
   const dir = mkdtempSync(join(tmpdir(), 'af-mobile-k-'));
   const entry = join(dir, 'entry.js');
   const toPosix = (p) => p.replace(/\\/g, '/');
   writeFileSync(entry,
-    `import { html, Show, For, Switch, render, clean } from '${toPosix(join(SRC, 'k/index.js'))}';\n` +
+    `import { html, Show, For, Switch, render, clean, createResource, route, go, current, start } from '${toPosix(join(SRC, 'k/index.js'))}';\n` +
     `// 引用以防 tree-shake 摇除\n` +
-    `globalThis.__afMobile_k = [html, Show, For, Switch, render, clean];\n`
+    `globalThis.__afMobile_k = [html, Show, For, Switch, render, clean, createResource, route, go, current, start];\n`
   );
   const res = await build({
     entryPoints: [entry],
     bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
     absWorkingDir: ROOT,
-    external: ['../lib/state.js', './state.js'],
+    external: [
+      '../lib/state.js', './state.js',
+      '../lib/resource.js', './resource.js',
+      '../lib/router.js', './router.js',
+    ],
   });
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }

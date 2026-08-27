@@ -63,6 +63,7 @@ mkdir -p results     # 各模型结果按 results/<模型名>/ 存放
 - `run.mjs`：确定性评分器
 - `tokens.mjs`：可选 token 统计（需 `npm i -D gpt-tokenizer`）
 - `fixtures/`：评分器自检夹具（两臂各一个 t1 参考解，验证装配路径，不作为实验数据）
+- `skills/af-mobile-r2/SKILL.md`：单模型采集 SOP（调度式/自管式，供不同模型家族的新会话执行）
 
 **评分器自检（采集前跑一次，确认基础设施正常）**：
 ```bash

@@ -23,7 +23,7 @@ const ROUTES = {
 // /af-mobile.js 的包装模块：按需注册所有组件后 re-export（registerAll/UMD 已移除，铁律：只按需引入）。
 // 生成页面只 import 原语（signal/effect），不负责注册组件；这里模拟真实接入，
 // 使 af-* 元素在页面脚本执行前 upgrade，属性 setter 才能生效。
-const WRAP_MOD = (name) => `import * as m from '${name}';try{await Promise.all((m.REGISTRY||[]).map(([tag])=>m.register(tag)))}catch(e){console.error('af-mobile register',e)}export * from '${name}';`;
+const WRAP_MOD = (name) => `import * as m from '${name}';try{await Promise.all((m.COMPONENT_TAGS||[]).map((t)=>m.register(t)))}catch(e){console.error('af-mobile register',e)}export * from '${name}';`;
 
 // /af-mobile-blocks.js 的包装模块：注册全部 L3.5 Block 后 re-export（Block 版生成页用）
 const BLOCK_WRAP_MOD = (name) => `import * as m from '${name}';try{m.registerBlocks()}catch(e){console.error('af-mobile registerBlocks',e)}export * from '${name}';`;

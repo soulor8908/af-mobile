@@ -4,7 +4,19 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-cascade-picker" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-cascade-picker" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
+## 示例
+
+### 省市区选择
+
+```html
+<div class="card">
+          <div class="cell"><span class="body">地区</span><button class="btn btn-sm btn-ghost" onclick="document.getElementById('cp').open()">选择</button></div>
+        </div>
+        <p class="caption" id="cp-log">点击「选择」打开级联面板，滚轮选择省 / 市 / 区。</p>
+        <af-cascade-picker id="cp" title="选择地区"></af-cascade-picker>
+```
 
 ## API
 

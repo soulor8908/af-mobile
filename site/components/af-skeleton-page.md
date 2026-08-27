@@ -4,7 +4,16 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-skeleton-page" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-skeleton-page" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
+## 示例
+
+### 布局变体
+
+```html
+<af-skeleton-page id="sk" variant="list"></af-skeleton-page>
+        <p class="caption">切换「变体」实时重建骨架布局。</p>
+```
 
 ## API
 

@@ -4,7 +4,25 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-pull-refresh" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-pull-refresh" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
+## 示例
+
+### 下拉触发刷新
+
+```html
+<af-pull-refresh id="pr">
+          <div class="list">
+            <div class="list-item"><div class="body">列表项 1</div></div>
+            <div class="list-item"><div class="body">列表项 2</div></div>
+            <div class="list-item"><div class="body">列表项 3</div></div>
+          </div>
+        </af-pull-refresh>
+        <p class="caption" id="pr-log">下拉触发 af-pull-refresh:refresh（触摸设备体验更佳）</p>
+        <div class="card">
+          <button class="btn btn-ghost btn-block" onclick="document.getElementById('pr').endRefresh()">结束刷新</button>
+        </div>
+```
 
 ## API
 

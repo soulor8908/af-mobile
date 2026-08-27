@@ -4,7 +4,16 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-tabbar" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-tabbar" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
+## 示例
+
+### 标签切换
+
+```html
+<af-tabbar id="tb" active-index="0"></af-tabbar>
+        <p class="caption" id="tb-log">切换触发 af-tabbar:change</p>
+```
 
 ## API
 

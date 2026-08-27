@@ -2,6 +2,10 @@
 
 > charts 子库 · 饼/环形/半环/玫瑰
 
+## 在线调试
+
+<iframe src="../demo/playground/index.html?c=af-chart-pie" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 基础饼图

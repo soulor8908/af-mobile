@@ -2,6 +2,10 @@
 
 > blocks 子库 · L3.5 订单列表块（simple / detailed 含缩略图，五态 + 键盘导航）
 
+## 在线调试
+
+<iframe src="../demo/playground/index.html?c=af-order-list" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 基础用法

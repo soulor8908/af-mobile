@@ -33,22 +33,20 @@ const renderEntry = (comps, base) => {
   return `${imports}\n\nexport { ${comps.map((c) => c.cls).join(', ')} };`;
 };
 
-// 主库 REGISTRY：显式 tag→Ctor 字面量表（minify 安全；仅供内省，Tree Shaking 友好）
-const renderRegistry = (comps) => `// 显式 tag→Ctor 注册表：不依赖 Function.name（minify 下类名会被压缩为 a/b/c，
-// 基于 name 的推导会失效）。改用字面量 tag 字符串，任何打包器压缩下都稳定。
-// 仅用于内省/工具链（eval、minify 安全测试）；register 走下方 LAZY 懒加载，不引用本表
-// （未被引用时连同 ${comps.length} 个 ctor import 一并被 Tree Shaking 摇掉）。
-export const REGISTRY = [
-${comps.map((c) => `  ['${c.tag}', ${c.cls}],`).join('\n')}
-];`;
+// 主库 LAZY：懒注册表（每项 import() 内联字面量路径/导出名 → 打包器可静态分析按需分包）
+// 注意：不可把 import 抽成 L=(path,key)=>import(path) 辅助函数——变量化 import() 无法被
+// 静态分析，产物会保留裸相对路径，运行时请求不存在的 chunk 导致 MIME/404 报错。
+// LAZY 是唯一注册事实源（原同步 REGISTRY 表已删：其唯一增值是携带 Ctor，但所有消费者
+// 只需 tag 清单；tag 清单经 index.js 手写区 `export const COMPONENT_TAGS = Object.keys(LAZY)` 派生）。
 
-// 主库 LAZY：懒注册表（路径/导出名为字面量 → 打包器可静态分析按需分包）
-const renderLazy = (comps, base) => `// 懒注册表：tag → 动态 import()。路径/导出名为字面量 → 打包器可静态分析，
+// 主库 LAZY：懒注册表（每项 import() 内联字面量路径/导出名 → 打包器可静态分析按需分包）
+// 注意：不可把 import 抽成 L=(path,key)=>import(path) 辅助函数——变量化 import() 无法被
+// 静态分析，产物会保留裸相对路径，运行时请求不存在的 chunk 导致 MIME/404 报错。
+const renderLazy = (comps, base) => `// 懒注册表：tag → 动态 import()。路径与导出名为逐项内联的字面量 → 打包器可静态分析，
 // register 页面只携带用到的组件（Tree Shaking + 按需分包）。
 // dist 单文件构建（bundle 无 splitting）时 esbuild 会内联这些 import()，脚本直引行为不变。
-const L = (path, key) => () => import(path).then((m) => m[key]);
 const LAZY = {
-${comps.map((c) => `  '${c.tag}': L('${base}/${c.file}', '${c.cls}'),`).join('\n')}
+${comps.map((c) => `  '${c.tag}': () => import('${base}/${c.file}').then((m) => m.${c.cls}),`).join('\n')}
 };`;
 
 // charts CHART_TAGS / blocks BLOCK_TAGS：标签 → 类映射（注册器用），导出名由 target.tagsVar 指定
@@ -68,7 +66,6 @@ export const TARGETS = [
     exclude: ['af-data.js'],
     regions: {
       entry: (c, t) => renderEntry(c, t.base),
-      registry: renderRegistry,
       lazy: (c, t) => renderLazy(c, t.base),
     },
   },

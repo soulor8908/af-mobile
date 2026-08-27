@@ -4,7 +4,19 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-rate" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-rate" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
+## 示例
+
+### 星级评分
+
+```html
+<div class="card">
+          <div class="cell"><span class="body">默认</span><af-rate id="r1" value="3"></af-rate></div>
+          <div class="cell"><span class="body">10 星</span><af-rate id="r2" value="7" max="10"></af-rate></div>
+        </div>
+        <p class="caption" id="r-log">点击星星评分 · 键盘原生支持</p>
+```
 
 ## API
 

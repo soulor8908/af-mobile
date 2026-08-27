@@ -46,26 +46,24 @@ describe('index.js 汇总导出', () => {
 // minify 安全性验证：register 不应依赖 Function.name（类名压缩后失效）
 describe('minify 安全注册', () => {
   // 模拟打包器类名压缩：把类名改短，旧实现基于 Ctor.name 推导 tag 会失效
-  it('REGISTRY 用字面量 tag，与类名解耦', () => {
-    expect(Array.isArray(AfMobile.REGISTRY)).toBe(true);
-    expect(AfMobile.REGISTRY.length).toBe(30);
-    // 每个 entry 是 [string, function]，tag 与类名无关
-    for (const [tag, Ctor] of AfMobile.REGISTRY) {
+  it('COMPONENT_TAGS 全量且均为 af- 字面量 tag（与类名解耦）', () => {
+    expect(Array.isArray(AfMobile.COMPONENT_TAGS)).toBe(true);
+    expect(AfMobile.COMPONENT_TAGS.length).toBe(30);
+    for (const tag of AfMobile.COMPONENT_TAGS) {
       expect(typeof tag).toBe('string');
       expect(tag).toMatch(/^af-/);
-      expect(typeof Ctor).toBe('function');
     }
   });
 
-  it('register 全部 30 个 tag 均来自 REGISTRY 字面量（即使类名被压缩）', async () => {
+  it('register 全部 30 个 COMPONENT_TAGS 均可注册（即使类名被压缩）', async () => {
     // 逐个按需注册（registerAll 已移除），所有 tag 应能被注册（懒加载 → await 后 upgrade 完成）
-    await AfMobile.register(...AfMobile.REGISTRY.map(([tag]) => tag));
-    for (const [tag] of AfMobile.REGISTRY) {
+    await AfMobile.register(...AfMobile.COMPONENT_TAGS);
+    for (const tag of AfMobile.COMPONENT_TAGS) {
       expect(customElements.get(tag)).toBeDefined();
     }
   });
 
-  it('register(tag) 按 REGISTRY 字面量查找，不依赖类名', async () => {
+  it('register(tag) 按 LAZY 字面量查找，不依赖类名', async () => {
     // af-badge 由 register 单独注册（懒加载 → await 后 upgrade 完成）
     await AfMobile.register('af-badge');
     expect(customElements.get('af-badge')).toBe(AfMobile.AfBadge);

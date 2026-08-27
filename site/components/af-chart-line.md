@@ -2,6 +2,10 @@
 
 > charts 子库 · 折线/面积/散点/迷你趋势（sparkline）
 
+## 在线调试
+
+<iframe src="../demo/playground/index.html?c=af-chart-line" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 基础折线

@@ -3,19 +3,51 @@
 // main: { selector } 用于定位组件实例（缺省回退 html 首元素）；init: 渲染后调用（注入数据/绑定按钮）
 // props 控件：boolean=开关按钮 / select=下拉 / number=数字 / string=文本，赋值 el[prop] 实时生效
 // styleTokens 控件：color=取色器 / range=滑杆，以 CSS 变量覆盖到 #pg-screen，并展示覆盖代码
-import { register } from '../../src/index.js';
-
+// 注意：不用 src/index.js 的 register() —— 其 LAZY 表把动态导入包进函数（import(e) 变量化），
+// Rollup 无法静态分析，产物保留裸相对路径 ./components/xxx.js 导致运行时 MIME 报错。
+// 此处改用 import.meta.glob 构建期展开组件源码，按需加载 + 自行 define。
 const $ = (s, el = document) => el.querySelector(s);
 const screen = $('#pg-screen');
-const COMPONENTS = ['af-dialog', 'af-list', 'af-swiper', 'af-tabs', 'af-toast', 'af-action-sheet', 'af-picker', 'af-dropdown', 'af-switch', 'af-navbar'];
+// 场景自动发现：构建期展开 glob，每个场景文件独立 chunk。
+// 替代硬编码白名单，新增 demo/scenarios/af-*.js 即进沙盒；
+// 构建产物中变量模板 import() 无法静态分析（正是「场景尚未建立」误报的根因）。
+const scenarioModules = import.meta.glob('../scenarios/af-*.js');
+// 主库组件自动发现：tag → 动态加载器（仅包含场景用到的 tag，Tree Shaking 保持）
+// 含 L3 组件与 L3.5 blocks 子库
+const componentModules = import.meta.glob(['../../src/components/af-*.js', '../../src/blocks/af-*.js']);
+const componentLoaders = new Map(
+  Object.keys(componentModules).map((p) => [p.match(/af-[\w-]+(?=\.js$)/)[0], componentModules[p]]),
+);
+// 导出命名约定：af-action-sheet → AfActionSheet（scripts/gen-entry.mjs 同款转换）
+const toCtorName = (tag) => 'Af' + tag.replace(/^af-/, '').replace(/(^|-)([a-z0-9])/g, (_, __, c) => c.toUpperCase());
+const COMPONENTS = Object.keys(scenarioModules)
+  .map((p) => p.replace(/^.*\//, '').replace(/\.js$/, ''))
+  .sort();
+const DEFAULT_TAG = 'af-dialog';
 
 async function loadComponent(tag) {
-  try {
-    return (await import(`../scenarios/${tag}.js`)).default;
-  } catch {
+  const load = scenarioModules[`../scenarios/${tag}.js`];
+  if (!load) {
     screen.innerHTML = `<p class="pg-empty">「${tag}」场景尚未建立</p>`;
     return null;
   }
+  try {
+    return (await load()).default;
+  } catch (e) {
+    console.error(e);
+    screen.innerHTML = `<p class="pg-empty">「${tag}」场景加载失败</p>`;
+    return null;
+  }
+}
+
+// 主库组件按需加载并 define（glob 构建期展开，产物可分析）；子库场景（charts/chat）不在
+// src/components 下，无 loader 时由场景模块内自行 define，静默跳过
+async function ensureRegistered(tag) {
+  const load = componentLoaders.get(tag);
+  if (!load || customElements.get(tag)) return;
+  const mod = await load();
+  const Ctor = mod[toCtorName(tag)];
+  if (Ctor && !customElements.get(tag)) customElements.define(tag, Ctor);
 }
 
 function renderScenario(spec, scenario) {
@@ -135,14 +167,16 @@ COMPONENTS.forEach((tag) => {
   o.value = tag; o.textContent = tag;
   sel.appendChild(o);
 });
-const initial = new URLSearchParams(location.search).get('c') || 'af-dialog';
+const asked = new URLSearchParams(location.search).get('c') || DEFAULT_TAG;
+const initial = COMPONENTS.includes(asked) ? asked : DEFAULT_TAG;
 sel.value = initial;
-register('af-dialog', 'af-list', 'af-swiper', 'af-tabs', 'af-toast', 'af-action-sheet', 'af-picker', 'af-dropdown', 'af-switch', 'af-navbar')
+ensureRegistered(initial)
   .then(() => loadComponent(initial))
   .then((spec) => { if (spec) renderScenario(spec, spec.scenarios[0]); });
 
 // 组件下拉切换
 sel.addEventListener('change', async () => {
+  await ensureRegistered(sel.value);
   const spec = await loadComponent(sel.value);
   if (spec) renderScenario(spec, spec.scenarios[0]);
 });

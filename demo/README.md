@@ -56,6 +56,6 @@ demo/
 ## 约定
 
 - **源码引用**：demo 是库开发态，直接 `import` 磁盘 `../src/` 源码（非 `@af-mobile/ui` 包名），改组件源码即时热更新。
-- **组件注册**：组件单页 demo 与 `kitchen-sink.html` 按需注册本页用到的组件（铁律同消费端）；`playground.html` 是例外——它需按 URL 参数 `?c=af-xxx` 装载任意组件，故用 `registerAll()`。
+- **组件注册**：组件单页 demo 与 `kitchen-sink.html` 按需注册本页用到的组件（铁律同消费端）；`playground.html` 是例外——它需按 URL 参数 `?c=af-xxx` 装载任意组件，故按场景 HTML 中出现的 af-* 标签动态 `register()`（charts/chat 等子库组件由各自场景模块自注册）。
 - **主题防闪**：含交互的页面在 `<head>` 内联同步脚本先于 paint 读 localStorage 设 `data-theme`（见 `kitchen-sink.html` L9）。
 - **场景配置协议**：`scenarios/af-{组件}.js` 的 default export 形如 `{ tag, name, scenarios: [{ name, html, main, props, events, styleTokens, init }] }`，`playground.html` 按文件名（`af-{组件}.js` ↔ `?c=af-{组件}`）匹配装载到手机壳内，props 控件复用 `props-panel.js` 的 schema 协议。

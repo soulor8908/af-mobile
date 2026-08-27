@@ -4,7 +4,25 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-badge" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-badge" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
+## 示例
+
+### 基础用法
+
+```html
+<div class="card">
+          <div class="cell f ai-center gap-2">
+            <af-badge id="b1" content="8">消息</af-badge>
+            <af-badge id="b2" content="99" max="99">通知</af-badge>
+            <af-badge id="b3" dot>新</af-badge>
+          </div>
+          <div class="cell f gap-2">
+            <af-badge content="热" color="warn">推荐</af-badge>
+            <af-badge content="NEW" color="brand">活动</af-badge>
+          </div>
+        </div>
+```
 
 ## API
 

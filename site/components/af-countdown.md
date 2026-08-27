@@ -4,7 +4,23 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-countdown" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-countdown" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
+## 示例
+
+### 倒计时控制
+
+```html
+<div class="card">
+          <div class="cell"><span class="body">倒计时</span><af-countdown id="cd" time="90"></af-countdown></div>
+        </div>
+        <p class="caption" id="cd-log">到 0 派发 af-countdown:end</p>
+        <div class="card f gap-2">
+          <button class="btn btn-ghost" onclick="document.getElementById('cd').start()">开始</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('cd').pause()">暂停</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('cd').reset()">重置</button>
+        </div>
+```
 
 ## API
 

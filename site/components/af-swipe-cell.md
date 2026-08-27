@@ -4,7 +4,27 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-swipe-cell" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-swipe-cell" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
+## 示例
+
+### 左滑操作
+
+```html
+<div class="list">
+          <af-swipe-cell>
+            <div slot="content" class="list-item"><div class="body">左滑显示操作</div></div>
+            <div slot="right">
+              <button class="btn btn-sm btn-ghost" data-action="mark">标记</button>
+              <button class="btn btn-sm btn-danger" data-action="delete">删除</button>
+            </div>
+          </af-swipe-cell>
+          <af-swipe-cell disabled>
+            <div slot="content" class="list-item"><div class="body">禁用滑动</div></div>
+          </af-swipe-cell>
+        </div>
+        <p class="caption" id="sc-log">左滑 > 50% 吸附打开 · 触发 af-swipe-cell:action</p>
+```
 
 ## API
 

@@ -4,7 +4,18 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-notice-bar" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-notice-bar" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
+## 示例
+
+### 横向滚动
+
+```html
+<div class="card">
+          <af-notice-bar id="n1" text="系统将于今晚 23:00 进行维护升级，届时服务暂停 10 分钟"></af-notice-bar>
+          <af-notice-bar id="n2" text="这是一条非常长的公告文本用于演示横向滚动 marquee 效果，超出宽度时持续向左滚动" scroll></af-notice-bar>
+        </div>
+```
 
 ## API
 

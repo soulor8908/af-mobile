@@ -2,6 +2,10 @@
 
 > blocks 子库 · L3.5 登录/注册表单块（phone-code 验证码 / password 密码，内置校验 + 发送验证码倒计时）
 
+## 在线调试
+
+<iframe src="../demo/playground/index.html?c=af-auth-form" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 验证码登录

@@ -2,6 +2,10 @@
 
 > charts 子库 · 柱状/条形/堆叠/分组
 
+## 在线调试
+
+<iframe src="../demo/playground/index.html?c=af-chart-bar" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 基础柱状图

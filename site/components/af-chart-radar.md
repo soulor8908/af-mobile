@@ -2,6 +2,10 @@
 
 > charts 子库 · 雷达（多维能力画像，单/双主体对比）
 
+## 在线调试
+
+<iframe src="../demo/playground/index.html?c=af-chart-radar" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 基础雷达图

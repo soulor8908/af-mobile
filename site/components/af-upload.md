@@ -4,7 +4,22 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-upload" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-upload" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
+## 示例
+
+### 图片上传
+
+```html
+<section class="card">
+          <p class="body">图片多选 · 限制 3 张 · 单张 ≤ 2MB</p>
+          <af-upload id="upload" accept="image/*" multiple max-count="3" max-size="2097152"></af-upload>
+          <div class="actions">
+            <button class="btn btn-ghost" type="button" onclick="document.getElementById('upload').clear()">清空</button>
+          </div>
+        </section>
+        <p class="caption" id="up-log">选择文件后显示结果</p>
+```
 
 ## API
 

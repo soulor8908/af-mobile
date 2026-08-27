@@ -60,7 +60,7 @@ describe('skill-exports / checkMarkdown', () => {
 
 describe('skill-exports / 仓库基线', () => {
   it('src/index.js 静态解析含核心导出（createPage/register/AfList）', () => {
-    for (const n of ['createPage', 'register', 'AfList', 'route', 'start', 'afterEach', 'REGISTRY']) {
+    for (const n of ['createPage', 'register', 'AfList', 'route', 'start', 'afterEach', 'COMPONENT_TAGS']) {
       expect(exports.has(n), `missing export: ${n}`).toBe(true);
     }
   });

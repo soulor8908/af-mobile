@@ -59,8 +59,7 @@
   </main>
 
   <script type="module">
-    import { registerAll } from '../src/index.js';
-    registerAll();
+    import { register } from '../src/index.js';
 
     // 静态收集所有场景，Vite 全量打包
     const sceneMods = import.meta.glob('./scenarios/*.js', { eager: true });
@@ -95,10 +94,16 @@
       lastTypes.forEach((t) => preview.addEventListener(t, onEvent, true));
     }
 
-    // 属性面板：复用 props-panel.js 的 schema 协议
-    import('./props-panel.js').then(({ createPropsPanel }) => {
-      if (cfg) renderScene(0);
-    });
+    // 属性面板：复用 props-panel.js 的 schema 协议；渲染前按需注册场景涉及的组件
+    // （registerAll 已移除；charts/chat 等子库组件不在基础库注册表，由各自场景模块自注册）
+    let createPropsPanel;
+    const panelReady = import('./props-panel.js').then((m) => (createPropsPanel = m.createPropsPanel));
+    const needTags = () => cfg ? [...new Set([
+      inTag,
+      ...(cfg.scenarios.map((s) => s.html).join('\n').match(/af-[a-z][a-z0-9]+/g) ?? []),
+    ])] : [];
+    Promise.all([panelReady, ...needTags().map((t) => register(t).catch(() => {}))])
+      .then(() => { if (cfg) renderScene(0); });
 
     function renderScene(idx) {
       if (!cfg) return;

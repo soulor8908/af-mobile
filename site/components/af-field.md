@@ -4,7 +4,20 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-field" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-field" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
+## 示例
+
+### 输入与校验
+
+```html
+<div class="card">
+          <af-field id="f1" label="用户名" placeholder="请输入用户名" help="3-20 位字符"></af-field>
+          <af-field id="f2" label="密码" input-type="password" placeholder="请输入密码"></af-field>
+          <af-field id="f5" label="错误态" value="abc" error="格式不正确"></af-field>
+        </div>
+        <p class="caption" id="f-log">输入触发 af-field:input / af-field:change</p>
+```
 
 ## API
 

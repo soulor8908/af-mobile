@@ -4,7 +4,7 @@
 
 ## 在线调试
 
-<iframe src="../demo/playground/?c=af-toast" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+<iframe src="../demo/playground/index.html?c=af-toast" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
 
 ## 示例
 

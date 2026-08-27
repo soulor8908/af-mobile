@@ -44,83 +44,47 @@ import { AfUpload } from './components/af-upload.js';
 export { AfActionSheet, AfBacktop, AfBadge, AfCalendar, AfCascadePicker, AfCountdown, AfDialog, AfDropdown, AfField, AfImg, AfList, AfNavbar, AfNoticeBar, AfNumberKeyboard, AfPasswordInput, AfPicker, AfProgress, AfPullRefresh, AfRate, AfSearchBar, AfSkeletonPage, AfStepper, AfSteps, AfSwipeCell, AfSwiper, AfSwitch, AfTabbar, AfTabs, AfToast, AfUpload };
 // ===== gen:entry:end
 
-// ===== gen:registry:start（由 scripts/gen-entry.mjs 自动生成，勿手改；新增组件后跑 npm run entry）
-// 显式 tag→Ctor 注册表：不依赖 Function.name（minify 下类名会被压缩为 a/b/c，
-// 基于 name 的推导会失效）。改用字面量 tag 字符串，任何打包器压缩下都稳定。
-// 仅用于内省/工具链（eval、minify 安全测试）；register 走下方 LAZY 懒加载，不引用本表
-// （未被引用时连同 30 个 ctor import 一并被 Tree Shaking 摇掉）。
-export const REGISTRY = [
-  ['af-action-sheet', AfActionSheet],
-  ['af-backtop', AfBacktop],
-  ['af-badge', AfBadge],
-  ['af-calendar', AfCalendar],
-  ['af-cascade-picker', AfCascadePicker],
-  ['af-countdown', AfCountdown],
-  ['af-dialog', AfDialog],
-  ['af-dropdown', AfDropdown],
-  ['af-field', AfField],
-  ['af-img', AfImg],
-  ['af-list', AfList],
-  ['af-navbar', AfNavbar],
-  ['af-notice-bar', AfNoticeBar],
-  ['af-number-keyboard', AfNumberKeyboard],
-  ['af-password-input', AfPasswordInput],
-  ['af-picker', AfPicker],
-  ['af-progress', AfProgress],
-  ['af-pull-refresh', AfPullRefresh],
-  ['af-rate', AfRate],
-  ['af-search-bar', AfSearchBar],
-  ['af-skeleton-page', AfSkeletonPage],
-  ['af-stepper', AfStepper],
-  ['af-steps', AfSteps],
-  ['af-swipe-cell', AfSwipeCell],
-  ['af-swiper', AfSwiper],
-  ['af-switch', AfSwitch],
-  ['af-tabbar', AfTabbar],
-  ['af-tabs', AfTabs],
-  ['af-toast', AfToast],
-  ['af-upload', AfUpload],
-];
-// ===== gen:registry:end
-
 // ===== gen:lazy:start（由 scripts/gen-entry.mjs 自动生成，勿手改；新增组件后跑 npm run entry）
-// 懒注册表：tag → 动态 import()。路径/导出名为字面量 → 打包器可静态分析，
+// 懒注册表：tag → 动态 import()。路径与导出名为逐项内联的字面量 → 打包器可静态分析，
 // register 页面只携带用到的组件（Tree Shaking + 按需分包）。
 // dist 单文件构建（bundle 无 splitting）时 esbuild 会内联这些 import()，脚本直引行为不变。
-const L = (path, key) => () => import(path).then((m) => m[key]);
 const LAZY = {
-  'af-action-sheet': L('./components/af-action-sheet.js', 'AfActionSheet'),
-  'af-backtop': L('./components/af-backtop.js', 'AfBacktop'),
-  'af-badge': L('./components/af-badge.js', 'AfBadge'),
-  'af-calendar': L('./components/af-calendar.js', 'AfCalendar'),
-  'af-cascade-picker': L('./components/af-cascade-picker.js', 'AfCascadePicker'),
-  'af-countdown': L('./components/af-countdown.js', 'AfCountdown'),
-  'af-dialog': L('./components/af-dialog.js', 'AfDialog'),
-  'af-dropdown': L('./components/af-dropdown.js', 'AfDropdown'),
-  'af-field': L('./components/af-field.js', 'AfField'),
-  'af-img': L('./components/af-img.js', 'AfImg'),
-  'af-list': L('./components/af-list.js', 'AfList'),
-  'af-navbar': L('./components/af-navbar.js', 'AfNavbar'),
-  'af-notice-bar': L('./components/af-notice-bar.js', 'AfNoticeBar'),
-  'af-number-keyboard': L('./components/af-number-keyboard.js', 'AfNumberKeyboard'),
-  'af-password-input': L('./components/af-password-input.js', 'AfPasswordInput'),
-  'af-picker': L('./components/af-picker.js', 'AfPicker'),
-  'af-progress': L('./components/af-progress.js', 'AfProgress'),
-  'af-pull-refresh': L('./components/af-pull-refresh.js', 'AfPullRefresh'),
-  'af-rate': L('./components/af-rate.js', 'AfRate'),
-  'af-search-bar': L('./components/af-search-bar.js', 'AfSearchBar'),
-  'af-skeleton-page': L('./components/af-skeleton-page.js', 'AfSkeletonPage'),
-  'af-stepper': L('./components/af-stepper.js', 'AfStepper'),
-  'af-steps': L('./components/af-steps.js', 'AfSteps'),
-  'af-swipe-cell': L('./components/af-swipe-cell.js', 'AfSwipeCell'),
-  'af-swiper': L('./components/af-swiper.js', 'AfSwiper'),
-  'af-switch': L('./components/af-switch.js', 'AfSwitch'),
-  'af-tabbar': L('./components/af-tabbar.js', 'AfTabbar'),
-  'af-tabs': L('./components/af-tabs.js', 'AfTabs'),
-  'af-toast': L('./components/af-toast.js', 'AfToast'),
-  'af-upload': L('./components/af-upload.js', 'AfUpload'),
+  'af-action-sheet': () => import('./components/af-action-sheet.js').then((m) => m.AfActionSheet),
+  'af-backtop': () => import('./components/af-backtop.js').then((m) => m.AfBacktop),
+  'af-badge': () => import('./components/af-badge.js').then((m) => m.AfBadge),
+  'af-calendar': () => import('./components/af-calendar.js').then((m) => m.AfCalendar),
+  'af-cascade-picker': () => import('./components/af-cascade-picker.js').then((m) => m.AfCascadePicker),
+  'af-countdown': () => import('./components/af-countdown.js').then((m) => m.AfCountdown),
+  'af-dialog': () => import('./components/af-dialog.js').then((m) => m.AfDialog),
+  'af-dropdown': () => import('./components/af-dropdown.js').then((m) => m.AfDropdown),
+  'af-field': () => import('./components/af-field.js').then((m) => m.AfField),
+  'af-img': () => import('./components/af-img.js').then((m) => m.AfImg),
+  'af-list': () => import('./components/af-list.js').then((m) => m.AfList),
+  'af-navbar': () => import('./components/af-navbar.js').then((m) => m.AfNavbar),
+  'af-notice-bar': () => import('./components/af-notice-bar.js').then((m) => m.AfNoticeBar),
+  'af-number-keyboard': () => import('./components/af-number-keyboard.js').then((m) => m.AfNumberKeyboard),
+  'af-password-input': () => import('./components/af-password-input.js').then((m) => m.AfPasswordInput),
+  'af-picker': () => import('./components/af-picker.js').then((m) => m.AfPicker),
+  'af-progress': () => import('./components/af-progress.js').then((m) => m.AfProgress),
+  'af-pull-refresh': () => import('./components/af-pull-refresh.js').then((m) => m.AfPullRefresh),
+  'af-rate': () => import('./components/af-rate.js').then((m) => m.AfRate),
+  'af-search-bar': () => import('./components/af-search-bar.js').then((m) => m.AfSearchBar),
+  'af-skeleton-page': () => import('./components/af-skeleton-page.js').then((m) => m.AfSkeletonPage),
+  'af-stepper': () => import('./components/af-stepper.js').then((m) => m.AfStepper),
+  'af-steps': () => import('./components/af-steps.js').then((m) => m.AfSteps),
+  'af-swipe-cell': () => import('./components/af-swipe-cell.js').then((m) => m.AfSwipeCell),
+  'af-swiper': () => import('./components/af-swiper.js').then((m) => m.AfSwiper),
+  'af-switch': () => import('./components/af-switch.js').then((m) => m.AfSwitch),
+  'af-tabbar': () => import('./components/af-tabbar.js').then((m) => m.AfTabbar),
+  'af-tabs': () => import('./components/af-tabs.js').then((m) => m.AfTabs),
+  'af-toast': () => import('./components/af-toast.js').then((m) => m.AfToast),
+  'af-upload': () => import('./components/af-upload.js').then((m) => m.AfUpload),
 };
 // ===== gen:lazy:end
+
+// 组件 tag 清单（LAZY 键的派生视图）：供工具链/测试枚举全部可注册组件
+// （原 REGISTRY 同步 [tag, Ctor] 表已删——无人需要同步 Ctor，仅徒增重复与产物体积）
+export const COMPONENT_TAGS = Object.keys(LAZY);
 
 // 变参按需注册（懒加载）：await register('af-list') 或 register('af-list', 'af-dialog')，与 no-register-all 规则推荐用法一致
 // 铁律：禁止全量注册（原 registerAll 已移除）——只注册页面实际用到的组件，保证 Tree Shaking

@@ -2,6 +2,10 @@
 
 > blocks 子库 · L3.5 商品网格块（one-column 横排卡片 / two-column 两列网格，五态 + 键盘导航）
 
+## 在线调试
+
+<iframe src="../demo/playground/index.html?c=af-product-grid" width="100%" height="600" frameborder="0" loading="lazy"></iframe>
+
 ## 示例
 
 ### 基础用法

@@ -354,7 +354,8 @@ export class AfActionSheet extends AfElement {
   /** 隐藏面板 */
   hidePopover(): void;
   addEventListener(type: 'af-action-sheet:select', listener: (e: CustomEvent<ActionSheetSelectDetail>) => void, options?: boolean | AddEventListenerOptions): void;
-  addEventListener(type: 'af-action-sheet:open' | 'af-action-sheet:close', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-action-sheet:open', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-action-sheet:close', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
 }
 
 // ============================================================
@@ -480,7 +481,8 @@ export class AfImg extends AfElement {
   readonly loaded: boolean;
   /** 是否加载失败（只读） */
   readonly error: boolean;
-  addEventListener(type: 'af-img:load' | 'af-img:error', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-img:load', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-img:error', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
 }
 
 // ============================================================
@@ -503,7 +505,9 @@ export class AfBacktop extends AfElement {
   readonly visible: boolean;
   /** 平滑滚动到顶部 */
   scrollToTop(): void;
-  addEventListener(type: 'af-backtop:click' | 'af-backtop:show' | 'af-backtop:hide', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-backtop:click', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-backtop:show', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: 'af-backtop:hide', listener: (e: CustomEvent) => void, options?: boolean | AddEventListenerOptions): void;
 }
 
 // ============================================================

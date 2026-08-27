@@ -7,9 +7,9 @@
 | 层 | 内容 | 位置 | 数量 |
 |---|---|---|---|
 | **L1 Token** | 设计变量（颜色/间距/字号/行高/字重/圆角/阴影/z-index/动效）+ reset + base | `src/tokens.css` | 颜色 `--c-*`、间距 `--s-*`、字号 `--t-*` 等变量族 |
-| **L2 配方 + 原子** | 156 个白名单封闭集 class（104 配方 + 52 原子，`btn`/`card`/`p-4` 等） | `src/recipes.css` / `src/atomic.css` | 156 |
+| **L2 配方 + 原子** | 228 个白名单封闭集 class（136 配方 + 92 原子，`btn`/`card`/`p-4` 等） | `src/recipes.css` / `src/atomic.css` | 228 |
 | **L3 真组件** | 原生 Custom Elements（`af-list`/`af-dialog`/…），ESM 命名导出 + Tree Shaking | `src/components/` | **30** |
-| **L3.5 Block** | 同质化业务大块组件 | `src/blocks/` | **2** |
+| **L3.5 Block** | 同质化业务大块组件 | `src/blocks/` | **5** |
 | **Charts 子库** | 独立入口 `@af-mobile/ui/charts`，SVG 原生图表，不进主包 | `src/charts/` | **5** |
 
 ### L1 — Design Token（`src/tokens.css`）
@@ -18,15 +18,15 @@
 
 ### L2 — 配方 + 原子（`src/recipes.css` / `src/atomic.css`）
 
-复合视觉单元的 class 集合：配方如 `.btn` / `.card` / `.list-item`，原子如 `.p-4`。消费端代码被约束在 **156 个白名单 class 封闭集**内，白名单外 class 会触发 ESLint error（见「AI 协作」）。
+复合视觉单元的 class 集合：配方如 `.btn` / `.card` / `.list-item`，原子如 `.p-4`。消费端代码被约束在 **228 个白名单 class 封闭集**内，白名单外 class 会触发 ESLint error（见「AI 协作」）。
 
 ### L3 — 真组件（30 个 af-\*，`src/components/`）
 
 封装交互行为的原生 Web Components，事件名遵循 `af-{组件}:{动作}` 格式。Light DOM 与 Shadow DOM 组件并存（如 `af-list` 为 Light，`af-dialog`/`af-swiper`/`af-picker` 为 Shadow），支持按需注册与 Tree Shaking。由 `src/index.js` 汇总导出，`register('af-dialog', ...)` 变参按需注册（`registerAll()` 已移除）。
 
-### L3.5 — Block（2 个 af-\*，`src/blocks/`）
+### L3.5 — Block（5 个 af-\*，`src/blocks/`）
 
-同质化的业务级大块，本质是"把多个 L2 配方 + L3 组件组合成一个可复用块"。当前 2 个：`af-product-card`（商品卡片）、`af-setting-group`（设置分组）。
+同质化的业务级大块，本质是"把多个 L2 配方 + L3 组件组合成一个可复用块"。当前 5 个：`af-auth-form`（验证码登录表单）、`af-order-list`（订单列表）、`af-product-card`（商品卡片）、`af-product-grid`（商品网格）、`af-setting-group`（设置分组）。
 
 ### Charts 子库（5 个 af-chart-\*，`src/charts/`）
 

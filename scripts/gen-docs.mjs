@@ -30,8 +30,11 @@ function parseBody(body) {
     if (!line) { doc = ''; continue; }
     const dm = line.match(/^\/\*\* (.*?) \*\/$/);
     if (dm) { doc = dm[1].trim(); continue; }
-    const em = line.match(/^addEventListener\(type: '([^']+)'/);
-    if (em) { events.push({ name: em[1] }); continue; }
+    const em = line.match(/^addEventListener\(type: ((?:'[^']+'\s*\|\s*)*'[^']+')/);
+    if (em) {
+      for (const n of em[1].split('|').map((s) => s.trim().replace(/^'|'$/g, ''))) events.push({ name: n });
+      continue;
+    }
     const mm = line.match(/^([a-zA-Z][\w]*)(\(.*\)):\s*([^;]+);$/);
     if (mm) { methods.push({ name: mm[1], sig: line.replace(/;$/, ''), doc }); doc = ''; continue; }
     const pm = line.match(/^(readonly )?([a-zA-Z][\w]*)\??: (.+);$/);
@@ -107,6 +110,8 @@ function findComponent(code, tag) {
   return { tag, desc: h[1].trim(), cls: clsM[1], ...parseBody(clsM[2]) };
 }
 
+const API_MARKER_RE = /<!-- gen:start:api -->[\s\S]*?<!-- gen:end:api -->/;
+
 export async function main() {
   const dts = readFileSync(join(ROOT, 'src/index.d.ts'), 'utf8');
   const outDir = join(ROOT, 'site/components');
@@ -119,16 +124,28 @@ export async function main() {
     if (!c) continue; // 无 d.ts 段的组件（如 af-data）跳过
     const defs = parseDefineProps(readFileSync(join(ROOT, 'src/components', f), 'utf8'));
     c.props = c.props.map((p) => ({ ...p, def: defs[p.name] }));
-    // 场景示例：demo/scenarios/{tag}.js 存在则挂到 c.scenarios，renderMarkdown 在 ## API 前插入 ## 示例
+    // 场景示例：demo/scenarios/{tag}.js 存在则挂到 c.scenarios（仅用于新建页；已存在文档保留手写示例）
     const scPath = join(ROOT, 'demo/scenarios', `${tag}.js`);
     if (existsSync(scPath)) {
       const spec = (await import(pathToFileURL(scPath).href)).default;
       c.scenarios = spec?.scenarios;
     }
-    writeFileSync(join(outDir, `${tag}.md`), renderMarkdown(c));
+    const rendered = renderMarkdown(c);
+    const newBlock = rendered.match(API_MARKER_RE)?.[0] ?? rendered;
+    const outPath = join(outDir, `${tag}.md`);
+    if (existsSync(outPath)) {
+      const existing = readFileSync(outPath, 'utf8');
+      // 只替换 marker 块，保留版本头、手写示例、在线调试 iframe 等其余内容，避免二次漂移
+      const updated = API_MARKER_RE.test(existing)
+        ? existing.replace(API_MARKER_RE, newBlock)
+        : `${existing.replace(/\s*$/, '')}\n\n${newBlock}\n`;
+      writeFileSync(outPath, updated);
+    } else {
+      writeFileSync(outPath, rendered);
+    }
     n++;
   }
-  console.log(`✓ gen-docs: 生成/更新 ${n} 个组件文档页`);
+  console.log(`✓ gen-docs: 同步 ${n} 个组件文档页的 API 区块（保留其余内容）`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main().catch((e) => { console.error(e); process.exit(1); });

@@ -35,6 +35,7 @@
 | --- | --- |
 | `af-action-sheet:select` | 触发时：组件内 emit 调用 |
 | `af-action-sheet:open` | 触发时：组件内 emit 调用 |
+| `af-action-sheet:close` | 触发时：组件内 emit 调用 |
 
 ### 方法
 

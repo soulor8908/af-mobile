@@ -47,6 +47,8 @@
 | 事件名 | 说明 |
 | --- | --- |
 | `af-backtop:click` | 触发时：组件内 emit 调用 |
+| `af-backtop:show` | 触发时：组件内 emit 调用 |
+| `af-backtop:hide` | 触发时：组件内 emit 调用 |
 
 ### 方法
 

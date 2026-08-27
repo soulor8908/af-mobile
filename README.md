@@ -219,6 +219,18 @@ console.log(session.messages);      // 会话历史（含工具调用/结果块�
 - **传输**：默认 `fetch`，可传 `requestFn` 注入鉴权头 / 走代理 / 组装 URL；`systemPrompt` 支持函数（每轮动态取最新值）
 - **体积预算**（CI 阻断）：内核 `chatRuntime` ≤ 2.5KB gzip（独立预算，不计入主库 total）
 
+## k 渲染子库（@af-mobile/ui/k，演进中）
+
+声明式应用层：`html\`\`` 返回真实 DOM + signal 细粒度更新（10 词极简 API + Show/For/Switch 控制流）。
+
+```js
+import { html, signal, render } from '@af-mobile/ui/k';
+const n = signal(0);
+render(html`<p @click=${() => n.set(v => v + 1)}>${() => n()}</p>`, '#app');
+```
+
+注意：k 的 `html\`\`` 与主包 `html\`\``（返回转义字符串）**同名不同义**，对比表与完整词表卡见 [src/k/README.md](./src/k/README.md)。定位与演进决策见 [docs/DECISIONS.md](./docs/DECISIONS.md)（D-001：推广为应用层）。
+
 ## SSR / Hydration 使用指南
 
 @af-mobile/ui 是浏览器端 Custom Elements 库，`customElements` 在 Node 服务端不存在，直接 `import` 会抛错。本节给出 SSR 框架接入方式。
@@ -613,6 +625,7 @@ npm run prompt:build
 - [L1+L2 详细设计](docs/design/l1-l2-detailed-design.md)（Token / 配方原子 / 白名单）
 - [L3 真组件详细设计](docs/design/l3-detailed-design.md)
 - [L4 AI 约束层详细设计](docs/design/l4-detailed-design.md)（Prompt / ESLint / CI 三层约束）
+- [DECISIONS.md](docs/DECISIONS.md) —— 砍/留/复活决策登记簿
 - [Charts 图表子库详细设计](docs/design/charts-sublibrary-detailed-design.md)（SVG 原生图表 / 独立入口 / 体积预算）
 - [Charts Demo 详细设计](docs/design/charts-demo-detailed-design.md)（5 组件 demo + 联动场景页 / `demo/index.html` 接入）
 

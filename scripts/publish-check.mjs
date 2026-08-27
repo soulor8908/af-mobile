@@ -4,7 +4,7 @@
 // 检查项：1. npm pack 内容 2. Tree Shaking 效果 3. whitelist 同步 4. 体积预算
 import { build } from 'esbuild';
 import { gzipSync } from 'node:zlib';
-import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, existsSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
@@ -72,16 +72,21 @@ async function treeShakeCheck() {
     entryPoints: [entry],
     bundle: true, write: false, format: 'esm', minify: true,
     legalComments: 'none', absWorkingDir: ROOT,
+    // 与真实 Vite/Rollup 消费一致：splitting 让 LAZY 的动态 import() 目标切成
+    // 独立按需 chunk。单文件模式（无 splitting）会把全部动态目标内联进主包，
+    // 度量失真为全量体积（LAZY 字面量化修复前因变量导入不可分析而「假绿」6KB）。
+    splitting: true,
+    outdir: 'out',
   });
-  const code = res.outputFiles[0].text;
-  const gz = gzipSync(Buffer.from(code)).length;
-  // 检查未引入的组件是否被摇除
-  const allComps = readdirSync(join(SRC, 'components')).map(f => f.replace('.js', ''));
-  const included = allComps.filter(c => code.includes(c.replace('af-', 'Af').replace(/-(\w)/g, (_, c) => c.toUpperCase())));
-  const excluded = allComps.filter(c => !included.includes(c));
-  check('Tree Shaking 摇除未引入组件', excluded.length >= 7, `${excluded.length}/${allComps.length} 个被摇除`);
-  // onDemand2 预算与 size-check.mjs BUDGET.onDemand2 对齐（v3.9 调至 6.5KB，实测 6.041KB）
-  check('按需 2 组件体积', gz < 6.5 * KB, fmt(gz));
+  // 首包 = entry 主 chunk（其余 chunk 由浏览器按需拉取，不计入首包）
+  const mainChunk = res.outputFiles.find(f => f.path.endsWith('entry.js'));
+  const jsChunks = res.outputFiles.filter(f => f.path.endsWith('.js'));
+  const gz = gzipSync(Buffer.from(mainChunk.text)).length;
+  // 首包只应含 AfDialog/AfToast + 基类 + register/LAZY 定义（对齐 size-check BUDGET.onDemand2）
+  check('按需 2 组件体积（首包）', gz < 6.5 * KB, fmt(gz));
+  // 分包生效：LAZY 的 30 个动态目标应产生大量独立 chunk；
+  // 若回归为同步 ctor 集合（REGISTRY 形态），chunk 坍缩为 1 且首包膨胀，两项同时变红
+  check('动态目标分包（chunk 计数）', jsChunks.length >= 8, `${jsChunks.length} 个 chunk`);
 }
 
 // 3. whitelist 同步检查

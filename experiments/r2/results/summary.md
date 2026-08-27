@@ -6,8 +6,21 @@
 | GLM-5.3 | 子代理 / 2026-08-26 | 4/5 | 1(t5) | — | 0 | 0 | 5/5 | 0 | — | 0 | 0 | —（代码 token 比 73.6%） |
 | DeepSeek-V4 | 子代理 / 2026-08-27 | 4/5 | 1(t5) | — | 0 | 0 | 4/5 | 1(t5) | — | 0 | 0 | —（代码 token 比 77.4%） |
 | Qwen3.7-plus | 子代理 / 2026-08-27 | 0/5 | 1(t1-t5) | — | 0 | 0 | 5/5 | 0 | — | 0 | 0 | —（代码 token 比 86.1%） |
+| Seed-Code | 子代理 / 2026-08-27 | 5/5 | 0 | — | 0 | 0 | 5/5 | 0 | — | 0 | 0 | —（代码 token 比 73.6%） |
 
 ## 备注（幻觉 API 明细、回避任务明细、异常情况）
+
+### Seed-Code（2026-08-27，调度式子代理采集）
+
+- **采集方式**：主代理（已接触 k 材料不可作被试）派两个零上下文子代理分别作 A/B 臂被试；被试提示词仅内联各自词表卡 + 任务卡原文 + 禁用工具。顺序平衡：Seed-Code 为 R2 第 4 个招募家族 → **先 B 后 A**（偶数序）。
+- **首次两臂首轮全 PASS**：Seed-Code 是 R2 目前**首个两臂首轮全过、零返工**的模型（baseline B3 B 臂有 t4 返工，其余三模型均有 t5/A 臂首轮 0/5 问题）。t5 处理方式：A 臂用 `errEl.textContent = valid ? '' : '邮箱格式错误'`；B 臂用 `Show({ when: () => !emailValid() })` 条件渲染错误节点——均正确避免"隐藏元素文本仍在 DOM"陷阱。
+- **B 臂风格亮点（非幻觉，属风格选择）**：
+  - 所有任务用 `render(() => html\`...\`, el)` 而非 `el.appendChild` —— render 是 k 词表 10 词之一，合法使用。render 语义是 replaceChildren，对 mount 来说是合理的"清空并填充"模式。
+  - t3 用 **Switch** 实现异步五态（pending/success/error/empty/def），词表卡 10 词含 Switch，属词表原生能力，比其他模型的 if/else 效果更声明式。
+  - t4/t5 用 `.prop=${kw/.prop=${name}}` 把 signal 直绑 input.value——词表卡明确列出 DOM 属性绑定含 `.prop=`，合法。但绑定 getter 值写回时不会触发 input 事件，需配合 `@input` 手动同步，被试正确处理。
+- **A 臂风格**：中规中矩，正确用 `el.innerHTML = html\`...\`` 创建 DOM，effect 驱动 textContent 更新，列表用 `items.map(...).join('')`，完全符合现状词表惯用法。t3 用 4 个独立 signal（loading/loaded/items/error）而不是单一状态对象，逻辑正确但略冗余。
+- **幻觉/回避**：两臂均为零。
+- **会话 tokens 无法采集**：子代理无 usage 统计，记"—"。代码 token：A 1373 / B 1011（tokens.mjs），**B/A = 73.6%**，与 GLM-5.3 并列最低。A 行数显著多于其他模型（177 vs 其他 75-98），t3 多信号设计是主要贡献者。词表卡 token 560/445 与 B3 一致。
 
 ### Qwen3.7-plus（2026-08-27，调度式子代理采集）
 

@@ -5,7 +5,7 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 - **L1 Token**：92 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效，含 8 档灰阶，关键组合 WCAG AA 对比度由 CI 断言）
 - **L2 配方 + 原子**：228 个白名单封闭集 class（136 配方 + 92 原子，`btn`/`card`/`p-4`/...）
 - **L3 真组件**：30 个原生 Custom Elements（`af-list`/`af-dialog`/`...`），ESM 命名导出 + Tree Shaking
-- **L4 AI 约束层**：System Prompt 引导 + ESLint 21 条规则兜底 + CI 保护
+- **L4 AI 约束层**：System Prompt 引导 + ESLint 24 条规则兜底 + CI 保护
 
 ## 在线 Demo
 
@@ -564,7 +564,7 @@ PR 触发 CI 检查链路（任一失败即阻断合并）：
 | 2 | 体积预算（L1+L2 CSS ≤ 6.0KB / 全量 30 组件+基类 ≤ 23.0KB / 按需2组件 ≤ 6.5KB / 单组件 JS ≤ 2.8KB / 基类 ≤ 2.0KB / 核心运行时 ≤ 6.8KB） | `npm run size` |
 | 3 | 单元测试（jsdom） | `npm test` |
 | 3b | e2e 冒烟（Playwright：showModal/popover/scroll-snap/touch 等浏览器原生行为） | `npm run test:e2e` |
-| 4 | ESLint 规则闸门（消费端 AI_RULES 21 条：14 error + 7 warn；分目录生效） | `npx eslint src/ test/ scripts/ eval/ mcp/ eslint-plugin-af-mobile/ adapters/ starter/src/ --max-warnings 0` |
+| 4 | ESLint 规则闸门（消费端 AI_RULES 24 条：16 error + 8 warn；分目录生效） | `npx eslint src/ test/ scripts/ eval/ mcp/ eslint-plugin-af-mobile/ adapters/ starter/src/ --max-warnings 0` |
 | 5 | 发布前检查（build + Tree Shaking + sideEffects + types-sync + npm pack） | `npm run publish:check` |
 | 6 | eval 集格式闸门（校验 prompts.jsonl 结构） | `npm run eval:dry` |
 

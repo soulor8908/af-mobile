@@ -1,5 +1,5 @@
 // af-mobile UI —— eslint-plugin-af-mobile 入口（ESLint 9 flat config 兼容）
-// 21 条规则：L1(2) + L2(8) + L3(6) + L3.5(5)
+// 24 条规则：L1(2) + L2(8) + L3(6) + L3.5(5) + k(3)
 // （definePage 消费端 7 条规则已随 definePage 全局单例移除）
 import noTokenModification from './rules/no-token-modification.js';
 import noInlineStyle from './rules/no-inline-style.js';
@@ -22,6 +22,9 @@ import wcBlockNoInternalRef from './rules/wc-block-no-internal-ref.js';
 import wcBlockPropsCount from './rules/wc-block-props-count.js';
 import wcBlockStates from './rules/wc-block-states.js';
 import wcBlockVariantEnum from './rules/wc-block-variant-enum.js';
+import kNoBareAnd from './rules/k-no-bare-and.js';
+import kNoObjectInterpolation from './rules/k-no-object-interpolation.js';
+import kForRequireKey from './rules/k-for-require-key.js';
 
 const plugin = {
   meta: { name: 'eslint-plugin-af-mobile', version: '2.1.0' },
@@ -52,6 +55,11 @@ const plugin = {
     'wc-block-props-count': wcBlockPropsCount,
     'wc-block-states': wcBlockStates,
     'wc-block-variant-enum': wcBlockVariantEnum,
+    // k 层（3 条：D-001=B 应用层推广的配套约束；仅对从 @af-mobile/ui/k 导入的 html/For 生效，
+    // 主包同名 API 语义不同不受约束，规则内经 collectKImports 判定）
+    'k-no-bare-and': kNoBareAnd,
+    'k-no-object-interpolation': kNoObjectInterpolation,
+    'k-for-require-key': kForRequireKey,
   },
   configs: {},
 };
@@ -91,6 +99,11 @@ Object.assign(plugin.configs, {
       // L3.5 error（按需引入铁律：registerAll 全量注册 = 全局引入，一律禁止）
       'af-mobile/no-register-all': 'error',
       'af-mobile/wc-block-variant-enum': 'warn',
+      // k 层（k 渲染/应用层：裸 && 渲染 "false"、对象插值 "[object Object]" 是静默 bug → error；
+      // For 缺 key 对对象列表破坏 keyed 复用但原始值列表合法 → warn）
+      'af-mobile/k-no-bare-and': 'error',
+      'af-mobile/k-no-object-interpolation': 'error',
+      'af-mobile/k-for-require-key': 'warn',
     },
   },
 });

@@ -179,7 +179,7 @@ npx vitest run && npm run size && npm run whitelist:check && npm run types:check
 
 | 维度 | 库开发（src/） | 消费端（用户页面） |
 |---|---|---|
-| **ESLint 规则集** | COMPONENT_RULES（L3 的 6 条 wc-* 规则） | AI_RULES（L1+L2+L3+L3.5 全部 21 条） |
+| **ESLint 规则集** | COMPONENT_RULES（L3 的 6 条 wc-* 规则） | AI_RULES（L1+L2+L3+L3.5+k 全部 24 条） |
 | **白名单约束** | 不约束（`token-whitelist: off`） | 严格约束（228 class 封闭集） |
 | **内联 style** | Light DOM 组件禁止（`wc-light-no-style`），Shadow DOM 允许 | 完全禁止（`no-inline-style`） |
 | **自定义 class** | 允许（库源码自有设计约束） | 禁止（只能用 228 白名单 class） |

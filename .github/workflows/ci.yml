@@ -86,7 +86,7 @@ jobs:
       # Step 3c: 性能基线已移至 .github/workflows/perf.yml（定时任务）
       # Lighthouse 在共享 runner 上耗时长且结果受负载影响，不适合作为 PR 阻断闸门
 
-      # Step 4: ESLint 规则闸门（消费端 AI_RULES 21 条 / 库源码 COMPONENT_RULES，分目录生效）—— error 级直接阻断 PR
+      # Step 4: ESLint 规则闸门（消费端 AI_RULES 24 条 / 库源码 COMPONENT_RULES，分目录生效）—— error 级直接阻断 PR
       # 范围覆盖全部含 JS 的目录（含 e2e spec / prompt CLI / eslint-plugin-af-mobile 工作区与 .mjs，AGENTS.md #9）
       - name: ESLint check
         run: npx eslint src/ test/ scripts/ e2e/ prompt/ eval/ mcp/ eslint-plugin-af-mobile/ adapters/ starter/src/ --max-warnings 0

@@ -82,3 +82,25 @@ export function suggestNearest(name, candidates) {
   }
   return best ? ` Did you mean '${best}'?` : '';
 }
+
+// k 层导入源：发布名 @af-mobile/ui/k，或仓库内相对路径 k/index.js / k/flow.js
+const K_SOURCE_RE = /^@af-mobile\/ui\/k$|(?:^|[\\/])k[\\/](?:index|flow)\.[cm]?js$/;
+
+// 收集从 k 入口导入的绑定名（含别名）：{ html: Set<localName>, For: Set<localName> }
+// k 层规则（k-no-bare-and 等）只对从 k 入口导入的 html/For 生效——
+// 主包 html``（返回字符串）语义不同，不受 k 规则约束
+export function collectKImports(programBody) {
+  const names = { html: new Set(), For: new Set() };
+  for (const stmt of programBody) {
+    if (stmt.type !== 'ImportDeclaration') continue;
+    if (!K_SOURCE_RE.test(stmt.source.value)) continue;
+    for (const spec of stmt.specifiers) {
+      if (spec.type !== 'ImportSpecifier') continue;
+      const imported = spec.imported.type === 'Identifier'
+        ? spec.imported.name
+        : String(spec.imported.value);
+      if (names[imported]) names[imported].add(spec.local.name);
+    }
+  }
+  return names;
+}

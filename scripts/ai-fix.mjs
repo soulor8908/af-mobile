@@ -94,6 +94,9 @@ export const RULE_HINTS = {
   'af-mobile/wc-block-props-count': 'Block props 数必须在 2-5。相近语义 props 合并为对象传参，或拆分 Block 职责',
   'af-mobile/wc-block-states': 'Block 必须实现 loading/error/empty 三态分支（缺哪个补哪个，用 data-state 驱动）',
   'af-mobile/wc-block-variant-enum': 'variant 必须是封闭枚举值。把自由字符串改成枚举约束（attribute 静态检测 + JSDoc 声明合法值）',
+  'af-mobile/k-no-bare-and': 'k 的 html`` 子位裸 && 在假值时渲染字面量 "false" 文本。改为三元 ${cond ? x : null} 或 Show({ when: () => cond, kids: () => html`...` })',
+  'af-mobile/k-no-object-interpolation': 'k 的 html`` 插值对象字面量会渲染 "[object Object]"（k 无 { raw } 语法）。改为插 signal/getter、字符串或 DOM 节点；数组合法（展开为多节点）',
+  'af-mobile/k-for-require-key': 'For 显式传 key（稳定字段名）：For({ each, key: "id", kids })。对象项省略 key 以引用为键，数据源变化即整行重建；纯原始值列表可关闭本规则',
 };
 
 export function buildFixPrompt(messages, originalCode) {

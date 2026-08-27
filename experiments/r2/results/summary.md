@@ -11,6 +11,18 @@
 
 ## 备注（幻觉 API 明细、回避任务明细、异常情况）
 
+### 评分器缝隙审计（run-strict，2026-08-27，五家族回收后补作）
+
+- **动机与方法**：run.mjs 只断言文本存在性/条目数，未覆盖 #empty/#retry 显隐语义 → 新增 `run-strict.mjs`（不动 run.mjs/prompts/runtime；正式指标仍以 run.mjs 为准，保持 B3 可比口径）对 5 模型 × 2 臂的 t2/t3 补显隐断言（jsdom 无布局，以 hidden 属性 + display:none + Show/Switch 节点增删近似可见性）。
+- **结果：假阴性 2/50（4%），全部集中于 DeepSeek-V4 B 臂**：
+  - B/t2：#empty 属性名位插值绑定被忽略 → 有条目时空态文本仍可见（1/2 断言失败）
+  - B/t3：#retry 同因恒可见（初始/成功后/空态 3/4 断言失败；原断言只查"失败后出现"，未查"其余态不出现"）
+  - 其余 8 套（含全部 A 臂与 DeepSeek A 臂）严格口径全过：A 臂用 hidden/display 切换或清空 textContent，B 臂用 Show/Switch 条件增删，语义均正确
+- **判定修正**：正式口径（run.mjs）下 H2 仍成立；但按任务卡意图的严格口径，DeepSeek B 臂"真一次通过率"= 2/5（t2/t3 假阴性 + t5 首轮真失败）vs A 4/5 → 差 40pp，触发 README §九「H1 成立（部分）」分支。幻觉口径不变（属性名位插值属卡外语位误用，非框架级 API，README §六下仍记 0）。
+- **处方（README §九既定：词表卡加 few-shot 反例后再测一轮）**：已备 `prompts/promptB2.md`（v3：插值语位限制 + 显隐正反例，中性化措辞防泄题）与 `prompts/promptA2.md`（v2：mount 自建 DOM 示例替换 getElementById 旧例 + 条件文本反例）。v2 卡 token：A2 708 / B2 660（v1 为 560/445）——反例使 B 卡 +215 tokens，词表卡 token 优势收窄（79.5%→93.2%），但代码 token 优势（~75%）仍主导全会话成本（估算 MiniMax v2 全程 ≈78%）。下一轮两臂须同用 v2 卡、单独成行，与 B3/v1 不可比。
+- **目录规范化**：results/DeepSeek → results/DeepSeek-V4、results/seed-code → results/Seed-Code（原目录名与 summary 标签不一致，按标签寻址会 404）。
+- **待办（需换会话/换模型）**：① 用 v2 卡开新一轮采集（顺序平衡在新一轮内重新起算），建议首个家族选 Qwen3.7-plus——其 v1 A 臂首轮 0/5 是唯一疑似"A 卡 getElementById 示例误导 mount 契约"的样本，v2 重测可直接验证该假设；② 补 1 个非中文系家族（Anthropic/Google），解外部效度折扣。
+
 ### MiniMax-M3（2026-08-27，调度式子代理采集）
 
 - **采集方式**：主代理（MiniMax-M3，已接触 k 材料不可作被试）派两个零上下文子代理分别作 A/B 臂被试；被试提示词仅内联各自词表卡 + 任务卡原文 + 禁用工具。顺序平衡：MiniMax-M3 为 R2 第 5 个招募家族 → **先 A 后 B**（奇数序）。

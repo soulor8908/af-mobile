@@ -21,6 +21,7 @@ export function html(strings, ...vals) {
   if (!tpl) {
     tpl = document.createElement('template');
     tpl.innerHTML = strings.reduce((s, str, i) => s + (i ? `\u0001${i - 1}\u0001` : '') + str, '');
+    warnBadPlaceholders(tpl.content);
     cache.set(key, tpl);
   }
   const root = tpl.content.cloneNode(true);
@@ -29,6 +30,25 @@ export function html(strings, ...vals) {
   bindKids(root, vals, disposers);
   root._clean = () => disposers.forEach(d => d());
   return root;
+}
+
+// 报警器用锚定校验：占位符必须完整占据属性值（与 bindAttrs 的前缀匹配刻意不同）
+const FULL_PLACEHOLDER = /^\u0001\d+\u0001$/;
+// 烟雾报警器（模板缓存 miss 时执行一次，天然去重）：
+// 两类坏位置的插值在 bindAttrs 前缀正则下静默失败——
+//   ① 属性名位（<div ${name}="v">）：绑定被整体忽略
+//   ② 带引号混合值（class="btn ${x}" / class="${x} btn"）：占位符留字面量或静态部分丢失
+// 只告警不拦截，不改变现行绑定行为
+function warnBadPlaceholders(root) {
+  for (const el of root.querySelectorAll('*')) {
+    for (const a of el.attributes) {
+      if (a.name.includes(SENT)) {
+        console.warn(`[k] 属性名位不支持插值（${JSON.stringify(a.name)}）：绑定将被忽略`);
+      } else if (a.value.includes(SENT) && !FULL_PLACEHOLDER.test(a.value)) {
+        console.warn(`[k] 属性 ${a.name} 为混合插值：仅支持完整属性值绑定（attr=${'${x}'} 无引号形态），静态部分或整条绑定将丢失`);
+      }
+    }
+  }
 }
 
 // 属性位绑定：@ev=${fn} 事件 / .prop=${x} DOM属性 / attr=${x} HTML属性

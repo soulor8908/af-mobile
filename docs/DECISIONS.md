@@ -8,6 +8,8 @@
 |---|---|---|---|
 | D-001 | 2026-08-26 | 待决策 | k 层定位：A 冻结 / B 推广为应用层 / C 移除 |
 | D-002 | 2026-08-26 | 随 D-001 | 双 `html\`\`` 同名不同义的处理 |
+| D-003 | 2026-08-26 | 已决：保留 | router 守卫（beforeEach/afterEach） |
+| D-004 | 2026-08-26 | 已决：保留 | i18n 完整模块 |
 
 ---
 
@@ -39,3 +41,15 @@
 - D-001=A：文档消解（src/k/README.md 首段对比表 + 根 README 警示）；改名留待下一个 major 一并评估
 - D-001=B：统一语义或改名（如 `dom\`\``）随推广一并做
 - D-001=C：自然消解
+
+## D-003 router 守卫保留（已决）
+
+- **决策**：beforeEach/afterEach 守卫保留在主包 router.js。
+- **理由**：P0 生产要素设计（docs/design/p0-production-essentials-design.md）将 guard 列入 Router 范围；starter 登录页依赖 beforeEach 重定向（docs/blog/starter-tech-choices.md）。
+- **放弃了什么**：无——本仓库设计从未砍过守卫。此条为既成事实的集中登记（外部评审曾质疑为"黑名单复活"，核查后证据链完整，缺的只是集中登记，非决策缺失）。
+
+## D-004 i18n 完整模块保留（已决）
+
+- **决策**：保留 lib/i18n.js（~6.7KB）+ with-i18n + 组件映射表。
+- **理由**：组件库面向真实用户需要国际化；有完整设计 spec（docs/superpowers/specs/2026-08-10-i18n-design.md）+ plan + 单测 + e2e。
+- **放弃了什么**：ICU MessageFormat、复数、懒加载语言包、嵌套 key（spec 的 YAGNI 非目标清单明确砍掉）。

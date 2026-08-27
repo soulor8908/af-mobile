@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-chart-line demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <style>
+    /* 豁免：KPI 数字精确字号白名单 utility 覆盖不了（同 kitchen-sink 模式） */
+    [data-role="kpi-num"] { font-size: 24px; }
+  </style>
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -23,41 +29,41 @@
 
     <!-- variant 矩阵 -->
     <p class="caption">A · 单序列折线（月活趋势）</p>
-    <div class="card"><af-chart-line class="demo" variant="line" data-line="monthly"></af-chart-line></div>
+    <div class="card"><af-chart-line data-demo variant="line" data-line="monthly"></af-chart-line></div>
 
     <p class="caption">B · 多序列对比（今年 vs 去年）</p>
-    <div class="card"><af-chart-line class="demo" variant="line" legend data-line="compare"></af-chart-line></div>
+    <div class="card"><af-chart-line data-demo variant="line" legend data-line="compare"></af-chart-line></div>
 
     <p class="caption">C · 平滑曲线（smooth 单序列）</p>
-    <div class="card"><af-chart-line class="demo" variant="line" smooth data-line="monthly"></af-chart-line></div>
+    <div class="card"><af-chart-line data-demo variant="line" smooth data-line="monthly"></af-chart-line></div>
 
     <p class="caption">D · 平滑 + 多序列（smooth + series）</p>
-    <div class="card"><af-chart-line class="demo" variant="line" smooth legend data-line="compare"></af-chart-line></div>
+    <div class="card"><af-chart-line data-demo variant="line" smooth legend data-line="compare"></af-chart-line></div>
 
     <p class="caption">E · 面积图（营收趋势，clamp-zero）</p>
-    <div class="card"><af-chart-line class="demo" variant="area" data-line="revenue"></af-chart-line></div>
+    <div class="card"><af-chart-line data-demo variant="area" data-line="revenue"></af-chart-line></div>
 
     <p class="caption">F · 面积 + 平滑（area + smooth）</p>
-    <div class="card"><af-chart-line class="demo" variant="area" smooth data-line="revenue"></af-chart-line></div>
+    <div class="card"><af-chart-line data-demo variant="area" smooth data-line="revenue"></af-chart-line></div>
 
     <p class="caption">G · 面积多序列对比（今年 vs 去年营收，半透明叠加）</p>
-    <div class="card"><af-chart-line class="demo" variant="area" legend data-line="revenue_2y"></af-chart-line></div>
+    <div class="card"><af-chart-line data-demo variant="area" legend data-line="revenue_2y"></af-chart-line></div>
 
     <p class="caption">H · 散点图（20 点相关性）</p>
-    <div class="card"><af-chart-line class="demo" variant="scatter" data-line="scatter"></af-chart-line></div>
+    <div class="card"><af-chart-line data-demo variant="scatter" data-line="scatter"></af-chart-line></div>
 
     <p class="caption">I · sparkline（7 日 DAU 迷你趋势，KPI 卡内嵌示例）</p>
-    <div class="card" style="padding:12px;display:flex;align-items:center;gap:12px">
-      <div style="flex:0 0 auto">
-        <div class="body" style="color:var(--c-muted)">DAU</div>
-        <div class="display" style="font-size:24px">128.5K</div>
+    <div class="card f aic g-3">
+      <div class="shrink-0">
+        <div class="body text-muted">DAU</div>
+        <div class="display" data-role="kpi-num">128.5K</div>
       </div>
-      <af-chart-line class="demo" variant="spark" data-line="spark" style="flex:1 1 auto"></af-chart-line>
+      <af-chart-line data-demo variant="spark" data-line="spark" class="flex-1"></af-chart-line>
     </div>
 
     <!-- 五态 -->
     <p class="caption">J/K/L · 五态：loading / error（含重试）/ empty</p>
-    <div class="card" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div class="card grid-3 g-2">
       <af-chart-line id="j-loading" loading></af-chart-line>
       <af-chart-line id="k-error" error="加载失败，请重试" data-line="empty"></af-chart-line>
       <af-chart-line id="l-empty" data-line="empty"></af-chart-line>
@@ -100,7 +106,7 @@
     focus.series = MOCK.monthly.series;
 
     // —— variant 矩阵实例化（data-line 属性 → mock key） ——
-    document.querySelectorAll('af-chart-line.demo[data-line]').forEach(el => {
+    document.querySelectorAll('af-chart-line[data-demo][data-line]').forEach(el => {
       const m = MOCK[el.dataset.line];
       el.labels = m.labels;
       el.series = m.series;

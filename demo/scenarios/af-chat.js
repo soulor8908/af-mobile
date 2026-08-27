@@ -40,8 +40,13 @@ function makeRequestFn(opts) {
   };
 }
 
-// 场景容器：playground 沙盒允许内联 style 作容器布局；af-chat 本体样式全在 shadow + 白名单内
-const CHAT_HTML = `<div style="display:flex;flex-direction:column;height:440px"><af-chat id="chat" style="flex:1"></af-chat></div>`;
+// 场景容器需要固定高度（白名单无高度 utility）：豁免用 data-role 选择器 + 局部 <style>，
+// 同 kitchen-sink / af-list 单页模式；选择器带 data-role 限定，af-chat 本体样式全在 shadow + 白名单内
+const CHAT_HTML = `
+  <style>
+    [data-role="chat-shell"] { display: flex; flex-direction: column; height: 440px; }
+  </style>
+  <div data-role="chat-shell" class="fc"><af-chat id="chat" class="flex-1"></af-chat></div>`;
 
 function wireScenario(opts) {
   return function init() {
@@ -65,7 +70,7 @@ function wireScenario(opts) {
 }
 
 export default {
-  tag: 'chat',
+  tag: 'af-chat',
   name: 'AI 对话（af-chat）',
   scenarios: [
     {

@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-dialog demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -41,11 +43,11 @@
     document.getElementById('open').addEventListener('click', () => dialog.open());
     document.getElementById('cancel').addEventListener('click', () => dialog.close());
     document.getElementById('ok').addEventListener('click', () => {
-      dialog.close();
-      document.getElementById('log').textContent = '已确认删除';
+      // close(action?)：action 会作为 af-dialog:close 的 detail.action 派发，用于区分确认/取消
+      dialog.close('confirm');
     });
-    dialog.addEventListener('af-dialog:close', () => {
-      document.getElementById('log').textContent = '对话框关闭';
+    dialog.addEventListener('af-dialog:close', (e) => {
+      document.getElementById('log').textContent = `对话框关闭${e.detail.action ? `（action=${e.detail.action}）` : ''}`;
     });
 
     createPropsPanel(document.getElementById('props'), [

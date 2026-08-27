@@ -9,9 +9,9 @@ export default {
       html: `
         <af-steps id="s1" current="2"></af-steps>
         <p class="caption">点击按钮切换当前步骤</p>
-        <div class="card f gap-2">
-          <button class="btn btn-ghost" onclick="var s=document.getElementById('s1');s.current=Math.max(0,s.current-1);">上一步</button>
-          <button class="btn btn-ghost" onclick="var s=document.getElementById('s1');s.current=Math.min(s.steps.length-1,s.current+1);">下一步</button>
+        <div class="card f g-2">
+          <button class="btn btn-ghost" data-act="prev">上一步</button>
+          <button class="btn btn-ghost" data-act="next">下一步</button>
         </div>
       `,
       main: { selector: '#s1' },
@@ -21,6 +21,9 @@ export default {
       init: () => {
         const s1 = document.getElementById('s1');
         s1.steps = ['下单', '支付', '发货', '收货'];
+        // 事件绑定收敛到 init（不用内联 onclick，多实例场景下全局查询会串台）
+        document.querySelector('[data-act="prev"]').addEventListener('click', () => { s1.current = Math.max(0, s1.current - 1); });
+        document.querySelector('[data-act="next"]').addEventListener('click', () => { s1.current = Math.min(s1.steps.length - 1, s1.current + 1); });
       },
     },
   ],

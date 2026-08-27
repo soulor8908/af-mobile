@@ -13,7 +13,7 @@
 ## 数据流
 
 ```
-eval/prompts.jsonl          需求库（65 条，含 expects + 可选 asserts；starter 类为带后端契约的落地任务）
+eval/prompts.jsonl          需求库（86 条，含 expects + 可选 asserts；starter 类为带后端契约的落地任务）
       │  run.mjs 生成（需 LLM key）
       ▼
 eval/results/<id>-k0.html   生成页面
@@ -28,6 +28,9 @@ flywheel.mjs                聚合 errorsByRule → PR 改进草稿
 ## 命令
 
 ```bash
+# 0. 组件覆盖矩阵（36 组件 × 考题，缺失 exit 1，可挂 CI）
+node scripts/eval-coverage.mjs
+
 # 1. 完整零 token 流水线
 node eval/judge.mjs eval/results/raw.json --visual   # DOM 断言 + 语义失败回写
 node eval/flywheel.mjs eval/results/raw.json          # 产出改进建议（默认阈值 20%）
@@ -92,6 +95,23 @@ node eval/flywheel.mjs eval/results/raw-agent-x.json
 ```
 
 约定：文件命名 `<id>-k<k>-<variant>.html`（与 run.mjs 一致）；variant 建议 `agent-<模型>` 存档（如 `agent-kimi`），pass 率跨生成器不可直接比。exitCode 沿用 ai-fix 约定：0=通过，1=lint 失败，3=异常。
+
+## 飞轮例行化（约定）
+
+触发时机：**组件源码 / scenarios / prompt 资产变更后**，以及**每周例跑**一次。闭环顺序：
+
+```bash
+npm run fewshots:gen                     # 1. 教材同步（scenarios → prompt 资产）
+npm run prompt:build && npm run prompt:check   # 2. System Prompt 快照更新 + 门禁
+node scripts/eval-coverage.mjs           # 3. 组件覆盖矩阵（36/36 才继续，缺失先补考题）
+node eval/agent-run.mjs --emit --limit 10 --variant weekly   # 4. 领任务（agent 生成，生评分离）
+# agent 逐条生成 → --lint 自修后：
+node eval/agent-run.mjs --collect --variant weekly
+node eval/judge.mjs eval/results/raw-weekly.json --visual     # 5. lint + DOM/语义断言
+node eval/flywheel.mjs eval/results/raw-weekly.json           # 6. 失败聚合 → 改进 PR 草稿
+```
+
+第 6 步聚合出的 top 失败 rule：ESLint 类回写 `system-prompt.template.md`「错误恢复」表，DOM 语义类校准考题断言（撤销错误断言而非硬过）。度量口径：pass 率跨生成器不可直接比，variant 固定为 `agent-<模型>` 存档对比。
 
 ## 前置
 

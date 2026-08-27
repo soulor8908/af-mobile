@@ -41,6 +41,8 @@ prompt/assets/
 
 # Eval 产物：raw/report/HTML 是基线资产，必须入库防丢失；截图可再生成，忽略
 eval/results/shots/
+# A/B 实验的裁剪 prompt 快照与临时构建脚本（buildPrompt 按需可重建，不入库）
+eval/results/ab-prompt-*
 
 # Playwright e2e 产物
 test-results/

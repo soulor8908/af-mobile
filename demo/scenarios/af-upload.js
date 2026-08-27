@@ -35,5 +35,33 @@ export default {
         });
       },
     },
+    {
+      name: '文档上传（非图片占位）',
+      html: `
+        <section class="card">
+          <p class="body">仅限 .pdf / .docx / .txt · 单选 · 非图片以文件名占位</p>
+          <af-upload id="upload2" accept=".pdf,.docx,.txt" multiple="false" button-text="选择文档"></af-upload>
+        </section>
+        <p class="caption" id="up-log2">类型不符触发 af-upload:error（reason: type）</p>
+      `,
+      main: { selector: '#upload2' },
+      props: [
+        { prop: 'accept', label: 'accept', type: 'string' },
+        { prop: 'maxCount', label: '最大数量', type: 'number' },
+      ],
+      events: ['af-upload:change', 'af-upload:error'],
+      init: () => {
+        const upload = document.getElementById('upload2');
+        const log = document.getElementById('up-log2');
+        upload.addEventListener('af-upload:change', (e) => {
+          if (log) log.textContent = e.detail.files.length
+            ? `已选：${e.detail.files.map((f) => f.name).join('、')}`
+            : '已清空';
+        });
+        upload.addEventListener('af-upload:error', (e) => {
+          if (log) log.textContent = `错误：${e.detail.errors.map((err) => err.name + ':' + err.reason).join(', ')}`;
+        });
+      },
+    },
   ],
 };

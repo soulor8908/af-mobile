@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>商品列表</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <div class="page">
+    <header class="navbar">
+      <h1 class="title">商品</h1>
+    </header>
+
+    <af-search-bar id="sb" placeholder="搜索商品" clearable debounce="300"></af-search-bar>
+
+    <af-list id="list" page-size="20" height="70vh"></af-list>
+
+    <af-toast id="toast"></af-toast>
+  </div>
+
+  <script type="module">
+    import { register, fetchPage, html } from '../../src/index.js';
+    await register('af-search-bar');
+    await register('af-list');
+    await register('af-toast');
+
+    const PAGE_SIZE = 20;
+    const MOCK_TOTAL = 45;
+    const mockItem = (i) => ({
+      id: i + 1,
+      title: '商品 ' + String(i + 1).padStart(3, '0'),
+      price: Math.round((9.9 + i * 3.7) * 100) / 100
+    });
+
+    async function getProducts(page, pageSize, keyword) {
+      try {
+        return await fetchPage('supabase://products?select=id,title,price&order=created_at.desc', { page, pageSize });
+      } catch (err) {
+        let all = Array.from({ length: MOCK_TOTAL }, (_, i) => mockItem(i));
+        if (keyword) all = all.filter((g) => g.title.includes(keyword));
+        const start = (page - 1) * pageSize;
+        return { data: all.slice(start, start + pageSize), total: all.length };
+      }
+    }
+
+    const list = document.getElementById('list');
+    const sb = document.getElementById('sb');
+    const toast = document.getElementById('toast');
+    let keyword = '';
+
+    list.renderItem = (item, idx) => html`<div class="list-item" data-list-index="${idx}">
+      <div class="flex-1 min-w-0">
+        <div class="body">${item.title}</div>
+        <div class="price">¥${item.price.toFixed(2)}</div>
+      </div>
+    </div>`;
+
+    async function loadFirst() {
+      const r = await getProducts(1, PAGE_SIZE, keyword);
+      list.totalCount = r.total;
+      list.data = r.data;
+      list.endLoadMore(r.data.length < r.total);
+    }
+    loadFirst();
+
+    list.addEventListener('af-list:loadmore', async (e) => {
+      const r = await getProducts(e.detail.page, PAGE_SIZE, keyword);
+      list.data = [...list.data, ...r.data];
+      list.endLoadMore(list.data.length < r.total);
+    });
+
+    list.addEventListener('af-list:itemclick', (e) => {
+      toast.show('跳转 /detail/' + e.detail.item.id);
+    });
+
+    list.addEventListener('af-list:refresh', () => {
+      list.endRefresh();
+    });
+
+    sb.addEventListener('af-search-bar:search', (e) => {
+      keyword = (e.detail.value || '').trim();
+      loadFirst();
+    });
+  </script>
+</body>
+</html>

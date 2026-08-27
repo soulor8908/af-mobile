@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>商品图墙</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <div class="page">
+    <header class="navbar">
+      <h1 class="title">商品图墙</h1>
+    </header>
+
+    <div class="grid-2 g-2 p-3">
+      <af-img src="https://placehold.co/600x600?text=Goods-1" alt="商品图一"
+              placeholder-src="https://placehold.co/48x48?text=..." fail-src="https://placehold.co/600x600?text=Load-Failed"></af-img>
+      <af-img src="https://placehold.co/600x600?text=Goods-2" alt="商品图二"
+              placeholder-src="https://placehold.co/48x48?text=..." fail-src="https://placehold.co/600x600?text=Load-Failed"></af-img>
+      <af-img src="https://placehold.co/600x600?text=Goods-3" alt="商品图三"
+              placeholder-src="https://placehold.co/48x48?text=..." fail-src="https://placehold.co/600x600?text=Load-Failed"></af-img>
+      <af-img src="https://invalid.example/missing.jpg" alt="商品图四（演示加载失败兜底）"
+              placeholder-src="https://placehold.co/48x48?text=..." fail-src="https://placehold.co/600x600?text=Load-Failed"></af-img>
+    </div>
+
+    <p class="caption t-center p-3">图片懒加载：进入视口才请求；第四张演示加载失败后的兜底图</p>
+  </div>
+</body>
+</html>

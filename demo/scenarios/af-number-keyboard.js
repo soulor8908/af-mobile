@@ -37,5 +37,39 @@ export default {
         });
       },
     },
+    {
+      name: '交易密码输入（删除与关闭来源）',
+      html: `
+        <div class="actions">
+          <button class="btn" data-act="nk2-open">打开键盘</button>
+        </div>
+        <p class="caption" id="nk2-log">顺序布局（非 random）输满 6 位自动关闭；close 事件带来源</p>
+        <af-number-keyboard id="kb2" title="输入交易密码" maxlength="6"></af-number-keyboard>
+      `,
+      main: { selector: '#kb2' },
+      props: [
+        { prop: 'title', label: '标题', type: 'string' },
+        { prop: 'maxlength', label: '最大长度', type: 'number', min: 0, max: 8, step: 1 },
+        { prop: 'random', label: '随机布局', type: 'boolean' },
+      ],
+      events: ['af-number-keyboard:input', 'af-number-keyboard:delete', 'af-number-keyboard:complete', 'af-number-keyboard:close'],
+      styleTokens: [
+        { token: '--c-brand', label: '主色', type: 'color' },
+      ],
+      init: () => {
+        const kb = document.getElementById('kb2');
+        const log = document.getElementById('nk2-log');
+        const show = (t) => { if (log) log.textContent = t; };
+        document.querySelector('[data-act="nk2-open"]').addEventListener('click', () => kb.open());
+        kb.addEventListener('af-number-keyboard:input', (e) => show(`输入 ${e.detail.key} → ${e.detail.value}`));
+        kb.addEventListener('af-number-keyboard:delete', (e) => show(`删除 → ${e.detail.value}`));
+        // 输满后调用 close(source)：source 进入 af-number-keyboard:close 的 detail.source
+        kb.addEventListener('af-number-keyboard:complete', (e) => {
+          show(`完成：${e.detail.value}`);
+          kb.close('complete');
+        });
+        kb.addEventListener('af-number-keyboard:close', (e) => show(`键盘关闭（来源 ${e.detail.source}）`));
+      },
+    },
   ],
 };

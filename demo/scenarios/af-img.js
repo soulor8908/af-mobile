@@ -26,5 +26,27 @@ export default {
         img.addEventListener('af-img:error', () => { if (log) log.textContent = '图片加载失败'; });
       },
     },
+    {
+      name: '加载失败回退（failSrc）',
+      html: `
+        <af-img id="img2" alt="失败回退示例"
+          src="https://host.invalid/aiflow-broken.jpg"
+          fail-src="https://picsum.photos/seed/af-fallback/360/200">
+        </af-img>
+        <p class="caption" id="img2-log">主图地址失效时自动改拉 failSrc 兜底图：error 先于 load 派发</p>
+      `,
+      main: { selector: '#img2' },
+      props: [
+        { prop: 'src', label: '图片地址', type: 'string' },
+        { prop: 'failSrc', label: '兜底地址', type: 'string' },
+      ],
+      events: ['af-img:load', 'af-img:error'],
+      init: () => {
+        const img = document.getElementById('img2');
+        const log = document.getElementById('img2-log');
+        img.addEventListener('af-img:error', () => { if (log) log.textContent = '主图加载失败，切换 failSrc…'; });
+        img.addEventListener('af-img:load', () => { if (log) log.textContent = '兜底图加载完成'; });
+      },
+    },
   ],
 };

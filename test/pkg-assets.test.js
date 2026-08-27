@@ -6,17 +6,9 @@ import { readFileSync, readdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { syncAssetsTo } from '../scripts/sync-pkg-assets.mjs';
+import { syncAssetsTo, ASSETS } from '../scripts/sync-pkg-assets.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-
-const ASSETS = [
-  ['eslint-plugin-af-mobile/utils/whitelist-v1.json', 'whitelist-v1.json'],
-  ['src/recipes.css', 'recipes.css'],
-  ['src/atomic.css', 'atomic.css'],
-  ['prompt/system-prompt.md', 'system-prompt.md'],
-  ['prompt/system-prompt.template.md', 'system-prompt.template.md'],
-];
 
 const dirs = ['mcp', 'prompt'].map((name) =>
   mkdtempSync(join(tmpdir(), `af-mobile-assets-${name}-`)),
@@ -31,8 +23,8 @@ describe('syncAssetsTo 同步逻辑', () => {
     '%s 快照产物与源逐字节一致',
     (name) => {
       const dir = dirs[name === 'mcp' ? 0 : 1];
-      expect(syncAssetsTo(dir)).toBe(6);
-      for (const [src, flat] of ASSETS) {
+      expect(syncAssetsTo(dir)).toBe(ASSETS.length);
+      for (const [src, flat] of ASSETS.filter(([, flat]) => flat !== 'models')) {
         expect(
           readFileSync(join(dir, flat), 'utf8'),
           `${flat} 与 ${src} 不一致`,

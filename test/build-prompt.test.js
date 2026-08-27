@@ -15,6 +15,7 @@ import {
   pickScenarioPacks,
   detectSceneDemand,
   buildScenarioSection,
+  pickComponents,
   buildPrompt,
 } from '../scripts/build-prompt.mjs';
 
@@ -263,6 +264,29 @@ describe('build-prompt / buildComponentTableSection（组件 API 按需加载）
     expect(s).toContain('<af-list>');
     expect(s).toContain('<af-swiper>');
     expect(s).not.toContain('<af-dialog>');
+  });
+});
+
+describe('build-prompt / pickComponents（demo 即教材：命中组件裁剪 + 场景指路）', () => {
+  it('关键词命中组件', () => {
+    expect(pickComponents('做个城市选择页，带搜索和列表')).toEqual(
+      expect.arrayContaining(['af-list', 'af-picker', 'af-search-bar']),
+    );
+  });
+  it('无命中 / 空需求返回空数组', () => {
+    expect(pickComponents('随便做点东西')).toEqual([]);
+    expect(pickComponents('')).toEqual([]);
+  });
+  it('buildPrompt 命中时组件表裁剪并附内联用法教材', () => {
+    const out = buildPrompt({ userPrompt: '城市选择页' });
+    expect(out).toContain('命中组件的用法教材');
+    expect(out).toContain('p.columns = '); // af-picker 内联片段（手写 fewshot）
+    expect(out).toContain('| `<af-picker>`');
+    expect(out).not.toContain('| `<af-upload>`');
+  });
+  it('buildPrompt 无命中 / 无参保持全量', () => {
+    expect(buildPrompt({ userPrompt: '' })).toContain('| `<af-upload>`');
+    expect(buildPrompt()).not.toContain('命中组件的用法教材');
   });
 });
 

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>操作确认弹窗</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <div class="page">
+    <header class="navbar">
+      <h1 class="title">地址管理</h1>
+    </header>
+
+    <div class="card m-3 p-4">
+      <div class="f aic jcsb g-2">
+        <div class="flex-1 min-w-0">
+          <div class="title">张三 138****8888</div>
+          <div class="meta ellipsis-2">广东省深圳市南山区科技园南路 88 号 A 座 1001 室</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="del-btn" type="button">删除</button>
+      </div>
+    </div>
+
+    <p class="caption t-center p-4">删除操作需要二次确认，防止误触</p>
+
+    <af-dialog id="dlg" title="删除确认" open>
+      <div slot="body" class="body">删除后不可恢复，确定要删除该收货地址吗？</div>
+      <div slot="footer" class="f g-2">
+        <button class="btn btn-ghost btn-block" id="cancel-btn" type="button">取消</button>
+        <button class="btn btn-danger btn-block" id="confirm-btn" type="button">确认删除</button>
+      </div>
+    </af-dialog>
+  </div>
+
+  <script type="module">
+    import { register } from '../../src/index.js';
+    await register('af-dialog');
+
+    const dlg = document.getElementById('dlg');
+    document.getElementById('del-btn').addEventListener('click', () => dlg.open());
+    document.getElementById('cancel-btn').addEventListener('click', () => dlg.close('cancel'));
+    document.getElementById('confirm-btn').addEventListener('click', () => dlg.close('confirm'));
+    dlg.addEventListener('af-dialog:close', (e) => {
+      if (e.detail.action === 'confirm') dlg.previousElementSibling.remove();
+    });
+  </script>
+</body>
+</html>

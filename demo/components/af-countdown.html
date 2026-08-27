@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-countdown demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -19,16 +21,19 @@
     </div>
 
     <p class="caption" id="log">到 0 派发 af-countdown:end</p>
-    <div class="card f gap-2">
+    <div class="card f g-2">
       <button class="btn btn-ghost" id="startBtn">开始</button>
       <button class="btn btn-ghost" id="pauseBtn">暂停</button>
       <button class="btn btn-ghost" id="resetBtn">重置</button>
     </div>
+
+    <section id="props" class="card"></section>
   </main>
 
   <script type="module">
     import { AfCountdown } from '../../src/components/af-countdown.js';
     customElements.define('af-countdown', AfCountdown);
+    import { createPropsPanel } from '../props-panel.js';
 
     const cd = document.getElementById('cd');
     cd.addEventListener('af-countdown:end', () => {
@@ -40,6 +45,11 @@
     document.getElementById('startBtn').addEventListener('click', () => cd.start());
     document.getElementById('pauseBtn').addEventListener('click', () => cd.pause());
     document.getElementById('resetBtn').addEventListener('click', () => cd.reset());
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'time', label: '总时长(s)', type: 'number', min: 1, max: 600, step: 1 },
+      { prop: 'autostart', label: '自动开始', type: 'boolean' },
+    ], cd);
   </script>
 </body>
 </html>

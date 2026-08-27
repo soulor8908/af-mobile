@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>设置</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">设置</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <div class="card m-3">
+    <div class="cell g-3">
+      <div class="flex-1 min-w-0 fc g-1">
+        <span class="body t-b">消息推送</span>
+        <span class="caption text-muted">接收订单、物流与优惠活动通知</span>
+      </div>
+      <af-switch data-name="消息推送" checked></af-switch>
+    </div>
+    <div class="cell g-3">
+      <div class="flex-1 min-w-0 fc g-1">
+        <span class="body t-b">夜间模式</span>
+        <span class="caption text-muted">日落后自动切换为深色主题</span>
+      </div>
+      <af-switch data-name="夜间模式"></af-switch>
+    </div>
+    <div class="cell g-3">
+      <div class="flex-1 min-w-0 fc g-1">
+        <span class="body t-b">震动反馈</span>
+        <span class="caption text-muted">操作成功时提供轻微震动提示</span>
+      </div>
+      <af-switch data-name="震动反馈" checked></af-switch>
+    </div>
+  </div>
+
+  <p class="caption text-muted p-4" id="log" role="status">开关设置实时生效</p>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+register('af-switch');
+
+const log = document.getElementById('log');
+document.querySelectorAll('af-switch').forEach((sw) => {
+  sw.addEventListener('af-switch:change', (e) => {
+    log.textContent = sw.dataset.name + '已' + (e.detail.checked ? '开启' : '关闭');
+  });
+});
+</script>
+</body>
+</html>

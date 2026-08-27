@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>购物车</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">购物车</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <div class="list m-3">
+    <div class="list-item g-3" data-row data-price="129">
+      <img class="thumb" src="https://placehold.co/144x144/e8d9c5/333?text=A" alt="">
+      <div class="flex-1 min-w-0 fc g-1">
+        <span class="title ellipsis-2">简约真皮通勤双肩包 14 英寸笔记本适配</span>
+        <span class="caption text-muted">规格：经典黑</span>
+        <div class="f aic jcsb w-full">
+          <span class="price">¥129.00</span>
+          <af-stepper value="1" min="1" max="99" step="1" aria-label="双肩包购买数量"></af-stepper>
+        </div>
+      </div>
+    </div>
+
+    <div class="list-item g-3" data-row data-price="59">
+      <img class="thumb" src="https://placehold.co/144x144/c5d8e8/333?text=B" alt="">
+      <div class="flex-1 min-w-0 fc g-1">
+        <span class="title ellipsis-2">桌面粉尘清洁刷三件套</span>
+        <span class="caption text-muted">规格：浅灰蓝</span>
+        <div class="f aic jcsb w-full">
+          <span class="price">¥59.00</span>
+          <af-stepper value="2" min="1" max="99" step="1" aria-label="清洁刷购买数量"></af-stepper>
+        </div>
+      </div>
+    </div>
+
+    <div class="list-item g-3" data-row data-price="269">
+      <img class="thumb" src="https://placehold.co/144x144/d3e5d0/333?text=C" alt="">
+      <div class="flex-1 min-w-0 fc g-1">
+        <span class="title ellipsis-2">轻弹缓震跑步鞋 男女同款</span>
+        <span class="caption text-muted">规格：苔原绿 · 42 码</span>
+        <div class="f aic jcsb w-full">
+          <span class="price">¥269.00</span>
+          <af-stepper value="1" min="1" max="99" step="1" aria-label="跑鞋购买数量"></af-stepper>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cob cob-fx">
+    <span class="body flex-1">合计 <span class="price" id="total">¥0.00</span></span>
+    <button class="btn" id="checkout">去结算</button>
+  </div>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+register('af-stepper');
+
+const totalEl = document.getElementById('total');
+const recalc = () => {
+  let sum = 0;
+  document.querySelectorAll('[data-row]').forEach((row) => {
+    const price = Number(row.dataset.price);
+    const qty = Number(row.querySelector('af-stepper').value);
+    sum += price * qty;
+  });
+  totalEl.textContent = '¥' + sum.toFixed(2);
+};
+
+document.querySelectorAll('af-stepper').forEach((st) => {
+  st.addEventListener('af-stepper:change', recalc);
+});
+recalc();
+</script>
+</body>
+</html>

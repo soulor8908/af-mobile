@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>消息中心</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <div class="page">
+    <header class="navbar">
+      <h1 class="title">消息中心</h1>
+    </header>
+
+    <div class="list" id="msg-list">
+      <af-swipe-cell>
+        <div slot="content" class="list-item">
+          <img class="avatar" src="https://placehold.co/72x72?text=A1" alt="订单助手头像">
+          <div class="flex-1 min-w-0">
+            <div class="title ellipsis">订单助手</div>
+            <div class="meta ellipsis">您的订单已发货，预计明天送达</div>
+          </div>
+          <span class="meta">09:30</span>
+        </div>
+        <div slot="right" class="f aic">
+          <button class="btn btn-danger" data-action="delete" type="button">删除</button>
+        </div>
+      </af-swipe-cell>
+
+      <af-swipe-cell>
+        <div slot="content" class="list-item">
+          <img class="avatar" src="https://placehold.co/72x72?text=A2" alt="优惠活动头像">
+          <div class="flex-1 min-w-0">
+            <div class="title ellipsis">优惠活动</div>
+            <div class="meta ellipsis">您关注的商品降价啦，快来看看</div>
+          </div>
+          <span class="meta">昨天</span>
+        </div>
+        <div slot="right" class="f aic">
+          <button class="btn btn-danger" data-action="delete" type="button">删除</button>
+        </div>
+      </af-swipe-cell>
+
+      <af-swipe-cell>
+        <div slot="content" class="list-item">
+          <img class="avatar" src="https://placehold.co/72x72?text=A3" alt="系统通知头像">
+          <div class="flex-1 min-w-0">
+            <div class="title ellipsis">系统通知</div>
+            <div class="meta ellipsis">账号已在新设备登录，请注意安全</div>
+          </div>
+          <span class="meta">3 天前</span>
+        </div>
+        <div slot="right" class="f aic">
+          <button class="btn btn-danger" data-action="delete" type="button">删除</button>
+        </div>
+      </af-swipe-cell>
+    </div>
+
+    <div class="empty" id="msg-empty" hidden>
+      <p class="body">暂无新消息</p>
+    </div>
+
+    <p class="caption t-center p-3">左滑消息项可露出删除按钮</p>
+  </div>
+
+  <script type="module">
+    import { register } from '../../src/index.js';
+    await register('af-swipe-cell');
+
+    const listEl = document.getElementById('msg-list');
+    const emptyEl = document.getElementById('msg-empty');
+
+    listEl.addEventListener('af-swipe-cell:action', (e) => {
+      if (e.detail.action !== 'delete') return;
+      const cell = e.target.closest('af-swipe-cell');
+      if (cell) cell.remove();
+      if (!listEl.querySelector('af-swipe-cell')) emptyEl.hidden = false;
+    });
+  </script>
+</body>
+</html>

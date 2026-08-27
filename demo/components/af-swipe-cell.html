@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-swipe-cell demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -14,7 +16,7 @@
     </section>
 
     <div class="list">
-      <af-swipe-cell>
+      <af-swipe-cell id="sc1">
         <div slot="content" class="list-item"><div class="body">左滑显示操作</div></div>
         <div slot="right">
           <button class="btn btn-sm btn-ghost" data-action="mark">标记</button>
@@ -27,15 +29,22 @@
     </div>
 
     <p class="caption" id="log">左滑 > 50% 吸附打开 · 触发 af-swipe-cell:action</p>
+
+    <section id="props" class="card"></section>
   </main>
 
   <script type="module">
     import { AfSwipeCell } from '../../src/components/af-swipe-cell.js';
     customElements.define('af-swipe-cell', AfSwipeCell);
+    import { createPropsPanel } from '../props-panel.js';
 
     document.addEventListener('af-swipe-cell:action', (e) => {
       document.getElementById('log').textContent = `动作 ${e.detail.action}`;
     });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'disabled', label: '禁用滑动', type: 'boolean' },
+    ], document.getElementById('sc1'));
   </script>
 </body>
 </html>

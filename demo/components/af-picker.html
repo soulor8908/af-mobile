@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-picker demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -15,6 +17,7 @@
 
     <div class="actions">
       <button class="btn" id="open">打开选择器</button>
+      <button class="btn btn-ghost" id="close">close() 关闭</button>
     </div>
 
     <af-picker id="picker" title="选择日期"></af-picker>
@@ -30,19 +33,25 @@
     import { createPropsPanel } from '../props-panel.js';
 
     const picker = document.getElementById('picker');
+    // 列项两种格式：string 或 { label, value } 对象（confirm 载荷返回 value）
     picker.columns = [
       ['2024', '2025', '2026'],
-      ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+      [{ label: '1月', value: 'Jan' }, { label: '2月', value: 'Feb' }, { label: '3月', value: 'Mar' }],
       ['1日', '15日', '28日'],
     ];
-    picker.values = ['2025', '1月', '1日'];
+    picker.values = ['2025', 'Jan', '1日'];
 
     document.getElementById('open').addEventListener('click', () => picker.open());
+    document.getElementById('close').addEventListener('click', () => picker.close());
     picker.addEventListener('af-picker:confirm', (e) => {
       document.getElementById('log').textContent = `确认: ${e.detail.values?.join(' / ')}`;
     });
+    picker.addEventListener('af-picker:cancel', () => {
+      document.getElementById('log').textContent = '已取消';
+    });
     picker.addEventListener('af-picker:change', (e) => {
-      document.getElementById('log').textContent = `变化: ${e.detail.values?.join(' / ')}`;
+      // change 载荷：{ column, value, index }（注意与 confirm 的 { values } 不同）
+      document.getElementById('log').textContent = `变化: 第${e.detail.column}列 → ${e.detail.value} (index=${e.detail.index})`;
     });
 
     createPropsPanel(document.getElementById('props'), [

@@ -26,5 +26,31 @@ export default {
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
       ],
     },
+    {
+      name: 'toggle(force) 受控切换',
+      html: `
+        <div class="card">
+          <div class="cell"><span class="body">协议开关</span><af-switch id="s-force"></af-switch></div>
+        </div>
+        <div class="actions">
+          <button class="btn" data-act="on">toggle(true)</button>
+          <button class="btn btn-ghost" data-act="off">toggle(false)</button>
+        </div>
+        <p class="caption" id="s-log">force 参数直达目标态 · 与当前态相同时不派发事件</p>
+      `,
+      main: { selector: '#s-force' },
+      props: [
+        { prop: 'disabled', label: '禁用', type: 'boolean' },
+        { prop: 'loading', label: '加载中', type: 'boolean' },
+      ],
+      events: ['af-switch:change'],
+      init: () => {
+        const sw = document.getElementById('s-force');
+        const log = document.getElementById('s-log');
+        sw.addEventListener('af-switch:change', (e) => { if (log) log.textContent = `change: checked=${e.detail.checked}`; });
+        document.querySelector('[data-act="on"]').addEventListener('click', () => sw.toggle(true));
+        document.querySelector('[data-act="off"]').addEventListener('click', () => sw.toggle(false));
+      },
+    },
   ],
 };

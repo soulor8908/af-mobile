@@ -44,5 +44,43 @@ export default {
         });
       },
     },
+    {
+      name: '两层级联与默认选中',
+      html: `
+        <div class="card">
+          <div class="cell f aic jcsb"><span class="body">商圈</span><button class="btn btn-sm btn-ghost" data-act="cp2-open">选择</button></div>
+        </div>
+        <p class="caption" id="cp2-log">默认选中「上海 / 浦东」，确认与取消均记录日志</p>
+        <af-cascade-picker id="cp2" title="选择商圈"></af-cascade-picker>
+      `,
+      main: { selector: '#cp2' },
+      props: [
+        { prop: 'title', label: '标题', type: 'string' },
+      ],
+      events: ['af-picker:confirm', 'af-picker:cancel'],
+      init: () => {
+        const cp = document.getElementById('cp2');
+        cp.tree = [
+          { value: '上海', label: '上海', children: [
+            { value: '徐汇', label: '徐汇' },
+            { value: '浦东', label: '浦东' },
+          ] },
+          { value: '杭州', label: '杭州', children: [
+            { value: '西湖', label: '西湖' },
+            { value: '滨江', label: '滨江' },
+          ] },
+        ];
+        // values 预设默认选中项：tree 变更后级联回退按 values 匹配列项
+        cp.values = ['上海', '浦东'];
+        document.querySelector('[data-act="cp2-open"]')?.addEventListener('click', () => cp.open());
+        const log = document.getElementById('cp2-log');
+        cp.addEventListener('af-picker:confirm', (e) => {
+          if (log) log.textContent = `确认：${e.detail.values.join(' / ')}`;
+        });
+        cp.addEventListener('af-picker:cancel', () => {
+          if (log) log.textContent = '已取消选择';
+        });
+      },
+    },
   ],
 };

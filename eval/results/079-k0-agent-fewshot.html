@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>消息</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">消息</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <div class="list" id="msgList">
+    <af-swipe-cell>
+      <div slot="content" class="list-item g-3">
+        <img class="avatar" src="https://placehold.co/72x72/e8d9c5/333?text=1" alt="">
+        <div class="flex-1 min-w-0 fc g-1">
+          <div class="f aic jcsb">
+            <span class="title">云上书店</span>
+            <span class="meta">14:20</span>
+          </div>
+          <span class="caption text-muted ellipsis">您收藏的《设计心理学》降价啦，快来看看</span>
+        </div>
+      </div>
+      <div slot="right">
+        <button class="btn btn-sm btn-danger" data-action="delete">删除</button>
+      </div>
+    </af-swipe-cell>
+
+    <af-swipe-cell>
+      <div slot="content" class="list-item g-3">
+        <img class="avatar" src="https://placehold.co/72x72/c5d8e8/333?text=2" alt="">
+        <div class="flex-1 min-w-0 fc g-1">
+          <div class="f aic jcsb">
+            <span class="title">快递助手</span>
+            <span class="meta">12:05</span>
+          </div>
+          <span class="caption text-muted ellipsis">您的包裹已签收，感谢使用，期待再次光临</span>
+        </div>
+      </div>
+      <div slot="right">
+        <button class="btn btn-sm btn-danger" data-action="delete">删除</button>
+      </div>
+    </af-swipe-cell>
+
+    <af-swipe-cell>
+      <div slot="content" class="list-item g-3">
+        <img class="avatar" src="https://placehold.co/72x72/d3e5d0/333?text=3" alt="">
+        <div class="flex-1 min-w-0 fc g-1">
+          <div class="f aic jcsb">
+            <span class="title">会员中心</span>
+            <span class="meta">昨天</span>
+          </div>
+          <span class="caption text-muted ellipsis">您有 260 积分即将过期，尽快去积分商城使用</span>
+        </div>
+      </div>
+      <div slot="right">
+        <button class="btn btn-sm btn-danger" data-action="delete">删除</button>
+      </div>
+    </af-swipe-cell>
+  </div>
+
+  <div class="empty" id="emptyTip" hidden>消息都清空啦</div>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+register('af-swipe-cell');
+
+const msgList = document.getElementById('msgList');
+const emptyTip = document.getElementById('emptyTip');
+
+msgList.addEventListener('af-swipe-cell:action', (e) => {
+  if (e.detail.action !== 'delete') return;
+  const cell = e.target.closest('af-swipe-cell');
+  if (!cell) return;
+  cell.remove();
+  emptyTip.hidden = msgList.children.length > 0;
+});
+</script>
+</body>
+</html>

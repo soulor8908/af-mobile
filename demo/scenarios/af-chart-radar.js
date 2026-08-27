@@ -38,5 +38,32 @@ export default {
         ];
       },
     },
+    {
+      name: '单主体画像',
+      html: '<af-chart-radar id="demo2"></af-chart-radar><p class="caption" id="demo2-log">data 值模式：不传 series 时单序列渲染，各维可设不同 max 上限</p>',
+      main: { selector: '#demo2' },
+      props: [
+        { prop: 'shape', label: '网格形态', type: 'select', options: ['polygon', 'circle'] },
+        { prop: 'height', label: '高度(px)', type: 'number', min: 200, max: 400, step: 20 },
+        { prop: 'loading', label: 'loading 态', type: 'boolean' },
+        { prop: 'error', label: 'error 文案', type: 'string' },
+      ],
+      events: ['af-chart-radar:select', 'af-chart-radar:retry'],
+      styleTokens: [
+        { token: '--c-border', label: '网格', type: 'color' },
+        { token: '--c-muted', label: '标签', type: 'color' },
+        { token: '--c-brand', label: '主序列色', type: 'color' },
+      ],
+      init() {
+        const el = document.getElementById('demo2');
+        el.data = [
+          { label: '性能', value: 92, max: 100 },
+          { label: '易用', value: 85, max: 90 },
+          { label: '外观', value: 78, max: 100 },
+          { label: '续航', value: 88, max: 120 },
+          { label: '价格', value: 60, max: 100 },
+        ];
+      },
+    },
   ],
 };

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>设置页开关组</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <div class="page">
+    <header class="navbar">
+      <h1 class="title">设置</h1>
+    </header>
+
+    <div class="list m-3">
+      <div class="cell">
+        <div class="flex-1 min-w-0">
+          <div class="title">消息推送</div>
+          <div class="meta">订单状态变更时推送通知提醒</div>
+        </div>
+        <af-switch id="sw-push" checked></af-switch>
+      </div>
+      <div class="cell">
+        <div class="flex-1 min-w-0">
+          <div class="title">夜间模式</div>
+          <div class="meta">降低屏幕亮度，夜间阅读更护眼</div>
+        </div>
+        <af-switch id="sw-dark"></af-switch>
+      </div>
+      <div class="cell">
+        <div class="flex-1 min-w-0">
+          <div class="title">震动反馈</div>
+          <div class="meta">关键操作时提供轻微震动反馈</div>
+        </div>
+        <af-switch id="sw-haptic" checked></af-switch>
+      </div>
+    </div>
+
+    <p class="caption t-center p-3">开关状态会自动保存到本机</p>
+  </div>
+
+  <script type="module">
+    import { register, toggleTheme } from '../../src/index.js';
+    await register('af-switch');
+
+    document.getElementById('sw-dark').addEventListener('af-switch:change', (e) => {
+      toggleTheme();
+      console.log('夜间模式', e.detail.checked ? '开启' : '关闭');
+    });
+    document.getElementById('sw-push').addEventListener('af-switch:change', (e) => {
+      console.log('消息推送', e.detail.checked ? '开启' : '关闭');
+    });
+    document.getElementById('sw-haptic').addEventListener('af-switch:change', (e) => {
+      console.log('震动反馈', e.detail.checked ? '开启' : '关闭');
+    });
+  </script>
+</body>
+</html>

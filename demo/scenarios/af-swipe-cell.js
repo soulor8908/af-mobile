@@ -31,5 +31,30 @@ export default {
         document.addEventListener('af-swipe-cell:action', (e) => { if (log) log.textContent = `动作 ${e.detail.action}`; });
       },
     },
+    {
+      name: 'open()/close() 编程控制',
+      html: `
+        <af-swipe-cell id="sc2">
+          <div slot="content" class="list-item"><div class="body">不靠手势，用按钮开关</div></div>
+          <div slot="right">
+            <button class="btn btn-sm btn-danger" data-action="delete">删除</button>
+          </div>
+        </af-swipe-cell>
+        <div class="actions">
+          <button class="btn" data-act="open">open()</button>
+          <button class="btn btn-ghost" data-act="close">close()</button>
+        </div>
+        <p class="caption" id="sc-log2">键盘同样可用：Enter/← 打开，Esc/→ 收起</p>
+      `,
+      main: { selector: '#sc2' },
+      events: ['af-swipe-cell:action'],
+      init: () => {
+        const cell = document.getElementById('sc2');
+        const log = document.getElementById('sc-log2');
+        document.querySelector('[data-act="open"]').addEventListener('click', () => cell.open());
+        document.querySelector('[data-act="close"]').addEventListener('click', () => cell.close());
+        cell.addEventListener('af-swipe-cell:action', (e) => { if (log) log.textContent = `动作 ${e.detail.action} · 已自动收起`; });
+      },
+    },
   ],
 };

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>云境咖啡 · af-mobile UI 全量范式页</title>
   <link rel="stylesheet" href="../src/index.css">
-  <!-- app-shell：fixed tabbar 遮挡兜底——.page 底部留出 tabbar(≈s-8) + 安全区，框架未提供该变体 -->
+  <!-- 豁免：app-shell 兜底——.page 底部留出 fixed tabbar(≈s-8) + 安全区，框架未提供该变体 -->
   <style>
     .page { padding-bottom: calc(var(--s-4) + var(--s-8) + env(safe-area-inset-bottom)); }
     /* af-backtop 抬高到 fixed tabbar 之上（框架默认 bottom=s-4 落在 tabbar 区内会遮挡） */
@@ -24,7 +24,7 @@
       register, escapeHtml as esc,
       initTheme, toggleTheme, getTheme,
       initLocale, addMessages, t, setLocale, getLocale,
-      signal, computed, effect, batch, createRoot,
+      signal, computed, effect, batch, createRoot, createPage,
       fetchPage, registerBackend, addInterceptor, invalidateCache, createResource,
       route, go, start, afterEach, notFound,
     } from '../src/index.js';
@@ -668,7 +668,7 @@
       $('af-navbar').addEventListener('af-navbar:back', () => go('/'));
     }
 
-    /* ============ ⑧ 视图 4：看板（/stats）—— 图表 / 偏好 ============ */
+    /* ============ ⑧ 视图 4：看板（/stats）—— createPage 范式（库主推写法） ============ */
     function statsPage(params, ctx) {
       ctx.outlet.innerHTML = `
         <main class="page fc g-3">
@@ -718,28 +718,35 @@
       $('[data-role="theme"]').addEventListener('af-switch:change', toggleTheme);
       $('[data-role="lang"]').addEventListener('af-switch:change', e => setLocale(e.detail.checked ? 'en-US' : 'zh-CN'));
 
-      // createResource：source → fetcher，loading/data/error 三态驱动骨架屏与图表；后端返回 key，前端按 locale 翻译
-      const res = createResource(() => 'mock://stats', u => fetchPage(u));
-      const dispose = createRoot(() => {
-        effect(() => {
-          if (res.isLoading()) return;
-          const d = res.data();
-          if (!d) return;
-          sk.hidden = true;
-          const line = $('af-chart-line');
-          line.labels = d.days.map(k => t('stats.day.' + k));
-          line.series = [{ name: t('stats.series.latte'), values: d.latte }, { name: t('stats.series.pour'), values: d.pour }];
-          const bar = $('af-chart-bar');
-          bar.labels = d.cats.map(c => t('stats.cat.' + c.key));
-          bar.series = [{ name: t('stats.series.cups'), values: d.cats.map(c => c.value) }];
-          $('af-chart-pie').data = d.cats.map(c => ({ label: t('stats.cat.' + c.key), value: c.value }));
-          const radar = $('af-chart-radar');
-          radar.data = d.flavor.map(f => ({ label: t('stats.flavor.' + f.key), value: f.value, max: f.max }));
-          radar.series = [{ name: t('stats.series.yunnan'), values: [9, 7, 8, 6, 7] }, { name: t('stats.series.geisha'), values: [6, 9, 9, 8, 5] }];
-          $('af-chart-funnel').data = d.funnel.map(f => ({ label: t('stats.funnel.' + f.key), value: f.value }));
-        });
+      // ★ createPage 页面运行时工厂（src/lib/page.js，9 原语：state/computed/setup/effects/...）——库主推页面范式：
+      //   setup 在 createRoot 内执行，其中 effect() 随 page.unmount() 级联销毁（无需手工 dispose）；
+      //   page.mount(root) 接管 :bind 声明式绑定；unmount 挂到路由 ctx.signal，离开视图自动清理
+      const page = createPage({
+        setup() {
+          // createResource：source → fetcher，loading/data/error 三态驱动骨架屏与图表；后端返回 key，前端按 locale 翻译
+          const res = createResource(() => 'mock://stats', u => fetchPage(u));
+          effect(() => {
+            if (res.isLoading()) return;
+            const d = res.data();
+            if (!d) return;
+            sk.hidden = true;
+            const line = $('af-chart-line');
+            line.labels = d.days.map(k => t('stats.day.' + k));
+            line.series = [{ name: t('stats.series.latte'), values: d.latte }, { name: t('stats.series.pour'), values: d.pour }];
+            const bar = $('af-chart-bar');
+            bar.labels = d.cats.map(c => t('stats.cat.' + c.key));
+            bar.series = [{ name: t('stats.series.cups'), values: d.cats.map(c => c.value) }];
+            $('af-chart-pie').data = d.cats.map(c => ({ label: t('stats.cat.' + c.key), value: c.value }));
+            const radar = $('af-chart-radar');
+            radar.data = d.flavor.map(f => ({ label: t('stats.flavor.' + f.key), value: f.value, max: f.max }));
+            radar.series = [{ name: t('stats.series.yunnan'), values: [9, 7, 8, 6, 7] }, { name: t('stats.series.geisha'), values: [6, 9, 9, 8, 5] }];
+            $('af-chart-funnel').data = d.funnel.map(f => ({ label: t('stats.funnel.' + f.key), value: f.value }));
+          });
+          return { res };
+        },
       });
-      ctx.signal.addEventListener('abort', dispose);
+      page.mount($('main'));
+      ctx.signal.addEventListener('abort', () => page.unmount());
 
       $('af-chart-line').addEventListener('af-chart-line:select', e => {
         $('[data-role="tip"]').textContent = t('stats.select.line', { label: e.detail.label, series: e.detail.seriesIndex + 1, value: e.detail.value });

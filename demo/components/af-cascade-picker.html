@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-cascade-picker demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -20,11 +22,14 @@
     <p class="caption" id="log">点击「选择」打开 · 继承 af-picker 滚轮内核</p>
 
     <af-cascade-picker id="cp" title="选择地区"></af-cascade-picker>
+
+    <section id="props" class="card"></section>
   </main>
 
   <script type="module">
     import { AfCascadePicker } from '../../src/components/af-cascade-picker.js';
     customElements.define('af-cascade-picker', AfCascadePicker);
+    import { createPropsPanel } from '../props-panel.js';
 
     const cp = document.getElementById('cp');
     cp.tree = [
@@ -50,6 +55,10 @@
     cp.addEventListener('af-picker:confirm', (e) => {
       document.getElementById('log').textContent = `选中 ${e.detail.values.join(' / ')}`;
     });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'title', label: '标题', type: 'string' },
+    ], cp);
   </script>
 </body>
 </html>

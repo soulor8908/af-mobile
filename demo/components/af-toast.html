@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-toast demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -14,10 +16,12 @@
     </section>
 
     <div class="actions">
+      <button class="btn" id="t0">默认(info)</button>
       <button class="btn" id="t1">成功</button>
       <button class="btn btn-ghost" id="t2">警告</button>
       <button class="btn btn-danger" id="t3">错误</button>
       <button class="btn btn-ghost" id="t4">加载中</button>
+      <button class="btn btn-ghost" id="t5">关闭常驻</button>
     </div>
 
     <p class="caption" id="log">点击按钮触发 toast</p>
@@ -33,10 +37,14 @@
     const toast = new AfToast();
     document.body.appendChild(toast);
 
+    // 不传 type 默认 info
+    document.getElementById('t0').addEventListener('click', () => toast.show('默认 info 提示'));
     document.getElementById('t1').addEventListener('click', () => toast.show('操作成功', { type: 'success' }));
     document.getElementById('t2').addEventListener('click', () => toast.show('请注意风险', { type: 'warning' }));
     document.getElementById('t3').addEventListener('click', () => toast.show('操作失败', { type: 'error' }));
-    document.getElementById('t4').addEventListener('click', () => toast.show('加载中...', { type: 'loading', duration: 0 }));
+    // duration: 0 = 常驻 toast，须配 closeOnClick 或手动 dismiss() 关闭
+    document.getElementById('t4').addEventListener('click', () => toast.show('加载中...', { type: 'loading', duration: 0, closeOnClick: true }));
+    document.getElementById('t5').addEventListener('click', () => toast.dismiss());
     toast.addEventListener('af-toast:dismiss', () => {
       document.getElementById('log').textContent = 'toast 已消失';
     });

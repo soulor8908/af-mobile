@@ -31,5 +31,24 @@ export default {
         document.getElementById('sb-focus')?.addEventListener('click', () => sb.focus());
       },
     },
+    {
+      name: '清除按钮与预设值',
+      html: `
+        <af-search-bar id="sb2" value="跑步鞋" debounce="0"></af-search-bar>
+        <p class="caption" id="sb-log2">有值时出现清除按钮 · 点击触发 af-search-bar:clear 并自动聚焦</p>
+      `,
+      main: { selector: '#sb2' },
+      props: [
+        { prop: 'value', label: '值', type: 'string' },
+        { prop: 'debounce', label: '防抖(ms)', type: 'number', min: 0, max: 2000, step: 100 },
+      ],
+      events: ['af-search-bar:input', 'af-search-bar:search', 'af-search-bar:clear'],
+      init: () => {
+        const sb = document.getElementById('sb2');
+        const log = document.getElementById('sb-log2');
+        sb.addEventListener('af-search-bar:clear', (e) => { if (log) log.textContent = `clear: "${e.detail.value}" · 输入框已重新聚焦`; });
+        sb.addEventListener('af-search-bar:input', (e) => { if (log) log.textContent = `input: ${e.detail.value}`; });
+      },
+    },
   ],
 };

@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-chart 联动场景 - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <style>
+    /* 豁免：以下视觉白名单 utility 覆盖不了（精确字号/竖向 margin/条纹占位），走 data-role 限定（同 kitchen-sink 模式） */
+    [data-role="kpi-num"] { font-size: 22px; }
+    [data-role="chart-host"] { margin-top: 8px; }
+    [data-role="lazy-spacer"] {
+      height: 1000px; display: flex; align-items: center; justify-content: center;
+      color: var(--c-muted); border-radius: var(--r-m); margin-bottom: 8px;
+      background: repeating-linear-gradient(45deg, var(--c-surface), var(--c-surface) 10px, transparent 10px, transparent 20px);
+    }
+  </style>
 </head>
 <body>
   <main class="page">
@@ -22,20 +32,20 @@
 
     <!-- ① KPI 卡内嵌 sparkline（3 张并排） -->
     <p class="caption">① KPI 卡 + sparkline（迷你趋势嵌入）</p>
-    <div class="card" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <div style="padding:12px">
-        <div class="body" style="color:var(--c-muted)">月活（30 日）</div>
-        <div class="display" style="font-size:22px">128.5K</div>
+    <div class="card grid-3 g-2">
+      <div class="p-3">
+        <div class="body text-muted">月活（30 日）</div>
+        <div class="display" data-role="kpi-num">128.5K</div>
         <af-chart-line variant="spark" data-line="spark_dau"></af-chart-line>
       </div>
-      <div style="padding:12px">
-        <div class="body" style="color:var(--c-muted)">营收（30 日）</div>
-        <div class="display" style="font-size:22px">¥510万</div>
+      <div class="p-3">
+        <div class="body text-muted">营收（30 日）</div>
+        <div class="display" data-role="kpi-num">¥510万</div>
         <af-chart-line variant="spark" data-line="spark_rev"></af-chart-line>
       </div>
-      <div style="padding:12px">
-        <div class="body" style="color:var(--c-muted)">转化率（30 日）</div>
-        <div class="display" style="font-size:22px">3.2%</div>
+      <div class="p-3">
+        <div class="body text-muted">转化率（30 日）</div>
+        <div class="display" data-role="kpi-num">3.2%</div>
         <af-chart-line variant="spark" data-line="spark_cvr"></af-chart-line>
       </div>
     </div>
@@ -43,12 +53,12 @@
     <!-- ② af-tabs 切换 5 种 chart 类型（同数据集不同视角） -->
     <p class="caption">② af-tabs 切换 chart 类型（电商 5 步转化数据的多视角）</p>
     <af-tabs id="tabs"></af-tabs>
-    <div id="chart-host" class="card" style="margin-top:8px"></div>
+    <div id="chart-host" class="card" data-role="chart-host"></div>
     <p class="caption" id="log">选中：funnel 视角</p>
 
     <!-- ③ lazy 离屏懒加载（IntersectionObserver 首次可见才渲染） -->
     <p class="caption">③ lazy 离屏懒加载（向下滚动至 1000px 处，chart 首次可见才渲染）</p>
-    <div style="height:1000px;background:repeating-linear-gradient(45deg, var(--c-surface), var(--c-surface) 10px, transparent 10px, transparent 20px);display:flex;align-items:center;justify-content:center;color:var(--c-muted);border-radius:8px;margin-bottom:8px">
+    <div data-role="lazy-spacer">
       占位区域（1000px 高）—— 验证 lazy chart 在视口外不渲染
     </div>
     <div class="card">

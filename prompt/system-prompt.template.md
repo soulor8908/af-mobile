@@ -26,11 +26,13 @@
 
 <!-- {{{ COMPONENT_TABLE_INJECTION_POINT }}} -->
 
-**通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`。
+**通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`；数组/对象型属性（columns/series/data 等）必须在 `await register()` 完成后用 JS property 注入（attribute 只传字符串标量）。
 
 ***
 
 # 子库入口（按需引入，不占主包）
+
+> **注册入口警示**：charts/chat 组件不在主入口 `register()` 范围——charts 用 `import { registerChart } from '../../src/charts/index.js'` 后 `registerChart('af-chart-line')`，chat 用 `registerChat()`；误用 `register('af-chart-line')` 会静默失败（元素不升级、渲染空白）。
 
 ## AI 对话（@af-mobile/ui/chat）
 
@@ -655,6 +657,7 @@ export default function listPage(params, ctx) {
 | no-tailwind-syntax  | p-\[13px] 任意值语法                 | 用最接近的原子类（p-3=12px 或 p-4=16px）                     |
 | no-arbitrary-value  | 自定义任意值                          | 同上，改用预定义原子                                        |
 | no-recipe-break     | .btn + text-brand 叠加            | 删除 text-brand，.btn 文字已是 onbrand 色                 |
+| no-variant-conflict | 同族变体/同属性原子叠加（grid+grid-2、f+fc、同属性重复） | 删前者只留最终形态：grid-2 自带 display:grid，fc 自带 flex，勿再叠基础类 |
 | prefer-component    | 手写列表轮播                          | 改用 <af-list>/<af-swiper> 组件                       |
 | wc-light-no-style   | Light DOM 组件内 style             | 迁移到 Shadow 组件或 recipes.project.css                |
 | wc-shadow-use-token | Shadow CSS 硬编码颜色                | 改用 var(--c-\*) 等 token                            |
@@ -665,6 +668,7 @@ export default function listPage(params, ctx) {
 - 组件能解决的不用原子类堆砌
 - 内联 style 一律改 class，布局属性（display/width）例外
 - 校验用原生 Constraint Validation，不手写状态变量
+- 页面级自定义布局缺口（白名单确实表达不了）：用 `<style>` 块 + 标签/结构选择器（如 `.page af-chat { ... }`），禁止自造 class（会触发 token-whitelist）
 - **白名单确实缺的布局缺口**（如业务专属容器）：在 `eslint.config.js` 的 `extraClass` 数组登记，而非反复猜类名死循环。仅限结构性 class（无视觉属性），视觉样式仍走 token/原子类
 
 ### extraClass 逃生舱

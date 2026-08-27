@@ -6,8 +6,11 @@
   <title>af-chat demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
   <style>
-    .phone { max-width: 420px; margin: 0 auto; height: 640px; display: flex; flex-direction: column; border: 1px solid var(--c-border); border-radius: var(--r-l); overflow: hidden; }
+    /* 豁免：手机壳容器需固定尺寸与水平居中，白名单无对应 utility（同 kitchen-sink 模式） */
+    [data-role="phone"] { max-width: 420px; margin: 0 auto; height: 640px; display: flex; flex-direction: column; border: 1px solid var(--c-border); border-radius: var(--r-l); overflow: hidden; }
   </style>
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -16,7 +19,7 @@
       <h1 class="display">af-chat AI 对话容器</h1>
     </section>
 
-    <section class="phone">
+    <section data-role="phone">
       <af-chat id="chat" placeholder="问我任何问题…"></af-chat>
     </section>
 

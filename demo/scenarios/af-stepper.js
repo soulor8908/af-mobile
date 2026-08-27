@@ -26,5 +26,31 @@ export default {
         { token: '--c-onbrand', label: '品牌色', type: 'color' },
       ],
     },
+    {
+      name: 'setValue() 编程赋值',
+      html: `
+        <div class="card p-3">
+          <div class="cell"><span class="body">限购 1-8 件</span><af-stepper id="st-set" value="1" min="1" max="8"></af-stepper></div>
+        </div>
+        <div class="actions">
+          <button class="btn" data-act="set8">setValue(8)</button>
+          <button class="btn btn-ghost" data-act="set1">setValue(1)</button>
+        </div>
+        <p class="caption" id="st-log">编程赋值同样做边界 clamp 并触发 af-stepper:change</p>
+      `,
+      main: { selector: '#st-set' },
+      props: [
+        { prop: 'value', label: '数值', type: 'number', min: 0, max: 99, step: 1 },
+        { prop: 'disabled', label: '禁用', type: 'boolean' },
+      ],
+      events: ['af-stepper:change'],
+      init: () => {
+        const st = document.getElementById('st-set');
+        const log = document.getElementById('st-log');
+        st.addEventListener('af-stepper:change', (e) => { if (log) log.textContent = `change: ${e.detail.value}`; });
+        document.querySelector('[data-act="set8"]').addEventListener('click', () => st.setValue(8));
+        document.querySelector('[data-act="set1"]').addEventListener('click', () => st.setValue(1));
+      },
+    },
   ],
 };

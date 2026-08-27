@@ -30,5 +30,26 @@ export default {
         r1.addEventListener('af-rate:change', (e) => { if (log) log.textContent = `评分 ${e.detail.value}`; });
       },
     },
+    {
+      name: '只读展示',
+      html: `
+        <div class="card">
+          <div class="cell"><span class="body">订单评价（只读）</span><af-rate id="r3" value="4" readonly></af-rate></div>
+          <div class="cell"><span class="body">小尺寸只读</span><af-rate id="r4" value="2" readonly size="sm"></af-rate></div>
+          <div class="cell"><span class="body">大尺寸只读</span><af-rate id="r5" value="5" readonly size="lg"></af-rate></div>
+        </div>
+        <p class="caption">readonly 时星星禁用，仅展示评分结果，不再派发 af-rate:change</p>
+      `,
+      main: { selector: '#r3' },
+      props: [
+        { prop: 'value', label: '值', type: 'number', min: 0, max: 10, step: 1 },
+        { prop: 'readonly', label: '只读', type: 'boolean' },
+        { prop: 'size', label: '尺寸', type: 'select', options: ['sm', 'md', 'lg'] },
+      ],
+      events: ['af-rate:change'],
+      styleTokens: [
+        { token: '--c-warn', label: '星标色', type: 'color' },
+      ],
+    },
   ],
 };

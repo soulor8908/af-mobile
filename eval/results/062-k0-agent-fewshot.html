@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>商品图墙</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">灵感图墙</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <div class="grid-2 g-2 p-3">
+    <figure class="fc g-1 m-0 min-w-0">
+      <af-img class="aspect-1 w-full" lazy
+        src="https://placehold.co/600x600/e8d9c5/333?text=Sofa"
+        placeholder-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Crect fill='%23f3ece2' width='600' height='600'/%3E%3C/svg%3E"
+        fail-src="https://placehold.co/600x600/cccccc/666?text=Fallback"
+        alt="奶油风布艺沙发"></af-img>
+      <figcaption class="caption text-muted ellipsis">奶油风布艺沙发</figcaption>
+    </figure>
+
+    <figure class="fc g-1 m-0 min-w-0">
+      <af-img class="aspect-1 w-full" lazy
+        src="https://placehold.co/600x600/c5d8e8/333?text=Lamp"
+        placeholder-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Crect fill='%23e7eef5' width='600' height='600'/%3E%3C/svg%3E"
+        fail-src="https://placehold.co/600x600/cccccc/666?text=Fallback"
+        alt="复古落地灯"></af-img>
+      <figcaption class="caption text-muted ellipsis">复古黄铜落地灯</figcaption>
+    </figure>
+
+    <figure class="fc g-1 m-0 min-w-0">
+      <af-img class="aspect-1 w-full" lazy
+        src="https://placehold.co/600x600/d3e5d0/333?text=Plant"
+        placeholder-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Crect fill='%23eaf3e8' width='600' height='600'/%3E%3C/svg%3E"
+        fail-src="https://placehold.co/600x600/cccccc/666?text=Fallback"
+        alt="龟背竹盆栽"></af-img>
+      <figcaption class="caption text-muted ellipsis">北欧风龟背竹</figcaption>
+    </figure>
+
+    <figure class="fc g-1 m-0 min-w-0">
+      <af-img class="aspect-1 w-full" lazy
+        src="https://host.invalid/broken-rug.jpg"
+        placeholder-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Crect fill='%23f0e5ee' width='600' height='600'/%3E%3C/svg%3E"
+        fail-src="https://placehold.co/600x600/cccccc/666?text=Fallback"
+        alt="几何图案地毯"></af-img>
+      <figcaption class="caption text-muted ellipsis">几何图案地毯（演示失败兜底）</figcaption>
+    </figure>
+  </div>
+
+  <p class="caption text-muted p-3 t-center" id="imgLog" role="status">懒加载就绪：滚动进入可视区后拉取，失败自动切兜底图</p>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+register('af-img');
+
+const log = document.getElementById('imgLog');
+let loaded = 0;
+let failed = 0;
+const refresh = () => {
+  log.textContent = '已加载 ' + loaded + ' 张 · 失败 ' + failed + ' 张（失败项自动切 fail-src 兜底）';
+};
+document.querySelectorAll('af-img').forEach((img) => {
+  img.addEventListener('af-img:load', () => { loaded += 1; refresh(); });
+  img.addEventListener('af-img:error', () => { failed += 1; refresh(); });
+});
+</script>
+</body>
+</html>

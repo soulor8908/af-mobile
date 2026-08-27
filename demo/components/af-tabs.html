@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-tabs demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -16,6 +18,16 @@
     <af-tabs id="tabs"></af-tabs>
 
     <p class="caption" id="log">选中 index=0</p>
+
+    <div class="actions">
+      <button class="btn btn-ghost" id="setBtn">setActive(2) 编程切换</button>
+    </div>
+
+    <p class="caption">静态面板模式：slot="panel-N" 直写子元素（与 renderPanel 函数二选一）+ 禁用 tab</p>
+    <af-tabs id="tabs2">
+      <div slot="panel-0" class="card"><p class="body">静态面板 A：写在 slot 里，组件经 MutationObserver 感知</p></div>
+      <div slot="panel-1" class="card"><p class="body">静态面板 B</p></div>
+    </af-tabs>
 
     <section id="props" class="card"></section>
   </main>
@@ -36,6 +48,17 @@
     tabs.addEventListener('af-tabs:change', (e) => {
       document.getElementById('log').textContent = `选中 index=${e.detail.index} value=${e.detail.value}`;
     });
+
+    // setActive(idx, silent?)：编程式切换（点按钮无法触发的场景用它）
+    document.getElementById('setBtn').addEventListener('click', () => tabs.setActive(2));
+
+    // 静态 slot 模式：tab 项支持 disabled（点击无响应、样式置灰）
+    const tabs2 = document.getElementById('tabs2');
+    tabs2.tabs = [
+      { label: '面板 A', value: 'a' },
+      { label: '面板 B', value: 'b' },
+      { label: '禁用项', value: 'c', disabled: true },
+    ];
 
     createPropsPanel(document.getElementById('props'), [
       { prop: 'fixed', label: '固定底部', type: 'boolean' },

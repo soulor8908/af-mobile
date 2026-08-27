@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-pull-refresh demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -26,11 +28,14 @@
     <div class="card">
       <button class="btn btn-ghost btn-block" id="endBtn">结束刷新</button>
     </div>
+
+    <section id="props" class="card"></section>
   </main>
 
   <script type="module">
     import { AfPullRefresh } from '../../src/components/af-pull-refresh.js';
     customElements.define('af-pull-refresh', AfPullRefresh);
+    import { createPropsPanel } from '../props-panel.js';
 
     const pr = document.getElementById('pr');
     pr.addEventListener('af-pull-refresh:refresh', () => {
@@ -38,6 +43,10 @@
       setTimeout(() => pr.endRefresh(), 1500);
     });
     document.getElementById('endBtn').addEventListener('click', () => pr.endRefresh());
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'refreshing', label: '刷新中(受控)', type: 'boolean' },
+    ], pr);
   </script>
 </body>
 </html>

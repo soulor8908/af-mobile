@@ -244,8 +244,6 @@ export class AfTabs extends AfElement {
   tabs: TabItem[];
   /** 当前激活索引 */
   activeIndex: number;
-  /** 变体 */
-  variant: string;
   /** 固定 tabbar */
   fixed: boolean;
   /** 自定义面板渲染函数 */

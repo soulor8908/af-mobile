@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>购物车</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <div class="page">
+    <header class="navbar">
+      <h1 class="title">购物车</h1>
+    </header>
+
+    <div class="list" id="cart"></div>
+
+    <p class="caption t-center p-3">数量变化将实时更新该行小计</p>
+  </div>
+
+  <script type="module">
+    import { register, html } from '../../src/index.js';
+    await register('af-stepper');
+
+    const CART = [
+      { id: 1, title: '无线降噪耳机 Pro', unit: 299, qty: 1 },
+      { id: 2, title: '便携蓝牙音箱', unit: 129, qty: 2 },
+      { id: 3, title: '快充移动电源 2 万毫安', unit: 149, qty: 1 }
+    ];
+
+    const cartEl = document.getElementById('cart');
+    function render() {
+      cartEl.innerHTML = CART.map((g, i) => html`<div class="list-item">
+        <img class="thumb" src="https://placehold.co/72x72?text=G${g.id}" alt="${g.title}">
+        <div class="flex-1 min-w-0">
+          <div class="title ellipsis">${g.title}</div>
+          <div class="price">¥${(g.unit * g.qty).toFixed(2)}</div>
+        </div>
+        <af-stepper data-idx="${i}" min="1" max="99" step="1" value="${g.qty}" aria-label="购买数量"></af-stepper>
+      </div>`).join('');
+    }
+    render();
+
+    cartEl.addEventListener('af-stepper:change', (e) => {
+      const idx = Number(e.target.dataset.idx);
+      if (Number.isNaN(idx) || !CART[idx]) return;
+      CART[idx].qty = e.detail.value;
+      const row = e.target.closest('.list-item');
+      const priceEl = row && row.querySelector('.price');
+      if (priceEl) priceEl.textContent = '¥' + (CART[idx].unit * CART[idx].qty).toFixed(2);
+    });
+  </script>
+</body>
+</html>

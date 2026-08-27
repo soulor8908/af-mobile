@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-swiper demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <style>
+    /* 豁免：slide 占位块需固定高度与居中，白名单无高度 utility；三色用 var(--*) 区分（同 kitchen-sink 模式） */
+    [data-role="demo-slide"] { height: 160px; display: flex; align-items: center; justify-content: center; color: var(--c-onbrand); }
+    [data-role="demo-slide"][data-tone="brand"] { background: var(--c-brand); }
+    [data-role="demo-slide"][data-tone="success"] { background: var(--c-success); }
+    [data-role="demo-slide"][data-tone="danger"] { background: var(--c-danger); }
+  </style>
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -14,16 +23,17 @@
     </section>
 
     <af-swiper id="swiper" loop autoplay="3000">
-      <div style="background:var(--c-brand);height:160px;display:flex;align-items:center;justify-content:center;color:var(--c-onbrand)">Slide 1</div>
-      <div style="background:var(--c-success);height:160px;display:flex;align-items:center;justify-content:center;color:var(--c-onbrand)">Slide 2</div>
-      <div style="background:var(--c-danger);height:160px;display:flex;align-items:center;justify-content:center;color:var(--c-onbrand)">Slide 3</div>
+      <div data-role="demo-slide" data-tone="brand">Slide 1</div>
+      <div data-role="demo-slide" data-tone="success">Slide 2</div>
+      <div data-role="demo-slide" data-tone="danger">Slide 3</div>
     </af-swiper>
 
     <p class="caption" id="log">当前 index=0</p>
 
     <div class="actions">
-      <button class="btn" id="prev">上一张</button>
-      <button class="btn" id="next">下一张</button>
+      <button class="btn" id="prev">prev()</button>
+      <button class="btn" id="next">next()</button>
+      <button class="btn btn-ghost" id="go">goTo(2)</button>
     </div>
 
     <section id="props" class="card"></section>
@@ -40,11 +50,14 @@
     });
     document.getElementById('prev').addEventListener('click', () => swiper.prev());
     document.getElementById('next').addEventListener('click', () => swiper.next());
+    document.getElementById('go').addEventListener('click', () => swiper.goTo(2));
 
     createPropsPanel(document.getElementById('props'), [
       { prop: 'loop', label: '循环', type: 'boolean' },
       { prop: 'autoplay', label: '自动播放(ms)', type: 'number', min: 0, max: 6000, step: 500 },
       { prop: 'show-dots', label: '指示点', type: 'boolean' },
+      { prop: 'active-index', label: '当前页(受控)', type: 'number', min: 0, max: 2, step: 1 },
+      { prop: 'disabled', label: '禁用滑动', type: 'boolean' },
     ], swiper);
   </script>
 </body>

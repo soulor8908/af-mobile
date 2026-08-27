@@ -24,6 +24,8 @@ npx vitest run
 npm run size && npm run whitelist:check && npm run types:check && npm run aria:check
 # Prompt 快照（修改了 src/ 或 prompt/ 时必跑）
 npm run prompt:check
+# Demo 合规（demo 是 AI 学习素材，防教坏 AI：修改了 demo/ 时必跑）
+npm run demo:check
 ```
 
 失败处理：ESLint 逐条修（禁 `eslint-disable`，测试夹具例外）；测试修代码或快照（禁 skip）；体积超预算优化实现（禁调预算，除非用户同意）；白名单/类型/ARIA 不同步就补齐（禁删检查）。

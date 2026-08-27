@@ -30,5 +30,34 @@ export default {
         });
       },
     },
+    {
+      name: '属性驱动刷新',
+      html: `
+        <af-pull-refresh id="pr2">
+          <div class="list">
+            <div class="list-item"><div class="body">数据项 A</div></div>
+            <div class="list-item"><div class="body">数据项 B</div></div>
+          </div>
+        </af-pull-refresh>
+        <div class="actions">
+          <button class="btn" data-act="refresh">编程触发刷新（refreshing = true）</button>
+        </div>
+        <p class="caption" id="pr-log2">不依赖触摸手势：置 refreshing 属性同样派发 af-pull-refresh:refresh</p>
+      `,
+      main: { selector: '#pr2' },
+      props: [
+        { prop: 'refreshing', label: '刷新中', type: 'boolean' },
+      ],
+      events: ['af-pull-refresh:refresh'],
+      init: () => {
+        const pr = document.getElementById('pr2');
+        const log = document.getElementById('pr-log2');
+        document.querySelector('[data-act="refresh"]').addEventListener('click', () => { pr.refreshing = true; });
+        pr.addEventListener('af-pull-refresh:refresh', () => {
+          if (log) log.textContent = '刷新中...';
+          setTimeout(() => pr.endRefresh(), 1500);
+        });
+      },
+    },
   ],
 };

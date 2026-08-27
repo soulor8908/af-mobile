@@ -318,9 +318,23 @@ const SCENARIO_PACKS = [
       '- 交付前检查：渐变主视觉 ✓ 彩色数字 ✓ 图卡 ✓ chips ✓ 图标无 emoji ✓',
     ].join('\n'),
   },
-  // ===== 以下为需求探测包（implemented=false：只记遥测不注入 prompt，落地时补 body 并置 true）=====
-  { key: 'ecommerce', category: 'ecommerce', implemented: false,
-    keywords: ['购物车', '加购', '下单', '订单', '优惠券', '秒杀', '电商', '商城', '商品', '店铺', 'sku', 'cart', 'checkout'] },
+  // ===== 场景包（implemented=false：只记遥测不注入 prompt，落地时补 body 并置 true）=====
+  {
+    key: 'ecommerce', category: 'ecommerce', implemented: true,
+    keywords: ['购物车', '加购', '下单', '订单', '优惠券', '秒杀', '电商', '商城', '商品', '店铺', 'sku', 'cart', 'checkout'],
+    negativeKeywords: ['后台', '管理端', 'dashboard', '仪表盘', '审批', '工单', '内部系统', 'admin', 'erp', 'OA'],
+    title: '场景包：电商（商品/购物车/订单）',
+    body: [
+      '本需求属于电商类场景，在通用规范之上追加以下要求：',
+      '- 商品卡一律 card-media 图卡：aspect-1 商品图贴边 + .title 标题 + .price 价格（电商约定红价，禁改色）+ .price-del 删除线原价（可选）+ tag/tag-danger 促销角标',
+      '- 商品网格两列 grid-2，瀑布流用 f wrap g-2；列表行用 .list-item（缩略图 .thumb）',
+      '- 底部购买栏一律 .input-bar（客服 + 购物车入口 + 主 CTA .btn），配 safe-bottom 适配 Home Indicator',
+      '- 购物车商品行含数量选择器 <af-stepper>（min=1）与勾选；结算栏用 .checkout-bar（合计 + 结算 .btn）',
+      '- 限时秒杀用 <af-countdown>（autostart）+ grid-2 卡片；优惠券用 .card + tag 状态语义色',
+      '- 订单状态一律 tag 语义色（待付款 tag-warn / 已发货 tag / 已完成 tag-ok）',
+      '- 交付前检查：红价 ✓ 购买栏 input-bar ✓ 图卡 card-media ✓ 角标 tag ✓',
+    ].join('\n'),
+  },
   { key: 'o2o', category: 'o2o', implemented: false,
     keywords: ['预订', '预约', '门店', '到店', '外卖', '配送', '骑手', '点餐', '排号', '取号', 'booking', '美团', '大众点评'] },
   { key: 'content', category: 'content', implemented: false,
@@ -357,6 +371,93 @@ export function detectSceneDemand(userPrompt) {
 export function buildScenarioSection(packs) {
   if (!packs.length) return '';
   return packs.map(p => `## ${p.title}\n\n${p.body}`).join('\n\n');
+}
+
+// ===== 2B 模块化：组件按需检索（demo 即教材）=====
+// 需求关键词 → 命中组件 tag。命中时组件简表只保留命中组件 + 附加场景指路段，
+// AI 生成前先读 demo/scenarios/af-{tag}.js 的最小可运行用法（html/props/events/init 四象限），
+// 这是"demo 接入飞轮"的关键链路：demo 是 AI 学习的第一手教材，不再与生成链路脱节。
+const COMPONENT_ALIASES = {
+  'af-list': ['列表', '长列表', 'list'],
+  'af-swiper': ['轮播', 'banner', 'swiper', '滑动图'],
+  'af-tabs': ['标签页', '选项卡', 'tab'],
+  'af-dialog': ['对话框', '弹窗', '确认框', 'modal'],
+  'af-toast': ['轻提示', 'toast', '弱提示'],
+  'af-action-sheet': ['动作面板', '操作面板', '底部面板'],
+  'af-picker': ['选择器', '滚轮', 'picker', '选择'],
+  'af-cascade-picker': ['级联', '省市区', '多级选择'],
+  'af-dropdown': ['下拉菜单', '下拉'],
+  'af-img': ['图片', '懒加载图', 'img'],
+  'af-backtop': ['回到顶部', 'backtop'],
+  'af-badge': ['徽标', '角标', 'badge', '红点'],
+  'af-calendar': ['日历', '日期选择', 'calendar'],
+  'af-switch': ['开关', 'switch'],
+  'af-search-bar': ['搜索栏', '搜索框', '搜索', 'search'],
+  'af-skeleton-page': ['骨架屏', 'skeleton'],
+  'af-upload': ['上传', 'upload'],
+  'af-navbar': ['导航栏', '顶部导航', 'navbar'],
+  'af-tabbar': ['底部导航', '底部标签', 'tabbar'],
+  'af-stepper': ['步进器', '数量选择', 'stepper'],
+  'af-field': ['输入框', '表单', '字段', 'form'],
+  'af-pull-refresh': ['下拉刷新'],
+  'af-swipe-cell': ['滑动单元格', '左滑', '侧滑'],
+  'af-rate': ['评分', '星级', 'rate'],
+  'af-notice-bar': ['公告', '通知栏', 'notice'],
+  'af-progress': ['进度条', 'progress'],
+  'af-steps': ['步骤条', 'steps'],
+  'af-countdown': ['倒计时', 'countdown'],
+  'af-number-keyboard': ['数字键盘'],
+  'af-password-input': ['密码输入', '验证码输入'],
+  'af-chart-line': ['折线图', '曲线图', '面积图', '趋势图'],
+  'af-chart-bar': ['柱状图', '条形图'],
+  'af-chart-pie': ['饼图', '环形图', '玫瑰图'],
+  'af-chart-radar': ['雷达图'],
+  'af-chart-funnel': ['漏斗图', '转化漏斗'],
+  'af-chat': ['ai 对话', '聊天', 'chat', '对话容器'],
+};
+
+// 从需求描述检索命中组件；无命中返回 []
+export function pickComponents(userPrompt) {
+  if (!userPrompt) return [];
+  const p = userPrompt.toLowerCase();
+  return Object.entries(COMPONENT_ALIASES)
+    .filter(([, kws]) => kws.some(k => p.includes(k)))
+    .map(([tag]) => tag);
+}
+
+// 命中组件的用法教材段（demo/scenarios 是单一真相源）
+// 优先内联 gen-component-fewshots.mjs 编译的最小用法片段（prompt/component-fewshots.md），
+// 让无文件系统的纯 API 调用也拿到教材；片段缺失的组件退化为指路（Agent 有文件系统时直读 scenarios）。
+function extractFewshot(md, tag) {
+  const marker = '### <' + tag + '>';
+  const start = md.indexOf(marker);
+  if (start === -1) return null;
+  const rest = md.slice(start + marker.length);
+  const next = rest.indexOf('\n### <');
+  return (next === -1 ? rest : rest.slice(0, next)).trim();
+}
+
+function buildHitSection(tags) {
+  let md = '';
+  try { md = readFileSync(resolveAsset('prompt/component-fewshots.md'), 'utf8'); } catch { /* 产物未生成：退化为纯指路 */ }
+  const lines = [
+    '## 命中组件的用法教材（写代码前必读）',
+    '',
+  ];
+  const fallback = [];
+  for (const t of tags) {
+    const shot = md ? extractFewshot(md, t) : null;
+    if (shot) lines.push(shot, '');
+    else fallback.push(t);
+  }
+  if (fallback.length) {
+    lines.push(...fallback.map(t => `- \`<${t}>\`：demo/scenarios/${t}.js（最小可运行场景：html 片段 / props 调参 / events 载荷 / init 接线）`), '');
+  }
+  lines.push(
+    '**先照抄命中组件片段的 html 结构与事件接线写页面**；事件载荷字段以片段里的 `e.detail.*` 为准。',
+    '片段不够用时读 demo/scenarios/{组件}.js 获取完整场景（props 调参 / 变体 / 级联）。',
+  );
+  return lines.join('\n');
 }
 
 // ===== 2B 模块化：Few-shot 动态检索 =====
@@ -415,7 +516,10 @@ export function buildPrompt({ components = [], categories = null, userPrompt = '
   const atomicGroups = extractGroupsFromCss(readFileSync(ATOMIC_CSS, 'utf8'));
 
   const wlSection = buildWhitelistSection(wl, recipeGroups, atomicGroups);
-  let compSection = buildComponentTableSection(COMPONENT_META, components);
+  // 组件按需：显式 components 优先；否则按 userPrompt 命中裁剪（全量兜底）
+  const hits = components.length ? [] : pickComponents(userPrompt);
+  let compSection = buildComponentTableSection(COMPONENT_META, components.length ? components : hits);
+  if (!components.length && hits.length) compSection += '\n\n' + buildHitSection(hits);
   if (blocks) compSection += '\n\n' + buildBlockSection();
 
   let out = tpl

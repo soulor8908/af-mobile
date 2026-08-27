@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-field demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -19,6 +21,15 @@
       <af-field id="f3" label="备注" type="textarea" placeholder="选填"></af-field>
       <af-field id="f4" label="禁用" value="不可编辑" disabled></af-field>
       <af-field id="f5" label="错误态" value="abc" error="格式不正确"></af-field>
+      <af-field id="f6" label="日期（slot 透传自定义控件）">
+        <input slot="input" type="date" aria-label="选择日期">
+      </af-field>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" id="errBtn">setError 动态报错(f2)</button>
+      <button class="btn btn-ghost" id="clrBtn">清除错误</button>
+      <button class="btn btn-ghost" id="focBtn">focus(f1)</button>
     </div>
 
     <p class="caption" id="log">输入触发 af-field:input / af-field:change</p>
@@ -35,6 +46,15 @@
     f1.addEventListener('af-field:input', (e) => {
       document.getElementById('log').textContent = `input: ${e.detail.value}`;
     });
+    f1.addEventListener('af-field:change', (e) => {
+      document.getElementById('log').textContent = `change: ${e.detail.value}`;
+    });
+
+    // 动态校验闭环：setError(msg) 标红报错，setError('') 清除
+    const f2 = document.getElementById('f2');
+    document.getElementById('errBtn').addEventListener('click', () => f2.setError('密码不能为空'));
+    document.getElementById('clrBtn').addEventListener('click', () => f2.setError(''));
+    document.getElementById('focBtn').addEventListener('click', () => f1.focus());
 
     createPropsPanel(document.getElementById('props'), [
       { prop: 'label', label: '标签', type: 'text' },

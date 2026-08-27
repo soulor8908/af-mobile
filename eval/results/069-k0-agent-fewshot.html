@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>酒店预订</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar navbar-fixed">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <span class="title flex-1 t-center">酒店预订</span>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <div class="card-media aspect-16-9">
+    <img src="https://placehold.co/750x422" alt="云澜酒店外观">
+  </div>
+
+  <div class="p-4 fc g-2">
+    <div class="f aic g-2">
+      <span class="price price-lg">¥388</span>
+      <span class="price-del">¥488</span>
+      <span class="tag tag-warn">特惠</span>
+    </div>
+    <div class="title">云澜酒店 · 高级大床房</div>
+    <div class="caption text-muted">近地铁 · 含双早 · 免费取消（入住前 1 天 18:00 前）</div>
+  </div>
+
+  <af-calendar id="cal" class="p-3"></af-calendar>
+
+  <section class="card m-3">
+    <div class="cell">
+      <span class="body">入住日期</span>
+      <span class="body t-b" id="checkin">—</span>
+    </div>
+    <div class="cell">
+      <span class="body">房费（1 晚）</span>
+      <span class="price">¥388.00</span>
+    </div>
+    <div class="cell">
+      <span class="body">服务费</span>
+      <span class="price">¥30.00</span>
+    </div>
+    <div class="cell">
+      <span class="body t-b">合计</span>
+      <span class="price price-lg">¥418.00</span>
+    </div>
+  </section>
+
+  <div class="cob cob-fx">
+    <button class="btn btn-block" id="bookBtn">确认预订</button>
+  </div>
+  <div class="safe-bottom"></div>
+  <p class="caption text-muted p-3 t-center" id="bookTip" role="status"></p>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+register('af-calendar');
+
+const pad = (n) => String(n).padStart(2, '0');
+const fmt = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const today = new Date();
+const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
+const cal = document.getElementById('cal');
+const checkin = document.getElementById('checkin');
+checkin.textContent = fmt(tomorrow);
+cal.min = fmt(today);
+cal.value = fmt(tomorrow);
+
+cal.addEventListener('af-calendar:select', (e) => {
+  checkin.textContent = e.detail.date;
+  document.getElementById('bookTip').textContent = '';
+});
+
+document.getElementById('bookBtn').addEventListener('click', () => {
+  document.getElementById('bookTip').textContent = '已锁定 ' + checkin.textContent + ' 入住 · 合计 ¥418.00';
+});
+</script>
+</body>
+</html>

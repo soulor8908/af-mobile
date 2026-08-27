@@ -173,5 +173,4 @@ export class AfTabs extends withI18n(AfElement) {
 // 属性定义（必须在 customElements.define 之前）
 AfElement.defineProp(AfTabs.prototype, 'tabs', []);
 AfElement.defineProp(AfTabs.prototype, 'activeIndex', 0);
-AfElement.defineProp(AfTabs.prototype, 'variant', 'default');
 AfElement.defineProp(AfTabs.prototype, 'fixed', false);

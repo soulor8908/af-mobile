@@ -19,5 +19,19 @@ export default {
         { token: '--c-muted-bg', label: '骨架底色', type: 'color' },
       ],
     },
+    {
+      name: '详情页骨架',
+      html: `
+        <af-skeleton-page id="sk2" variant="detail"></af-skeleton-page>
+        <p class="caption">variant="detail"：大块图 + 多行文本行，适合图文详情页加载态。</p>
+      `,
+      main: { selector: '#sk2' },
+      props: [
+        { prop: 'variant', label: '变体', type: 'select', options: ['list', 'detail', 'profile', 'card', 'article'] },
+      ],
+      styleTokens: [
+        { token: '--c-muted-bg', label: '骨架底色', type: 'color' },
+      ],
+    },
   ],
 };

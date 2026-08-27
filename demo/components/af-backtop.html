@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-backtop demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <style>
+    /* 豁免：占位填充需固定高度撑出滚动，白名单无高度 utility（同 kitchen-sink 模式） */
+    [data-role="filler"] { height: 2000px; }
+  </style>
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -14,7 +20,7 @@
     </section>
 
     <p class="body">向下滚动页面，右下角出现回到顶部按钮。</p>
-    <div id="filler" style="height:2000px"></div>
+    <div id="filler" data-role="filler"></div>
     <p class="caption">↑ 占位内容 ↑</p>
 
     <af-backtop id="backtop" threshold="200"></af-backtop>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>商品排序栏</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <div class="page">
+    <header class="navbar">
+      <h1 class="title">商品列表</h1>
+    </header>
+
+    <div class="px-3 py-2">
+      <af-dropdown id="dd" placeholder="综合排序"></af-dropdown>
+    </div>
+
+    <div class="list" id="goods"></div>
+  </div>
+
+  <script type="module">
+    import { register, html } from '../../src/index.js';
+    await register('af-dropdown');
+
+    const GOODS = [
+      { id: 1, title: '无线降噪耳机 Pro', price: 299, sales: 1200 },
+      { id: 2, title: '便携蓝牙音箱', price: 129, sales: 3400 },
+      { id: 3, title: '机械键盘 87 键', price: 399, sales: 860 },
+      { id: 4, title: '快充移动电源 2 万毫安', price: 149, sales: 5200 },
+      { id: 5, title: '运动智能手环', price: 199, sales: 2100 },
+      { id: 6, title: '桌面铝合金支架', price: 79, sales: 4600 }
+    ];
+
+    const dd = document.getElementById('dd');
+    dd.options = [
+      { label: '综合排序', value: 'composite' },
+      { label: '销量优先', value: 'sales' },
+      { label: '价格从低到高', value: 'price-asc' },
+      { label: '价格从高到低', value: 'price-desc' }
+    ];
+    dd.value = 'composite';
+
+    const goodsEl = document.getElementById('goods');
+    function renderGoods(sort) {
+      const arr = [...GOODS];
+      if (sort === 'sales') arr.sort((a, b) => b.sales - a.sales);
+      else if (sort === 'price-asc') arr.sort((a, b) => a.price - b.price);
+      else if (sort === 'price-desc') arr.sort((a, b) => b.price - a.price);
+      goodsEl.innerHTML = arr.map((g) => html`<div class="list-item">
+        <img class="thumb" src="https://placehold.co/72x72?text=G${g.id}" alt="${g.title}">
+        <div class="flex-1 min-w-0">
+          <div class="body ellipsis">${g.title}</div>
+          <div class="meta">月销 ${g.sales}</div>
+          <div class="price">¥${g.price.toFixed(2)}</div>
+        </div>
+      </div>`).join('');
+    }
+    renderGoods(dd.value);
+
+    dd.addEventListener('af-dropdown:select', (e) => renderGoods(e.detail.value));
+  </script>
+</body>
+</html>

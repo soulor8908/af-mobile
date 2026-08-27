@@ -1,0 +1,198 @@
+{
+  "passK": 1,
+  "total": 12,
+  "lintPassed": 12,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.00",
+  "errorsByRule": {},
+  "byCategory": {
+    "feedback": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "form": {
+      "total": 5,
+      "lintPassed": 5,
+      "visualPassed": 5
+    },
+    "detail": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "starter": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "list": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 2
+    },
+    "complex": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 2
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-agent-fewshot.png",
+      "errors": [
+        "dialog.open is not a function"
+      ]
+    },
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-agent-fewshot.png",
+      "errors": []
+    },
+    {
+      "id": "057",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\057-k0-agent-fewshot.png",
+      "errors": []
+    },
+    {
+      "id": "060",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\060-k0-agent-fewshot.png",
+      "errors": []
+    },
+    {
+      "id": "061",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\061-k0-agent-fewshot.png",
+      "errors": []
+    },
+    {
+      "id": "062",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\062-k0-agent-fewshot.png",
+      "errors": [
+        "Failed to load resource: net::ERR_CONNECTION_CLOSED"
+      ]
+    },
+    {
+      "id": "064",
+      "category": "starter",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\064-k0-agent-fewshot.png",
+      "errors": [
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc&page=1&page_size=20. URL scheme \"supabase\" is not supported.",
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc&page=1&page_size=20. URL scheme \"supabase\" is not supported."
+      ]
+    },
+    {
+      "id": "069",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\069-k0-agent-fewshot.png",
+      "errors": []
+    },
+    {
+      "id": "070",
+      "category": "list",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\070-k0-agent-fewshot.png",
+      "errors": []
+    },
+    {
+      "id": "079",
+      "category": "list",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\079-k0-agent-fewshot.png",
+      "errors": []
+    },
+    {
+      "id": "081",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\081-k0-agent-fewshot.png",
+      "errors": []
+    },
+    {
+      "id": "086",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\086-k0-agent-fewshot.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 12,
+  "visualPassRate": "100.0%",
+  "visualFailures": [],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots"
+}

@@ -34,5 +34,32 @@ export default {
         ];
       },
     },
+    {
+      name: '迷你趋势 spark',
+      html: `
+        <div class="card">
+          <div class="cell f aic jcsb"><span class="body">本周访问量</span><span class="stat-num">2,820</span></div>
+          <af-chart-line id="demo2" variant="spark" height="96"></af-chart-line>
+          <p class="caption">spark 形态：无坐标轴与 tooltip，适合 KPI 卡内嵌；tap 不派发 select</p>
+        </div>
+      `,
+      main: { selector: '#demo2' },
+      props: [
+        { prop: 'variant', label: '形态', type: 'select', options: ['line', 'area', 'scatter', 'spark'] },
+        { prop: 'smooth', label: '平滑曲线', type: 'boolean' },
+        { prop: 'height', label: '高度(px)', type: 'number', min: 60, max: 400, step: 12 },
+        { prop: 'loading', label: 'loading 态', type: 'boolean' },
+        { prop: 'error', label: 'error 文案', type: 'string' },
+      ],
+      events: ['af-chart-line:retry'],
+      styleTokens: [
+        { token: '--c-brand', label: '主序列色', type: 'color' },
+      ],
+      init() {
+        const el = document.getElementById('demo2');
+        el.labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+        el.series = [{ name: '访问量', values: [320, 410, 380, 520, 610, 340, 240] }];
+      },
+    },
   ],
 };

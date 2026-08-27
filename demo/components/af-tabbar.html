@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-tabbar demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -20,22 +22,31 @@
     <p class="caption" id="log">切换触发 af-tabbar:change</p>
 
     <af-tabbar id="tb" active-index="0" fixed></af-tabbar>
+
+    <section id="props" class="card"></section>
   </main>
 
   <script type="module">
     import { AfTabbar } from '../../src/components/af-tabbar.js';
     customElements.define('af-tabbar', AfTabbar);
+    import { createPropsPanel } from '../props-panel.js';
 
     const tb = document.getElementById('tb');
+    // icon 为可选项（纯文本渲染，禁 emoji 图标）：省略 icon 即纯文字 tab
     tb.tabs = [
-      { label: '首页', icon: '🏠', value: 'home' },
-      { label: '分类', icon: '📋', value: 'cat' },
-      { label: '消息', icon: '💬', value: 'msg', badge: '3' },
-      { label: '我的', icon: '👤', value: 'me' },
+      { label: '首页', value: 'home' },
+      { label: '分类', value: 'cat' },
+      { label: '消息', value: 'msg', badge: '3' },
+      { label: '我的', value: 'me' },
     ];
     tb.addEventListener('af-tabbar:change', (e) => {
       document.getElementById('log').textContent = `index=${e.detail.index} value=${e.detail.value}`;
     });
+
+    createPropsPanel(document.getElementById('props'), [
+      { prop: 'activeIndex', label: '激活项', type: 'number', min: 0, max: 3, step: 1 },
+      { prop: 'fixed', label: '固定底部', type: 'boolean' },
+    ], tb);
   </script>
 </body>
 </html>

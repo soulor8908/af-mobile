@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>商品搜索</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <div class="page">
+    <header class="navbar">
+      <h1 class="title">搜索</h1>
+    </header>
+
+    <div class="px-3 py-2">
+      <af-search-bar id="sb" placeholder="搜索商品关键词" clearable debounce="200"></af-search-bar>
+    </div>
+
+    <section class="section px-3 py-2">
+      <h2 class="section-tt">热门搜索</h2>
+      <div class="chips">
+        <button class="tag" type="button">无线耳机</button>
+        <button class="tag" type="button">蓝牙音箱</button>
+        <button class="tag" type="button">机械键盘</button>
+        <button class="tag" type="button">便携充电宝</button>
+        <button class="tag" type="button">运动手环</button>
+        <button class="tag" type="button">桌面支架</button>
+      </div>
+    </section>
+
+    <section class="section px-3 py-2">
+      <h2 class="section-tt">搜索历史</h2>
+      <div class="list" id="history">
+        <div class="list-item">
+          <span class="flex-1">降噪耳机</span>
+          <span class="meta">昨天</span>
+        </div>
+        <div class="list-item">
+          <span class="flex-1">快充数据线</span>
+          <span class="meta">昨天</span>
+        </div>
+        <div class="list-item">
+          <span class="flex-1">电脑包</span>
+          <span class="meta">3 天前</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { register, escapeHtml } from '../../src/index.js';
+    await register('af-search-bar');
+
+    const sb = document.getElementById('sb');
+    const history = document.getElementById('history');
+
+    sb.addEventListener('af-search-bar:search', (e) => {
+      const kw = (e.detail.value || '').trim();
+      if (!kw) return;
+      const item = document.createElement('div');
+      item.className = 'list-item';
+      item.innerHTML = '<span class="flex-1">' + escapeHtml(kw) + '</span><span class="meta">刚刚</span>';
+      history.prepend(item);
+    });
+
+    history.addEventListener('click', (e) => {
+      const item = e.target.closest('.list-item');
+      if (item) sb.value = item.querySelector('.flex-1').textContent.trim();
+    });
+
+    document.querySelector('.chips').addEventListener('click', (e) => {
+      const tag = e.target.closest('.tag');
+      if (tag) sb.value = tag.textContent.trim();
+    });
+  </script>
+</body>
+</html>

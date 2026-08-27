@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>商品列表</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">商品列表</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <div class="f aic g-3 px-3 py-2 hl-b">
+    <span class="caption text-muted shrink-0">排序</span>
+    <af-dropdown id="sortDd" class="flex-1" value="综合"></af-dropdown>
+  </div>
+
+  <af-list id="list" item-height="76"></af-list>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+register('af-dropdown');
+register('af-list');
+
+const GOODS = [
+  { title: '无线降噪耳机 Pro', sales: 23000, price: 399, img: 'https://placehold.co/144x144' },
+  { title: '机械键盘 87 键', sales: 8600, price: 249, img: 'https://placehold.co/144x144' },
+  { title: '便携咖啡机', sales: 15200, price: 329, img: 'https://placehold.co/144x144' },
+  { title: '轻弹力跑鞋', sales: 41000, price: 269, img: 'https://placehold.co/144x144' },
+  { title: '桌面收纳三件套', sales: 6800, price: 59, img: 'https://placehold.co/144x144' },
+];
+
+const SORTERS = {
+  综合: (a, b) => 0,
+  销量: (a, b) => b.sales - a.sales,
+  价格升: (a, b) => a.price - b.price,
+  价格降: (a, b) => b.price - a.price,
+};
+
+const list = document.getElementById('list');
+list.renderItem = (item) => `
+  <div class="list-item g-3 aic">
+    <img class="thumb" src="${item.img}" alt="">
+    <div class="flex-1 min-w-0 fc g-1">
+      <span class="body ellipsis">${item.title}</span>
+      <span class="caption text-muted">已售 ${item.sales}</span>
+    </div>
+    <span class="price">¥${item.price.toFixed(2)}</span>
+  </div>`;
+
+const render = (sortKey) => {
+  list.data = GOODS.slice().sort(SORTERS[sortKey] || SORTERS.综合);
+};
+
+const dd = document.getElementById('sortDd');
+dd.options = ['综合', '销量', '价格升', '价格降'];
+dd.addEventListener('af-dropdown:select', (e) => render(e.detail.value));
+render('综合');
+</script>
+</body>
+</html>

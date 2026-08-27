@@ -6,10 +6,13 @@
   <title>af-list demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
   <style>
-    /* subtitle 拆段配色：货币符号 muted，价格品牌色高亮（data-role 选择器绕开白名单；var(--*) 不硬编码） */
+    /* 豁免：subtitle 拆段配色（货币 muted / 价格品牌高亮）是本页特例，白名单 class 覆盖不了；
+       data-role 限定选择器 + var(--*) 不硬编码（口径见 demo/README.md 样式豁免） */
     .subtitle [data-role="currency"] { color: var(--c-muted); }
     .subtitle [data-role="price"] { color: var(--c-brand); font-weight: var(--fw-medium); }
   </style>
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -19,6 +22,12 @@
     </section>
 
     <af-list id="list" height="600px"></af-list>
+
+    <div class="actions">
+      <button class="btn btn-ghost" id="demoLoading">骨架态(loading)</button>
+      <button class="btn btn-ghost" id="demoEmpty">空态(emptyText)</button>
+      <button class="btn btn-ghost" id="demoReset">恢复正常</button>
+    </div>
 
     <p class="caption" id="log">点击列表项查看 index</p>
 
@@ -34,6 +43,12 @@
     const totalItems = 100;
     list.totalCount = totalItems;
 
+    const makePage = (start, n) => Array.from({ length: n }, (_, i) => ({
+      title: `商品 ${start + i + 1}`,
+      currency: '¥',
+      price: ((start + i + 1) * 9.9).toFixed(2),
+    }));
+
     // 自定义 renderItem：拆 currency + price 两段渲染
     // - html 模板自动 esc 不可信字段，防 XSS（docs/incidents.md #1）
     // - data-role 绕开白名单（白名单只约束 class，§3.1）；配色用 var(--*) 不硬编码
@@ -47,34 +62,52 @@
     </div>`;
 
     list.addEventListener('af-list:itemclick', (e) => {
-      document.getElementById('log').textContent = `点击 index=${e.detail.index}`;
+      // detail: { index, item }——item 是整行数据对象
+      document.getElementById('log').textContent = `点击 index=${e.detail.index}：${e.detail.item?.title}`;
     });
     // loadmore 监听须在 data 赋值前注册：data 设置触发首次 _updateViewport，
     // 若此时无监听器则 loadmore 事件丢失、_isLoadingMore 永久 true → 卡"加载中"
-    list.addEventListener('af-list:loadmore', () => {
-      document.getElementById('log').textContent = '触发 loadmore...';
+    list.addEventListener('af-list:loadmore', (e) => {
+      // detail: { page }——下一页页码（从 1 开始）
+      document.getElementById('log').textContent = `触发 loadmore... page=${e.detail.page}`;
       setTimeout(() => {
         const start = list.data.length;
-        list.data = [...list.data, ...Array.from({ length: 20 }, (_, i) => ({
-          title: `商品 ${start + i + 1}`,
-          currency: '¥',
-          price: ((start + i + 1) * 9.9).toFixed(2),
-        }))];
+        list.data = [...list.data, ...makePage(start, 20)];
         list.totalCount = list.data.length;
         list.endLoadMore(true);
       }, 500);
     });
 
+    // refresh 闭环：监听下拉刷新事件并调用 endRefresh() 结束指示器（不调用会一直转）
+    list.addEventListener('af-list:refresh', () => {
+      document.getElementById('log').textContent = '触发 refresh...';
+      setTimeout(() => list.endRefresh(), 500);
+    });
+
     // 先给一页数据，滚动到底触发 loadmore 追加，直到 totalCount 上限显示"没有更多了"
-    list.data = Array.from({ length: 20 }, (_, i) => ({
-      title: `商品 ${i + 1}`,
-      currency: '¥',
-      price: ((i + 1) * 9.9).toFixed(2),
-    }));
+    list.data = makePage(0, 20);
+
+    // 分支态演示：loading 骨架 / empty 空态 / 恢复
+    document.getElementById('demoLoading').addEventListener('click', () => {
+      list.loading = true;
+      setTimeout(() => { list.loading = false; }, 1200);
+    });
+    document.getElementById('demoEmpty').addEventListener('click', () => {
+      list.emptyText = '暂无商品';
+      list.data = [];
+      list.totalCount = 0;
+    });
+    document.getElementById('demoReset').addEventListener('click', () => {
+      list.emptyText = '';
+      list.data = makePage(0, 20);
+      list.totalCount = totalItems;
+    });
 
     createPropsPanel(document.getElementById('props'), [
       { prop: 'refresh', label: '下拉刷新', type: 'boolean' },
       { prop: 'page-size', label: '每页条数', type: 'number', min: 5, max: 50, step: 5 },
+      { prop: 'mode', label: '密度', type: 'select', options: ['normal', 'compact'] },
+      { prop: 'item-height', label: '行高(px)', type: 'number', min: 32, max: 96, step: 8 },
     ], list);
   </script>
 </body>

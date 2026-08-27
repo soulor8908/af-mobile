@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>商品搜索</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page">
+  <af-search-bar id="sb" placeholder="搜索商品、店铺" clearable></af-search-bar>
+
+  <section class="section p-3">
+    <div class="body t-b">热门搜索</div>
+    <div class="chips" id="hotChips">
+      <button class="tag" data-kw="蓝牙耳机">蓝牙耳机</button>
+      <button class="tag" data-kw="机械键盘">机械键盘</button>
+      <button class="tag" data-kw="便携咖啡机">便携咖啡机</button>
+      <button class="tag" data-kw="跑鞋">跑鞋</button>
+      <button class="tag" data-kw="收纳盒">收纳盒</button>
+    </div>
+  </section>
+
+  <section class="section p-3">
+    <div class="f aic jcsb">
+      <div class="body t-b">历史记录</div>
+      <button class="btn btn-ghost btn-sm" id="clearHist">清空</button>
+    </div>
+    <af-list id="histList" item-height="56"></af-list>
+  </section>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+register('af-search-bar');
+register('af-list');
+
+const sb = document.getElementById('sb');
+const histList = document.getElementById('histList');
+const now = () => {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  return p(d.getHours()) + ':' + p(d.getMinutes());
+};
+
+let history = [
+  { title: '蓝牙耳机', subtitle: '昨天 20:14' },
+  { title: '机械键盘', subtitle: '昨天 09:40' },
+  { title: '便携咖啡机', subtitle: '08-26 18:02' },
+];
+const render = () => { histList.data = history; };
+render();
+
+const doSearch = (kw) => {
+  const keyword = kw.trim();
+  if (!keyword) return;
+  sb.value = keyword;
+  history = [{ title: keyword, subtitle: '刚刚 ' + now() }]
+    .concat(history.filter((it) => it.title !== keyword));
+  render();
+};
+
+sb.addEventListener('af-search-bar:search', (e) => doSearch(e.detail.value));
+sb.addEventListener('af-search-bar:clear', () => { sb.focus(); });
+histList.addEventListener('af-list:itemclick', (e) => doSearch(e.detail.item.title));
+document.getElementById('hotChips').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-kw]');
+  if (btn) doSearch(btn.dataset.kw);
+});
+document.getElementById('clearHist').addEventListener('click', () => {
+  history = [];
+  render();
+});
+</script>
+</body>
+</html>

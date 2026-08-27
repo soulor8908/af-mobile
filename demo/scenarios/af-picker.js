@@ -1,5 +1,7 @@
-// af-mobile UI —— af-picker Playground 场景（单一真相源：playground / gen-docs / AI 直读）
-// 契约：{ tag, name, scenarios: [{ name, html, main?, props[], events[], styleTokens[], init? }] }
+// af-mobile UI —— af-picker Playground 场景（单一真相源：playground / gen-docs / AI 直读 / prompt few-shot）
+// 契约：{ tag, name, scenarios: [{ name, html, main?, props[], events[], styleTokens[], init?, fewshot? }] }
+// fewshot 可选：{ html, js, note } 最小可运行用法，由 scripts/gen-component-fewshots.mjs 编译进 System Prompt；
+// 缺失时 gen 脚本回退从 html 提取标签骨架 + events 生成接线模板。
 // 属性/事件名以 src/index.d.ts 为准；columns/values 为 Array 型，由 init 注入；open() 打开滚轮。
 export default {
   tag: 'af-picker',
@@ -7,6 +9,15 @@ export default {
   scenarios: [
     {
       name: '日期选择',
+      fewshot: {
+        html: '<af-picker id="p" title="选择日期"></af-picker>',
+        js: `const p = document.getElementById('p');
+p.columns = [['2024', '2025'], ['1月', '2月', '3月'], ['1日', '15日']]; // 二维数组 = 多列
+p.values = ['2025', '2月', '15日']; // 可选：默认选中值
+p.open(); // 打开滚轮（须由用户手势触发）
+p.addEventListener('af-picker:confirm', (e) => console.log(e.detail.values)); // 确认后的选中值数组`,
+        note: 'columns 二维数组=多列联动；setColumn(i, cols) 做省市级联；open() 打开滚轮',
+      },
       html: `
         <div class="actions">
           <button class="btn" id="pk-open">打开选择器</button>

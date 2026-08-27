@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>酒店预订</title>
+  <link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+  <div class="page">
+    <header class="navbar">
+      <h1 class="title">酒店预订</h1>
+    </header>
+
+    <div class="m-3">
+      <af-calendar id="cal"></af-calendar>
+    </div>
+
+    <div class="card m-3 p-4">
+      <div class="f aic jcsb">
+        <span class="meta">入住日期</span>
+        <span class="body" id="checkin-text">请选择入住日期</span>
+      </div>
+      <div class="divider"></div>
+      <div class="f aic jcsb">
+        <span class="meta">豪华大床房 × 1 晚</span>
+        <span class="price">¥599.00</span>
+      </div>
+      <div class="f aic jcsb">
+        <span class="meta">服务费</span>
+        <span class="price">¥30.00</span>
+      </div>
+      <div class="divider"></div>
+      <div class="f aic jcsb">
+        <span class="title">合计</span>
+        <span class="price price-lg">¥629.00</span>
+      </div>
+    </div>
+
+    <button class="btn btn-block m-3" id="book-btn" type="button">确认预订</button>
+  </div>
+
+  <script type="module">
+    import { register } from '../../src/index.js';
+    await register('af-calendar');
+
+    const cal = document.getElementById('cal');
+    const checkinText = document.getElementById('checkin-text');
+    const bookBtn = document.getElementById('book-btn');
+    const pad = (n) => String(n).padStart(2, '0');
+    const now = new Date();
+    const today = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+
+    cal.min = today;
+
+    cal.addEventListener('af-calendar:select', (e) => {
+      checkinText.textContent = e.detail.date;
+    });
+
+    bookBtn.addEventListener('click', () => {
+      bookBtn.textContent = checkinText.textContent === '请选择入住日期'
+        ? '请先选择入住日期'
+        : '已预订 ' + checkinText.textContent + ' 入住';
+    });
+  </script>
+</body>
+</html>

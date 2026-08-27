@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-chart-radar demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -22,35 +24,35 @@
 
     <!-- variant 矩阵 -->
     <p class="caption">A · 多边形网格 + 单主体（6 维能力）</p>
-    <div class="card"><af-chart-radar class="demo" shape="polygon" data-radar="ability_6d"></af-chart-radar></div>
+    <div class="card"><af-chart-radar data-demo shape="polygon" data-radar="ability_6d"></af-chart-radar></div>
 
     <p class="caption">B · 圆形网格 + 单主体（shape 切换）</p>
-    <div class="card"><af-chart-radar class="demo" shape="circle" data-radar="ability_6d"></af-chart-radar></div>
+    <div class="card"><af-chart-radar data-demo shape="circle" data-radar="ability_6d"></af-chart-radar></div>
 
     <p class="caption">C · 双主体对比（polygon + 本期 vs 上期，半透明 + 描边）</p>
-    <div class="card"><af-chart-radar class="demo" shape="polygon" legend data-radar="ability_6d" data-series="two"></af-chart-radar></div>
+    <div class="card"><af-chart-radar data-demo shape="polygon" legend data-radar="ability_6d" data-series="two"></af-chart-radar></div>
 
     <p class="caption">D · 维度超长截断（4 字 + 省略号）</p>
-    <div class="card"><af-chart-radar class="demo" shape="polygon" data-radar="long_label_5d"></af-chart-radar></div>
+    <div class="card"><af-chart-radar data-demo shape="polygon" data-radar="long_label_5d"></af-chart-radar></div>
 
     <p class="caption">E · &gt;2 序列警告（控制台 console.warn，仅渲染前 2）</p>
-    <div class="card"><af-chart-radar class="demo" shape="polygon" legend data-radar="ability_6d" data-series="three"></af-chart-radar></div>
+    <div class="card"><af-chart-radar data-demo shape="polygon" legend data-radar="ability_6d" data-series="three"></af-chart-radar></div>
 
     <p class="caption">F · 3 维（最少兜底，三角形雷达）</p>
-    <div class="card"><af-chart-radar class="demo" shape="polygon" data-radar="radar_3d"></af-chart-radar></div>
+    <div class="card"><af-chart-radar data-demo shape="polygon" data-radar="radar_3d"></af-chart-radar></div>
 
     <p class="caption">G · 8 维（最多上限，标签密集可读性验证）</p>
-    <div class="card"><af-chart-radar class="demo" shape="polygon" data-radar="radar_8d"></af-chart-radar></div>
+    <div class="card"><af-chart-radar data-demo shape="polygon" data-radar="radar_8d"></af-chart-radar></div>
 
     <p class="caption">H · 自定义 max（每维不同 max，归一化渲染）</p>
-    <div class="card"><af-chart-radar class="demo" shape="polygon" data-radar="custom_max"></af-chart-radar></div>
+    <div class="card"><af-chart-radar data-demo shape="polygon" data-radar="custom_max"></af-chart-radar></div>
 
     <p class="caption">I · circle + 双主体（对比 C 区 polygon 形态）</p>
-    <div class="card"><af-chart-radar class="demo" shape="circle" legend data-radar="ability_6d" data-series="two"></af-chart-radar></div>
+    <div class="card"><af-chart-radar data-demo shape="circle" legend data-radar="ability_6d" data-series="two"></af-chart-radar></div>
 
     <!-- 五态 -->
     <p class="caption">J/K/L · 五态：loading / error（含重试）/ empty</p>
-    <div class="card" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div class="card grid-3 g-2">
       <af-chart-radar id="j-loading" loading></af-chart-radar>
       <af-chart-radar id="k-error" error="加载失败，请重试"></af-chart-radar>
       <af-chart-radar id="l-empty"></af-chart-radar>
@@ -99,18 +101,18 @@
     focus.data = MOCK.ability_6d;
 
     // 单主体实例化
-    document.querySelectorAll('af-chart-radar.demo[data-radar]:not([data-series])').forEach(el => {
+    document.querySelectorAll('af-chart-radar[data-demo][data-radar]:not([data-series])').forEach(el => {
       el.data = MOCK[el.dataset.radar];
     });
 
     // 双主体演示（C 区 polygon / I 区 circle）
-    document.querySelectorAll('af-chart-radar.demo[data-series="two"]').forEach(el => {
+    document.querySelectorAll('af-chart-radar[data-demo][data-series="two"]').forEach(el => {
       el.data = MOCK.ability_6d;
       el.series = [MOCK.this_period, MOCK.prev_period];
     });
 
     // >2 序列警告（E 区）
-    const el3 = document.querySelector('af-chart-radar.demo[data-series="three"]');
+    const el3 = document.querySelector('af-chart-radar[data-demo][data-series="three"]');
     if (el3) {
       el3.data = MOCK.ability_6d;
       // 第 3 个主体 + 故意违反"双主体红线"，触发源码 console.warn

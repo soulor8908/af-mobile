@@ -22,17 +22,16 @@ demo/
 ├── index.html              # 总入口：核心/交互/图表三类组件导航
 ├── kitchen-sink.html       # "云境咖啡"全量范式页（路由+状态+i18n+主题+按需注册）
 ├── perf.html               # web-vitals 性能监测
-├── playground.html          # 交互调试台：手机壳 + props 面板，import.meta.glob 装载场景
 ├── props-panel.js           # 共享属性面板工厂（createPropsPanel），组件 demo 统一引用
-├── components/              # 组件单页 demo（35 个，每组件一页）
+├── components/              # 组件单页 demo（36 个，每组件一页）
 │   ├── af-list.html
 │   ├── af-dialog.html
 │   └── ...                  # 命名约定：af-{组件}.html，与组件标签同名
 ├── scenarios/              # 场景配置（.js）+ 联动场景页（.html）
-│   ├── af-list.js          #  playground.html 用 import.meta.glob('./scenarios/*.js') 静态装载
+│   ├── af-list.js          #  playground 用 import.meta.glob('./scenarios/*.js') 静态装载
 │   ├── af-toast.js         #  每个 .js default export 一个场景配置（见下方"场景配置协议"）
 │   └── af-chart.html       #  图表 KPI 联动场景（独立入口，非 playground 装载）
-└── playground/             # playground 多页入口（index.html + playground.css + playground.js）
+├── playground/             # 交互调试台多页入口（index.html + playground.css + playground.js）
 ```
 
 ## 五类入口
@@ -43,7 +42,7 @@ demo/
 | 联动场景 | `scenarios/af-chart.html` | 图表 KPI 卡 + tabs 切换 + 主题切换 + reduced-motion |
 | 全量范式页 | `kitchen-sink.html` | "云境咖啡"集成 demo：History 路由 + 信号状态 + i18n 中英切换 + 主题 + 按需注册 33 组件 + 5 图表 |
 | 性能监测 | `perf.html` | web-vitals（LCP/FID/CLS 等）实时指标卡 |
-| 交互调试台 | `playground.html` | 手机壳 + props 面板，`import.meta.glob` 装载 `scenarios/*.js` 场景 |
+| 交互调试台 | `playground/index.html` | 手机壳 + props 面板，`import.meta.glob` 装载 `scenarios/*.js` 场景 |
 
 ## 新增组件 demo
 
@@ -56,6 +55,7 @@ demo/
 ## 约定
 
 - **源码引用**：demo 是库开发态，直接 `import` 磁盘 `../src/` 源码（非 `@af-mobile/ui` 包名），改组件源码即时热更新。
-- **组件注册**：组件单页 demo 与 `kitchen-sink.html` 按需注册本页用到的组件（铁律同消费端）；`playground.html` 是例外——它需按 URL 参数 `?c=af-xxx` 装载任意组件，故按场景 HTML 中出现的 af-* 标签动态 `register()`（charts/chat 等子库组件由各自场景模块自注册）。
-- **主题防闪**：含交互的页面在 `<head>` 内联同步脚本先于 paint 读 localStorage 设 `data-theme`（见 `kitchen-sink.html` L9）。
-- **场景配置协议**：`scenarios/af-{组件}.js` 的 default export 形如 `{ tag, name, scenarios: [{ name, html, main, props, events, styleTokens, init }] }`，`playground.html` 按文件名（`af-{组件}.js` ↔ `?c=af-{组件}`）匹配装载到手机壳内，props 控件复用 `props-panel.js` 的 schema 协议。
+- **组件注册**：组件单页 demo 与 `kitchen-sink.html` 按需注册本页用到的组件（铁律同消费端）；`playground/index.html` 是例外——它需按 URL 参数 `?c=af-xxx` 装载任意组件，故按场景 HTML 中出现的 af-* 标签动态 `register()`（charts/chat 等子库组件由各自场景模块自注册）。
+- **主题防闪**：所有含交互的页面在 `<head>` 内联同步脚本先于 paint 读 localStorage 设 `data-theme`（见 `kitchen-sink.html` L15，36 个组件单页均已内置）。
+- **场景配置协议**：`scenarios/af-{组件}.js` 的 default export 形如 `{ tag, name, scenarios: [{ name, html, main, props, events, styleTokens, init }] }`（`tag` 必须是完整标签名 `af-xxx`；`main` 指定焦点组件选择器；`init` 做事件绑定与数据注入，禁内联 onclick），`playground/index.html` 按文件名（`af-{组件}.js` ↔ `?c=af-{组件}`）匹配装载到手机壳内，props 控件复用 `props-panel.js` 的 schema 协议。
+- **样式豁免口径**（白名单 class 覆盖不了时）：用 `data-role` 属性 + 页面局部 `<style>`（选择器必须带 `[data-role=...]` 限定、颜色间距走 `var(--*)` 不硬编码），并加注释说明豁免原因——参照 `kitchen-sink.html` head 与 `scenarios/af-swiper.js`。禁内联 `style=""` 属性、禁无豁免注释的裸 `<style>`、禁白名单外 class（`gap-2`/`ai-center` 等 Tailwind 命名均为错误写法，正确是 `g-2`/`aic`）。

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>商品列表</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">全部商品</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <af-search-bar id="sb" placeholder="搜索商品" clearable></af-search-bar>
+  <af-list id="list" page-size="20" item-height="72" empty-text="没有找到相关商品"></af-list>
+</div>
+
+<script type="module">
+import { register, fetchPage, go } from '../../src/index.js';
+await register('af-search-bar', 'af-list');
+
+const PAGE_SIZE = 20;
+const sb = document.getElementById('sb');
+const list = document.getElementById('list');
+
+// 无后端兜底：58 条 mock 商品（> 2 页，可演示翻页与判停）
+const MOCK = Array.from({ length: 58 }, (_, i) => ({
+  id: i + 1,
+  title: '示例商品 ' + String(i + 1).padStart(2, '0'),
+  price: Math.round((19.9 + i * 7.3) * 100) / 100,
+}));
+
+list.renderItem = (item) => `
+  <div class="list-item g-3 aic">
+    <div class="flex-1 min-w-0 fc g-1">
+      <span class="body ellipsis">${item.title}</span>
+      <span class="caption text-muted">货号 #${item.id}</span>
+    </div>
+    <span class="price">¥${Number(item.price).toFixed(2)}</span>
+  </div>`;
+
+let page = 1;
+let total = 0;
+let keyword = '';
+
+const loadPage = async (nextPage, kw) => {
+  const filter = kw ? '&title=like.*' + encodeURIComponent(kw) + '*' : '';
+  try {
+    const res = await fetchPage('supabase://products?select=id,title,price&order=created_at.desc&page=' + nextPage + '&page_size=' + PAGE_SIZE + filter);
+    return { data: res.data || [], total: Number(res.total) || 0 };
+  } catch (err) {
+    // 无后端 / supabase 未注册：mock 数据兜底渲染
+    const filtered = kw ? MOCK.filter((p) => p.title.includes(kw)) : MOCK;
+    const start = (nextPage - 1) * PAGE_SIZE;
+    return { data: filtered.slice(start, start + PAGE_SIZE), total: filtered.length };
+  }
+};
+
+const loadFirst = async () => {
+  page = 1;
+  list.loading = true;
+  const res = await loadPage(1, keyword);
+  total = res.total;
+  list.totalCount = total;
+  list.data = res.data;
+  list.loading = false;
+  list.endLoadMore(res.data.length < total);
+};
+
+list.addEventListener('af-list:loadmore', async () => {
+  const nextPage = page + 1;
+  const res = await loadPage(nextPage, keyword);
+  page = nextPage;
+  list.data = list.data.concat(res.data);
+  total = res.total || total;
+  list.endLoadMore(list.data.length < total);
+});
+
+list.addEventListener('af-list:itemclick', (e) => {
+  const id = e.detail.item && e.detail.item.id;
+  if (id != null) go('/detail/' + id);
+});
+
+sb.addEventListener('af-search-bar:search', async (e) => {
+  keyword = (e.detail.value || '').trim();
+  await loadFirst();
+});
+sb.addEventListener('af-search-bar:clear', async () => {
+  keyword = '';
+  await loadFirst();
+});
+
+await loadFirst();
+</script>
+</body>
+</html>

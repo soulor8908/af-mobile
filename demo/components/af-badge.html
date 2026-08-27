@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-badge demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -14,12 +16,12 @@
     </section>
 
     <div class="card">
-      <div class="cell f ai-center gap-2">
+      <div class="cell f aic g-2">
         <af-badge id="b1" content="8">消息</af-badge>
         <af-badge id="b2" content="99" max="99">通知</af-badge>
         <af-badge id="b3" dot>新</af-badge>
       </div>
-      <div class="cell f gap-2">
+      <div class="cell f g-2">
         <af-badge content="热" data-color="warn">推荐</af-badge>
         <af-badge content="NEW" data-color="brand">活动</af-badge>
       </div>

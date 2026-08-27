@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 客服</title>
+<link rel="stylesheet" href="../../src/index.css">
+<style>
+  html, body { height: 100%; }
+</style>
+</head>
+<body class="fc">
+<main class="page-col p-0">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <span class="title flex-1 t-center">AI 客服</span>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <af-chat id="chat" class="flex-1" placeholder="请输入您的问题"></af-chat>
+
+  <div class="safe-bottom"></div>
+</main>
+
+<script type="module">
+import { registerChat, createMessage } from '../../src/chat/index.js';
+registerChat();
+
+const chat = document.getElementById('chat');
+
+let messages = [
+  createMessage({
+    role: 'assistant',
+    content: [{ type: 'text', text: '您好，我是云澜酒店 AI 客服小澜，很高兴为您服务。您可以问我订单、入住、退款等问题。' }],
+  }),
+];
+const render = () => { chat.messages = messages; };
+render();
+
+const reply = (text) => {
+  if (/退款|取消/.test(text)) return '退款政策：入住前 1 天 18:00 前可免费取消，超时取消收取首晚房费。如需人工处理，请回复「转人工」。';
+  if (/发货|物流|快递/.test(text)) return '您的订单已于今日出库，预计 48 小时内送达，可在「订单详情」中实时查看物流轨迹。';
+  if (/发票/.test(text)) return '电子发票可在「我的 - 订单 - 开发票」中自助申请，开具后 24 小时内发送至您的邮箱。';
+  return '已收到您的问题：「' + text + '」，正在为您查询，请稍候。您也可以描述更具体的信息（如订单号）帮助我更快定位。';
+};
+
+let seq = 0;
+chat.addEventListener('af-chat:send', (e) => {
+  const text = (e.detail.text || '').trim();
+  if (!text) return;
+  seq += 1;
+  messages = messages.concat(createMessage({
+    role: 'user',
+    content: [{ type: 'text', text }],
+  }));
+  render();
+  setTimeout(() => {
+    messages = messages.concat(createMessage({
+      role: 'assistant',
+      content: [{ type: 'text', text: reply(text) }],
+    }));
+    render();
+  }, 600);
+});
+</script>
+</body>
+</html>

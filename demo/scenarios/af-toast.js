@@ -32,5 +32,28 @@ export default {
         document.getElementById('t-loading')?.addEventListener('click', () => toast.show('加载中…', { type: 'loading', duration: 0, closeOnClick: true }));
       },
     },
+    {
+      name: '常驻提示与 dismiss()',
+      html: `
+        <div class="actions">
+          <button class="btn" id="t-sticky">常驻提示（duration: 0）</button>
+          <button class="btn btn-ghost" id="t-dismiss">dismiss()</button>
+        </div>
+        <af-toast id="toast2"></af-toast>
+        <p class="caption" id="t-log">duration=0 常驻不自动消失，需手动 dismiss() 关闭并派发 af-toast:dismiss</p>
+      `,
+      main: { selector: '#toast2' },
+      props: [
+        { prop: 'duration', label: '默认时长(ms)', type: 'number', min: 0, max: 5000, step: 500 },
+      ],
+      events: ['af-toast:dismiss'],
+      init: () => {
+        const toast = document.getElementById('toast2');
+        const log = document.getElementById('t-log');
+        document.getElementById('t-sticky')?.addEventListener('click', () => toast.show('网络不稳定，正在重试', { type: 'warning', duration: 0 }));
+        document.getElementById('t-dismiss')?.addEventListener('click', () => toast.dismiss());
+        toast.addEventListener('af-toast:dismiss', (e) => { if (log) log.textContent = `dismiss: ${e.detail.message}`; });
+      },
+    },
   ],
 };

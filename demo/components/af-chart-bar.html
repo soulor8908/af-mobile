@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-chart-bar demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -22,29 +24,29 @@
 
     <!-- variant 矩阵 -->
     <p class="caption">A · 垂直柱（6 类目销量）</p>
-    <div class="card"><af-chart-bar class="demo" variant="column" data-bar="cat_sales"></af-chart-bar></div>
+    <div class="card"><af-chart-bar data-demo variant="column" data-bar="cat_sales"></af-chart-bar></div>
 
     <p class="caption">B · 水平条形（10 个长类目名排行）</p>
-    <div class="card"><af-chart-bar class="demo" variant="bar" data-bar="long_rank"></af-chart-bar></div>
+    <div class="card"><af-chart-bar data-demo variant="bar" data-bar="long_rank"></af-chart-bar></div>
 
     <p class="caption">C · 堆叠柱（季度 × 产品线）</p>
-    <div class="card"><af-chart-bar class="demo" variant="stacked" legend data-bar="stacked_q"></af-chart-bar></div>
+    <div class="card"><af-chart-bar data-demo variant="stacked" legend data-bar="stacked_q"></af-chart-bar></div>
 
     <p class="caption">D · 分组柱（同数据并排对比）</p>
-    <div class="card"><af-chart-bar class="demo" variant="grouped" legend data-bar="stacked_q"></af-chart-bar></div>
+    <div class="card"><af-chart-bar data-demo variant="grouped" legend data-bar="stacked_q"></af-chart-bar></div>
 
     <p class="caption">E · 水平条形 + max-count 截断（35 类目 → 前 4 + "其他"）</p>
-    <div class="card"><af-chart-bar class="demo" variant="bar" max-count="5" data-bar="over_30"></af-chart-bar></div>
+    <div class="card"><af-chart-bar data-demo variant="bar" max-count="5" data-bar="over_30"></af-chart-bar></div>
 
     <p class="caption">F · 水平条形（24 小时访问量分布）</p>
-    <div class="card"><af-chart-bar class="demo" variant="bar" data-bar="hourly"></af-chart-bar></div>
+    <div class="card"><af-chart-bar data-demo variant="bar" data-bar="hourly"></af-chart-bar></div>
 
     <p class="caption">G · 垂直柱 max-count 截断（35 类目 → 前 4 + "其他"）</p>
-    <div class="card"><af-chart-bar class="demo" variant="column" max-count="5" data-bar="over_30"></af-chart-bar></div>
+    <div class="card"><af-chart-bar data-demo variant="column" max-count="5" data-bar="over_30"></af-chart-bar></div>
 
     <!-- 五态 -->
     <p class="caption">H/I/J · 五态：loading / error（含重试）/ empty</p>
-    <div class="card" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div class="card grid-3 g-2">
       <af-chart-bar id="h-loading" loading></af-chart-bar>
       <af-chart-bar id="i-error" error="加载失败，请重试" data-bar="empty"></af-chart-bar>
       <af-chart-bar id="j-empty" data-bar="empty"></af-chart-bar>
@@ -85,7 +87,7 @@
     focus.series = MOCK.cat_sales.series;
 
     // 实例化
-    document.querySelectorAll('af-chart-bar.demo[data-bar]').forEach(el => {
+    document.querySelectorAll('af-chart-bar[data-demo][data-bar]').forEach(el => {
       const m = MOCK[el.dataset.bar];
       el.labels = m.labels;
       el.series = m.series;

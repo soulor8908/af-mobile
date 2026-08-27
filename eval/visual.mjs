@@ -51,13 +51,17 @@ export function startServer(port = 0) {
       } else if (/(\.html|\.png|\.jpg|\.svg)$/.test(path)) {
         // eval 生成的页面/截图：从 eval/results 下服务
         file = join(ROOT, 'eval/results', path);
+      } else if (path === 'src' || path.startsWith('src/')) {
+        // src/* 源码直引：支持开发态页面（../../src/index.js 相对根解析为 /src/*），与 demo serveSrcOutsideRoot 同思路
+        file = join(ROOT, path);
       } else {
         file = join(DIST, path);
       }
-      // 防目录穿越：仅允许 dist 和 eval/results 下的真实文件
+      // 防目录穿越：仅允许 dist、eval/results 和 src 下的真实文件
       const inDist = file.startsWith(DIST + sep);
       const inResults = file.startsWith(join(ROOT, 'eval/results') + sep);
-      if ((!inDist && !inResults) || !existsSync(file)) {
+      const inSrc = file.startsWith(join(ROOT, 'src') + sep);
+      if ((!inDist && !inResults && !inSrc) || !existsSync(file)) {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('not found');
         return;
@@ -84,7 +88,8 @@ export function startServer(port = 0) {
 // 返回 { ok, screenshotPath, missing, error }
 export async function renderCapture(htmlPath, expects, { port, outDir }) {
   const browser = await chromium.launch({
-    executablePath: '/root/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome',
+    // executablePath 可经 PLAYWRIGHT_CHROMIUM_PATH 覆盖（容器环境）；缺省由 Playwright 自行解析本机浏览器
+    ...(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {}),
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
   try {
@@ -108,6 +113,13 @@ export async function renderCapture(htmlPath, expects, { port, outDir }) {
     });
     // 等待渲染（af-list 虚拟滚动等）
     await page.waitForTimeout(1500);
+    // 等待弹层类组件完成升级（源码直引时 register 为异步链，未 upgrade 时 open() 调用无效）
+    await page
+      .waitForFunction(
+        () => !document.querySelector('af-dialog:not(:defined), af-action-sheet:not(:defined)'),
+        { timeout: 3000 },
+      )
+      .catch(() => {});
     // 强制打开弹层类组件（af-dialog/af-action-sheet 默认关闭，评审前触发打开）
     await page.evaluate(() => {
       document.querySelectorAll('af-dialog').forEach((el) => { try { el.open && el.open(); } catch {} });

@@ -25,5 +25,24 @@ export default {
         { token: '--c-brand', label: '主色', type: 'color' },
       ],
     },
+    {
+      name: '状态色变体',
+      html: `
+        <div class="card">
+          <div class="cell"><span class="body">成功态（success）</span><af-progress id="p-ok" value="100" color="success"></af-progress></div>
+          <div class="cell"><span class="body">失败态（danger）</span><af-progress id="p-err" value="35" color="danger"></af-progress></div>
+        </div>
+        <p class="caption">color 属性切换 brand / success / danger 状态色</p>
+      `,
+      main: { selector: '#p-ok' },
+      props: [
+        { prop: 'value', label: '值', type: 'number', min: 0, max: 100, step: 1 },
+        { prop: 'color', label: '颜色', type: 'select', options: ['brand', 'success', 'danger'] },
+      ],
+      styleTokens: [
+        { token: '--c-success', label: '成功色', type: 'color' },
+        { token: '--c-danger', label: '失败色', type: 'color' },
+      ],
+    },
   ],
 };

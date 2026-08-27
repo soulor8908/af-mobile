@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>af-chart-pie demo - af-mobile</title>
   <link rel="stylesheet" href="../../src/index.css">
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
 </head>
 <body>
   <main class="page">
@@ -22,33 +24,33 @@
 
     <!-- variant 矩阵 -->
     <p class="caption">A · 饼图（5 渠道流量）</p>
-    <div class="card"><af-chart-pie class="demo" variant="pie" data-pie="traffic"></af-chart-pie></div>
+    <div class="card"><af-chart-pie data-demo variant="pie" data-pie="traffic"></af-chart-pie></div>
 
     <p class="caption">B · 环形 + 中心 KPI（{total} 占位符替换）</p>
-    <div class="card"><af-chart-pie class="demo" variant="donut" center-text="合计 {total}" data-pie="traffic"></af-chart-pie></div>
+    <div class="card"><af-chart-pie data-demo variant="donut" center-text="合计 {total}" data-pie="traffic"></af-chart-pie></div>
 
     <p class="caption">C · 半环完成度（center-text 自定义）</p>
-    <div class="card"><af-chart-pie class="demo" variant="half" center-text="75%" data-pie="completion"></af-chart-pie></div>
+    <div class="card"><af-chart-pie data-demo variant="half" center-text="75%" data-pie="completion"></af-chart-pie></div>
 
     <p class="caption">D · 玫瑰图（数值差异强调，面积正比）</p>
-    <div class="card"><af-chart-pie class="demo" variant="rose" data-pie="category_diff"></af-chart-pie></div>
+    <div class="card"><af-chart-pie data-demo variant="rose" data-pie="category_diff"></af-chart-pie></div>
 
     <p class="caption">E · >6 项自动聚合为"其他"</p>
-    <div class="card"><af-chart-pie class="demo" variant="pie" data-pie="over_10"></af-chart-pie></div>
+    <div class="card"><af-chart-pie data-demo variant="pie" data-pie="over_10"></af-chart-pie></div>
 
     <p class="caption">F · innerRadius 多值对比（30 / 60 / 90，同数据 donut）</p>
-    <div class="card" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <af-chart-pie class="demo" variant="donut" inner-radius="30" data-pie="traffic"></af-chart-pie>
-      <af-chart-pie class="demo" variant="donut" inner-radius="60" data-pie="traffic"></af-chart-pie>
-      <af-chart-pie class="demo" variant="donut" inner-radius="90" data-pie="traffic"></af-chart-pie>
+    <div class="card grid-3 g-2">
+      <af-chart-pie data-demo variant="donut" inner-radius="30" data-pie="traffic"></af-chart-pie>
+      <af-chart-pie data-demo variant="donut" inner-radius="60" data-pie="traffic"></af-chart-pie>
+      <af-chart-pie data-demo variant="donut" inner-radius="90" data-pie="traffic"></af-chart-pie>
     </div>
 
     <p class="caption">G · 自定义颜色覆盖（data 项 color 字段，绕过 seriesColor 轮转）</p>
-    <div class="card"><af-chart-pie class="demo" variant="pie" data-pie="custom_color"></af-chart-pie></div>
+    <div class="card"><af-chart-pie data-demo variant="pie" data-pie="custom_color"></af-chart-pie></div>
 
     <!-- 五态 -->
     <p class="caption">H/I/J · 五态：loading / error（含重试）/ empty</p>
-    <div class="card" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div class="card grid-3 g-2">
       <af-chart-pie id="h-loading" loading></af-chart-pie>
       <af-chart-pie id="i-error" error="加载失败，请重试" data-pie="empty"></af-chart-pie>
       <af-chart-pie id="j-empty" data-pie="empty"></af-chart-pie>
@@ -89,7 +91,7 @@
     focus.data = MOCK.traffic;
 
     // 实例化
-    document.querySelectorAll('af-chart-pie.demo[data-pie]').forEach(el => {
+    document.querySelectorAll('af-chart-pie[data-demo][data-pie]').forEach(el => {
       el.data = MOCK[el.dataset.pie];
     });
 

@@ -10,12 +10,13 @@ import { fileURLToPath } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 // [源（仓库根相对）, 快照名（平铺）]
-const ASSETS = [
+export const ASSETS = [
   ['eslint-plugin-af-mobile/utils/whitelist-v1.json', 'whitelist-v1.json'],
   ['src/recipes.css', 'recipes.css'],
   ['src/atomic.css', 'atomic.css'],
   ['prompt/system-prompt.md', 'system-prompt.md'],
   ['prompt/system-prompt.template.md', 'system-prompt.template.md'],
+  ['prompt/component-fewshots.md', 'component-fewshots.md'],
   ['prompt/models', 'models'],
 ];
 

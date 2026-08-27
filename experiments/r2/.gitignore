@@ -1,2 +1,4 @@
 node_modules/
 package-lock.json
+# 评分器跑 B 臂时自动把 runtime/k-flow.js 拷进 solDir（含 fixtures 自检）
+fixtures/**/k-flow.js

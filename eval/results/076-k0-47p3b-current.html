@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page center p-4">
+  <h1 class="title">请输入支付密码</h1>
+  <p class="body text-muted">为了您的资金安全，请输入6位数字支付密码</p>
+  
+  <af-password-input id="pi" length="6" mask></af-password-input>
+  <af-number-keyboard id="kb" random title="安全键盘"></af-number-keyboard>
+  <af-toast id="toast"></af-toast>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-password-input', 'af-number-keyboard', 'af-toast');
+
+const kb = document.getElementById('kb');
+const pi = document.getElementById('pi');
+const toast = document.getElementById('toast');
+
+kb.addEventListener('af-number-keyboard:input', (e) => {
+  pi.value = e.detail.value;
+});
+
+kb.addEventListener('af-number-keyboard:delete', (e) => {
+  pi.value = e.detail.value;
+});
+
+kb.addEventListener('af-number-keyboard:complete', (e) => {
+  toast.show('支付成功', { type: 'success' });
+});
+
+kb.open();
+</script>
+</body>
+</html>

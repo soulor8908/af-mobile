@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">长列表演示</nav>
+  <af-list id="list"></af-list>
+  <af-backtop threshold="120">
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </af-backtop>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-backtop', 'af-list');
+const list = document.getElementById('list');
+list.data = Array.from({ length: 50 }, (_, i) => ({
+  title: `列表项 ${i + 1}`,
+  subtitle: `滚动超过 120px 后显示按钮`
+}));
+document.querySelector('af-backtop').addEventListener('af-backtop:click', () => console.log('回顶'));
+</script>
+</body>
+</html>

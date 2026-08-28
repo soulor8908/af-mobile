@@ -1,0 +1,120 @@
+{
+  "passK": 3,
+  "total": 5,
+  "lintPassed": 5,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.20",
+  "errorsByRule": {},
+  "byCategory": {
+    "feedback": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "nav": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "detail": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "form": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 0
+    },
+    "complex": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-47p3-current.png",
+      "errors": []
+    },
+    {
+      "id": "067",
+      "category": "nav",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\067-k0-47p3-current.png",
+      "errors": []
+    },
+    {
+      "id": "072",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\072-k0-47p3-current.png",
+      "errors": []
+    },
+    {
+      "id": "076",
+      "category": "form",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-number-keyboard 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\076-k0-47p3-current.png",
+      "errors": []
+    },
+    {
+      "id": "081",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\081-k0-47p3-current.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 4,
+  "visualPassRate": "80.0%",
+  "visualFailures": [
+    {
+      "id": "076",
+      "category": "form",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-number-keyboard 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\076-k0-47p3-current.png",
+      "errors": []
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "variant": "47p3-current"
+}

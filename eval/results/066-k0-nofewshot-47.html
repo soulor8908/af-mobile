@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-navbar title="商品详情" show-back back-text="返回"></af-navbar>
+  
+  <div class="p-4">
+    <div class="card card-media">
+      <img src="https://picsum.photos/375/375" alt="商品图片" class="aspect-1">
+      <div class="p-3">
+        <div class="f aic jcsb m-2">
+          <span class="price price-lg">¥199.00</span>
+          <span class="tag tag-danger">限时特惠</span>
+        </div>
+        <div class="title m-2">夏季透气休闲运动鞋</div>
+        <div class="caption text-muted">轻便防滑，适合日常出行与运动</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module">
+document.querySelector('af-navbar').addEventListener('af-navbar:back', () => history.back());
+</script>
+</body>
+</html>

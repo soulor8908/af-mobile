@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar navbar-fixed">
+    <button class="btn btn-ghost btn-sm">‹ 返回</button>
+    <span class="title flex-1 t-center">预订房间</span>
+  </header>
+
+  <div class="scroll-y p-10">
+    <af-calendar id="cal"></af-calendar>
+
+    <div class="card p-4 m-3">
+      <div class="section-tt m-0">房费明细</div>
+      <div class="f jcsb aic py-2">
+        <span class="body text-gray-7">豪华大床房 (1晚)</span>
+        <span class="price">¥500</span>
+      </div>
+      <div class="f jcsb aic py-2">
+        <span class="body text-gray-7">税费与服务费</span>
+        <span class="price">¥50</span>
+      </div>
+      <div class="hl-t m-2"></div>
+      <div class="f jcsb aic">
+        <span class="title">总计</span>
+        <span class="price price-lg text-danger" id="total-price">¥550</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cob cob-fx">
+    <button class="btn btn-block" id="submit-btn">确认预订</button>
+  </div>
+</div>
+
+<script type="module">
+import { signal, effect } from '/af-mobile.js';
+
+const cal = document.getElementById('cal');
+const today = new Date().toISOString().split('T')[0];
+cal.min = today;
+
+// 模拟价格状态
+const basePrice = 500;
+const serviceFee = 50;
+const totalPriceEl = document.getElementById('total-price');
+
+cal.addEventListener('af-calendar:select', (e) => {
+  console.log('选择日期:', e.detail.date);
+  // 实际场景中这里会根据日期计算总价
+});
+
+document.getElementById('submit-btn').addEventListener('click', () => {
+  alert('预订已提交');
+});
+</script>
+</body>
+</html>

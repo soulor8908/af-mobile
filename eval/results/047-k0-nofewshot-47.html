@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar navbar-fixed safe-top">
+    <button class="btn btn-ghost btn-sm">‹</button>
+    <span class="flex-1 t-center">商品详情</span>
+    <button class="btn btn-ghost btn-sm">⋯</button>
+  </header>
+
+  <af-swiper id="banner" autoplay="3000" class="aspect-1"></af-swiper>
+
+  <div class="p-4 fc g-3">
+    <div class="f aic g-2">
+      <span class="price price-lg">¥299.00</span>
+      <span class="price-del">¥599.00</span>
+      <span class="tag tag-danger">限时5折</span>
+    </div>
+    <div class="title">高性能无线降噪耳机 沉浸式音质体验 超长续航</div>
+    <div class="chips">
+      <span class="tag tag-plain">官方自营</span>
+      <span class="tag tag-plain">顺丰包邮</span>
+      <span class="tag tag-plain">7天无理由</span>
+    </div>
+  </div>
+
+  <div class="card m-0">
+    <div class="stats-grid">
+      <div class="fc aic g-1"><span class="stat-num text-brand">500+</span><span class="caption">月销</span></div>
+      <div class="fc aic g-1"><span class="stat-num text-success">4.9</span><span class="caption">评分</span></div>
+      <div class="fc aic g-1"><span class="stat-num">99%</span><span class="caption">好评</span></div>
+    </div>
+  </div>
+
+  <af-tabs id="detail-tabs"></af-tabs>
+
+  <div class="p-4">
+    <div id="panel-0" style="display:block">
+      <div class="section-tt">规格参数</div>
+      <div class="list">
+        <div class="list-item"><span class="text-muted">品牌</span><span class="flex-1 t-right">AF Audio</span></div>
+        <div class="list-item"><span class="text-muted">型号</span><span class="flex-1 t-right">X-2024 Pro</span></div>
+        <div class="list-item"><span class="text-muted">连接方式</span><span class="flex-1 t-right">蓝牙 5.3</span></div>
+        <div class="list-item"><span class="text-muted">续航时间</span><span class="flex-1 t-right">30小时</span></div>
+      </div>
+    </div>
+
+    <div id="panel-1" style="display:none">
+      <div class="section-tt">用户评价 (128)</div>
+      <div class="list">
+        <div class="list-item">
+          <div class="thumb bg-muted"></div>
+          <div class="flex-1 fc g-1">
+            <div class="body">音质非常棒，降噪效果明显，佩戴也很舒适！</div>
+            <div class="caption text-muted">2023-10-01 | 颜色：星空黑</div>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="thumb bg-muted"></div>
+          <div class="flex-1 fc g-1">
+            <div class="body">物流很快，第二天就到了。包装精美，送人很有面子。</div>
+            <div class="caption text-muted">2023-09-28 | 颜色：云母白</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-2" style="display:none">
+      <div class="section-tt">商品详情</div>
+      <div class="fc g-3">
+        <div class="card-media shadow-sm">
+          <div class="aspect-16-9 bg-muted"></div>
+          <div class="p-3 body text-muted">采用最新一代蓝牙芯片，连接更稳定，延迟更低。40mm大动圈单元，还原纯净音质。</div>
+        </div>
+        <div class="card-media shadow-sm">
+          <div class="aspect-16-9 bg-muted"></div>
+          <div class="p-3 body text-muted">智能主动降噪技术，有效隔绝环境噪音，让您随时随地享受静谧音乐空间。</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="panel-3" style="display:none">
+      <div class="section-tt">猜你喜欢</div>
+      <div class="grid-2 g-3">
+        <div class="card-media shadow-sm">
+          <div class="aspect-1 bg-muted"></div>
+          <div class="p-2">
+            <div class="title ellipsis-2">便携式蓝牙音箱 户外防水</div>
+            <div class="price">¥129.00</div>
+          </div>
+        </div>
+        <div class="card-media shadow-sm">
+          <div class="aspect-1 bg-muted"></div>
+          <div class="p-2">
+            <div class="title ellipsis-2">手机支架 桌面折叠款</div>
+            <div class="price">¥19.90</div>
+          </div>
+        </div>
+        <div class="card-media shadow-sm">
+          <div class="aspect-1 bg-muted"></div>
+          <div class="p-2">
+            <div class="title ellipsis-2">高透钢化膜 2片装</div>
+            <div class="price">¥9.90</div>
+          </div>
+        </div>
+        <div class="card-media shadow-sm">
+          <div class="aspect-1 bg-muted"></div>
+          <div class="p-2">
+            <div class="title ellipsis-2">快充数据线 2米</div>
+            <div class="price">¥15.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-bar input-bar-fx">
+    <div class="f aic g-4 px-2">
+      <div class="fc aic"><span class="caption">客服</span></div>
+      <div class="fc aic"><span class="caption">店铺</span></div>
+      <div class="fc aic"><span class="caption">收藏</span></div>
+    </div>
+    <div class="f g-2">
+      <button class="btn btn-plain">加入购物车</button>
+      <button class="btn">立即购买</button>
+    </div>
+  </div>
+  <div class="safe-bottom"></div>
+</div>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-tabs');
+
+const tabs = document.getElementById('detail-tabs');
+tabs.tabs = [
+  { label: '商品' },
+  { label: '评价' },
+  { label: '详情' },
+  { label: '推荐' }
+];
+
+const panels = document.querySelectorAll('div[id^="panel-"]');
+tabs.addEventListener('af-tabs:change', (e) => {
+  panels.forEach((p, i) => {
+    p.style.display = (i === e.detail.index) ? 'block' : 'none';
+  });
+});
+
+const banner = document.getElementById('banner');
+banner.innerHTML = `
+  <img src="https://picsum.photos/375/375?random=1" alt="">
+  <img src="https://picsum.photos/375/375?random=2" alt="">
+  <img src="https://picsum.photos/375/375?random=3" alt="">
+`;
+</script>
+</body>
+</html>

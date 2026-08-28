@@ -1,0 +1,35 @@
+{
+  "passK": 3,
+  "total": 1,
+  "lintPassed": 1,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.00",
+  "errorsByRule": {},
+  "byCategory": {
+    "form": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "076",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\076-k0-47p3b-current.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 1,
+  "visualPassRate": "100.0%",
+  "visualFailures": [],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "variant": "47p3b-current"
+}

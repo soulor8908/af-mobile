@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar navbar-fixed">
+    <button class="btn btn-ghost btn-sm">‹ 返回</button>
+    <span class="flex-1 t-center">会员成长</span>
+    <button class="btn btn-ghost btn-sm">规则</button>
+  </header>
+
+  <div class="hero-grad p-4">
+    <div class="display">黄金会员</div>
+    <div class="body">再得 320 成长值升级铂金</div>
+    
+    <div class="mt-4 mb-2">
+      <af-progress value="680" max="1000"></af-progress>
+    </div>
+    
+    <div class="f jcsb caption">
+      <span>当前 680</span>
+      <span>目标 1000</span>
+    </div>
+  </div>
+
+  <div class="p-4">
+    <div class="section-tt">会员权益</div>
+    <div class="list">
+      <div class="list-item">
+        <div class="thumb">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+        </div>
+        <div class="flex-1">
+          <div class="subtitle">免运费</div>
+          <div class="caption text-muted">全场订单免运费</div>
+        </div>
+        <span class="tag tag-ok">已享</span>
+      </div>
+      
+      <div class="list-item">
+        <div class="thumb">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12a8 8 0 0 1-8 8H5l1.6-2.4A8 8 0 1 1 21 12z"/></svg>
+        </div>
+        <div class="flex-1">
+          <div class="subtitle">专属客服</div>
+          <div class="caption text-muted">1对1 优先响应</div>
+        </div>
+        <span class="tag tag-ok">已享</span>
+      </div>
+
+      <div class="list-item">
+        <div class="thumb">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>
+        </div>
+        <div class="flex-1">
+          <div class="subtitle">生日礼遇</div>
+          <div class="caption text-muted">生日月双倍积分</div>
+        </div>
+        <span class="tag tag-ok">已享</span>
+      </div>
+
+      <div class="list-item">
+        <div class="thumb">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <div class="flex-1">
+          <div class="subtitle">极速退款</div>
+          <div class="caption text-muted"> platinum 会员专享</div>
+        </div>
+        <span class="tag tag-plain">未解锁</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-progress');
+</script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+{
+  "passK": 1,
+  "total": 12,
+  "lintPassed": 9,
+  "lintPassRate": "75.0%",
+  "avgRounds": "1.33",
+  "errorsByRule": {
+    "af-mobile/token-whitelist": 2
+  },
+  "byCategory": {
+    "feedback": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 0
+    },
+    "form": {
+      "total": 5,
+      "lintPassed": 2,
+      "visualPassed": 0
+    },
+    "detail": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "starter": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "list": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 0
+    },
+    "complex": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 2
+    }
+  },
+  "lintFailures": [
+    {
+      "id": "057",
+      "category": "form",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "060",
+      "category": "form",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "061",
+      "category": "form",
+      "exitCode": 3,
+      "errors": [
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-alVPzc\\snippet.js",
+          "line": 44,
+          "column": 35,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'h-full' not in whitelist. Did you mean 'w-full'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['h-full'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-alVPzc\\snippet.js",
+          "line": 87,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'h-full' not in whitelist. Did you mean 'w-full'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['h-full'] }]"
+        }
+      ]
+    }
+  ],
+  "visualResults": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": false,
+      "missing": [
+        "af-dialog[open]"
+      ],
+      "fails": [
+        "缺少 af-dialog[open]"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".title"
+      ],
+      "fails": [
+        "缺少 .title"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "062",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\062-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "064",
+      "category": "starter",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\064-k0-47-nofewshot.png",
+      "errors": [
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc. URL scheme \"supabase\" is not supported.",
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc. URL scheme \"supabase\" is not supported.",
+        "items.value is not iterable"
+      ]
+    },
+    {
+      "id": "069",
+      "category": "form",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-calendar 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\069-k0-47-nofewshot.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to fetch dynamically imported module: http://127.0.0.1:57528/components/af-calendar.js"
+      ]
+    },
+    {
+      "id": "070",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-stepper 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\070-k0-47-nofewshot.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to fetch dynamically imported module: http://127.0.0.1:57528/components/af-stepper.js"
+      ]
+    },
+    {
+      "id": "079",
+      "category": "list",
+      "domPass": false,
+      "missing": [
+        "af-swipe-cell",
+        ".avatar",
+        ".title",
+        ".meta",
+        "af-swipe-cell"
+      ],
+      "fails": [
+        "缺少 af-swipe-cell",
+        "缺少 .avatar",
+        "缺少 .title",
+        "缺少 .meta",
+        "缺少 af-swipe-cell"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\079-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "081",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\081-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "086",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\086-k0-47-nofewshot.png",
+      "errors": [
+        "m.content is not iterable"
+      ]
+    }
+  ],
+  "visualPassed": 4,
+  "visualPassRate": "33.3%",
+  "visualFailures": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": false,
+      "missing": [
+        "af-dialog[open]"
+      ],
+      "fails": [
+        "缺少 af-dialog[open]"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".title"
+      ],
+      "fails": [
+        "缺少 .title"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "069",
+      "category": "form",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-calendar 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\069-k0-47-nofewshot.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to fetch dynamically imported module: http://127.0.0.1:57528/components/af-calendar.js"
+      ]
+    },
+    {
+      "id": "070",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-stepper 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\070-k0-47-nofewshot.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to fetch dynamically imported module: http://127.0.0.1:57528/components/af-stepper.js"
+      ]
+    },
+    {
+      "id": "079",
+      "category": "list",
+      "domPass": false,
+      "missing": [
+        "af-swipe-cell",
+        ".avatar",
+        ".title",
+        ".meta",
+        "af-swipe-cell"
+      ],
+      "fails": [
+        "缺少 af-swipe-cell",
+        "缺少 .avatar",
+        "缺少 .title",
+        "缺少 .meta",
+        "缺少 af-swipe-cell"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\079-k0-47-nofewshot.png",
+      "errors": []
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "variant": "47-nofewshot"
+}

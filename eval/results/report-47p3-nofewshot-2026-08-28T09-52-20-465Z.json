@@ -1,0 +1,103 @@
+{
+  "passK": 3,
+  "total": 5,
+  "lintPassed": 5,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.20",
+  "errorsByRule": {},
+  "byCategory": {
+    "feedback": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "nav": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "detail": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "form": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "complex": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-47p3-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "067",
+      "category": "nav",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\067-k0-47p3-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "072",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\072-k0-47p3-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "076",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\076-k0-47p3-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "081",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\081-k0-47p3-nofewshot.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 5,
+  "visualPassRate": "100.0%",
+  "visualFailures": [],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "variant": "47p3-nofewshot"
+}

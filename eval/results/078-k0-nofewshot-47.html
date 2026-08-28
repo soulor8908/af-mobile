@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">资讯</nav>
+  <af-pull-refresh id="pr">
+    <div class="list scroll-y" style="height: calc(100vh - 44px);">
+      <div class="list-item f aic g-3">
+        <div class="flex-1 fc g-1">
+          <div class="body t-b ellipsis-2">SpaceX 星舰第四次试飞成功，助推器首次实现软着陆</div>
+          <div class="caption text-muted">科技日报 · 2小时前</div>
+        </div>
+        <img class="thumb" src="https://picsum.photos/seed/news1/72/72" alt="">
+      </div>
+      <div class="list-item f aic g-3">
+        <div class="flex-1 fc g-1">
+          <div class="body t-b ellipsis-2">2024年全球开发者大会将于下月举行，AI成核心议题</div>
+          <div class="caption text-muted">极客公园 · 5小时前</div>
+        </div>
+        <img class="thumb" src="https://picsum.photos/seed/news2/72/72" alt="">
+      </div>
+      <div class="list-item f aic g-3">
+        <div class="flex-1 fc g-1">
+          <div class="body t-b ellipsis-2">新能源汽车市场渗透率突破50%，燃油车时代加速落幕</div>
+          <div class="caption text-muted">财经早报 · 1天前</div>
+        </div>
+        <img class="thumb" src="https://picsum.photos/seed/news3/72/72" alt="">
+      </div>
+      <div class="list-item f aic g-3">
+        <div class="flex-1 fc g-1">
+          <div class="body t-b ellipsis-2">国内首条跨海高铁全线铺轨贯通，预计年底通车</div>
+          <div class="caption text-muted">交通发布 · 2天前</div>
+        </div>
+        <img class="thumb" src="https://picsum.photos/seed/news4/72/72" alt="">
+      </div>
+      <div class="list-item f aic g-3">
+        <div class="flex-1 fc g-1">
+          <div class="body t-b ellipsis-2">OpenAI 发布全新模型推理能力大幅提升，引发行业热议</div>
+          <div class="caption text-muted">AI前线 · 3天前</div>
+        </div>
+        <img class="thumb" src="https://picsum.photos/seed/news5/72/72" alt="">
+      </div>
+    </div>
+  </af-pull-refresh>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register();
+const pr = document.getElementById('pr');
+pr.addEventListener('af-pull-refresh:refresh', async () => {
+  pr.refreshing = true;
+  setTimeout(() => {
+    pr.refreshing = false;
+  }, 2000);
+});
+</script>
+</body>
+</html>

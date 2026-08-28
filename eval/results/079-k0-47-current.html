@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">消息</nav>
+  <af-list id="list"></af-list>
+</div>
+<script type="module">
+import { signal, effect } from '/af-mobile.js';
+
+const list = document.getElementById('list');
+const items = signal([
+  { id: 1, avatar: 'https://picsum.photos/seed/u1/72/72', title: '系统通知', time: '10:30' },
+  { id: 2, avatar: 'https://picsum.photos/seed/u2/72/72', title: '张三', time: '昨天' },
+  { id: 3, avatar: 'https://picsum.photos/seed/u3/72/72', title: '产品交流群', time: '星期一' },
+  { id: 4, avatar: 'https://picsum.photos/seed/u4/72/72', title: '李四', time: '星期一' },
+  { id: 5, avatar: 'https://picsum.photos/seed/u5/72/72', title: '王五', time: '2023/10/01' },
+]);
+
+effect(() => {
+  list.data = items();
+});
+
+list.renderItem = (item) => `
+  <af-swipe-cell data-id="${item.id}">
+    <div slot="content" class="list-item f aic g-3">
+      <img class="avatar" src="${item.avatar}" alt="">
+      <div class="flex-1">
+        <div class="title">${item.title}</div>
+        <div class="meta">${item.time}</div>
+      </div>
+    </div>
+    <div slot="right">
+      <button class="btn btn-danger" data-action="delete">删除</button>
+    </div>
+  </af-swipe-cell>
+`;
+
+list.addEventListener('af-swipe-cell:action', (e) => {
+  if (e.detail.action === 'delete') {
+    const cell = e.target.closest('af-swipe-cell');
+    const id = parseInt(cell.dataset.id, 10);
+    items.set(items().filter(i => i.id !== id));
+  }
+});
+</script>
+</body>
+</html>

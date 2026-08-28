@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+<style>
+  /* 针对 sheet 内的 grid-2 进行样式定制，实现筛选选项的块级点击效果 */
+  .sheet .grid-2 input {
+    display: none;
+  }
+  .sheet .grid-2 .label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--s-3);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-m);
+    background-color: var(--c-card);
+    color: var(--c-text);
+    transition: all var(--dur-base) var(--ease-out);
+  }
+  .sheet .grid-2 input:checked + .label {
+    border-color: var(--c-brand);
+    background-color: var(--c-brand-soft);
+    color: var(--c-brand);
+    font-weight: var(--fw-medium);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- 模拟顶部导航栏 -->
+  <div class="navbar navbar-fixed safe-top">
+    <div class="f aic jcsb w-full px-2">
+      <div class="title">商品列表</div>
+      <button id="openFilter" class="btn btn-ghost btn-sm">
+        筛选
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 占位内容区 -->
+  <div class="p-4 center text-muted mt-10">点击右上角“筛选”打开面板</div>
+
+  <!-- 底部弹出筛选面板 -->
+  <div id="filterSheet" class="sheet" popover>
+    <div class="p-4">
+      <!-- 头部 -->
+      <div class="f jcsb aic mb-4">
+        <div class="title">筛选排序</div>
+        <button id="closeFilter" class="btn btn-ghost btn-sm">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 5l14 14M19 5L5 19"/></svg>
+        </button>
+      </div>
+
+      <!-- 排序选项 -->
+      <div class="section-tt mb-2">排序方式</div>
+      <div class="grid-2 g-2 mb-4">
+        <label class="radio">
+          <input type="radio" name="sort" value="default" checked>
+          <span class="label">综合</span>
+        </label>
+        <label class="radio">
+          <input type="radio" name="sort" value="sales">
+          <span class="label">销量优先</span>
+        </label>
+        <label class="radio">
+          <input type="radio" name="sort" value="price-asc">
+          <span class="label">价格升序</span>
+        </label>
+        <label class="radio">
+          <input type="radio" name="sort" value="price-desc">
+          <span class="label">价格降序</span>
+        </label>
+      </div>
+
+      <!-- 筛选选项 -->
+      <div class="section-tt mb-2">商品属性</div>
+      <div class="grid-2 g-2 mb-4">
+        <label class="checkbox">
+          <input type="checkbox" name="filter" value="new">
+          <span class="label">新品上市</span>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="filter" value="discount">
+          <span class="label">限时折扣</span>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="filter" value="free-ship">
+          <span class="label">包邮</span>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="filter" value="stock">
+          <span class="label">仅看有货</span>
+        </label>
+      </div>
+
+      <!-- 底部操作栏 -->
+      <div class="actions">
+        <button id="resetBtn" class="btn btn-ghost">重置</button>
+        <button id="confirmBtn" class="btn btn-block">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<af-toast id="toast"></af-toast>
+
+<script type="module">
+  import { register } from '/af-mobile.js';
+  await register('af-toast');
+
+  const sheet = document.getElementById('filterSheet');
+  const openBtn = document.getElementById('openFilter');
+  const closeBtn = document.getElementById('closeFilter');
+  const resetBtn = document.getElementById('resetBtn');
+  const confirmBtn = document.getElementById('confirmBtn');
+  const toast = document.getElementById('toast');
+
+  // 打开面板
+  openBtn.addEventListener('click', () => sheet.showPopover());
+  
+  // 关闭面板
+  closeBtn.addEventListener('click', () => sheet.hidePopover());
+
+  // 重置逻辑
+  resetBtn.addEventListener('click', () => {
+    const radios = sheet.querySelectorAll('input[type="radio"]');
+    const checkboxes = sheet.querySelectorAll('input[type="checkbox"]');
+    
+    radios.forEach(r => {
+      if(r.value === 'default') r.checked = true;
+      else r.checked = false;
+    });
+    checkboxes.forEach(c => c.checked = false);
+  });
+
+  // 确定逻辑
+  confirmBtn.addEventListener('click', () => {
+    sheet.hidePopover();
+    
+    // 获取选中的值
+    const sort = sheet.querySelector('input[name="sort"]:checked').value;
+    const filters = Array.from(sheet.querySelectorAll('input[name="filter"]:checked')).map(cb => cb.value);
+    
+    // 显示反馈
+    const sortText = { 'default': '综合', 'sales': '销量', 'price-asc': '价格升', 'price-desc': '价格降' }[sort];
+    const filterText = filters.length ? ` + ${filters.join(',')}` : '';
+    
+    toast.text = `已应用：${sortText}${filterText}`;
+    toast.show();
+  });
+</script>
+</body>
+</html>

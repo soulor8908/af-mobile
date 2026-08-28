@@ -1,0 +1,239 @@
+{
+  "passK": 1,
+  "total": 12,
+  "lintPassed": 6,
+  "lintPassRate": "50.0%",
+  "avgRounds": "1.75",
+  "errorsByRule": {
+    "af-mobile/token-whitelist": 4
+  },
+  "byCategory": {
+    "feedback": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "form": {
+      "total": 5,
+      "lintPassed": 3,
+      "visualPassed": 1
+    },
+    "detail": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "starter": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "list": {
+      "total": 2,
+      "lintPassed": 0,
+      "visualPassed": 0
+    },
+    "complex": {
+      "total": 2,
+      "lintPassed": 0,
+      "visualPassed": 0
+    }
+  },
+  "lintFailures": [
+    {
+      "id": "057",
+      "category": "form",
+      "exitCode": 3,
+      "errors": [
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-vddcr7\\snippet.js",
+          "line": 23,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mb-2' not in whitelist. Did you mean 'm-2'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-2'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-vddcr7\\snippet.js",
+          "line": 23,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mb-2' not in whitelist. Did you mean 'm-2'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-2'] }]"
+        }
+      ]
+    },
+    {
+      "id": "069",
+      "category": "form",
+      "exitCode": 3,
+      "errors": [
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-tZm3Wg\\snippet.js",
+          "line": 51,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mt-2' not in whitelist. Did you mean 'm-2'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mt-2'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-tZm3Wg\\snippet.js",
+          "line": 51,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mb-2' not in whitelist. Did you mean 'm-2'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-2'] }]"
+        }
+      ]
+    },
+    {
+      "id": "070",
+      "category": "list",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "079",
+      "category": "list",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "081",
+      "category": "complex",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "086",
+      "category": "complex",
+      "exitCode": 3,
+      "errors": []
+    }
+  ],
+  "visualResults": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-47-current.png",
+      "errors": []
+    },
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".title"
+      ],
+      "fails": [
+        "缺少 .title"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-47-current.png",
+      "errors": []
+    },
+    {
+      "id": "060",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\060-k0-47-current.png",
+      "errors": []
+    },
+    {
+      "id": "061",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".list"
+      ],
+      "fails": [
+        "缺少 .list"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\061-k0-47-current.png",
+      "errors": []
+    },
+    {
+      "id": "062",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\062-k0-47-current.png",
+      "errors": [
+        "Failed to load resource: net::ERR_CONNECTION_CLOSED"
+      ]
+    },
+    {
+      "id": "064",
+      "category": "starter",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\064-k0-47-current.png",
+      "errors": [
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc&page=1&limit=20. URL scheme \"supabase\" is not supported.",
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc&page=1&limit=20. URL scheme \"supabase\" is not supported."
+      ]
+    }
+  ],
+  "visualPassed": 4,
+  "visualPassRate": "33.3%",
+  "visualFailures": [
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".title"
+      ],
+      "fails": [
+        "缺少 .title"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-47-current.png",
+      "errors": []
+    },
+    {
+      "id": "061",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".list"
+      ],
+      "fails": [
+        "缺少 .list"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\061-k0-47-current.png",
+      "errors": []
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "variant": "47-current"
+}

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-search-bar id="search" placeholder="搜索商品"></af-search-bar>
+  <af-list id="list" page-size="20"></af-list>
+</div>
+<script type="module">
+import { signal, effect, fetchPage } from '/af-mobile.js';
+
+const list = document.getElementById('list');
+const search = document.getElementById('search');
+
+// Mock 数据兜底
+const MOCK_DATA = Array.from({ length: 50 }, (_, i) => ({
+  id: i + 1,
+  title: `示例商品 ${i + 1} - 这是一个很长的商品名称用来测试两行省略效果`,
+  price: (Math.random() * 1000).toFixed(2),
+  image: `https://picsum.photos/seed/${i + 1}/300/300`
+}));
+
+let currentPage = 1;
+let totalItems = 0;
+let allItems = [];
+
+// 列表项渲染模板
+list.renderItem = (item) => `
+  <div class="card-media">
+    <div class="aspect-1">
+      <af-img src="${item.image}" class="w-full"></af-img>
+    </div>
+    <div class="p-3">
+      <div class="title ellipsis-2">${item.title}</div>
+      <div class="m-2 aic jcsb">
+        <span class="price">¥${item.price}</span>
+        <span class="tag tag-plain">热销</span>
+      </div>
+    </div>
+  </div>
+`;
+
+// 数据加载逻辑
+async function loadData(page) {
+  try {
+    const url = `supabase://products?select=id,title,price&order=created_at.desc&page=${page}&limit=20`;
+    const res = await fetchPage(url);
+    return res; // 期望 { data: [], total: N }
+  } catch (e) {
+    console.warn('使用 mock 数据兜底');
+    const start = (page - 1) * 20;
+    const end = start + 20;
+    return {
+      data: MOCK_DATA.slice(start, end),
+      total: MOCK_DATA.length
+    };
+  }
+}
+
+// 初始化加载
+(async () => {
+  const res = await loadData(1);
+  allItems = res.data;
+  totalItems = res.total;
+  list.data = allItems;
+})();
+
+// 翻页事件
+list.addEventListener('af-list:loadmore', async () => {
+  const res = await loadData(currentPage + 1);
+  currentPage++;
+  allItems = [...allItems, ...res.data];
+  list.data = allItems;
+  const hasMore = allItems.length < totalItems;
+  list.endLoadMore(hasMore);
+});
+
+// 点击跳转详情
+list.addEventListener('af-list:itemclick', (e) => {
+  window.location.href = `/detail/${e.detail.item.id}`;
+});
+
+// 搜索事件
+search.addEventListener('af-search-bar:search', (e) => {
+  console.log('搜索关键词:', e.detail.value);
+  // 实际场景应重置 currentPage 并重新请求数据
+});
+</script>
+</body>
+</html>

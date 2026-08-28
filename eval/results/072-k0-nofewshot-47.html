@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <!-- 头部：品牌渐变主视觉 + 倒计时 -->
+  <section class="hero-grad p-4">
+    <div class="f aic jcsb">
+      <div class="fc">
+        <span class="eyebrow">FLASH SALE</span>
+        <h1 class="display">限时秒杀</h1>
+      </div>
+      <div class="fc aic">
+        <span class="caption text-onbrand m-1">距结束</span>
+        <div class="fi aic g-1 text-onbrand t-b" id="timer-display">
+          <!-- JS 填充 -->
+          <span class="bg-card r-s px-1 py-1 text-brand">00</span>:<span class="bg-card r-s px-1 py-1 text-brand">00</span>:<span class="bg-card r-s px-1 py-1 text-brand">00</span>
+        </div>
+      </div>
+    </div>
+    <!-- 隐藏的倒计时组件，用于逻辑驱动 -->
+    <af-countdown id="cd" time="7200" autostart style="display:none"></af-countdown>
+  </section>
+
+  <!-- 商品网格 -->
+  <div class="p-3">
+    <div class="grid-2 g-3" id="product-grid">
+      <!-- JS 渲染 -->
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-countdown');
+
+// 倒计时逻辑
+const cd = document.getElementById('cd');
+const timerDisplay = document.getElementById('timer-display');
+
+const formatTime = (seconds) => {
+  const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+  const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  return `<span class="bg-card r-s px-1 py-1 text-brand">${h}</span>:<span class="bg-card r-s px-1 py-1 text-brand">${m}</span>:<span class="bg-card r-s px-1 py-1 text-brand">${s}</span>`;
+};
+
+cd.addEventListener('af-countdown:change', (e) => {
+  timerDisplay.innerHTML = formatTime(e.detail.remaining);
+});
+// 初始化显示
+timerDisplay.innerHTML = formatTime(cd.time);
+
+// 商品数据与渲染
+const products = [
+  { id: 1, name: '无线降噪蓝牙耳机 Pro版', price: '299', del: '599', sold: 85, img: 'https://picsum.photos/seed/p1/300/300' },
+  { id: 2, name: '智能运动手表 防水长续航', price: '199', del: '399', sold: 60, img: 'https://picsum.photos/seed/p2/300/300' },
+  { id: 3, name: '复古胶片相机 入门级', price: '1299', del: '1599', sold: 40, img: 'https://picsum.photos/seed/p3/300/300' },
+  { id: 4, name: '便携式手冲咖啡壶套装', price: '89', del: '159', sold: 92, img: 'https://picsum.photos/seed/p4/300/300' },
+];
+
+const grid = document.getElementById('product-grid');
+grid.innerHTML = products.map(p => `
+  <div class="card-media">
+    <div class="aspect-1">
+      <img src="${p.img}" alt="${p.name}">
+    </div>
+    <div class="p-2 fc g-2">
+      <div class="body ellipsis-2">${p.name}</div>
+      <div class="f aic jcsb">
+        <span class="price">¥${p.price}</span>
+        <span class="price-del">¥${p.del}</span>
+      </div>
+      <div class="fc g-1">
+        <div class="progress progress-danger">
+          <div style="width: ${p.sold}%"></div>
+        </div>
+        <div class="caption text-muted f jcsb">
+          <span>已抢${p.sold}%</span>
+          <span class="text-danger">马上抢</span>
+        </div>
+      </div>
+    </div>
+  </div>
+`).join('');
+</script>
+</body>
+</html>

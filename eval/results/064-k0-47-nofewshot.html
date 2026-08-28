@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-search-bar id="search" placeholder="搜索商品"></af-search-bar>
+  <af-list id="list" item-height="120" page-size="20"></af-list>
+</div>
+<script type="module">
+import { signal, effect, fetchPage } from '/af-mobile.js';
+
+const list = document.getElementById('list');
+const items = signal([]);
+const total = signal(0);
+let page = 1;
+
+// Mock 数据兜底
+const getMockData = (pageNum, pageSize) => {
+  const mockItems = Array.from({ length: pageSize }, (_, i) => {
+    const id = (pageNum - 1) * pageSize + i + 1;
+    return {
+      id: id,
+      title: `示例商品 ${id} - 这是一个很长的商品名称用来测试两行截断的效果`,
+      price: (Math.random() * 1000 + 99).toFixed(2)
+    };
+  });
+  return { data: mockItems, total: 50 };
+};
+
+// 列表项渲染模板
+list.renderItem = (item) => `
+  <div class="list-item g-3 aic">
+    <img class="thumb" src="https://picsum.photos/seed/${item.id}/144/144" alt="">
+    <div class="flex-1 fc">
+      <div class="body t-b ellipsis-2">${item.title}</div>
+      <div class="price">¥${item.price}</div>
+    </div>
+  </div>
+`;
+
+// 加载数据逻辑
+const loadData = async () => {
+  try {
+    // 尝试请求真实接口
+    const res = await fetchPage('supabase://products?select=id,title,price&order=created_at.desc');
+    items.set([...items.value, ...res.data]);
+    total.set(res.total);
+  } catch (e) {
+    // 无后端时使用 Mock 数据
+    console.log('使用 mock 数据兜底');
+    const mock = getMockData(page, 20);
+    items.set([...items.value, ...mock.data]);
+    total.set(mock.total);
+  }
+};
+
+// 监听加载更多
+list.addEventListener('af-list:loadmore', async () => {
+  if (items.value.length >= total.value) {
+    list.endLoadMore(false);
+  } else {
+    page++;
+    await loadData();
+    list.endLoadMore(true);
+  }
+});
+
+// 监听点击跳转
+list.addEventListener('af-list:itemclick', (e) => {
+  window.location.href = `/detail/${e.detail.item.id}`;
+});
+
+// 初始化加载
+loadData();
+</script>
+</body>
+</html>

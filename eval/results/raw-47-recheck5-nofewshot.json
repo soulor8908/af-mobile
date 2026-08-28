@@ -1,0 +1,172 @@
+[
+  {
+    "id": "056",
+    "category": "form",
+    "expects": [
+      "af-switch",
+      ".cell",
+      ".title"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\056-k0-47-nofewshot.html"
+      },
+      {
+        "ok": false,
+        "rounds": 1,
+        "lastErrors": [
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "缺少 .title"
+          }
+        ],
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\056-k0-47-nofewshot.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\056-k0-47-nofewshot.html"
+    },
+    "asserts": []
+  },
+  {
+    "id": "058",
+    "category": "feedback",
+    "expects": [
+      "af-skeleton-page",
+      ".sk-ln"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\058-k0-nofewshot-47.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 2,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\058-k0-nofewshot-47.html"
+    },
+    "asserts": []
+  },
+  {
+    "id": "072",
+    "category": "detail",
+    "expects": [
+      "af-countdown",
+      ".grid,.grid-2"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\072-k0-nofewshot-47.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\072-k0-nofewshot-47.html"
+    },
+    "asserts": [
+      {
+        "sel": "af-countdown",
+        "visible": true
+      }
+    ]
+  },
+  {
+    "id": "079",
+    "category": "list",
+    "expects": [
+      "af-swipe-cell",
+      ".avatar",
+      ".title",
+      ".meta"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\079-k0-47-nofewshot.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\079-k0-47-nofewshot.html"
+    },
+    "asserts": [
+      {
+        "sel": "af-swipe-cell",
+        "count": 3,
+        "min": true
+      }
+    ]
+  },
+  {
+    "id": "080",
+    "category": "form",
+    "expects": [
+      "af-cascade-picker",
+      ".input"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\080-k0-nofewshot-47.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\080-k0-nofewshot-47.html"
+    },
+    "asserts": [
+      {
+        "sel": "af-cascade-picker",
+        "visible": true
+      }
+    ]
+  }
+]

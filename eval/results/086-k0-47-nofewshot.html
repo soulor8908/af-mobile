@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page fc">
+  <nav class="navbar">AI 客服</nav>
+  <af-chat id="chat" placeholder="请输入您的问题" class="flex-1"></af-chat>
+</div>
+<script type="module">
+import { registerChat } from '@af-mobile/ui/chat';
+
+await registerChat();
+
+const chat = document.getElementById('chat');
+chat.messages = [
+  { role: 'assistant', text: '您好！我是您的 AI 助手，请问有什么可以帮您？' }
+];
+
+chat.addEventListener('af-chat:send', (e) => {
+  const userText = e.detail.text;
+  chat.messages = [...chat.messages, { role: 'user', text: userText }];
+  setTimeout(() => {
+    chat.messages = [...chat.messages, { role: 'assistant', text: `收到您的消息：${userText}` }];
+  }, 600);
+});
+</script>
+</body>
+</html>

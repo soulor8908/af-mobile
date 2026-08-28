@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">首页</nav>
+  <af-notice-bar text="🎉 新用户注册即送100元优惠券，限时抢购中！" scroll></af-notice-bar>
+  <af-list id="list" refresh></af-list>
+</div>
+<script type="module">
+import { signal, effect } from '/af-mobile.js';
+
+const list = document.getElementById('list');
+const items = signal([]);
+
+// 模拟商品数据
+const mockData = [
+  { id: 1, title: '无线降噪蓝牙耳机 Pro', price: '¥299', tags: ['热销', '包邮'], img: 'https://picsum.photos/seed/1/144/144' },
+  { id: 2, title: '智能运动手表 GT3', price: '¥599', tags: ['新品'], img: 'https://picsum.photos/seed/2/144/144' },
+  { id: 3, title: '超薄机械键盘 K2', price: '¥399', tags: ['办公'], img: 'https://picsum.photos/seed/3/144/144' },
+  { id: 4, title: '4K 高清显示器 27寸', price: '¥1299', tags: ['数码'], img: 'https://picsum.photos/seed/4/144/144' },
+  { id: 5, title: '便携式手冲咖啡壶', price: '¥128', tags: ['生活'], img: 'https://picsum.photos/seed/5/144/144' },
+];
+
+list.renderItem = (item) => `
+  <div class="list-item g-3">
+    <div class="thumb r-m">
+      <img src="${item.img}" class="w-full" style="height: 100%; object-fit: cover;" alt="">
+    </div>
+    <div class="flex-1 fc jcsb">
+      <div>
+        <div class="title t-b ellipsis-2">${item.title}</div>
+        <div class="chips wrap g-1 py-1">
+          ${item.tags.map(tag => `<span class="tag tag-plain">${tag}</span>`).join('')}
+        </div>
+      </div>
+      <div class="jcsb aic">
+        <span class="price">${item.price}</span>
+        <button class="btn btn-sm btn-ghost">购买</button>
+      </div>
+    </div>
+  </div>
+`;
+
+effect(() => {
+  list.data = items();
+});
+
+// 模拟下拉刷新
+list.addEventListener('af-list:refresh', async () => {
+  await new Promise(r => setTimeout(r, 500));
+  items.set(mockData);
+  list.endRefresh();
+});
+
+// 模拟加载更多
+list.addEventListener('af-list:loadmore', async () => {
+  await new Promise(r => setTimeout(r, 500));
+  const more = mockData.map(i => ({ ...i, id: i.id + 10 }));
+  items.set([...items(), ...more]);
+  list.endLoadMore(true);
+});
+
+// 初始化数据
+items.set(mockData);
+</script>
+</body>
+</html>

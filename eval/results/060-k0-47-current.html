@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">地址选择</nav>
+  <form id="addressForm" class="fc g-3 p-3">
+    <div class="form-row">
+      <label class="label">所在地区</label>
+      <input type="text" id="regionInput" class="input" placeholder="请选择省/市/区" readonly>
+    </div>
+    
+    <af-picker id="picker" title="选择地区"></af-picker>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-block">确认</button>
+    </div>
+  </form>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register();
+
+const picker = document.getElementById('picker');
+const input = document.getElementById('regionInput');
+
+// 模拟三级数据（实际项目中可从接口获取）
+const provinces = ['浙江省', '广东省', '江苏省'];
+const cities = ['杭州市', '宁波市', '广州市', '深圳市', '南京市', '苏州市'];
+const districts = ['西湖区', '上城区', '海曙区', '天河区', '南山区', '玄武区', '姑苏区'];
+
+// 设置多列数据
+picker.columns = [provinces, cities, districts];
+
+// 点击输入框打开选择器
+input.addEventListener('click', () => {
+  picker.open();
+});
+
+// 监听确认事件
+picker.addEventListener('af-picker:confirm', (e) => {
+  const values = e.detail.values;
+  input.value = values.join(' ');
+});
+
+// 表单提交
+document.getElementById('addressForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!input.value) {
+    console.log('请选择地区');
+    return;
+  }
+  console.log('提交地址:', input.value);
+});
+</script>
+</body>
+</html>

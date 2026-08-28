@@ -1,0 +1,69 @@
+{
+  "passK": 1,
+  "total": 2,
+  "lintPassed": 2,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.50",
+  "errorsByRule": {},
+  "byCategory": {
+    "form": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "detail": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 0
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "072",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-countdown 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\072-k0-nofewshot-47.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 1,
+  "visualPassRate": "50.0%",
+  "visualFailures": [
+    {
+      "id": "072",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-countdown 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\072-k0-nofewshot-47.png",
+      "errors": []
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "variant": "nofewshot-47"
+}

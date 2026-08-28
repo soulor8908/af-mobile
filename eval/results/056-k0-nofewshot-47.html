@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">设置</nav>
+  <div class="list">
+    <div class="cell aic g-3">
+      <div class="flex-1">
+        <div class="title">消息推送</div>
+        <div class="caption">接收新消息通知</div>
+      </div>
+      <af-switch id="sw-push" checked></af-switch>
+    </div>
+    <div class="cell aic g-3">
+      <div class="flex-1">
+        <div class="title">夜间模式</div>
+        <div class="caption">保护视力，深色外观</div>
+      </div>
+      <af-switch id="sw-dark"></af-switch>
+    </div>
+    <div class="cell aic g-3">
+      <div class="flex-1">
+        <div class="title">震动反馈</div>
+        <div class="caption">操作时提供触感反馈</div>
+      </div>
+      <af-switch id="sw-haptic" checked></af-switch>
+    </div>
+  </div>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-switch');
+
+// 监听开关变化
+['sw-push', 'sw-dark', 'sw-haptic'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('af-switch:change', (e) => {
+      console.log(`${id} changed to ${e.detail.checked}`);
+    });
+  }
+});
+</script>
+</body>
+</html>

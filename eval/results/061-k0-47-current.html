@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <div class="navbar navbar-fixed safe-top">
+    <af-dropdown id="sort" placeholder="综合排序"></af-dropdown>
+  </div>
+  <af-list id="list"></af-list>
+</div>
+<script type="module">
+import { register, signal, effect } from '/af-mobile.js';
+
+await register();
+
+const sortEl = document.getElementById('sort');
+sortEl.options = ['综合', '销量', '价格升序', '价格降序'];
+
+const listEl = document.getElementById('list');
+const products = signal([
+  { id: 1, title: '无线降噪蓝牙耳机 Pro 超长续航', price: 299, sales: 5000, img: 'https://picsum.photos/seed/p1/100/100' },
+  { id: 2, title: '智能运动手表 GT3 防水心率监测', price: 899, sales: 2000, img: 'https://picsum.photos/seed/p2/100/100' },
+  { id: 3, title: '超薄移动电源 10000mAh 快充版', price: 99, sales: 10000, img: 'https://picsum.photos/seed/p3/100/100' },
+  { id: 4, title: '复古机械键盘 青轴 办公游戏两用', price: 459, sales: 800, img: 'https://picsum.photos/seed/p4/100/100' },
+  { id: 5, title: '4K高清显示器 27英寸 IPS屏', price: 1299, sales: 300, img: 'https://picsum.photos/seed/p5/100/100' }
+]);
+
+listEl.renderItem = (item) => `
+  <div class="list-item g-3 aic">
+    <img class="thumb r-s" src="${item.img}" alt="${item.title}">
+    <div class="flex-1 fc jcsb">
+      <div class="title ellipsis-2">${item.title}</div>
+      <div class="f aic jcsb">
+        <span class="price">¥${item.price}</span>
+        <span class="caption text-muted">已售 ${item.sales}</span>
+      </div>
+    </div>
+  </div>
+`;
+
+effect(() => { listEl.data = products(); });
+
+sortEl.addEventListener('af-dropdown:select', (e) => {
+  const idx = e.detail.index;
+  let sorted = [...products()];
+  if (idx === 1) sorted.sort((a, b) => b.sales - a.sales);
+  if (idx === 2) sorted.sort((a, b) => a.price - b.price);
+  if (idx === 3) sorted.sort((a, b) => b.price - a.price);
+  products.set(sorted);
+});
+</script>
+</body>
+</html>

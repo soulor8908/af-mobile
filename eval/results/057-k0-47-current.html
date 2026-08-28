@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-search-bar id="search" placeholder="搜索商品" clearable></af-search-bar>
+  
+  <div class="section p-4">
+    <div class="body t-b py-2">热门搜索</div>
+    <div class="chips">
+      <span class="tag">新款手机</span>
+      <span class="tag">无线耳机</span>
+      <span class="tag">运动跑鞋</span>
+      <span class="tag">智能手表</span>
+      <span class="tag">机械键盘</span>
+      <span class="tag">平板电脑</span>
+      <span class="tag">防晒霜</span>
+      <span class="tag">咖啡豆</span>
+    </div>
+  </div>
+
+  <div class="section p-4">
+    <div class="body t-b py-2">历史记录</div>
+    <div class="list" id="history-list">
+      <!-- 历史记录由 JS 渲染 -->
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { signal, effect } from '/af-mobile.js';
+
+const search = document.getElementById('search');
+const historyList = document.getElementById('history-list');
+
+// 模拟历史数据
+const historyData = signal([
+  'iPhone 15 Pro',
+  'Nike Air Force 1',
+  'Sony WH-1000XM5',
+  'Dyson 吹风机',
+  'Switch 游戏机'
+]);
+
+// 渲染历史记录列表
+effect(() => {
+  const items = historyData();
+  if (items.length === 0) {
+    historyList.innerHTML = '<div class="empty py-4"><span class="text-muted">暂无历史记录</span></div>';
+    return;
+  }
+  
+  historyList.innerHTML = items.map(item => `
+    <div class="list-item">
+      <span class="body">${item}</span>
+      <svg class="text-muted" style="width: 24px; height: 24px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </div>
+  `).join('');
+});
+
+// 搜索事件
+search.addEventListener('af-search-bar:search', (e) => {
+  const value = e.detail.value;
+  if (value) {
+    // 添加到历史记录（去重并置顶）
+    const current = historyData().filter(i => i !== value);
+    historyData.set([value, ...current]);
+    console.log('搜索:', value);
+    // 实际场景这里跳转搜索结果页
+  }
+});
+
+// 清除事件
+search.addEventListener('af-search-bar:clear', (e) => {
+  console.log('清除搜索框');
+});
+
+// 初始化渲染
+</script>
+</body>
+</html>

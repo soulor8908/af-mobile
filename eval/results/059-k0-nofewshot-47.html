@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">意见反馈</nav>
+  <div class="p-3">
+    <div class="card p-4 fc g-4">
+      <div class="fc g-1">
+        <label class="label">反馈类型</label>
+        <select class="input">
+          <option>功能建议</option>
+          <option>Bug 反馈</option>
+        </select>
+      </div>
+      <div class="fc g-1">
+        <label class="label">详细描述</label>
+        <textarea class="input" rows="4" placeholder="请输入您的意见..."></textarea>
+      </div>
+      <button id="submitBtn" class="btn btn-block">提交反馈</button>
+    </div>
+  </div>
+</div>
+<af-toast id="toast"></af-toast>
+<script type="module">
+const toast = document.getElementById('toast');
+const btn = document.getElementById('submitBtn');
+btn.addEventListener('click', () => {
+  toast.show('提交成功', { type: 'success', duration: 2000 });
+});
+</script>
+</body>
+</html>

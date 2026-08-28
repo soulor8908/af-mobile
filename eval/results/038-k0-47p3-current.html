@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">列表</nav>
+  <div class="list">
+    <div class="list-item jcsb aic">
+      <span class="body">示例项目</span>
+      <button class="btn btn-sm btn-danger" id="trigger">删除</button>
+    </div>
+  </div>
+</div>
+
+<af-dialog id="d" title="确认删除">
+  <div slot="body">
+    <p class="body">确定要删除这条记录吗？删除后无法恢复。</p>
+  </div>
+  <div slot="footer">
+    <button class="btn btn-ghost btn-block" data-act="cancel">取消</button>
+    <button class="btn btn-block btn-danger" data-act="confirm">删除</button>
+  </div>
+</af-dialog>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-dialog');
+
+const d = document.getElementById('d');
+const trigger = document.getElementById('trigger');
+
+trigger.addEventListener('click', () => d.open());
+
+d.querySelector('[data-act="cancel"]').addEventListener('click', () => d.close());
+d.querySelector('[data-act="confirm"]').addEventListener('click', () => d.close('confirm'));
+
+d.addEventListener('af-dialog:close', (e) => {
+  if (e.detail.action === 'confirm') {
+    console.log('执行删除操作');
+  }
+});
+</script>
+</body>
+</html>

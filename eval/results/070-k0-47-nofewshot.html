@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">购物车</nav>
+  
+  <div class="list">
+    <!-- 购物车商品行 -->
+    <div class="list-item f aic g-3">
+      <label class="checkbox">
+        <input type="checkbox" checked>
+      </label>
+      <img class="thumb" src="https://picsum.photos/seed/prod1/144/144" alt="">
+      <div class="flex-1 fc jcsb">
+        <div class="title ellipsis-2">商品名称（长标题自动截断，最多显示两行）</div>
+        <div class="f jcsb aic">
+          <span class="price">¥99.00</span>
+          <af-stepper min="1" max="99" step="1" value="1"></af-stepper>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第二个商品行示例 -->
+    <div class="list-item f aic g-3">
+      <label class="checkbox">
+        <input type="checkbox">
+      </label>
+      <img class="thumb" src="https://picsum.photos/seed/prod2/144/144" alt="">
+      <div class="flex-1 fc jcsb">
+        <div class="title ellipsis-2">另一个商品示例</div>
+        <div class="f jcsb aic">
+          <span class="price">¥59.00</span>
+          <af-stepper min="1" max="99" step="1" value="1"></af-stepper>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部结算栏 -->
+  <div class="cob cob-fx">
+    <div class="f aic g-2">
+      <label class="checkbox"><input type="checkbox"></label>
+      <span class="body">全选</span>
+    </div>
+    <div class="f aic g-2">
+      <span class="body">合计:</span>
+      <span class="price price-lg">¥99.00</span>
+      <button class="btn">结算(1)</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+
+// 注册 L3 组件
+await register('af-stepper');
+
+// 监听数量变化（示例）
+document.querySelectorAll('af-stepper').forEach(el => {
+  el.addEventListener('af-stepper:change', (e) => {
+    console.log('数量变化:', e.detail.value);
+  });
+});
+</script>
+</body>
+</html>

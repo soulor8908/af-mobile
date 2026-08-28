@@ -1,0 +1,416 @@
+{
+  "passK": 1,
+  "total": 24,
+  "lintPassed": 23,
+  "lintPassRate": "95.8%",
+  "avgRounds": "1.38",
+  "errorsByRule": {
+    "af-mobile/semantic-visual": 5,
+    "af-mobile/token-whitelist": 2
+  },
+  "byCategory": {
+    "feedback": {
+      "total": 3,
+      "lintPassed": 3,
+      "visualPassed": 2
+    },
+    "form": {
+      "total": 9,
+      "lintPassed": 8,
+      "visualPassed": 7
+    },
+    "detail": {
+      "total": 3,
+      "lintPassed": 3,
+      "visualPassed": 2
+    },
+    "starter": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "nav": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 2
+    },
+    "list": {
+      "total": 3,
+      "lintPassed": 3,
+      "visualPassed": 3
+    },
+    "complex": {
+      "total": 3,
+      "lintPassed": 3,
+      "visualPassed": 3
+    }
+  },
+  "lintFailures": [
+    {
+      "id": "061",
+      "category": "form",
+      "exitCode": 1,
+      "errors": [
+        {
+          "file": "(ai-fix cache)",
+          "line": 44,
+          "column": 35,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'h-full' not in whitelist. Did you mean 'w-full'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['h-full'] }]"
+        },
+        {
+          "file": "(ai-fix cache)",
+          "line": 87,
+          "column": 35,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'h-full' not in whitelist. Did you mean 'w-full'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['h-full'] }]"
+        }
+      ]
+    }
+  ],
+  "visualResults": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": false,
+      "missing": [
+        "af-dialog[open]"
+      ],
+      "fails": [
+        "缺少 af-dialog[open]"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "057",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\057-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "058",
+      "category": "feedback",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\058-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "059",
+      "category": "feedback",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\059-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "060",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\060-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "062",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\062-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "064",
+      "category": "starter",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\064-k0-47-nofewshot.png",
+      "errors": [
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc. URL scheme \"supabase\" is not supported.",
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc. URL scheme \"supabase\" is not supported.",
+        "items.value is not iterable"
+      ]
+    },
+    {
+      "id": "066",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\066-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "067",
+      "category": "nav",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\067-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "069",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\069-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "070",
+      "category": "list",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\070-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "071",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\071-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "072",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-countdown 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\072-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "075",
+      "category": "nav",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\075-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "076",
+      "category": "form",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-number-keyboard 不可见",
+        "af-password-input 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\076-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "077",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\077-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "078",
+      "category": "list",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\078-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "079",
+      "category": "list",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\079-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "080",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\080-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "081",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\081-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "082",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\082-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "086",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\086-k0-nofewshot-47.png",
+      "errors": [
+        "m.content is not iterable"
+      ]
+    }
+  ],
+  "visualPassed": 20,
+  "visualPassRate": "83.3%",
+  "visualFailures": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": false,
+      "missing": [
+        "af-dialog[open]"
+      ],
+      "fails": [
+        "缺少 af-dialog[open]"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-47-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "072",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-countdown 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\072-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "076",
+      "category": "form",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-number-keyboard 不可见",
+        "af-password-input 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\076-k0-nofewshot-47.png",
+      "errors": []
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots"
+}

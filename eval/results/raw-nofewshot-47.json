@@ -1,0 +1,588 @@
+[
+  {
+    "id": "039",
+    "category": "feedback",
+    "expects": [
+      "af-action-sheet",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\039-k0-nofewshot-47.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 2,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\039-k0-nofewshot-47.html"
+    }
+  },
+  {
+    "id": "040",
+    "category": "feedback",
+    "expects": [
+      "af-action-sheet"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "rounds": 1,
+        "exitCode": 3,
+        "lastErrors": [
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+            "line": 46,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class 'mt-10' not in whitelist. Did you mean 'm-0'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mt-10'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+            "line": 46,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class 'mb-4' not in whitelist. Did you mean 'm-4'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-4'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+            "line": 46,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class 'mb-2' not in whitelist. Did you mean 'm-2'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-2'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+            "line": 46,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class 'mb-4' not in whitelist. Did you mean 'm-4'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-4'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+            "line": 46,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class 'mb-2' not in whitelist. Did you mean 'm-2'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-2'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+            "line": 46,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class 'mb-4' not in whitelist. Did you mean 'm-4'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-4'] }]"
+          }
+        ],
+        "error": null,
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "rounds": 1,
+      "exitCode": 3,
+      "lastErrors": [
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+          "line": 46,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mt-10' not in whitelist. Did you mean 'm-0'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mt-10'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+          "line": 46,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mb-4' not in whitelist. Did you mean 'm-4'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-4'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+          "line": 46,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mb-2' not in whitelist. Did you mean 'm-2'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-2'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+          "line": 46,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mb-4' not in whitelist. Did you mean 'm-4'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-4'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+          "line": 46,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mb-2' not in whitelist. Did you mean 'm-2'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-2'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Mmhj5J\\snippet.js",
+          "line": 46,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mb-4' not in whitelist. Did you mean 'm-4'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-4'] }]"
+        }
+      ],
+      "error": null,
+      "codePath": null
+    }
+  },
+  {
+    "id": "047",
+    "category": "nav",
+    "expects": [
+      "af-tabs"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\047-k0-nofewshot-47.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 2,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\047-k0-nofewshot-47.html"
+    }
+  },
+  {
+    "id": "049",
+    "category": "nav",
+    "expects": [
+      "af-backtop"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\049-k0-nofewshot-47.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\049-k0-nofewshot-47.html"
+    }
+  },
+  {
+    "id": "050",
+    "category": "nav",
+    "expects": [
+      "af-swiper"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 3,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\050-k0-nofewshot-47.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 3,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\050-k0-nofewshot-47.html"
+    }
+  },
+  {
+    "id": "054",
+    "category": "complex",
+    "expects": [
+      "af-tabs",
+      ".list",
+      ".empty"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "rounds": 3,
+        "exitCode": 1,
+        "lastErrors": [
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class '${order.status' contains template interpolation and cannot be checked statically. Use static whitelist classes plus data-* attributes, or a ternary switching between whitelisted classes"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class '===' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['==='] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class ''pending_pay'' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''pending_pay''] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class '?' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['?'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class ''tag' not in whitelist. Did you mean 'tag'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''tag'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class 'tag-warn'' not in whitelist. Did you mean 'tag-warn'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['tag-warn''] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class ':' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [':'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class 'order.status' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['order.status'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class '===' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['==='] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class ''completed'' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''completed''] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class '?' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['?'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class ''tag' not in whitelist. Did you mean 'tag'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''tag'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class 'tag-ok'' not in whitelist. Did you mean 'tag-ok'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['tag-ok''] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class ':' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [':'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+            "line": 106,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class ''tag'}' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''tag'}'] }]"
+          }
+        ],
+        "error": null,
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "rounds": 3,
+      "exitCode": 1,
+      "lastErrors": [
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class '${order.status' contains template interpolation and cannot be checked statically. Use static whitelist classes plus data-* attributes, or a ternary switching between whitelisted classes"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class '===' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['==='] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class ''pending_pay'' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''pending_pay''] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class '?' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['?'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class ''tag' not in whitelist. Did you mean 'tag'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''tag'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'tag-warn'' not in whitelist. Did you mean 'tag-warn'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['tag-warn''] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class ':' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [':'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'order.status' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['order.status'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class '===' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['==='] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class ''completed'' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''completed''] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class '?' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['?'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class ''tag' not in whitelist. Did you mean 'tag'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''tag'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'tag-ok'' not in whitelist. Did you mean 'tag-ok'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['tag-ok''] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class ':' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [':'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+          "line": 106,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class ''tag'}' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''tag'}'] }]"
+        }
+      ],
+      "error": null,
+      "codePath": null
+    }
+  },
+  {
+    "id": "068",
+    "category": "nav",
+    "expects": [
+      "af-badge"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\068-k0-nofewshot-47.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\068-k0-nofewshot-47.html"
+    }
+  },
+  {
+    "id": "073",
+    "category": "detail",
+    "expects": [
+      "af-progress",
+      ".list"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "rounds": 1,
+        "exitCode": 3,
+        "lastErrors": [
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-QGoAV6\\snippet.js",
+            "line": 5,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class 'mt-4' not in whitelist. Did you mean 'm-4'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mt-4'] }]"
+          },
+          {
+            "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-QGoAV6\\snippet.js",
+            "line": 5,
+            "column": 23,
+            "rule": "af-mobile/token-whitelist",
+            "severity": "error",
+            "message": "Class 'mb-2' not in whitelist. Did you mean 'm-2'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-2'] }]"
+          }
+        ],
+        "error": null,
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "rounds": 1,
+      "exitCode": 3,
+      "lastErrors": [
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-QGoAV6\\snippet.js",
+          "line": 5,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mt-4' not in whitelist. Did you mean 'm-4'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mt-4'] }]"
+        },
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-QGoAV6\\snippet.js",
+          "line": 5,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'mb-2' not in whitelist. Did you mean 'm-2'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['mb-2'] }]"
+        }
+      ],
+      "error": null,
+      "codePath": null
+    }
+  }
+]

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">输入支付密码</nav>
+  <div class="center flex-1 fc g-2 p-4">
+    <div class="display text-brand">¥ 128.00</div>
+    <div class="body text-muted">向商户付款</div>
+    <div class="w-full py-4">
+      <af-password-input id="pi" length="6" mask></af-password-input>
+    </div>
+  </div>
+  <af-number-keyboard id="kb" random title="安全键盘"></af-number-keyboard>
+</div>
+<af-toast id="toast"></af-toast>
+<script type="module">
+const kb = document.getElementById('kb');
+const pi = document.getElementById('pi');
+const toast = document.getElementById('toast');
+
+kb.addEventListener('af-number-keyboard:input', (e) => {
+  pi.value = e.detail.value;
+});
+
+kb.addEventListener('af-number-keyboard:delete', (e) => {
+  pi.value = e.detail.value;
+});
+
+kb.addEventListener('af-number-keyboard:complete', (e) => {
+  toast.show('支付成功', { type: 'success' });
+});
+</script>
+</body>
+</html>

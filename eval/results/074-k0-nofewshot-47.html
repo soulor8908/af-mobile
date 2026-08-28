@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">订单详情</nav>
+  
+  <af-steps id="orderSteps"></af-steps>
+
+  <div class="card p-3 m-3">
+    <div class="f jcsb aic">
+      <span class="body t-b">顺丰速运</span>
+      <span class="caption text-muted">SF1029384756</span>
+    </div>
+    <div class="divider my-2"></div>
+    <div class="fc g-2">
+      <div class="f g-2">
+        <span class="caption text-muted shrink-0">10:30</span>
+        <span class="body">已签收，感谢使用顺丰速运</span>
+      </div>
+      <div class="f g-2">
+        <span class="caption text-muted shrink-0">昨天</span>
+        <span class="body text-muted">快件到达【北京市朝阳区朝阳公园营业点】</span>
+      </div>
+      <div class="f g-2">
+        <span class="caption text-muted shrink-0">前天</span>
+        <span class="body text-muted">快件已发出</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="list m-3">
+    <div class="list-item g-3">
+      <img class="thumb" src="https://picsum.photos/seed/prod/144/144" alt="">
+      <div class="flex-1 fc jcsb">
+        <span class="body ellipsis-2">高品质无线蓝牙耳机 降噪超长续航</span>
+        <span class="caption text-muted">颜色: 黑色; 规格: 标准版</span>
+        <div class="f jcsb aic">
+          <span class="price">¥299.00</span>
+          <span class="caption text-muted">x1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-steps');
+
+const stepsEl = document.getElementById('orderSteps');
+stepsEl.steps = ['提交订单', '付款', '发货', '收货'];
+stepsEl.current = 2;
+</script>
+</body>
+</html>

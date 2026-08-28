@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">编辑地址</nav>
+  <div class="card p-3">
+    <form id="addressForm" class="fc g-3">
+      <input class="input" name="name" placeholder="收件人姓名" required>
+      <input class="input" name="phone" type="tel" placeholder="手机号码" required pattern="^1\d{10}$">
+      <input class="input" id="areaInput" name="area" placeholder="选择省/市/区" readonly>
+    </form>
+  </div>
+  <div class="cob cob-fx">
+    <button class="btn btn-block" type="submit" form="addressForm">保存</button>
+  </div>
+  <af-cascade-picker id="areaPicker" title="选择地区"></af-cascade-picker>
+</div>
+<script type="module">
+import { fetchPage, back } from '/af-mobile.js';
+
+const treeData = [
+  {
+    label: '浙江省',
+    value: 'zj',
+    children: [
+      {
+        label: '杭州市',
+        value: 'hz',
+        children: [
+          { label: '西湖区', value: 'xh' },
+          { label: '滨江区', value: 'bj' },
+          { label: '余杭区', value: 'yh' }
+        ]
+      },
+      {
+        label: '宁波市',
+        value: 'nb',
+        children: [
+          { label: '海曙区', value: 'hs' },
+          { label: '江北区', value: 'jb' }
+        ]
+      }
+    ]
+  },
+  {
+    label: '广东省',
+    value: 'gd',
+    children: [
+      {
+        label: '广州市',
+        value: 'gz',
+        children: [
+          { label: '天河区', value: 'th' },
+          { label: '越秀区', value: 'yx' }
+        ]
+      },
+      {
+        label: '深圳市',
+        value: 'sz',
+        children: [
+          { label: '南山区', value: 'ns' },
+          { label: '福田区', value: 'ft' }
+        ]
+      }
+    ]
+  }
+];
+
+const picker = document.getElementById('areaPicker');
+const areaInput = document.getElementById('areaInput');
+const form = document.getElementById('addressForm');
+
+picker.tree = treeData;
+
+areaInput.addEventListener('click', () => {
+  picker.open();
+});
+
+picker.addEventListener('af-picker:confirm', (e) => {
+  const values = e.detail.values;
+  areaInput.value = values.join(' / ');
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  const data = new FormData(form);
+  await fetchPage('/api/address', { method: 'POST', body: data });
+  back();
+});
+</script>
+</body>
+</html>

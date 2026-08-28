@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>首页</title>
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-navbar title="首页"></af-navbar>
+
+  <div class="scroll-y">
+    <!-- 视觉锚点区 -->
+    <section class="hero-grad fc aic jcc p-6">
+      <span class="eyebrow">Good Morning</span>
+      <h1 class="display">探索新世界</h1>
+      <p class="subtitle text-onbrand">发现生活中的美好</p>
+    </section>
+
+    <!-- 分类宫格 -->
+    <section class="card m-3">
+      <div class="section-tt">热门分类</div>
+      <div class="grid-2 g-3 p-3">
+        <div class="fc aic g-2">
+          <span class="icon-badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+          <span class="caption">居家生活</span>
+        </div>
+        <div class="fc aic g-2">
+          <span class="icon-badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+          <span class="caption">数码科技</span>
+        </div>
+        <div class="fc aic g-2">
+          <span class="icon-badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2.69l5.74 5.88-5.74 5.88-5.74-5.88z"/><path d="M12 21.31l5.74-5.88-5.74-5.88-5.74 5.88z"/></svg></span>
+          <span class="caption">服饰鞋包</span>
+        </div>
+        <div class="fc aic g-2">
+          <span class="icon-badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></span>
+          <span class="caption">美妆护肤</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 推荐列表 -->
+    <section class="card m-3">
+      <div class="section-tt">为你推荐</div>
+      <div class="list">
+        <div class="list-item">
+          <img class="thumb" src="https://picsum.photos/seed/p1/144/144" alt="">
+          <div class="flex-1 fc jcsb">
+            <div>
+              <div class="title ellipsis-2">无线降噪蓝牙耳机 超长续航</div>
+              <div class="tag tag-warn m-1">热销</div>
+            </div>
+            <div class="f jcsb aic m-2">
+              <span class="price">¥299</span>
+              <span class="caption text-muted">1.2k人付款</span>
+            </div>
+          </div>
+        </div>
+        <div class="list-item">
+          <img class="thumb" src="https://picsum.photos/seed/p2/144/144" alt="">
+          <div class="flex-1 fc jcsb">
+            <div>
+              <div class="title ellipsis-2">复古机械键盘 办公游戏两用</div>
+              <div class="tag tag-ok m-1">新品</div>
+            </div>
+            <div class="f jcsb aic m-2">
+              <span class="price">¥459</span>
+              <span class="caption text-muted">800+人付款</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 底部导航栏 -->
+  <af-tabbar id="tb" active-index="0" fixed></af-tabbar>
+</div>
+
+<script type="module">
+  import { register } from '/af-mobile.js';
+
+  // 必须先注册组件
+  await register('af-tabbar');
+
+  const tb = document.getElementById('tb');
+  
+  // 设置 tabs 数据
+  tb.tabs = [
+    { label: '首页', value: 'home' },
+    { label: '分类', value: 'category' },
+    { label: '购物车', value: 'cart', badge: '2' },
+    { label: '我的', value: 'me' }
+  ];
+
+  // 监听切换事件
+  tb.addEventListener('af-tabbar:change', (e) => {
+    console.log('切换到:', e.detail.index, e.detail.value);
+  });
+</script>
+</body>
+</html>

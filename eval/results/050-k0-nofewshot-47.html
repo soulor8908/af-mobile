@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <!-- 轮播图区域 -->
+  <af-swiper id="banner" autoplay="3000" loop></af-swiper>
+  
+  <!-- 指示点 -->
+  <div class="dots p-2" id="dots"></div>
+
+  <!-- 页面内容示例 -->
+  <div class="p-4 fc g-3">
+    <section class="card">
+      <div class="section-tt">热门推荐</div>
+      <div class="list">
+        <div class="list-item">
+          <span class="body flex-1">精选商品 A</span>
+          <span class="price">¥199.00</span>
+        </div>
+        <div class="list-item">
+          <span class="body flex-1">精选商品 B</span>
+          <span class="price">¥299.00</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+
+// 注册使用的组件
+await register('af-swiper', 'af-img');
+
+// 模拟 Banner 数据
+const bannerData = [
+  { id: 1, src: 'https://picsum.photos/seed/banner1/750/420', link: '/detail/1' },
+  { id: 2, src: 'https://picsum.photos/seed/banner2/750/420', link: '/detail/2' },
+  { id: 3, src: 'https://picsum.photos/seed/banner3/750/420', link: '/detail/3' }
+];
+
+const swiper = document.getElementById('banner');
+const dotsContainer = document.getElementById('dots');
+
+// 渲染轮播图
+swiper.innerHTML = bannerData.map(item => `
+  <div class="aspect-16-9" data-link="${item.link}">
+    <af-img src="${item.src}" variant="default" class="w-full" style="height: 100%"></af-img>
+  </div>
+`).join('');
+
+// 渲染指示点
+dotsContainer.innerHTML = bannerData.map((_, i) => {
+  return i === 0 ? '<span class="dot dot-on"></span>' : '<span class="dot"></span>';
+}).join('');
+
+// 监听轮播切换事件，更新指示点
+swiper.addEventListener('af-swiper:change', (e) => {
+  const index = e.detail.activeIndex;
+  const dots = dotsContainer.querySelectorAll('.dot');
+  dots.forEach((dot, i) => {
+    if (i === index) {
+      dot.classList.add('dot-on');
+    } else {
+      dot.classList.remove('dot-on');
+    }
+  });
+});
+
+// 监听点击事件，实现跳转
+swiper.addEventListener('click', (e) => {
+  const slide = e.target.closest('.aspect-16-9');
+  if (slide) {
+    const link = slide.dataset.link;
+    console.log('跳转到:', link);
+    // 实际项目中使用 window.location.href = link;
+  }
+});
+</script>
+</body>
+</html>

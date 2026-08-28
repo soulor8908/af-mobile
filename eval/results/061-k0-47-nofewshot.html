@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <div class="navbar navbar-fixed safe-top">
+    <af-dropdown id="sortDropdown" placeholder="综合排序"></af-dropdown>
+  </div>
+  <af-list id="productList"></af-list>
+</div>
+<script type="module">
+import { register, signal, effect } from '/af-mobile.js';
+
+await register('af-dropdown', 'af-list', 'af-img');
+
+const sortDropdown = document.getElementById('sortDropdown');
+const productList = document.getElementById('productList');
+
+// 排序选项
+sortDropdown.options = ['综合', '销量', '价格升序', '价格降序'];
+
+// 模拟商品数据
+const rawData = signal([
+  { id: 1, title: '夏季新款纯棉T恤男士短袖透气休闲上衣', price: '59.00', img: 'https://picsum.photos/seed/p1/300/300', tag: '热销' },
+  { id: 2, title: '运动鞋男鞋夏季透气网面跑步鞋', price: '129.00', img: 'https://picsum.photos/seed/p2/300/300', tag: '新品' },
+  { id: 3, title: '复古牛仔裤男宽松直筒长裤', price: '89.00', img: 'https://picsum.photos/seed/p3/300/300', tag: '' },
+  { id: 4, title: '男士商务休闲衬衫长袖纯棉', price: '159.00', img: 'https://picsum.photos/seed/p4/300/300', tag: '限时' },
+  { id: 5, title: '轻薄羽绒服男短款立领外套', price: '299.00', img: 'https://picsum.photos/seed/p5/300/300', tag: '' },
+  { id: 6, title: '工装裤男多口袋宽松休闲裤', price: '109.00', img: 'https://picsum.photos/seed/p6/300/300', tag: '爆款' },
+]);
+
+// 将数据配对以适应 grid-2 布局
+const pairedData = signal([]);
+
+function updatePairing(data) {
+  const pairs = [];
+  for (let i = 0; i < data.length; i += 2) {
+    pairs.push({
+      left: data[i],
+      right: data[i + 1] || null
+    });
+  }
+  pairedData.set(pairs);
+}
+
+effect(() => updatePairing(rawData()));
+
+// 渲染商品卡片
+productList.renderItem = (item) => {
+  const renderCard = (product) => {
+    if (!product) return '<div class="card-media aspect-1"></div>'; // 占位
+    return `
+      <div class="card-media aspect-1">
+        <af-img src="${product.img}" class="w-full h-full"></af-img>
+        <div class="px-2 py-2 fc g-2">
+          <div class="title ellipsis-2">${product.title}</div>
+          <div class="jcsb aic">
+            <span class="price">¥${product.price}</span>
+            ${product.tag ? `<span class="tag tag-danger">${product.tag}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  return `
+    <div class="grid-2 g-2 px-2 py-2">
+      ${renderCard(item.left)}
+      ${renderCard(item.right)}
+    </div>
+  `;
+};
+
+effect(() => {
+  productList.data = pairedData();
+});
+
+// 排序逻辑
+sortDropdown.addEventListener('af-dropdown:select', (e) => {
+  const value = e.detail.value;
+  let sorted = [...rawData()];
+  
+  if (value === '销量') {
+    sorted.sort((a, b) => b.id - a.id); // 模拟销量排序
+  } else if (value === '价格升序') {
+    sorted.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+  } else if (value === '价格降序') {
+    sorted.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+  }
+  
+  rawData.set(sorted);
+});
+
+// 初始加载
+updatePairing(rawData());
+</script>
+</body>
+</html>

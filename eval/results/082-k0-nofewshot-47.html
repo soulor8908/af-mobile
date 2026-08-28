@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+<style>
+  .tag[data-status="ok"] {
+    border-color: var(--c-success);
+    color: var(--c-success);
+  }
+  .tag[data-status="warn"] {
+    border-color: var(--c-warn);
+    color: var(--c-warn);
+  }
+</style>
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar navbar-fixed safe-top">
+    <button class="btn btn-ghost btn-sm">‹ 返回</button>
+    <span class="flex-1 t-center t-md t-b">销量分析</span>
+    <button class="btn btn-ghost btn-sm">筛选</button>
+  </header>
+
+  <div class="p-4">
+    <!-- 视觉锚点：图表卡片 -->
+    <section class="card p-4">
+      <div class="f aic jcsb py-3">
+        <span class="subtitle">各品类销量趋势</span>
+        <span class="caption text-muted">单位：件</span>
+      </div>
+      <af-chart-bar id="salesChart" legend height="240"></af-chart-bar>
+    </section>
+
+    <!-- 内容区：品类明细列表 -->
+    <div class="section-tt m-4">品类明细</div>
+    <div class="list m-2" id="detailList">
+      <!-- 列表项将由 JS 生成 -->
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { registerChart } from '/af-mobile/charts/index.js';
+
+// 注册图表组件
+await registerChart('af-chart-bar');
+
+// 图表数据
+const chart = document.getElementById('salesChart');
+chart.labels = ['手机', '电脑', '平板', '穿戴', '配件'];
+chart.series = [
+  { name: '本月销量', values: [1280, 960, 540, 420, 300] },
+  { name: '上月销量', values: [1100, 890, 480, 390, 280] }
+];
+
+// 列表数据
+const listData = [
+  { name: '手机', sales: 1280, ratio: '35%', trend: '+12%', status: 'ok' },
+  { name: '电脑', sales: 960, ratio: '26%', trend: '+5%', status: 'ok' },
+  { name: '平板', sales: 540, ratio: '15%', trend: '-2%', status: 'warn' },
+  { name: '穿戴', sales: 420, ratio: '11%', trend: '+8%', status: 'ok' },
+  { name: '配件', sales: 300, ratio: '8%', trend: '+1%', status: 'ok' }
+];
+
+// 渲染列表
+const listContainer = document.getElementById('detailList');
+listContainer.innerHTML = listData.map(item => `
+  <div class="list-item">
+    <div class="flex-1">
+      <div class="title">${item.name}</div>
+      <div class="caption text-muted py-1">占比 ${item.ratio}</div>
+    </div>
+    <div class="fc aic jce">
+      <div class="stat-num text-brand">${item.sales}</div>
+      <span class="tag tag-plain" data-status="${item.status}">${item.trend}</span>
+    </div>
+  </div>
+`).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">经营数据</nav>
+  <div class="p-3 fc g-3">
+    <section class="card p-4">
+      <div class="stats-grid">
+        <div class="fc aic g-1">
+          <span class="stat-num text-brand">¥12.5w</span>
+          <span class="caption text-muted">今日销售额</span>
+        </div>
+        <div class="fc aic g-1">
+          <span class="stat-num text-success">+18%</span>
+          <span class="caption text-muted">环比增长</span>
+        </div>
+        <div class="fc aic g-1">
+          <span class="stat-num">842</span>
+          <span class="caption text-muted">订单数</span>
+        </div>
+        <div class="fc aic g-1">
+          <span class="stat-num text-danger">¥148</span>
+          <span class="caption text-muted">客单价</span>
+        </div>
+      </div>
+    </section>
+    <section class="card p-4">
+      <div class="section-tt m-0">近7日销售趋势</div>
+      <af-chart-line id="chart" smooth height="240"></af-chart-line>
+    </section>
+  </div>
+</div>
+<script type="module">
+import { registerChart } from '../../src/charts/index.js';
+(async () => {
+  await registerChart('af-chart-line');
+  const c = document.getElementById('chart');
+  c.labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  c.series = [{ name: '销售额', values: [12000, 15000, 11000, 18000, 22000, 25000, 21000] }];
+})();
+</script>
+</body>
+</html>

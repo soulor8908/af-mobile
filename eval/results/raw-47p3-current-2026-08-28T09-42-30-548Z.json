@@ -1,0 +1,137 @@
+[
+  {
+    "id": "038",
+    "category": "feedback",
+    "expects": [
+      "af-dialog",
+      ".btn"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\038-k0-47p3-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\038-k0-47p3-current.html"
+    }
+  },
+  {
+    "id": "067",
+    "category": "nav",
+    "expects": [
+      "af-tabbar"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\067-k0-47p3-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 2,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\067-k0-47p3-current.html"
+    }
+  },
+  {
+    "id": "072",
+    "category": "detail",
+    "expects": [
+      "af-countdown",
+      ".grid,.grid-2"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\072-k0-47p3-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\072-k0-47p3-current.html"
+    }
+  },
+  {
+    "id": "076",
+    "category": "form",
+    "expects": [
+      "af-password-input",
+      "af-number-keyboard",
+      "af-toast"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\076-k0-47p3-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\076-k0-47p3-current.html"
+    }
+  },
+  {
+    "id": "081",
+    "category": "complex",
+    "expects": [
+      "af-chart-line",
+      ".stats-grid"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\081-k0-47p3-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\081-k0-47p3-current.html"
+    }
+  }
+]

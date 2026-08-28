@@ -1,0 +1,108 @@
+{
+  "passK": 1,
+  "total": 3,
+  "lintPassed": 3,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.00",
+  "errorsByRule": {
+    "af-mobile/semantic-visual": 2
+  },
+  "byCategory": {
+    "complex": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 0
+    },
+    "list": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "081",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-chart-line 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\081-k0-47-current.png",
+      "errors": [
+        "The requested module '/af-mobile.js' does not provide an export named 'registerChart'"
+      ]
+    },
+    {
+      "id": "078",
+      "category": "list",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\078-k0-47-current.png",
+      "errors": []
+    },
+    {
+      "id": "082",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-chart-bar 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\082-k0-47-current.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ]
+    }
+  ],
+  "visualPassed": 1,
+  "visualPassRate": "33.3%",
+  "visualFailures": [
+    {
+      "id": "081",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-chart-line 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\081-k0-47-current.png",
+      "errors": [
+        "The requested module '/af-mobile.js' does not provide an export named 'registerChart'"
+      ]
+    },
+    {
+      "id": "082",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-chart-bar 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\082-k0-47-current.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ]
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots"
+}

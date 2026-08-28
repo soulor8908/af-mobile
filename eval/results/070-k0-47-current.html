@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">购物车</nav>
+  <div class="list">
+    <!-- 购物车商品行 -->
+    <div class="list-item g-3">
+      <label class="checkbox">
+        <input type="checkbox" checked>
+      </label>
+      <img class="thumb" src="https://picsum.photos/seed/prod1/144/144" alt="">
+      <div class="flex-1 fc g-2">
+        <div class="title ellipsis-2">商品名称（长标题自动截断显示）</div>
+        <div class="price">¥99.00</div>
+      </div>
+      <af-stepper min="1" max="99" step="1" value="1"></af-stepper>
+    </div>
+
+    <!-- 第二行示例 -->
+    <div class="list-item g-3">
+      <label class="checkbox">
+        <input type="checkbox">
+      </label>
+      <img class="thumb" src="https://picsum.photos/seed/prod2/144/144" alt="">
+      <div class="flex-1 fc g-2">
+        <div class="title ellipsis-2">另一件商品</div>
+        <div class="price">¥59.00</div>
+      </div>
+      <af-stepper min="1" max="99" step="1" value="1"></af-stepper>
+    </div>
+  </div>
+
+  <!-- 底部结算栏 -->
+  <div class="cob cob-fx">
+    <label class="checkbox">
+      <input type="checkbox" id="selectAll"> 全选
+    </label>
+    <div class="flex-1 f jce aic g-2">
+      <span class="body">合计: <span class="price">¥99.00</span></span>
+      <button class="btn">结算(1)</button>
+    </div>
+  </div>
+  <div style="height:72px"></div>
+</div>
+<script type="module">
+import { AfStepper } from '@af-mobile/ui';
+customElements.define('af-stepper', AfStepper);
+
+// 监听数量变化
+document.querySelectorAll('af-stepper').forEach(el => {
+  el.addEventListener('af-stepper:change', (e) => {
+    console.log('当前数量:', e.detail.value);
+  });
+});
+</script>
+</body>
+</html>

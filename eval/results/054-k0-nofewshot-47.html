@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">订单</nav>
+  <af-tabs id="tabs"></af-tabs>
+  
+  <div id="empty-state" class="empty" style="display:none;">
+    <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="var(--c-gray-4)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+      <line x1="16" y1="13" x2="8" y2="13"></line>
+      <line x1="16" y1="17" x2="8" y2="17"></line>
+      <polyline points="10 9 9 9 8 9"></polyline>
+    </svg>
+    <div class="body text-muted m-2">暂无相关订单</div>
+  </div>
+
+  <af-list id="list"></af-list>
+</div>
+
+<script type="module">
+import { register, signal, effect } from '/af-mobile.js';
+
+await register('af-tabs', 'af-list');
+
+const tabsEl = document.getElementById('tabs');
+tabsEl.tabs = [
+  { label: '全部', value: 'all' },
+  { label: '待付款', value: 'pending_pay' },
+  { label: '待发货', value: 'pending_ship' },
+  { label: '待收货', value: 'pending_receive' },
+  { label: '已完成', value: 'completed' }
+];
+
+const listEl = document.getElementById('list');
+const emptyEl = document.getElementById('empty-state');
+
+// 模拟订单数据
+const allOrders = signal([
+  {
+    id: '20231024001',
+    status: 'pending_pay',
+    statusText: '待付款',
+    items: [{ title: 'af-mobile UI 设计规范手册', spec: '精装版', thumb: 'https://picsum.photos/seed/book/72/72', price: '59.00', count: 1 }],
+    total: '59.00'
+  },
+  {
+    id: '20231023005',
+    status: 'pending_ship',
+    statusText: '待发货',
+    items: [{ title: '无线蓝牙降噪耳机', spec: '极夜黑', thumb: 'https://picsum.photos/seed/audio/72/72', price: '299.00', count: 1 }],
+    total: '299.00'
+  },
+  {
+    id: '20231022088',
+    status: 'pending_receive',
+    statusText: '待收货',
+    items: [
+      { title: '纯棉舒适T恤', spec: '白色 L码', thumb: 'https://picsum.photos/seed/shirt/72/72', price: '79.00', count: 2 },
+      { title: '休闲运动裤', spec: '灰色 XL码', thumb: 'https://picsum.photos/seed/pants/72/72', price: '129.00', count: 1 }
+    ],
+    total: '287.00'
+  },
+  {
+    id: '20231020012',
+    status: 'completed',
+    statusText: '已完成',
+    items: [{ title: '智能运动手表 Pro', spec: '星光色', thumb: 'https://picsum.photos/seed/watch/72/72', price: '1299.00', count: 1 }],
+    total: '1299.00'
+  }
+]);
+
+const currentTab = signal('all');
+
+tabsEl.addEventListener('af-tabs:change', (e) => {
+  currentTab.value = e.detail.value;
+});
+
+listEl.renderItem = (order) => {
+  const itemsHtml = order.items.map(item => `
+    <div class="f g-2 m-2">
+      <img class="thumb" src="${item.thumb}" alt="">
+      <div class="flex-1">
+        <div class="body ellipsis-2">${item.title}</div>
+        <div class="caption text-muted m-1">${item.spec}</div>
+      </div>
+      <div class="fc jce">
+        <div class="price">¥${item.price}</div>
+        <div class="caption text-muted">x${item.count}</div>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <div class="card m-2 p-3">
+      <div class="jcsb m-2">
+        <span class="caption text-muted">订单号: ${order.id}</span>
+        <span class="${order.status === 'pending_pay' ? 'tag tag-warn' : order.status === 'completed' ? 'tag tag-ok' : 'tag'}">${order.statusText}</span>
+      </div>
+      ${itemsHtml}
+      <div class="hl-t m-2"></div>
+      <div class="jce">
+        <span class="caption text-muted m-2">共${order.items.reduce((acc, cur) => acc + cur.count, 0)}件</span>
+        <span class="body">实付: <span class="price">¥${order.total}</span></span>
+      </div>
+    </div>
+  `;
+};
+
+effect(() => {
+  const filtered = allOrders.value.filter(order => 
+    currentTab.value === 'all' || order.status === currentTab.value
+  );
+  
+  listEl.data = filtered;
+
+  if (filtered.length === 0) {
+    listEl.style.display = 'none';
+    emptyEl.style.display = 'flex';
+  } else {
+    listEl.style.display = 'block';
+    emptyEl.style.display = 'none';
+  }
+});
+</script>
+</body>
+</html>
+<!-- AFMOBILE_LINT_FAILED
+[
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class '${order.status' contains template interpolation and cannot be checked statically. Use static whitelist classes plus data-* attributes, or a ternary switching between whitelisted classes"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class '===' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['==='] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class ''pending_pay'' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''pending_pay''] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class '?' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['?'] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class ''tag' not in whitelist. Did you mean 'tag'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''tag'] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class 'tag-warn'' not in whitelist. Did you mean 'tag-warn'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['tag-warn''] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class ':' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [':'] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class 'order.status' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['order.status'] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class '===' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['==='] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class ''completed'' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''completed''] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class '?' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['?'] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class ''tag' not in whitelist. Did you mean 'tag'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''tag'] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class 'tag-ok'' not in whitelist. Did you mean 'tag-ok'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['tag-ok''] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class ':' not in whitelist. Did you mean 'f'? Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [':'] }]"
+  },
+  {
+    "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-aGmh05\\snippet.js",
+    "line": 106,
+    "column": 23,
+    "rule": "af-mobile/token-whitelist",
+    "severity": "error",
+    "message": "Class ''tag'}' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: [''tag'}'] }]"
+  }
+]
+-->

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">商品评价</nav>
+  <div class="p-3">
+    <div class="card fc g-4 p-4">
+      <div class="fc aic g-2">
+        <span class="label">评分</span>
+        <af-rate id="rate" max="5" value="5"></af-rate>
+      </div>
+      <div class="fc g-2">
+        <span class="label">评价内容</span>
+        <textarea id="content" class="textarea" rows="5" placeholder="商品质量如何？分享您的使用体验吧..."></textarea>
+      </div>
+      <button id="submitBtn" class="btn btn-block">提交评价</button>
+    </div>
+  </div>
+</div>
+<script type="module">
+import { fetchPage, back } from '/af-mobile.js';
+
+const rateEl = document.getElementById('rate');
+const contentEl = document.getElementById('content');
+const submitBtn = document.getElementById('submitBtn');
+let currentRate = 5;
+
+rateEl.addEventListener('af-rate:change', (e) => {
+  currentRate = e.detail.value;
+});
+
+submitBtn.addEventListener('click', async () => {
+  const content = contentEl.value.trim();
+  if (!content) {
+    afToast.show({ message: '请输入评价内容', type: 'warning' });
+    return;
+  }
+  
+  // 模拟提交
+  await fetchPage('/api/review', { 
+    method: 'POST', 
+    body: JSON.stringify({ rate: currentRate, content }) 
+  });
+  
+  afToast.show({ message: '评价成功', type: 'success' });
+  setTimeout(back, 1000);
+});
+</script>
+</body>
+</html>

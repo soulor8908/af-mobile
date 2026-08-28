@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page fc">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm">‹</button>
+    <span class="title flex-1">智能客服</span>
+  </header>
+  <af-chat id="chat" class="flex-1 safe-bottom" placeholder="请输入您的问题"></af-chat>
+</div>
+<script type="module">
+import { registerChat } from '@af-mobile/ui/chat';
+
+await registerChat();
+
+const chat = document.getElementById('chat');
+
+// 预置欢迎消息
+chat.messages = [
+  { role: 'assistant', text: '您好！我是您的智能客服，请问有什么可以帮您？' }
+];
+
+// 监听发送事件并模拟回复
+chat.addEventListener('af-chat:send', (e) => {
+  const userText = e.detail.text;
+  
+  // 模拟网络延迟后回复
+  setTimeout(() => {
+    chat.messages = [
+      ...chat.messages,
+      { role: 'user', text: userText },
+      { role: 'assistant', text: `收到您的消息：“${userText}”。这是一个模拟回复。` }
+    ];
+  }, 600);
+});
+</script>
+</body>
+</html>

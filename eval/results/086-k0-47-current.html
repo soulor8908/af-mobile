@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page page-col">
+  <nav class="navbar">AI 客服</nav>
+  <af-chat id="chat" placeholder="请输入您的问题"></af-chat>
+</div>
+<script type="module">
+import { registerChat, createSession } from '@af-mobile/ui/chat';
+
+await registerChat();
+
+const el = document.getElementById('chat');
+const session = createSession({ endpoint: '/api/chat' });
+el.session = session;
+
+// 预置欢迎消息
+let messages = [
+  { role: 'assistant', text: '您好！我是您的 AI 助手，请问有什么可以帮您？' }
+];
+el.messages = messages;
+
+// 监听发送事件并模拟回复
+el.addEventListener('af-chat:send', (e) => {
+  const text = e.detail.text;
+  if (!text) return;
+
+  // 回显用户消息
+  messages = [...messages, { role: 'user', text }];
+  el.messages = messages;
+
+  // 模拟 AI 回复
+  setTimeout(() => {
+    messages = [...messages, { role: 'assistant', text: `已收到您的问题：“${text}”，正在为您处理...` }];
+    el.messages = messages;
+  }, 800);
+});
+</script>
+</body>
+</html>

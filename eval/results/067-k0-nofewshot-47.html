@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <!-- 首页内容占位 -->
+  <section class="hero-grad fc aic jcc p-5">
+    <span class="display">af-mobile</span>
+    <span class="subtitle">UI Design System</span>
+  </section>
+
+  <section class="card p-4 m-3">
+    <div class="body">内容区域示例</div>
+    <div class="caption text-muted m-2">当前选中：首页</div>
+  </section>
+
+  <!-- 底部导航栏 -->
+  <af-tabbar id="tb" active-index="0" fixed></af-tabbar>
+</div>
+
+<script type="module">
+  import { register } from '/af-mobile.js';
+
+  await register();
+
+  const tb = document.getElementById('tb');
+  tb.tabs = [
+    { label: '首页', value: 'home' },
+    { label: '分类', value: 'category' },
+    { label: '购物车', value: 'cart', badge: '2' },
+    { label: '我的', value: 'me' }
+  ];
+
+  tb.addEventListener('af-tabbar:change', (e) => {
+    console.log('切换到:', e.detail.value);
+  });
+</script>
+</body>
+</html>

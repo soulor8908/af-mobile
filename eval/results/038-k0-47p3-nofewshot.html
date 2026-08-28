@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page center p-4">
+  <button id="openBtn" class="btn btn-danger">删除项目</button>
+</div>
+
+<af-dialog id="d" title="确认删除">
+  <div slot="body"><p class="body">删除后数据将无法恢复，确定要继续吗？</p></div>
+  <div slot="footer">
+    <button class="btn btn-ghost btn-block" data-act="cancel">取消</button>
+    <button class="btn btn-block btn-danger" data-act="confirm">删除</button>
+  </div>
+</af-dialog>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-dialog');
+
+const d = document.getElementById('d');
+document.getElementById('openBtn').addEventListener('click', () => d.open());
+
+d.querySelector('[data-act="cancel"]').addEventListener('click', () => d.close());
+d.querySelector('[data-act="confirm"]').addEventListener('click', () => d.close('confirm'));
+
+d.addEventListener('af-dialog:close', (e) => {
+  if (e.detail.action === 'confirm') {
+    console.log('已删除');
+  }
+});
+</script>
+</body>
+</html>

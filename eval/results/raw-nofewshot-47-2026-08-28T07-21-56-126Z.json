@@ -1,0 +1,57 @@
+[
+  {
+    "id": "056",
+    "category": "form",
+    "expects": [
+      "af-switch",
+      ".cell",
+      ".title"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\056-k0-nofewshot-47.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\056-k0-nofewshot-47.html"
+    }
+  },
+  {
+    "id": "072",
+    "category": "detail",
+    "expects": [
+      "af-countdown",
+      ".grid,.grid-2"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\072-k0-nofewshot-47.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 2,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\072-k0-nofewshot-47.html"
+    }
+  }
+]

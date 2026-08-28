@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-search-bar id="search" placeholder="搜索商品、品牌"></af-search-bar>
+
+  <div class="section">
+    <div class="section-tt">热门搜索</div>
+    <div class="chips">
+      <span class="tag">iPhone 15</span>
+      <span class="tag tag-danger">限时秒杀</span>
+      <span class="tag">运动鞋</span>
+      <span class="tag">连衣裙</span>
+      <span class="tag">咖啡机</span>
+      <span class="tag">机械键盘</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="jcsb aic py-2">
+      <div class="section-tt">历史搜索</div>
+      <svg class="text-muted" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" id="clear-history">
+        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </svg>
+    </div>
+    <div class="list" id="history-list">
+      <div class="list-item">
+        <span class="body flex-1 ellipsis">无线蓝牙耳机</span>
+        <svg class="text-muted" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </div>
+      <div class="list-item">
+        <span class="body flex-1 ellipsis">洗面奶</span>
+        <svg class="text-muted" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </div>
+      <div class="list-item">
+        <span class="body flex-1 ellipsis">男士T恤</span>
+        <svg class="text-muted" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { signal, effect } from '/af-mobile.js';
+
+const search = document.getElementById('search');
+const historyList = document.getElementById('history-list');
+const clearHistoryBtn = document.getElementById('clear-history');
+
+search.addEventListener('af-search-bar:search', (e) => {
+  console.log('搜索:', e.detail.value);
+});
+
+search.addEventListener('af-search-bar:clear', (e) => {
+  console.log('清除输入');
+});
+
+document.querySelectorAll('.chips .tag').forEach(tag => {
+  tag.addEventListener('click', () => {
+    search.value = tag.textContent;
+    search.focus();
+    console.log('点击热门标签:', tag.textContent);
+  });
+});
+
+historyList.addEventListener('click', (e) => {
+  const item = e.target.closest('.list-item');
+  if (!item) return;
+  if (e.target.closest('svg')) {
+    item.remove();
+    return;
+  }
+  const text = item.querySelector('.body').textContent;
+  search.value = text;
+  console.log('点击历史记录:', text);
+});
+
+clearHistoryBtn.addEventListener('click', () => {
+  historyList.innerHTML = '';
+});
+</script>
+</body>
+</html>

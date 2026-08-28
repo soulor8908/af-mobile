@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">意见反馈</nav>
+  <div class="p-3">
+    <form id="feedbackForm" class="card p-4 fc g-3">
+      <div class="form-row">
+        <label class="label">反馈类型</label>
+        <select class="input" name="type" required>
+          <option value="">请选择类型</option>
+          <option value="bug">问题反馈</option>
+          <option value="suggest">功能建议</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="label">详细描述</label>
+        <textarea class="input" name="content" required minlength="10" rows="4" placeholder="请输入反馈内容（至少 10 字）"></textarea>
+      </div>
+      <div class="form-row">
+        <label class="label">联系方式</label>
+        <input class="input" name="contact" type="text" placeholder="手机号或邮箱（选填）">
+      </div>
+      <button class="btn btn-block" type="submit">提交反馈</button>
+    </form>
+  </div>
+</div>
+<af-toast id="toast"></af-toast>
+<script type="module">
+const form = document.getElementById('feedbackForm');
+const toast = document.getElementById('toast');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  // 模拟提交过程
+  const btn = form.querySelector('button');
+  const originalText = btn.textContent;
+  btn.textContent = '提交中...';
+  btn.disabled = true;
+
+  // 模拟网络请求延迟
+  await new Promise(resolve => setTimeout(resolve, 600));
+
+  // 显示成功提示，2秒后自动消失
+  toast.show('提交成功', { type: 'success', duration: 2000 });
+
+  // 重置表单状态
+  form.reset();
+  btn.textContent = originalText;
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>

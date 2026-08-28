@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">限时秒杀</nav>
+  <div class="bg-brand p-3 f aic jcc g-2">
+    <span class="text-onbrand body">距结束</span>
+    <af-countdown id="cd" time="7200" autostart></af-countdown>
+  </div>
+  <div class="grid-2 g-2 p-2" id="product-list"></div>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-countdown');
+
+const products = [
+  { id: 1, title: '无线蓝牙降噪耳机 超长续航', price: '199.00', oldPrice: '599.00', img: 'https://picsum.photos/seed/p1/300/300' },
+  { id: 2, title: '智能运动手表 心率监测防水', price: '299.00', oldPrice: '899.00', img: 'https://picsum.photos/seed/p2/300/300' },
+  { id: 3, title: '复古胶片相机 拍立得', price: '450.00', oldPrice: '699.00', img: 'https://picsum.photos/seed/p3/300/300' },
+  { id: 4, title: '便携式榨汁机 随行杯', price: '89.00', oldPrice: '199.00', img: 'https://picsum.photos/seed/p4/300/300' },
+  { id: 5, title: '男士双肩背包 商务休闲', price: '129.00', oldPrice: '359.00', img: 'https://picsum.photos/seed/p5/300/300' },
+  { id: 6, title: '家用多功能电煮锅', price: '159.00', oldPrice: '299.00', img: 'https://picsum.photos/seed/p6/300/300' }
+];
+
+const list = document.getElementById('product-list');
+list.innerHTML = products.map(p => `
+  <div class="card-media">
+    <img src="${p.img}" class="aspect-1" alt="">
+    <div class="p-2 fc g-2">
+      <div class="title ellipsis-2">${p.title}</div>
+      <div class="f aic jcsb">
+        <div class="f aic g-1">
+          <span class="price">¥${p.price}</span>
+          <span class="price-del">¥${p.oldPrice}</span>
+        </div>
+        <span class="tag tag-danger">秒杀</span>
+      </div>
+    </div>
+  </div>
+`).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-navbar title="首页"></af-navbar>
+
+  <div class="scroll-y f fc g-4">
+    <section class="hero-grad p-4">
+      <span class="eyebrow">Welcome</span>
+      <h1 class="display">Af Mobile</h1>
+      <p class="subtitle">Design System Demo</p>
+    </section>
+
+    <section class="card p-4">
+      <div class="stats-grid">
+        <div class="fc aic g-1">
+          <span class="stat-num text-brand">1,024</span>
+          <span class="caption">总访问</span>
+        </div>
+        <div class="fc aic g-1">
+          <span class="stat-num text-success">98%</span>
+          <span class="caption">好评率</span>
+        </div>
+        <div class="fc aic g-1">
+          <span class="stat-num">56</span>
+          <span class="caption">待办</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="list">
+      <div class="list-item">
+        <span class="body flex-1">系统消息</span>
+        <span class="caption">10:00</span>
+      </div>
+      <div class="list-item">
+        <span class="body flex-1">活动通知</span>
+        <span class="caption">昨天</span>
+      </div>
+    </section>
+  </div>
+
+  <af-tabbar id="tb" active-index="0" fixed></af-tabbar>
+</div>
+
+<script>
+  const tb = document.getElementById('tb');
+  if (tb) {
+    tb.tabs = [
+      { label: '首页', value: 'home' },
+      { label: '分类', value: 'category' },
+      { label: '购物车', value: 'cart', badge: '2' },
+      { label: '我的', value: 'me' }
+    ];
+    tb.addEventListener('af-tabbar:change', (e) => {
+      console.log('Tab changed:', e.detail.value);
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "passK": 1,
+  "total": 2,
+  "lintPassed": 2,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.00",
+  "errorsByRule": {},
+  "byCategory": {
+    "complex": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 2
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "081",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\081-k0-nofewshot-47.png",
+      "errors": []
+    },
+    {
+      "id": "086",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\086-k0-nofewshot-47.png",
+      "errors": [
+        "m.content is not iterable"
+      ]
+    }
+  ],
+  "visualPassed": 2,
+  "visualPassRate": "100.0%",
+  "visualFailures": [],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "variant": "nofewshot-47"
+}

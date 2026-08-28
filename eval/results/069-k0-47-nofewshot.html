@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">预订确认</nav>
+  
+  <section class="p-4">
+    <div class="section-tt">选择入住日期</div>
+    <af-calendar id="calendar"></af-calendar>
+  </section>
+
+  <section class="card m-3">
+    <div class="list-item">
+      <span class="body">豪华大床房</span>
+      <span class="caption text-muted">1间</span>
+    </div>
+    <div class="list-item">
+      <span class="body">房费</span>
+      <span class="body">¥300</span>
+    </div>
+    <div class="list-item">
+      <span class="body">税费与服务费</span>
+      <span class="body">¥30</span>
+    </div>
+    <div class="list-item">
+      <span class="body">优惠券抵扣</span>
+      <span class="body text-danger">-¥10</span>
+    </div>
+  </section>
+
+  <div class="cob cob-fx">
+    <div class="fc jcc px-2">
+      <span class="caption text-muted">合计:</span>
+      <span class="price price-lg" id="total-price">¥320</span>
+    </div>
+    <button class="btn" id="submit-btn">确认预订</button>
+  </div>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-calendar');
+
+const calendar = document.getElementById('calendar');
+const today = new Date().toISOString().split('T')[0];
+calendar.min = today;
+
+document.getElementById('submit-btn').addEventListener('click', () => {
+  const date = calendar.value || today;
+  console.log('预订日期:', date);
+  // 实际业务逻辑：提交订单
+});
+</script>
+</body>
+</html>

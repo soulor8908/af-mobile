@@ -1,0 +1,180 @@
+{
+  "passK": 1,
+  "total": 12,
+  "lintPassed": 4,
+  "lintPassRate": "33.3%",
+  "avgRounds": "2.25",
+  "errorsByRule": {
+    "af-mobile/token-whitelist": 1
+  },
+  "byCategory": {
+    "feedback": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "form": {
+      "total": 5,
+      "lintPassed": 2,
+      "visualPassed": 1
+    },
+    "detail": {
+      "total": 1,
+      "lintPassed": 0,
+      "visualPassed": 0
+    },
+    "starter": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "list": {
+      "total": 2,
+      "lintPassed": 0,
+      "visualPassed": 0
+    },
+    "complex": {
+      "total": 2,
+      "lintPassed": 0,
+      "visualPassed": 0
+    }
+  },
+  "lintFailures": [
+    {
+      "id": "060",
+      "category": "form",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "061",
+      "category": "form",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "062",
+      "category": "detail",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "069",
+      "category": "form",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "070",
+      "category": "list",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "079",
+      "category": "list",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "081",
+      "category": "complex",
+      "exitCode": 3,
+      "errors": [
+        {
+          "file": "D:\\projects\\aiflow-ui\\.cache\\ai-fix\\run-Bmm8fn\\snippet.js",
+          "line": 16,
+          "column": 23,
+          "rule": "af-mobile/token-whitelist",
+          "severity": "error",
+          "message": "Class 'text-warn' not in whitelist. Use recipe/atomic, or paste into eslint.config.js: 'af-mobile/token-whitelist': ['error', { extraClass: ['text-warn'] }]"
+        }
+      ]
+    },
+    {
+      "id": "086",
+      "category": "complex",
+      "exitCode": 3,
+      "errors": []
+    }
+  ],
+  "visualResults": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-47-current.png",
+      "errors": []
+    },
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".title"
+      ],
+      "fails": [
+        "缺少 .title"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-47-current.png",
+      "errors": []
+    },
+    {
+      "id": "057",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\057-k0-47-current.png",
+      "errors": []
+    },
+    {
+      "id": "064",
+      "category": "starter",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\064-k0-47-current.png",
+      "errors": [
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc&page=1&pageSize=20&q=. URL scheme \"supabase\" is not supported.",
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc&page=1&pageSize=20&q=. URL scheme \"supabase\" is not supported."
+      ]
+    }
+  ],
+  "visualPassed": 3,
+  "visualPassRate": "25.0%",
+  "visualFailures": [
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".title"
+      ],
+      "fails": [
+        "缺少 .title"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-47-current.png",
+      "errors": []
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "variant": "47-current"
+}

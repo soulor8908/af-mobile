@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page scroll-y">
+  <!-- 首屏主视觉区 -->
+  <section class="hero-grad p-4">
+    <div class="eyebrow">下午好，User</div>
+    <div class="display">发现美好生活</div>
+    <div class="subtitle">精选好物 每日上新</div>
+  </section>
+
+  <!-- 分类宫格 -->
+  <section class="p-4">
+    <div class="grid-3 g-3">
+      <div class="fc aic g-1">
+        <div class="icon-badge">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <span class="caption">居家</span>
+      </div>
+      <div class="fc aic g-1">
+        <div class="icon-badge">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        </div>
+        <span class="caption">服饰</span>
+      </div>
+      <div class="fc aic g-1">
+        <div class="icon-badge">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <span class="caption">美食</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 推荐商品 -->
+  <section class="px-3 py-3">
+    <div class="grid-2 g-2">
+      <div class="card-media">
+        <div class="aspect-1 bg-muted"></div>
+        <div class="p-2">
+          <div class="title ellipsis-2">夏季新款纯棉T恤透气舒适</div>
+          <div class="f jcsb aic m-2">
+            <span class="price">¥99.00</span>
+            <span class="tag tag-danger">热卖</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-media">
+        <div class="aspect-1 bg-muted"></div>
+        <div class="p-2">
+          <div class="title ellipsis-2">无线蓝牙耳机降噪超长续航</div>
+          <div class="f jcsb aic m-2">
+            <span class="price">¥299.00</span>
+            <span class="tag tag-warn">新品</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<af-tabbar id="tb" active-index="0" fixed></af-tabbar>
+
+<script type="module">
+  import { register } from '/af-mobile.js';
+  await register('af-tabbar');
+
+  const tb = document.getElementById('tb');
+  tb.tabs = [
+    { label: '首页', value: 'home' },
+    { label: '分类', value: 'category' },
+    { label: '购物车', value: 'cart', badge: '2' },
+    { label: '我的', value: 'me' }
+  ];
+
+  tb.addEventListener('af-tabbar:change', (e) => {
+    console.log('Tab switched:', e.detail.index, e.detail.value);
+  });
+</script>
+</body>
+</html>

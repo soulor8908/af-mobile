@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">编辑地址</nav>
+  <form id="addressForm" class="fc g-3 p-3">
+    <input class="input" name="name" placeholder="收件人姓名" required>
+    <input class="input" name="phone" type="tel" placeholder="手机号码" required pattern="^1\d{10}$">
+    
+    <!-- 省市区选择触发器 -->
+    <div id="areaTrigger" class="input" tabindex="0">请选择省/市/区</div>
+    <input type="hidden" name="area" id="areaValue">
+    
+    <textarea class="input" name="detail" placeholder="详细地址（街道、门牌号等）" required></textarea>
+    
+    <button class="btn btn-block" type="submit">保存地址</button>
+  </form>
+</div>
+
+<af-cascade-picker id="areaPicker" title="选择地区"></af-cascade-picker>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+
+// 模拟省市区三级数据
+const treeData = [
+  {
+    label: '浙江省',
+    value: '330000',
+    children: [
+      {
+        label: '杭州市',
+        value: '330100',
+        children: [
+          { label: '西湖区', value: '330106' },
+          { label: '滨江区', value: '330108' },
+          { label: '余杭区', value: '330110' }
+        ]
+      },
+      {
+        label: '宁波市',
+        value: '330200',
+        children: [
+          { label: '海曙区', value: '330203' },
+          { label: '江北区', value: '330205' }
+        ]
+      }
+    ]
+  },
+  {
+    label: '广东省',
+    value: '440000',
+    children: [
+      {
+        label: '广州市',
+        value: '440100',
+        children: [
+          { label: '天河区', value: '440106' },
+          { label: '越秀区', value: '440104' }
+        ]
+      },
+      {
+        label: '深圳市',
+        value: '440300',
+        children: [
+          { label: '南山区', value: '440305' },
+          { label: '福田区', value: '440304' }
+        ]
+      }
+    ]
+  }
+];
+
+await register();
+
+const picker = document.getElementById('areaPicker');
+const trigger = document.getElementById('areaTrigger');
+const hiddenInput = document.getElementById('areaValue');
+
+// 注入数据
+picker.tree = treeData;
+
+// 点击触发选择器
+trigger.addEventListener('click', () => {
+  picker.open();
+});
+
+// 监听确认事件
+picker.addEventListener('af-picker:confirm', (e) => {
+  const values = e.detail.values; // ['浙江省', '杭州市', '西湖区']
+  trigger.textContent = values.join(' / ');
+  hiddenInput.value = values.join(',');
+});
+
+// 表单提交处理
+document.getElementById('addressForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!e.target.checkValidity()) {
+    e.target.reportValidity();
+    return;
+  }
+  const formData = new FormData(e.target);
+  console.log('提交数据:', Object.fromEntries(formData));
+  // await fetchPage('/api/address', { method: 'POST', body: formData });
+});
+</script>
+</body>
+</html>

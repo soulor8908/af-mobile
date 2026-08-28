@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page center p-4">
+  <button id="trigger" class="btn btn-danger">删除记录</button>
+</div>
+
+<af-dialog id="deleteDialog" title="删除确认">
+  <div slot="body">
+    <p class="body">确定要删除这条记录吗？删除后无法恢复。</p>
+  </div>
+  <div slot="footer">
+    <button class="btn btn-ghost btn-block" data-act="cancel">取消</button>
+    <button class="btn btn-block btn-danger" data-act="confirm">删除</button>
+  </div>
+</af-dialog>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+
+// 注册组件（若环境未全局注册）
+if (!customElements.get('af-dialog')) {
+  const { AfDialog } = await import('/af-mobile.js');
+  customElements.define('af-dialog', AfDialog);
+}
+
+const dialog = document.getElementById('deleteDialog');
+const trigger = document.getElementById('trigger');
+
+trigger.addEventListener('click', () => {
+  dialog.open();
+});
+
+dialog.querySelector('[data-act="cancel"]').addEventListener('click', () => {
+  dialog.close();
+});
+
+dialog.querySelector('[data-act="confirm"]').addEventListener('click', () => {
+  // 执行删除逻辑
+  dialog.close('confirm');
+});
+
+dialog.addEventListener('af-dialog:close', (e) => {
+  if (e.detail.action === 'confirm') {
+    console.log('用户确认删除');
+    // 实际业务：调用删除 API
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">实名认证</nav>
+  <div class="p-4 fc g-4">
+    <div class="card p-4 fc g-3">
+      <div class="body">请上传身份证正反面照片</div>
+      <af-upload accept="image/*" max-count="2" button-text="上传证件"></af-upload>
+      <div class="caption text-muted">支持 jpg/png 格式，大小不超过 5MB</div>
+    </div>
+    <button class="btn btn-block">提交认证</button>
+  </div>
+</div>
+<script type="module">
+import { fetchPage, back } from '/af-mobile.js';
+
+const uploader = document.querySelector('af-upload');
+const submitBtn = document.querySelector('.btn');
+let uploadedFiles = [];
+
+uploader.addEventListener('af-upload:change', (e) => {
+  const { files, errors } = e.detail;
+  if (errors.length > 0) {
+    console.error('Upload error:', errors);
+  }
+  uploadedFiles = files;
+});
+
+submitBtn.addEventListener('click', async () => {
+  if (uploadedFiles.length < 2) {
+    alert('请上传身份证正反面');
+    return;
+  }
+  try {
+    const formData = new FormData();
+    uploadedFiles.forEach(f => formData.append('files', f.file));
+    // await fetchPage('/api/verify', { method: 'POST', body: formData });
+    alert('提交成功');
+    back();
+  } catch (err) {
+    console.error(err);
+  }
+});
+</script>
+</body>
+</html>

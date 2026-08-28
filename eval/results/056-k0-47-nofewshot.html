@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">设置</nav>
+  <div class="list">
+    <div class="cell aic jcsb hl-b">
+      <div class="fc g-1 flex-1">
+        <span class="body">消息推送</span>
+        <span class="caption text-muted">接收订单与活动通知</span>
+      </div>
+      <af-switch id="sw-push" checked></af-switch>
+    </div>
+    <div class="cell aic jcsb hl-b">
+      <div class="fc g-1 flex-1">
+        <span class="body">夜间模式</span>
+        <span class="caption text-muted">保护视力，降低屏幕亮度</span>
+      </div>
+      <af-switch id="sw-dark"></af-switch>
+    </div>
+    <div class="cell aic jcsb">
+      <div class="fc g-1 flex-1">
+        <span class="body">震动反馈</span>
+        <span class="caption text-muted">操作时提供触觉反馈</span>
+      </div>
+      <af-switch id="sw-vibrate" checked></af-switch>
+    </div>
+  </div>
+</div>
+<script type="module">
+const switches = document.querySelectorAll('af-switch');
+switches.forEach(sw => {
+  sw.addEventListener('af-switch:change', (e) => {
+    console.log(`${sw.id} changed to:`, e.detail.checked);
+  });
+});
+</script>
+</body>
+</html>

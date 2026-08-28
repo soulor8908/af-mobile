@@ -1,0 +1,16 @@
+{
+  "passK": 3,
+  "total": 0,
+  "lintPassed": 0,
+  "lintPassRate": "0%",
+  "avgRounds": "0",
+  "errorsByRule": {},
+  "byCategory": {},
+  "lintFailures": [],
+  "visualResults": [],
+  "visualPassed": 0,
+  "visualPassRate": "0%",
+  "visualFailures": [],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "variant": "47p3-current"
+}

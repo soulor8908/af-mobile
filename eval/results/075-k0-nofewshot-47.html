@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>首页</title>
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <!-- 顶部滚动公告 -->
+  <af-notice-bar text="活动公告：全场满 199 减 30，上不封顶" scroll></af-notice-bar>
+
+  <!-- 视觉锚点区（营销场景包要求） -->
+  <div class="hero-grad p-4">
+    <div class="eyebrow">秋季新品</div>
+    <div class="display">焕新生活</div>
+    <div class="subtitle">精选好物 低至 5 折</div>
+  </div>
+
+  <!-- 数据统计区（营销场景包要求） -->
+  <div class="stats-grid p-4">
+    <div class="fc aic jcc">
+      <div class="stat-num text-brand">500+</div>
+      <div class="caption text-muted m-1">今日上新</div>
+    </div>
+    <div class="fc aic jcc">
+      <div class="stat-num text-success">98%</div>
+      <div class="caption text-muted m-1">好评率</div>
+    </div>
+    <div class="fc aic jcc">
+      <div class="stat-num text-brand">24h</div>
+      <div class="caption text-muted m-1">极速发货</div>
+    </div>
+  </div>
+
+  <!-- 商品推荐列表 -->
+  <af-list id="list" item-height="auto"></af-list>
+
+  <!-- 底部导航 -->
+  <div class="tabbar tabbar-fixed safe-bottom">
+    <div class="tab-item" aria-selected="true">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>首页</span>
+    </div>
+    <div class="tab-item">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span>发现</span>
+    </div>
+    <div class="tab-item">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+      <span>购物车</span>
+    </div>
+    <div class="tab-item">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+      <span>我的</span>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { register, signal, effect } from '/af-mobile.js';
+
+// 注册组件
+register('af-notice-bar');
+register('af-list');
+
+const list = document.getElementById('list');
+const items = signal([]);
+
+// 商品数据模拟
+const mockData = [
+  { id: 1, title: '极简纯棉T恤 透气舒适', price: '¥59.00', img: 'https://picsum.photos/seed/1/375/375', tag: '热销' },
+  { id: 2, title: '复古牛仔外套 经典水洗', price: '¥199.00', img: 'https://picsum.photos/seed/2/375/375', tag: '新品' },
+  { id: 3, title: '休闲运动鞋 轻便减震', price: '¥129.00', img: 'https://picsum.photos/seed/3/375/375', tag: '特价' },
+  { id: 4, title: '日式陶瓷餐具套装', price: '¥89.00', img: 'https://picsum.photos/seed/4/375/375', tag: '包邮' },
+  { id: 5, title: '智能蓝牙耳机 降噪', price: '¥299.00', img: 'https://picsum.photos/seed/5/375/375', tag: '爆款' },
+];
+
+// 列表渲染模板（电商场景：card-media + aspect-1 + price + tag）
+list.renderItem = (item) => `
+  <div class="card-media">
+    <img src="${item.img}" class="aspect-1 w-full" alt="${item.title}">
+    <div class="p-3">
+      <div class="title ellipsis-2">${item.title}</div>
+      <div class="jcsb aic m-2">
+        <span class="price">${item.price}</span>
+        <span class="tag tag-danger">${item.tag}</span>
+      </div>
+    </div>
+  </div>
+`;
+
+// 数据绑定
+effect(() => {
+  list.data = items();
+});
+
+// 模拟加载
+items.set(mockData);
+
+// 点击事件
+list.addEventListener('af-list:itemclick', (e) => {
+  console.log('点击商品:', e.detail.item);
+});
+
+// 加载更多
+list.addEventListener('af-list:loadmore', () => {
+  setTimeout(() => {
+    list.endLoadMore(false); // 没有更多数据
+  }, 1000);
+});
+</script>
+</body>
+</html>

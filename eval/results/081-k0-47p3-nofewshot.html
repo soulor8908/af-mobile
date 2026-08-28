@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">经营数据</nav>
+  <div class="p-3 fc g-3">
+    <!-- KPI 卡片区 -->
+    <section class="card">
+      <div class="stats-grid">
+        <div class="fc aic g-1">
+          <span class="stat-num text-brand">¥12.8w</span>
+          <span class="caption">总销售额</span>
+        </div>
+        <div class="fc aic g-1">
+          <span class="stat-num text-success">1,024</span>
+          <span class="caption">订单量</span>
+        </div>
+        <div class="fc aic g-1">
+          <span class="stat-num">¥125</span>
+          <span class="caption">客单价</span>
+        </div>
+        <div class="fc aic g-1">
+          <span class="stat-num text-danger">1.2%</span>
+          <span class="caption">退款率</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 折线图区 -->
+    <section class="card">
+      <div class="section-tt">近7日销售趋势</div>
+      <af-chart-line id="salesChart" smooth></af-chart-line>
+    </section>
+  </div>
+</div>
+<script type="module">
+import { registerChart } from '/af-mobile/charts/index.js';
+
+// 注册图表组件
+await registerChart('af-chart-line');
+
+// 初始化图表数据
+const chart = document.getElementById('salesChart');
+if (chart) {
+  chart.labels = ['10-24', '10-25', '10-26', '10-27', '10-28', '10-29', '10-30'];
+  chart.series = [{
+    name: '销售额',
+    values: [8200, 9320, 9010, 12400, 15900, 14300, 18200]
+  }];
+}
+</script>
+</body>
+</html>

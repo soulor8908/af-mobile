@@ -1,0 +1,96 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">信息流</nav>
+  <af-pull-refresh id="refresh">
+    <af-list id="list" style="height:320px" refresh></af-list>
+  </af-pull-refresh>
+  <div class="actions">
+    <button id="more" class="btn btn-ghost caption">加载更多</button>
+  </div>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-pull-refresh');
+await register('af-list');
+
+const list = document.getElementById('list');
+const refresh = document.getElementById('refresh');
+const moreBtn = document.getElementById('more');
+let allData = [];
+let currentCount = 0;
+const pageSize = 5;
+const totalCount = 10;
+
+// 初始数据
+const initialData = Array.from({ length: pageSize }, (_, i) => ({
+  title: `信息 ${i + 1}`,
+  subtitle: '更新于 08-01'
+}));
+
+// 加载更多数据
+const loadMoreData = () => {
+  const start = currentCount;
+  const end = Math.min(currentCount + pageSize, totalCount);
+  const newData = Array.from({ length: end - start }, (_, i) => ({
+    title: `信息 ${start + i + 1}`,
+    subtitle: '更新于 08-01'
+  }));
+  
+  allData = [...allData, ...newData];
+  currentCount = end;
+  
+  return newData;
+};
+
+// 渲染列表
+const renderList = () => {
+  list.data = allData;
+};
+
+// 初始化
+renderList();
+
+// 刷新事件
+refresh.addEventListener('af-pull-refresh:refresh', async () => {
+  // 模拟刷新
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  allData = initialData;
+  currentCount = pageSize;
+  renderList();
+  refresh.endRefresh();
+});
+
+// 加载更多事件
+list.addEventListener('af-list:loadmore', async () => {
+  if (currentCount >= totalCount) {
+    moreBtn.textContent = '已加载全部 10 条';
+    list.endLoadMore(false);
+    return;
+  }
+  
+  // 模拟加载
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  const newData = loadMoreData();
+  renderList();
+  
+  if (currentCount >= totalCount) {
+    moreBtn.textContent = '已加载全部 10 条';
+    list.endLoadMore(false);
+  } else {
+    list.endLoadMore(true);
+  }
+});
+
+// 点击更多按钮
+moreBtn.addEventListener('click', () => {
+  list.dispatchEvent(new CustomEvent('af-list:loadmore'));
+});
+</script>
+</body>
+</html>

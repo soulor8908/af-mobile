@@ -1,0 +1,69 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-navbar title="收银台" show-back back-text="返回">
+    <div slot="right" class="f aic g-1">
+      <span class="price price-lg">¥256.00</span>
+    </div>
+  </af-navbar>
+  <div class="p-4">
+    <div class="card">
+      <div class="form-row">
+        <label class="label">支付方式</label>
+        <af-picker id="bankPicker" title="选择银行卡"></af-picker>
+      </div>
+      <div class="form-row">
+        <label class="label">支付密码</label>
+        <af-password-input id="password" length="6" mask></af-password-input>
+      </div>
+    </div>
+  </div>
+  <af-number-keyboard id="keyboard" random title="输入支付密码"></af-number-keyboard>
+  <af-toast id="toast"></af-toast>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-navbar', 'af-picker', 'af-number-keyboard', 'af-password-input', 'af-toast');
+
+const keyboard = document.getElementById('keyboard');
+const password = document.getElementById('password');
+const toast = document.getElementById('toast');
+const bankPicker = document.getElementById('bankPicker');
+
+// 设置银行卡选项
+bankPicker.columns = [['招商银行', '工商银行', '建设银行']];
+
+// 页面加载时自动打开数字键盘
+keyboard.open();
+
+// 数字键盘输入事件
+keyboard.addEventListener('af-number-keyboard:input', (e) => {
+  password.value = e.detail.value;
+});
+
+// 数字键盘删除事件
+keyboard.addEventListener('af-number-keyboard:delete', (e) => {
+  password.value = e.detail.value;
+});
+
+// 数字键盘完成事件（输满6位）
+keyboard.addEventListener('af-number-keyboard:complete', async (e) => {
+  // 模拟支付处理
+  await new Promise(resolve => setTimeout(resolve, 500));
+  toast.show('支付成功', { type: 'success' });
+  // 关闭键盘
+  keyboard.close();
+});
+
+// 银行卡选择器确认事件
+bankPicker.addEventListener('af-picker:confirm', (e) => {
+  console.log('选择的银行卡:', e.detail.values[0]);
+});
+</script>
+</body>
+</html>

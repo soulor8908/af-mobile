@@ -1,0 +1,37 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">内容中心</nav>
+  <af-tabs id="tt" active-index="0"></af-tabs>
+  <section id="panel-1" class="p-4">推荐内容面板</section>
+  <section id="panel-2" class="p-4" style="display: none;">关注内容面板</section>
+  <section id="panel-3" class="p-4" style="display: none;">热榜内容面板</section>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-tabs');
+
+const tt = document.getElementById('tt');
+tt.tabs = [
+  { label: '推荐' },
+  { label: '关注' },
+  { label: '热榜' }
+];
+
+tt.addEventListener('af-tabs:change', (e) => {
+  // 隐藏所有面板
+  document.getElementById('panel-1').style.display = 'none';
+  document.getElementById('panel-2').style.display = 'none';
+  document.getElementById('panel-3').style.display = 'none';
+  
+  // 显示对应面板
+  document.getElementById(`panel-${e.detail.index + 1}`).style.display = 'block';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">选择地址</nav>
+  <div class="card p-4">
+    <div class="caption" id="selectedAddress">请选择地址</div>
+    <af-cascade-picker id="addressPicker" title="选择地址"></af-cascade-picker>
+  </div>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+
+// 注册 af-cascade-picker 组件
+await register('af-cascade-picker');
+
+const picker = document.getElementById('addressPicker');
+const selectedAddress = document.getElementById('selectedAddress');
+
+// 设置省份数据
+const provinces = [
+  {
+    name: '浙江省',
+    children: ['杭州市', '宁波市']
+  },
+  {
+    name: '广东省',
+    children: ['广州市']
+  }
+];
+
+// 转换为 af-cascade-picker 所需的 columns 格式
+picker.columns = [
+  provinces.map(p => p.name),
+  provinces.map(p => p.children).flat()
+];
+
+// 确认事件处理
+picker.addEventListener('af-cascade-picker:confirm', (e) => {
+  const values = e.detail.values;
+  if (values.length >= 2) {
+    selectedAddress.textContent = `${values[0]} ${values[1]}`;
+  }
+});
+</script>
+</body>
+</html>

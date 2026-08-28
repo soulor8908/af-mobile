@@ -1,0 +1,114 @@
+
+```html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">购物车</nav>
+  <div class="card p-4">
+    <div class="list" id="cartList">
+      <div class="list-item g-3 aic">
+        <af-switch id="ck-1" checked></af-switch>
+        <div class="flex-1 m-3">
+          <div class="body t-b">商品名称 1</div>
+          <div class="caption text-muted">规格：标准</div>
+          <div class="caption text-danger">¥88.00</div>
+        </div>
+      </div>
+      <div class="list-item g-3 aic">
+        <af-switch id="ck-2"></af-switch>
+        <div class="flex-1 m-3">
+          <div class="body t-b">商品名称 2</div>
+          <div class="caption text-muted">规格：豪华</div>
+          <div class="caption text-danger">¥66.00</div>
+        </div>
+      </div>
+      <div class="list-item g-3 aic">
+        <af-switch id="ck-3"></af-switch>
+        <div class="flex-1 m-3">
+          <div class="body t-b">商品名称 3</div>
+          <div class="caption text-muted">规格：基础</div>
+          <div class="caption text-danger">¥45.00</div>
+        </div>
+      </div>
+    </div>
+    <div class="jcsb aic m-4">
+      <div class="body t-b">合计：<span id="total">¥88.00</span></div>
+      <button class="btn btn-block bg-brand" id="checkout">去结算</button>
+    </div>
+  </div>
+  
+  <af-dialog id="checkoutDialog" title="确认订单">
+    <div class="p-4">
+      <div class="body">确认购买以下商品？</div>
+      <div class="caption text-muted m-2">合计：<span id="dialogTotal">¥88.00</span></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('checkoutDialog').hide()">取消</button>
+      <button class="btn bg-brand" onclick="confirmOrder()">确认</button>
+    </div>
+  </af-dialog>
+  
+  <af-toast id="toast"></af-toast>
+</div>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-switch');
+await register('af-dialog');
+await register('af-toast');
+
+const switches = [
+  document.getElementById('ck-1'),
+  document.getElementById('ck-2'), 
+  document.getElementById('ck-3')
+];
+
+const prices = [88.00, 66.00, 45.00];
+const totalElement = document.getElementById('total');
+const dialogTotalElement = document.getElementById('dialogTotal');
+const checkoutButton = document.getElementById('checkout');
+const checkoutDialog = document.getElementById('checkoutDialog');
+const toast = document.getElementById('toast');
+
+function calculateTotal() {
+  let total = 0;
+  switches.forEach((sw, index) => {
+    if (sw.checked) {
+      total += prices[index];
+    }
+  });
+  return total.toFixed(2);
+}
+
+function updateTotal() {
+  const total = calculateTotal();
+  totalElement.textContent = `¥${total}`;
+  dialogTotalElement.textContent = `¥${total}`;
+}
+
+// 初始化
+updateTotal();
+
+// 监听开关变化
+switches.forEach(sw => {
+  sw.addEventListener('af-switch:change', updateTotal);
+});
+
+// 结算按钮点击
+checkoutButton.addEventListener('click', () => {
+  checkoutDialog.show();
+});
+
+// 确认订单
+function confirmOrder() {
+  checkoutDialog.hide();
+  toast.show('下单成功', { type: 'success' });
+}
+</script>
+</body>
+</html>
+```

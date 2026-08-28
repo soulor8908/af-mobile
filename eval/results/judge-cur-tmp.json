@@ -1,0 +1,289 @@
+﻿{
+  "passK": 1,
+  "total": 12,
+  "lintPassed": 12,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.42",
+  "errorsByRule": {
+    "af-mobile/semantic-visual": 9
+  },
+  "byCategory": {
+    "form": {
+      "total": 4,
+      "lintPassed": 4,
+      "visualPassed": 3
+    },
+    "detail": {
+      "total": 3,
+      "lintPassed": 3,
+      "visualPassed": 2
+    },
+    "complex": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 1
+    },
+    "list": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 2
+    },
+    "nav": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "087",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\087-k0-46v-trap-final-current.png",
+      "errors": []
+    },
+    {
+      "id": "088",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\088-k0-46v-trap-final-current.png",
+      "errors": [
+        "(s.values || []).map is not a function",
+        "(s.values || []).map is not a function"
+      ]
+    },
+    {
+      "id": "089",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\089-k0-46v-trap-final-current.png",
+      "errors": []
+    },
+    {
+      "id": "090",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\090-k0-46v-trap-final-current.png",
+      "errors": []
+    },
+    {
+      "id": "091",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\091-k0-46v-trap-final-current.png",
+      "errors": []
+    },
+    {
+      "id": "092",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "text=宸查€氳繃 step#2 click \"af-dialog >> button:has-text(\"纭\")\" 鈫?locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\092-k0-46v-trap-final-current.png",
+      "errors": [
+        "confirmDialog.show is not a function"
+      ]
+    },
+    {
+      "id": "093",
+      "category": "complex",
+      "domPass": false,
+      "missing": [
+        "af-dialog",
+        "af-toast"
+      ],
+      "fails": [
+        "缂哄皯 af-dialog",
+        "缂哄皯 af-toast",
+        "af-dialog 涓嶅彲瑙?,
+        "text=涓嬪崟鎴愬姛 step#2 click \"af-dialog >> button:has-text(\"纭畾\")\" 鈫?locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\093-k0-46v-trap-final-current.png",
+      "errors": [
+        "dialog.show is not a function",
+        "dialog.show is not a function"
+      ]
+    },
+    {
+      "id": "094",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        "af-toast"
+      ],
+      "fails": [
+        "缂哄皯 af-toast",
+        "text=鐧诲綍鎴愬姛 step#4 waitFor \"text=鐧诲綍鎴愬姛\" 鈫?page.waitForSelector: Timeout 3000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\094-k0-46v-trap-final-current.png",
+      "errors": [
+        "Cannot read properties of null (reading 'show')"
+      ]
+    },
+    {
+      "id": "095",
+      "category": "list",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\095-k0-46v-trap-final-current.png",
+      "errors": []
+    },
+    {
+      "id": "096",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\096-k0-46v-trap-final-current.png",
+      "errors": []
+    },
+    {
+      "id": "097",
+      "category": "nav",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\097-k0-46v-trap-final-current.png",
+      "errors": []
+    },
+    {
+      "id": "098",
+      "category": "list",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\098-k0-46v-trap-final-current.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 9,
+  "visualPassRate": "75.0%",
+  "visualFailures": [
+    {
+      "id": "092",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "text=宸查€氳繃 step#2 click \"af-dialog >> button:has-text(\"纭\")\" 鈫?locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\092-k0-46v-trap-final-current.png",
+      "errors": [
+        "confirmDialog.show is not a function"
+      ]
+    },
+    {
+      "id": "093",
+      "category": "complex",
+      "domPass": false,
+      "missing": [
+        "af-dialog",
+        "af-toast"
+      ],
+      "fails": [
+        "缂哄皯 af-dialog",
+        "缂哄皯 af-toast",
+        "af-dialog 涓嶅彲瑙?,
+        "text=涓嬪崟鎴愬姛 step#2 click \"af-dialog >> button:has-text(\"纭畾\")\" 鈫?locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\093-k0-46v-trap-final-current.png",
+      "errors": [
+        "dialog.show is not a function",
+        "dialog.show is not a function"
+      ]
+    },
+    {
+      "id": "094",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        "af-toast"
+      ],
+      "fails": [
+        "缂哄皯 af-toast",
+        "text=鐧诲綍鎴愬姛 step#4 waitFor \"text=鐧诲綍鎴愬姛\" 鈫?page.waitForSelector: Timeout 3000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\094-k0-46v-trap-final-current.png",
+      "errors": [
+        "Cannot read properties of null (reading 'show')"
+      ]
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "byDifficulty": {
+    "trap": {
+      "total": 6,
+      "lintPassed": 6,
+      "visualPassed": 5
+    },
+    "stress": {
+      "total": 6,
+      "lintPassed": 6,
+      "visualPassed": 4
+    }
+  },
+  "errorModes": {
+    "婕?register": 3,
+    "寮瑰眰鏈紑": 1
+  }
+}
+

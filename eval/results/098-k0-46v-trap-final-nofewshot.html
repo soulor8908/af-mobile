@@ -1,0 +1,76 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">信息流</nav>
+  <af-pull-refresh id="refresh">
+    <af-list id="list" style="height:200px" refresh></af-list>
+  </af-pull-refresh>
+  <div id="more" class="caption t-center">加载更多</div>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-pull-refresh');
+await register('af-list');
+
+const list = document.getElementById('list');
+const more = document.getElementById('more');
+let currentCount = 5;
+let hasMore = true;
+
+// 初始数据
+const initialData = Array.from({ length: 5 }, (_, i) => ({
+  title: `信息 ${i + 1}`,
+  subtitle: `更新于 ${new Date().toLocaleDateString()}`
+}));
+
+// 追加数据
+const appendData = () => {
+  const newData = Array.from({ length: 5 }, (_, i) => ({
+    title: `信息 ${currentCount + i + 1}`,
+    subtitle: `更新于 ${new Date().toLocaleDateString()}`
+  }));
+  return newData;
+};
+
+// 设置初始数据
+list.data = initialData;
+
+// 监听 loadmore 事件
+list.addEventListener('af-list:loadmore', async () => {
+  if (!hasMore) return;
+  
+  // 模拟加载延迟
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  const newData = appendData();
+  list.data = [...list.data, ...newData];
+  currentCount += 5;
+  
+  if (currentCount >= 10) {
+    hasMore = false;
+    more.textContent = '已加载全部 10 条';
+  }
+});
+
+// 监听 refresh 事件
+document.getElementById('refresh').addEventListener('af-pull-refresh:refresh', async () => {
+  // 模拟刷新延迟
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // 重置数据
+  currentCount = 5;
+  hasMore = true;
+  list.data = initialData;
+  more.textContent = '加载更多';
+  
+  // 结束刷新
+  document.getElementById('refresh').endRefresh();
+});
+</script>
+</body>
+</html>

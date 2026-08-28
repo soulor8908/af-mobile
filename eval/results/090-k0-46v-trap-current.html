@@ -1,0 +1,69 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-navbar title="我的"></af-navbar>
+  
+  <section class="card p-4">
+    <div class="fc aic g-4">
+      <div class="avatar" style="border: 2px solid var(--c-brand);"></div>
+      <div class="flex-1">
+        <div class="title">柚子</div>
+        <div class="stats-grid">
+          <div class="fc aic g-1">
+            <span class="stat-num text-brand">128</span>
+            <span class="caption">收藏</span>
+          </div>
+          <div class="fc aic g-1">
+            <span class="stat-num text-brand">56</span>
+            <span class="caption">关注</span>
+          </div>
+          <div class="fc aic g-1">
+            <span class="stat-num text-brand">1024</span>
+            <span class="caption">粉丝</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="list">
+    <div class="list-item">
+      <span class="icon-badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></span>
+      <span class="body flex-1">收货地址</span>
+      <span class="caption">›</span>
+    </div>
+    <div class="list-item">
+      <span class="icon-badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21s-7-5.1-7-11a7 7 0 0 1 14 0c0 5.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+      <span class="body flex-1">我的订单</span>
+      <span class="caption">›</span>
+    </div>
+    <div class="list-item">
+      <span class="icon-badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12a8 8 0 0 1-8 8H5l1.6-2.4A8 8 0 1 1 21 12z"/></svg></span>
+      <span class="body flex-1">客服中心</span>
+      <span class="caption">›</span>
+    </div>
+  </section>
+  
+  <af-tabbar id="tabbar" active-index="3">
+    <div slot="tab-0" class="tab-item">首页</div>
+    <div slot="tab-1" class="tab-item">分类</div>
+    <div slot="tab-2" class="tab-item">购物车</div>
+    <div slot="tab-3" class="tab-item">我的</div>
+  </af-tabbar>
+  
+  <script type="module">
+import { register } from '/af-mobile.js';
+await register('af-tabbar');
+const tabbar = document.getElementById('tabbar');
+tabbar.addEventListener('af-tabbar:change', (e) => {
+  console.log('Tab changed to:', e.detail.index);
+});
+  </script>
+</div>
+</body>
+</html>

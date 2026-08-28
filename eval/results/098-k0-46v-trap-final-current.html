@@ -1,0 +1,82 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">信息流</nav>
+  <af-pull-refresh id="refresh">
+    <af-list id="list" style="height:200px" refresh></af-list>
+  </af-pull-refresh>
+  <div id="more" class="caption t-center">加载更多</div>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-pull-refresh');
+await register('af-list');
+
+const list = document.getElementById('list');
+const refresh = document.getElementById('refresh');
+const more = document.getElementById('more');
+
+let allItems = [];
+let currentCount = 0;
+const pageSize = 5;
+const totalItems = 10;
+
+// 初始化数据
+const generateItems = (start, count) => {
+  const items = [];
+  for (let i = start; i < start + count; i++) {
+    items.push({
+      title: `信息 ${i + 1}`,
+      subtitle: `更新于 ${new Date().toLocaleTimeString()}`
+    });
+  }
+  return items;
+};
+
+// 初始加载数据
+const loadInitialData = async () => {
+  allItems = generateItems(0, pageSize);
+  currentCount = pageSize;
+  list.data = allItems;
+};
+
+// 加载更多数据
+const loadMoreData = async () => {
+  if (currentCount >= totalItems) {
+    more.textContent = `已加载全部 ${totalItems} 条`;
+    list.endLoadMore(false);
+    return;
+  }
+  
+  const newItems = generateItems(currentCount, pageSize);
+  allItems = [...allItems, ...newItems];
+  currentCount += pageSize;
+  list.data = allItems;
+  
+  if (currentCount >= totalItems) {
+    more.textContent = `已加载全部 ${totalItems} 条`;
+    list.endLoadMore(false);
+  } else {
+    list.endLoadMore(true);
+  }
+};
+
+// 刷新事件
+refresh.addEventListener('af-pull-refresh:refresh', async () => {
+  await loadInitialData();
+  refresh.endRefresh();
+});
+
+// 加载更多事件
+list.addEventListener('af-list:loadmore', loadMoreData);
+
+// 初始化
+loadInitialData();
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+{
+  "passK": 1,
+  "total": 1,
+  "lintPassed": 1,
+  "lintPassRate": "100.0%",
+  "avgRounds": "2.00",
+  "errorsByRule": {},
+  "byCategory": {
+    "detail": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 0
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "092",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "text=已通过 step#2 click \"af-dialog >> button:has-text(\"确认\")\" → locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\092-k0-46v-trap-current.png",
+      "errors": [
+        "confirmDialog.show is not a function"
+      ]
+    }
+  ],
+  "visualPassed": 0,
+  "visualPassRate": "0.0%",
+  "visualFailures": [
+    {
+      "id": "092",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "text=已通过 step#2 click \"af-dialog >> button:has-text(\"确认\")\" → locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\092-k0-46v-trap-current.png",
+      "errors": [
+        "confirmDialog.show is not a function"
+      ]
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "byDifficulty": {
+    "trap": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 0
+    }
+  },
+  "errorModes": {},
+  "variant": "46v-trap-current"
+}

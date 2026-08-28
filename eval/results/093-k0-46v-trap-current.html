@@ -1,0 +1,101 @@
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">购物车</nav>
+  <div class="card p-4">
+    <div class="body t-b m-2">商品清单</div>
+    <af-list id="cartList" item-height="56"></af-list>
+    <div class="jcsb m-4">
+      <div class="f aic">
+        <span class="body">合计：</span>
+        <span class="price text-danger" id="total">¥88.00</span>
+      </div>
+      <button class="btn btn-block" id="checkout">去结算</button>
+    </div>
+  </div>
+  
+  <af-dialog id="checkoutDialog" title="确认订单">
+    <div class="p-4">
+      <div class="body">确认购买以下商品？</div>
+      <div class="m-2 t-center">
+        <span class="body">总计：</span>
+        <span class="price text-danger" id="dialogTotal">¥88.00</span>
+      </div>
+    </div>
+    <div slot="footer">
+      <button class="btn btn-ghost" af-dialog:cancel>取消</button>
+      <button class="btn btn-danger" af-dialog:confirm>确认</button>
+    </div>
+  </af-dialog>
+  
+  <af-toast id="toast"></af-toast>
+</div>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-list', 'af-switch', 'af-dialog', 'af-toast');
+
+const cartList = document.getElementById('cartList');
+const totalEl = document.getElementById('total');
+const dialogTotalEl = document.getElementById('dialogTotal');
+const checkoutBtn = document.getElementById('checkout');
+const checkoutDialog = document.getElementById('checkoutDialog');
+const toast = document.getElementById('toast');
+
+const items = [
+  { id: 'ck-1', name: '商品A', price: 88.00, checked: true },
+  { id: 'ck-2', name: '商品B', price: 66.00, checked: false },
+  { id: 'ck-3', name: '商品C', price: 45.00, checked: false }
+];
+
+function updateTotal() {
+  const checkedItems = items.filter(item => item.checked);
+  const total = checkedItems.reduce((sum, item) => sum + item.price, 0);
+  totalEl.textContent = `¥${total.toFixed(2)}`;
+  dialogTotalEl.textContent = `¥${total.toFixed(2)}`;
+}
+
+cartList.renderItem = (item) => `
+  <div class="list-item g-3 aic">
+    <af-switch id="${item.id}" checked="${item.checked}"></af-switch>
+    <div class="flex-1 m-3">
+      <div class="body">${item.name}</div>
+      <div class="caption text-muted">¥${item.price.toFixed(2)}</div>
+    </div>
+  </div>
+`;
+
+cartList.data = items;
+
+// 监听 switch 变化
+cartList.addEventListener('af-list:itemclick', (e) => {
+  const item = items[e.detail.index];
+  const switchEl = document.getElementById(item.id);
+  if (switchEl) {
+    item.checked = switchEl.checked;
+    updateTotal();
+  }
+});
+
+// 去结算按钮点击
+checkoutBtn.addEventListener('click', () => {
+  checkoutDialog.show();
+});
+
+// 对话框确认
+checkoutDialog.addEventListener('af-dialog:confirm', () => {
+  checkoutDialog.hide();
+  toast.show('下单成功', { type: 'success' });
+});
+
+// 初始化总金额
+updateTotal();
+</script>
+</body>
+</html>

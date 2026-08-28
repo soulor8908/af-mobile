@@ -1,0 +1,292 @@
+{
+  "passK": 1,
+  "total": 12,
+  "lintPassed": 12,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.42",
+  "errorsByRule": {},
+  "byCategory": {
+    "form": {
+      "total": 4,
+      "lintPassed": 4,
+      "visualPassed": 3
+    },
+    "detail": {
+      "total": 3,
+      "lintPassed": 3,
+      "visualPassed": 2
+    },
+    "complex": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 1
+    },
+    "list": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 1
+    },
+    "nav": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "087",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\087-k0-46v-trap-final-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "088",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\088-k0-46v-trap-final-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "089",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\089-k0-46v-trap-final-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "090",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\090-k0-46v-trap-final-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "091",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\091-k0-46v-trap-final-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "092",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "text=已通过 step#2 click \"af-dialog >> button:has-text(\"确认\")\" → locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\092-k0-46v-trap-final-nofewshot.png",
+      "errors": [
+        "confirmDialog.show is not a function"
+      ]
+    },
+    {
+      "id": "093",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-dialog 不可见",
+        "text=下单成功 step#2 click \"af-dialog >> button:has-text(\"确定\")\" → locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\093-k0-46v-trap-final-nofewshot.png",
+      "errors": [
+        "checkoutDialog.show is not a function",
+        "checkoutDialog.show is not a function"
+      ]
+    },
+    {
+      "id": "094",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        "af-toast"
+      ],
+      "fails": [
+        "缺少 af-toast",
+        "text=登录成功 step#4 waitFor \"text=登录成功\" → page.waitForSelector: Timeout 3000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\094-k0-46v-trap-final-nofewshot.png",
+      "errors": [
+        "Cannot read properties of null (reading 'show')"
+      ]
+    },
+    {
+      "id": "095",
+      "category": "list",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\095-k0-46v-trap-final-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "096",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\096-k0-46v-trap-final-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "097",
+      "category": "nav",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\097-k0-46v-trap-final-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "098",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-list .list-item step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器",
+        "#more step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\098-k0-46v-trap-final-nofewshot.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 8,
+  "visualPassRate": "66.7%",
+  "visualFailures": [
+    {
+      "id": "092",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "text=已通过 step#2 click \"af-dialog >> button:has-text(\"确认\")\" → locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\092-k0-46v-trap-final-nofewshot.png",
+      "errors": [
+        "confirmDialog.show is not a function"
+      ]
+    },
+    {
+      "id": "093",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-dialog 不可见",
+        "text=下单成功 step#2 click \"af-dialog >> button:has-text(\"确定\")\" → locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\093-k0-46v-trap-final-nofewshot.png",
+      "errors": [
+        "checkoutDialog.show is not a function",
+        "checkoutDialog.show is not a function"
+      ]
+    },
+    {
+      "id": "094",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        "af-toast"
+      ],
+      "fails": [
+        "缺少 af-toast",
+        "text=登录成功 step#4 waitFor \"text=登录成功\" → page.waitForSelector: Timeout 3000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\094-k0-46v-trap-final-nofewshot.png",
+      "errors": [
+        "Cannot read properties of null (reading 'show')"
+      ]
+    },
+    {
+      "id": "098",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-list .list-item step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器",
+        "#more step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\098-k0-46v-trap-final-nofewshot.png",
+      "errors": []
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "byDifficulty": {
+    "trap": {
+      "total": 6,
+      "lintPassed": 6,
+      "visualPassed": 5
+    },
+    "stress": {
+      "total": 6,
+      "lintPassed": 6,
+      "visualPassed": 3
+    }
+  },
+  "errorModes": {
+    "弹层未开": 1,
+    "漏-register": 1
+  },
+  "variant": "46v-trap-final-nofewshot"
+}

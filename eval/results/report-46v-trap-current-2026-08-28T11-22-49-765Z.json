@@ -1,0 +1,128 @@
+{
+  "passK": 1,
+  "total": 6,
+  "lintPassed": 6,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.00",
+  "errorsByRule": {},
+  "byCategory": {
+    "form": {
+      "total": 3,
+      "lintPassed": 3,
+      "visualPassed": 3
+    },
+    "detail": {
+      "total": 3,
+      "lintPassed": 3,
+      "visualPassed": 2
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "087",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\087-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "088",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\088-k0-46v-trap-current.png",
+      "errors": [
+        "(s.values || []).map is not a function",
+        "(s.values || []).map is not a function"
+      ]
+    },
+    {
+      "id": "089",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\089-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "090",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\090-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "091",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\091-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "092",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "text=已通过 step#1 click \"button:has-text(\"同意\")\" → locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\092-k0-46v-trap-current.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 5,
+  "visualPassRate": "83.3%",
+  "visualFailures": [
+    {
+      "id": "092",
+      "category": "detail",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "text=已通过 step#1 click \"button:has-text(\"同意\")\" → locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\092-k0-46v-trap-current.png",
+      "errors": []
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "byDifficulty": {
+    "trap": {
+      "total": 6,
+      "lintPassed": 6,
+      "visualPassed": 5
+    }
+  },
+  "errorModes": {},
+  "variant": "46v-trap-current"
+}

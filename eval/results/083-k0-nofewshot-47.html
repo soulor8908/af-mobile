@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar navbar-fixed safe-top">
+    <button class="btn btn-ghost btn-sm">‹ 返回</button>
+    <span class="flex-1 t-center t-md">流量来源</span>
+    <span class="flex-1"></span>
+  </header>
+
+  <div class="p-4 fc g-4" style="padding-top: 60px;">
+    <!-- 图表区域 -->
+    <section class="card">
+      <af-chart-pie id="traffic-chart" variant="ring" height="300"></af-chart-pie>
+    </section>
+
+    <!-- 图例区域 -->
+    <section class="card">
+      <div class="section-tt">渠道分布</div>
+      <div class="chips wrap" id="legend-container">
+        <!-- JS 动态生成图例 -->
+      </div>
+    </section>
+  </div>
+</div>
+
+<script type="module">
+import { registerChart } from '/af-mobile/charts/index.js';
+
+await registerChart('af-chart-pie');
+
+const data = [
+  { label: '直接访问', value: 335 },
+  { label: '搜索引擎', value: 310 },
+  { label: '社交媒体', value: 234 },
+  { label: '外部链接', value: 135 },
+  { label: '邮件营销', value: 148 }
+];
+
+const total = data.reduce((acc, cur) => acc + cur.value, 0);
+
+const chart = document.getElementById('traffic-chart');
+chart.centerText = `总访问量\n${total}`;
+chart.data = data;
+
+// 生成图例
+const legendContainer = document.getElementById('legend-container');
+data.forEach(item => {
+  const chip = document.createElement('span');
+  chip.className = 'tag tag-plain';
+  const percent = ((item.value / total) * 100).toFixed(1) + '%';
+  chip.textContent = `${item.label} ${percent}`;
+  legendContainer.appendChild(chip);
+});
+</script>
+</body>
+</html>

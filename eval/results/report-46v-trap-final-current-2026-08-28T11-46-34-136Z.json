@@ -1,0 +1,62 @@
+{
+  "passK": 1,
+  "total": 1,
+  "lintPassed": 1,
+  "lintPassRate": "100.0%",
+  "avgRounds": "2.00",
+  "errorsByRule": {},
+  "byCategory": {
+    "list": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 0
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "098",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-list .list-item step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器",
+        "#more step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\098-k0-46v-trap-final-current.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 0,
+  "visualPassRate": "0.0%",
+  "visualFailures": [
+    {
+      "id": "098",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-list .list-item step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器",
+        "#more step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\098-k0-46v-trap-final-current.png",
+      "errors": []
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "byDifficulty": {
+    "stress": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 0
+    }
+  },
+  "errorModes": {},
+  "variant": "46v-trap-final-current"
+}

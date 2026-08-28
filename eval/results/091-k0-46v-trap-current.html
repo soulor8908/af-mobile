@@ -1,0 +1,40 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">选择地址</nav>
+  <div class="card p-4">
+    <div class="caption" id="selectedAddress">请选择地址</div>
+    <af-cascade-picker id="addressPicker" title="选择地址"></af-cascade-picker>
+  </div>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-cascade-picker');
+
+const picker = document.getElementById('addressPicker');
+const selectedAddress = document.getElementById('selectedAddress');
+
+// 设置省市区数据
+picker.columns = [
+  ['浙江省', '广东省'],
+  ['杭州市', '宁波市', '广州市']
+];
+
+// 添加确认事件监听
+picker.addEventListener('af-cascade-picker:confirm', (e) => {
+  const values = e.detail.values;
+  if (values.length === 2) {
+    selectedAddress.textContent = `${values[0]}${values[1]}`;
+  }
+});
+
+// 可选：设置默认选中值
+picker.values = ['浙江省', '杭州市'];
+</script>
+</body>
+</html>

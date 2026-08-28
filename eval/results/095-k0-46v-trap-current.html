@@ -1,0 +1,61 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-search-bar id="search" placeholder="搜索商品"></af-search-bar>
+  <af-list id="list" item-height="56"></af-list>
+  <div id="empty" class="empty center fc g-3 p-4" style="display: none;">
+    <div class="title">没有找到相关商品</div>
+  </div>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-search-bar');
+await register('af-list');
+
+const search = document.getElementById('search');
+const list = document.getElementById('list');
+const empty = document.getElementById('empty');
+
+const items = [
+  { name: '苹果', id: 1 },
+  { name: '芒果', id: 2 },
+  { name: '草莓', id: 3 },
+  { name: '香蕉', id: 4 },
+  { name: '柠檬', id: 5 },
+  { name: '蓝莓', id: 6 }
+];
+
+const filterItems = (keyword) => {
+  if (!keyword) {
+    return items;
+  }
+  return items.filter(item => item.name.includes(keyword));
+};
+
+const renderList = (filteredItems) => {
+  if (filteredItems.length === 0) {
+    list.style.display = 'none';
+    empty.style.display = 'flex';
+  } else {
+    list.style.display = 'block';
+    empty.style.display = 'none';
+    list.data = filteredItems;
+  }
+};
+
+search.addEventListener('af-search-bar:input', (e) => {
+  const keyword = e.detail.value;
+  const filtered = filterItems(keyword);
+  renderList(filtered);
+});
+
+// 初始化显示所有商品
+renderList(items);
+</script>
+</body>
+</html>

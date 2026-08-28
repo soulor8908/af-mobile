@@ -1,0 +1,49 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page center p-4">
+  <h1 class="title">登录</h1>
+  <form id="loginForm" class="fc g-3">
+    <af-field id="user" label="手机号" placeholder="请输入手机号" required></af-field>
+    <af-field id="pass" label="密码" input-type="password" required></af-field>
+    <button id="login" class="btn btn-block" type="submit">登录</button>
+  </form>
+  <af-toast id="toast"></af-toast>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-field');
+await register('af-toast');
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const userField = document.getElementById('user');
+  const passField = document.getElementById('pass');
+  
+  // 验证手机号
+  if (!userField.value.trim()) {
+    userField.setError('请输入用户名或手机号');
+    return;
+  }
+  
+  // 验证密码
+  if (!passField.value.trim()) {
+    passField.setError('请输入密码');
+    return;
+  }
+  
+  // 模拟登录
+  const toast = document.getElementById('toast');
+  if (userField.value === '13800000000' && passField.value === '123456') {
+    toast.show('登录成功', { type: 'success' });
+  } else {
+    toast.show('用户名或密码错误', { type: 'error' });
+  }
+});
+</script>
+</body>
+</html>

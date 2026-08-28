@@ -1,0 +1,61 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page center p-4">
+  <h1 class="title">会务预订</h1>
+  
+  <div class="card p-4">
+    <div class="section-tt">参会人数</div>
+    <af-stepper id="people" value="1" min="1" max="10"></af-stepper>
+  </div>
+  
+  <div class="card p-4">
+    <div class="section-tt">预订日期</div>
+    <af-calendar id="cal"></af-calendar>
+  </div>
+  
+  <div class="card p-4">
+    <div class="section-tt">预订信息</div>
+    <div id="summary" class="body"></div>
+  </div>
+  
+  <div class="actions">
+    <button class="btn btn-block">确认预订</button>
+  </div>
+</div>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+
+await register('af-stepper');
+await register('af-calendar');
+
+const people = document.getElementById('people');
+const cal = document.getElementById('cal');
+const summary = document.getElementById('summary');
+
+// 初始化显示
+updateSummary();
+
+// 人数变化事件
+people.addEventListener('af-stepper:change', () => {
+  updateSummary();
+});
+
+// 日期选择事件
+cal.addEventListener('af-calendar:select', () => {
+  updateSummary();
+});
+
+function updateSummary() {
+  const peopleCount = people.value;
+  const selectedDate = cal.value || new Date().toISOString().split('T')[0];
+  summary.textContent = `${peopleCount} 人 · ${selectedDate}`;
+}
+</script>
+</body>
+</html>

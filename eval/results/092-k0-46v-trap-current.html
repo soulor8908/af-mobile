@@ -1,0 +1,60 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar navbar-fixed">
+    <button class="btn btn-ghost btn-sm">‹ 返回</button>
+    <span class="flex-1"></span>
+    <button class="btn btn-ghost btn-sm">详情</button>
+  </header>
+  
+  <div class="p-4">
+    <af-steps id="steps" class="m-3"></af-steps>
+    
+    <div class="card p-4">
+      <div class="section-tt m-2">审批意见</div>
+      <af-field type="textarea" readonly placeholder="暂无审批意见" rows="4"></af-field>
+    </div>
+  </div>
+  
+  <div class="cob cob-fx">
+    <button class="btn btn-block btn-plain">同意</button>
+  </div>
+  
+  <af-dialog id="confirmDialog" title="确认同意" confirm-text="确认">
+    <div class="p-4">
+      <div class="body">确认同意该审批申请？</div>
+    </div>
+  </af-dialog>
+  
+  <af-toast id="toast"></af-toast>
+  
+  <script type="module">
+import { register } from '/af-mobile.js';
+await register('af-steps');
+await register('af-dialog');
+await register('af-toast');
+
+const steps = document.getElementById('steps');
+steps.steps = ['提交申请', '部门审批', '财务审批', '已通过'];
+steps.current = 2;
+
+const confirmDialog = document.getElementById('confirmDialog');
+const toast = document.getElementById('toast');
+
+document.querySelector('.btn-block').addEventListener('click', () => {
+  confirmDialog.show();
+});
+
+confirmDialog.addEventListener('af-dialog:confirm', () => {
+  toast.show('已通过', { type: 'success' });
+  confirmDialog.hide();
+});
+  </script>
+</div>
+</body>
+</html>

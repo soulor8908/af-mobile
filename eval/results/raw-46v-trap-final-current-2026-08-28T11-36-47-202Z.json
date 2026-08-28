@@ -1,0 +1,379 @@
+[
+  {
+    "id": "087",
+    "category": "form",
+    "expects": [
+      "af-navbar",
+      "af-picker",
+      "af-number-keyboard",
+      "af-toast"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\087-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\087-k0-46v-trap-final-current.html"
+    }
+  },
+  {
+    "id": "088",
+    "category": "detail",
+    "expects": [
+      "af-navbar",
+      "af-chart-bar",
+      "af-chart-line"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\088-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 2,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\088-k0-46v-trap-final-current.html"
+    }
+  },
+  {
+    "id": "089",
+    "category": "form",
+    "expects": [
+      "af-field",
+      "af-switch",
+      "af-toast"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\089-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\089-k0-46v-trap-final-current.html"
+    }
+  },
+  {
+    "id": "090",
+    "category": "detail",
+    "expects": [
+      "af-navbar",
+      "af-tabbar"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\090-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 2,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\090-k0-46v-trap-final-current.html"
+    }
+  },
+  {
+    "id": "091",
+    "category": "form",
+    "expects": [
+      "af-cascade-picker"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\091-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\091-k0-46v-trap-final-current.html"
+    }
+  },
+  {
+    "id": "092",
+    "category": "detail",
+    "expects": [
+      "af-steps",
+      "af-field",
+      "af-dialog",
+      "af-toast"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\092-k0-46v-trap-final-current.html"
+      },
+      {
+        "ok": false,
+        "rounds": 2,
+        "lastErrors": [
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "text=已通过 step#2 click \"af-dialog >> button:has-text(\"确认\")\" → locator.click: Timeout 2000ms exceeded."
+          }
+        ],
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\092-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 2,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\092-k0-46v-trap-final-current.html"
+    }
+  },
+  {
+    "id": "093",
+    "category": "complex",
+    "expects": [
+      "af-switch",
+      "af-dialog",
+      "af-toast"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\093-k0-46v-trap-final-current.html"
+      },
+      {
+        "ok": false,
+        "rounds": 2,
+        "lastErrors": [
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "缺少 af-dialog"
+          },
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "缺少 af-toast"
+          },
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "af-dialog 不可见"
+          },
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "text=下单成功 step#2 click \"af-dialog >> button:has-text(\"确定\")\" → locator.click: Timeout 2000ms exceeded."
+          }
+        ],
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\093-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 2,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\093-k0-46v-trap-final-current.html"
+    }
+  },
+  {
+    "id": "094",
+    "category": "form",
+    "expects": [
+      "af-field",
+      "af-toast"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\094-k0-46v-trap-final-current.html"
+      },
+      {
+        "ok": false,
+        "rounds": 1,
+        "lastErrors": [
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "缺少 af-toast"
+          },
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "text=登录成功 step#4 waitFor \"text=登录成功\" → page.waitForSelector: Timeout 3000ms exceeded."
+          }
+        ],
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\094-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\094-k0-46v-trap-final-current.html"
+    }
+  },
+  {
+    "id": "095",
+    "category": "list",
+    "expects": [
+      "af-search-bar"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\095-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\095-k0-46v-trap-final-current.html"
+    }
+  },
+  {
+    "id": "096",
+    "category": "complex",
+    "expects": [
+      "af-stepper",
+      "af-calendar"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\096-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\096-k0-46v-trap-final-current.html"
+    }
+  },
+  {
+    "id": "097",
+    "category": "nav",
+    "expects": [
+      "af-tabs"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\097-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\097-k0-46v-trap-final-current.html"
+    }
+  },
+  {
+    "id": "098",
+    "category": "list",
+    "expects": [
+      "af-pull-refresh",
+      "af-list"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\098-k0-46v-trap-final-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 2,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\098-k0-46v-trap-final-current.html"
+    }
+  }
+]

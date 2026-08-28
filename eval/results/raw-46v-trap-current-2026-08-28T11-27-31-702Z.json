@@ -1,0 +1,223 @@
+[
+  {
+    "id": "093",
+    "category": "complex",
+    "expects": [
+      "af-switch",
+      "af-dialog",
+      "af-toast"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 2,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\093-k0-46v-trap-current.html"
+      },
+      {
+        "ok": false,
+        "rounds": 2,
+        "lastErrors": [
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "#total 文本不含 154.00"
+          },
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "af-dialog 不可见"
+          },
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "text=下单成功 step#2 click \"af-dialog >> button:has-text(\"确定\")\" → locator.click: Timeout 2000ms exceeded."
+          }
+        ],
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\093-k0-46v-trap-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 2,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\093-k0-46v-trap-current.html"
+    }
+  },
+  {
+    "id": "094",
+    "category": "form",
+    "expects": [
+      "af-field",
+      "af-toast"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\094-k0-46v-trap-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\094-k0-46v-trap-current.html"
+    }
+  },
+  {
+    "id": "095",
+    "category": "list",
+    "expects": [
+      "af-search-bar"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\095-k0-46v-trap-current.html"
+      },
+      {
+        "ok": false,
+        "rounds": 1,
+        "lastErrors": [
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": ".list-item 数量 6 != 2"
+          },
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "#empty 不可见"
+          }
+        ],
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\095-k0-46v-trap-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\095-k0-46v-trap-current.html"
+    }
+  },
+  {
+    "id": "096",
+    "category": "complex",
+    "expects": [
+      "af-stepper",
+      "af-calendar"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\096-k0-46v-trap-current.html"
+      },
+      {
+        "ok": false,
+        "rounds": 1,
+        "lastErrors": [
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "#summary 文本不含 3 人"
+          }
+        ],
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\096-k0-46v-trap-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\096-k0-46v-trap-current.html"
+    }
+  },
+  {
+    "id": "097",
+    "category": "nav",
+    "expects": [
+      "af-tabs"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\097-k0-46v-trap-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\097-k0-46v-trap-current.html"
+    }
+  },
+  {
+    "id": "098",
+    "category": "list",
+    "expects": [
+      "af-pull-refresh",
+      "af-list"
+    ],
+    "passed": true,
+    "attempts": [
+      {
+        "ok": true,
+        "rounds": 1,
+        "exitCode": 0,
+        "lastErrors": [],
+        "error": null,
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\098-k0-46v-trap-current.html"
+      },
+      {
+        "ok": false,
+        "rounds": 1,
+        "lastErrors": [
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "af-list .list-item step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器"
+          },
+          {
+            "rule": "af-mobile/semantic-visual",
+            "message": "#more step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器"
+          }
+        ],
+        "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\098-k0-46v-trap-current.html"
+      }
+    ],
+    "best": {
+      "ok": true,
+      "rounds": 1,
+      "exitCode": 0,
+      "lastErrors": [],
+      "error": null,
+      "codePath": "D:\\projects\\aiflow-ui\\eval\\results\\098-k0-46v-trap-current.html"
+    }
+  }
+]

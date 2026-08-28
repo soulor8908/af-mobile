@@ -1,0 +1,96 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">购物车</nav>
+  <div class="card p-4">
+    <div class="body t-b m-2">商品清单</div>
+    <af-list id="cartList" item-height="72"></af-list>
+    <div class="jcsb aic m-4">
+      <div class="fc">
+        <span class="body">合计：</span>
+        <span class="price text-danger" id="total">¥88.00</span>
+      </div>
+      <button class="btn btn-block" id="checkout">去结算</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+await register('af-list', 'af-switch', 'af-dialog', 'af-toast');
+
+const cartList = document.getElementById('cartList');
+const totalEl = document.getElementById('total');
+const checkoutBtn = document.getElementById('checkout');
+
+const cartItems = [
+  { id: 'ck-1', name: '商品 A', price: 88.00, checked: true },
+  { id: 'ck-2', name: '商品 B', price: 66.00, checked: false },
+  { id: 'ck-3', name: '商品 C', price: 45.00, checked: false }
+];
+
+function updateTotal() {
+  const checkedItems = cartItems.filter(item => item.checked);
+  const total = checkedItems.reduce((sum, item) => sum + item.price, 0);
+  totalEl.textContent = `¥${total.toFixed(2)}`;
+}
+
+cartList.renderItem = (item) => `
+  <div class="list-item g-3 aic">
+    <af-switch id="${item.id}" checked="${item.checked}"></af-switch>
+    <div class="flex-1 m-3">
+      <div class="body">${item.name}</div>
+      <div class="caption text-muted">¥${item.price.toFixed(2)}</div>
+    </div>
+  </div>
+`;
+
+cartList.data = cartItems;
+
+// 监听开关变化
+cartItems.forEach(item => {
+  const switchEl = document.getElementById(item.id);
+  switchEl.addEventListener('af-switch:change', (e) => {
+    item.checked = e.detail.checked;
+    updateTotal();
+  });
+});
+
+// 初始化总金额
+updateTotal();
+
+// 结算按钮点击事件
+checkoutBtn.addEventListener('click', () => {
+  const checkedItems = cartItems.filter(item => item.checked);
+  const total = checkedItems.reduce((sum, item) => sum + item.price, 0);
+  
+  const dialog = document.createElement('af-dialog');
+  dialog.innerHTML = `
+    <div class="p-4">
+      <div class="title m-2">确认结算</div>
+      <div class="body m-2">共 ${checkedItems.length} 件商品，合计：<span class="price text-danger">¥${total.toFixed(2)}</span></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-ghost">取消</button>
+      <button class="btn btn-danger">确认</button>
+    </div>
+  `;
+  
+  document.body.appendChild(dialog);
+  dialog.show();
+  
+  dialog.addEventListener('af-dialog:confirm', () => {
+    const toast = document.createElement('af-toast');
+    document.body.appendChild(toast);
+    toast.show('下单成功', { type: 'success' });
+    dialog.hide();
+  });
+});
+</script>
+</body>
+</html>

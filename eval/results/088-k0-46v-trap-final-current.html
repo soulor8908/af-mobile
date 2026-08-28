@@ -1,0 +1,42 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-navbar title="周报"></af-navbar>
+  <div class="p-3">
+    <div class="card m-3">
+      <div class="card-media aspect-16-9">
+        <af-chart-bar id="barChart" variant="bar"></af-chart-bar>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-media aspect-16-9">
+        <af-chart-line id="lineChart" variant="area"></af-chart-line>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module">
+import { registerChart } from '/af-mobile/charts/index.js';
+await registerChart('af-chart-bar');
+await registerChart('af-chart-line');
+
+const barChart = document.getElementById('barChart');
+const lineChart = document.getElementById('lineChart');
+
+// 设置柱状图数据
+barChart.columns = ['销量'];
+barChart.labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+barChart.series = [[120, 150, 180, 200, 190, 220, 250]];
+
+// 设置面积图数据
+lineChart.columns = ['访问量'];
+lineChart.labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+lineChart.series = [[300, 350, 400, 450, 420, 500, 550]];
+</script>
+</body>
+</html>

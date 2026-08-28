@@ -1,0 +1,99 @@
+{
+  "passK": 1,
+  "total": 3,
+  "lintPassed": 3,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.00",
+  "errorsByRule": {},
+  "byCategory": {
+    "list": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 1
+    },
+    "complex": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "095",
+      "category": "list",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\095-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "096",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\096-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "098",
+      "category": "list",
+      "domPass": false,
+      "missing": [
+        "af-list .list-item"
+      ],
+      "fails": [
+        "缺少 af-list .list-item",
+        "af-list .list-item step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器",
+        "#more step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\098-k0-46v-trap-current.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 2,
+  "visualPassRate": "66.7%",
+  "visualFailures": [
+    {
+      "id": "098",
+      "category": "list",
+      "domPass": false,
+      "missing": [
+        "af-list .list-item"
+      ],
+      "fails": [
+        "缺少 af-list .list-item",
+        "af-list .list-item step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器",
+        "#more step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\098-k0-46v-trap-current.png",
+      "errors": []
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "byDifficulty": {
+    "stress": {
+      "total": 3,
+      "lintPassed": 3,
+      "visualPassed": 2
+    }
+  },
+  "errorModes": {
+    "漏-register": 1
+  },
+  "variant": "46v-trap-current"
+}

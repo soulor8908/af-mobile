@@ -1,0 +1,200 @@
+{
+  "passK": 1,
+  "total": 6,
+  "lintPassed": 6,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.17",
+  "errorsByRule": {},
+  "byCategory": {
+    "complex": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 0
+    },
+    "form": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "list": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 0
+    },
+    "nav": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "093",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "#total 文本不含 154.00",
+        "af-dialog 不可见",
+        "text=下单成功 step#2 click \"af-dialog >> button:has-text(\"确定\")\" → locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\093-k0-46v-trap-current.png",
+      "errors": [
+        "checkoutDialog.show is not a function",
+        "checkoutDialog.show is not a function"
+      ]
+    },
+    {
+      "id": "094",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\094-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "095",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        ".list-item 数量 6 != 2",
+        "#empty 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\095-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "096",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "#summary 文本不含 3 人"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\096-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "097",
+      "category": "nav",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\097-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "098",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-list .list-item step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器",
+        "#more step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\098-k0-46v-trap-current.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 2,
+  "visualPassRate": "33.3%",
+  "visualFailures": [
+    {
+      "id": "093",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "#total 文本不含 154.00",
+        "af-dialog 不可见",
+        "text=下单成功 step#2 click \"af-dialog >> button:has-text(\"确定\")\" → locator.click: Timeout 2000ms exceeded."
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\093-k0-46v-trap-current.png",
+      "errors": [
+        "checkoutDialog.show is not a function",
+        "checkoutDialog.show is not a function"
+      ]
+    },
+    {
+      "id": "095",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        ".list-item 数量 6 != 2",
+        "#empty 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\095-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "096",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "#summary 文本不含 3 人"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\096-k0-46v-trap-current.png",
+      "errors": []
+    },
+    {
+      "id": "098",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-list .list-item step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器",
+        "#more step#1 scroll \"af-list\" → page.evaluate: Error: af-list 无可滚动容器"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\098-k0-46v-trap-current.png",
+      "errors": []
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "byDifficulty": {
+    "stress": {
+      "total": 6,
+      "lintPassed": 6,
+      "visualPassed": 2
+    }
+  },
+  "errorModes": {
+    "弹层未开": 1,
+    "漏-register": 1
+  },
+  "variant": "46v-trap-current"
+}

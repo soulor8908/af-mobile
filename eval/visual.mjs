@@ -8,6 +8,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join, resolve, dirname, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
+import { validateSteps, formatStepError } from './steps.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
@@ -93,9 +94,53 @@ export function startServer(port = 0) {
   });
 }
 
+// 执行一条 assert 的 steps 序列；全部成功返回 null，失败返回错误描述
+// click 用 locator.click()（真实坐标点击，穿透 shadow 命中内部元素），禁 evaluate(el.click())——宿主合成点击不触发 shadow 内监听
+async function runSteps(page, steps) {
+  for (let i = 0; i < steps.length; i++) {
+    const s = steps[i];
+    try {
+      if (s.action === 'click') {
+        await page.locator(s.sel).first().click({ timeout: 2000 });
+      } else if (s.action === 'fill') {
+        // 赋 value 后派发 input/change；宿主无 value 时穿透 light/shadow 找 input/textarea
+        await page.locator(s.sel).first().evaluate((el, v) => {
+          const t = 'value' in el ? el
+            : el.querySelector('input,textarea') || (el.shadowRoot && el.shadowRoot.querySelector('input,textarea')) || el;
+          t.value = v;
+          t.dispatchEvent(new Event('input', { bubbles: true }));
+          t.dispatchEvent(new Event('change', { bubbles: true }));
+        }, s.value);
+      } else if (s.action === 'pressKey') {
+        await page.locator(s.sel).first().evaluate((el, k) => {
+          for (const type of ['keydown', 'keypress', 'keyup']) {
+            el.dispatchEvent(new KeyboardEvent(type, { key: k, bubbles: true, cancelable: true }));
+          }
+        }, s.key);
+      } else if (s.action === 'scroll') {
+        // sel 缺省滚 window；给 sel 时滚该元素（无滚动高度则尝试 shadow 内首个可滚动容器）
+        await page.evaluate(({ sel, top }) => {
+          if (!sel) { window.scrollTo(0, top); return; }
+          const el = document.querySelector(sel);
+          if (!el) throw new Error(sel + ' not found');
+          const scrollers = [el, ...(el.shadowRoot ? [...el.shadowRoot.querySelectorAll('*')] : [])]
+            .filter((n) => n.scrollHeight > n.clientHeight + 1);
+          if (!scrollers.length) throw new Error(sel + ' 无可滚动容器');
+          scrollers[0].scrollTop = top;
+        }, { sel: s.sel, top: s.top ?? 9999 });
+      } else if (s.action === 'waitFor') {
+        await page.waitForSelector(s.sel, { state: 'visible', timeout: s.timeout || 3000 });
+      }
+    } catch (e) {
+      return formatStepError(i, s, e);
+    }
+  }
+  return null;
+}
+
 // 用 Playwright 渲染 HTML 文件，截图并提取真实渲染后的 DOM 是否含 expects selectors
 // 返回 { ok, screenshotPath, missing, error }
-export async function renderCapture(htmlPath, expects, { port, outDir }) {
+export async function renderCapture(htmlPath, expects, { port, outDir, noAutoOpen = false }) {
   const browser = await chromium.launch({
     // executablePath 可经 PLAYWRIGHT_CHROMIUM_PATH 覆盖（容器环境）；缺省由 Playwright 自行解析本机浏览器
     ...(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {}),
@@ -153,25 +198,33 @@ export async function renderCapture(htmlPath, expects, { port, outDir }) {
     // 等待渲染（af-list 虚拟滚动等）
     await page.waitForTimeout(1500);
     // 等待弹层类组件完成升级（源码直引时 register 为异步链，未 upgrade 时 open() 调用无效）
-    await page
-      .waitForFunction(
-        () => !document.querySelector('af-dialog:not(:defined), af-action-sheet:not(:defined), af-picker:not(:defined), af-cascade-picker:not(:defined)'),
-        { timeout: 3000 },
-      )
-      .catch(() => {});
-    // 强制打开弹层类组件（af-dialog/af-action-sheet/picker 系默认关闭，评审前触发打开）
-    await page.evaluate(() => {
-      document.querySelectorAll('af-dialog').forEach((el) => { try { el.open && el.open(); } catch {} });
-      document.querySelectorAll('af-action-sheet').forEach((el) => { try { el.showPopover && el.showPopover(); } catch {} });
-      document.querySelectorAll('af-picker, af-cascade-picker').forEach((el) => { try { el.open && el.open(); } catch {} });
-    }).catch(() => {});
-    await page.waitForTimeout(300);
+    // noAutoOpen：交互断言题跳过强开——基建代开会掩盖「弹层未开/未接线」考点
+    if (!noAutoOpen) {
+      await page
+        .waitForFunction(
+          () => !document.querySelector('af-dialog:not(:defined), af-action-sheet:not(:defined), af-picker:not(:defined), af-cascade-picker:not(:defined)'),
+          { timeout: 3000 },
+        )
+        .catch(() => {});
+      // 强制打开弹层类组件（af-dialog/af-action-sheet/picker 系默认关闭，评审前触发打开）
+      await page.evaluate(() => {
+        document.querySelectorAll('af-dialog').forEach((el) => { try { el.open && el.open(); } catch {} });
+        document.querySelectorAll('af-action-sheet').forEach((el) => { try { el.showPopover && el.showPopover(); } catch {} });
+        document.querySelectorAll('af-picker, af-cascade-picker').forEach((el) => { try { el.open && el.open(); } catch {} });
+      }).catch(() => {});
+      await page.waitForTimeout(300);
+    }
     // 真实 DOM 断言：expects 是否都存在于渲染后 DOM
     // L1-L2 DOM 断言：expects 支持 string（仅存在性）或 { sel, count?, visible?, text?, style? }
     const asserts = (Array.isArray(expects) ? expects : []).map((a) => (typeof a === 'string' ? { sel: a } : a));
     const missing = [];
     const fails = [];
     for (const a of asserts) {
+      if (a.steps) {
+        try { validateSteps(a.steps); } catch (e) { fails.push(`${a.sel} steps 非法: ${e.message}`); continue; }
+        const stepErr = await runSteps(page, a.steps);
+        if (stepErr) { fails.push(`${a.sel} ${stepErr}`); continue; }
+      }
       const n = await page.locator(a.sel).count().catch(() => 0);
       if (n === 0) {
         missing.push(a.sel);

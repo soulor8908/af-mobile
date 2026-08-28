@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>商品图库</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">商品图库</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <div class="grid grid-2 g-2 p-3">
+    <af-img
+      src="https://placehold.co/600x600/f0f0f5/8899aa?text=Look+01"
+      alt="春季穿搭一"
+      placeholder-src="https://placehold.co/600x600/eeeeee/cccccc?text=Loading"
+      fail-src="https://placehold.co/600x600/eeeeee/999999?text=Failed"></af-img>
+    <af-img
+      src="https://placehold.co/600x600/f5f0fa/9988aa?text=Look+02"
+      alt="春季穿搭二"
+      placeholder-src="https://placehold.co/600x600/eeeeee/cccccc?text=Loading"
+      fail-src="https://placehold.co/600x600/eeeeee/999999?text=Failed"></af-img>
+    <af-img
+      src="https://placehold.co/600x600/f0f5f0/88aa99?text=Look+03"
+      alt="春季穿搭三"
+      placeholder-src="https://placehold.co/600x600/eeeeee/cccccc?text=Loading"
+      fail-src="https://placehold.co/600x600/eeeeee/999999?text=Failed"></af-img>
+    <af-img
+      src="https://invalid.example.com/missing.jpg"
+      alt="春季穿搭四（源图失效，展示兜底图）"
+      placeholder-src="https://placehold.co/600x600/eeeeee/cccccc?text=Loading"
+      fail-src="https://placehold.co/600x600/eeeeee/999999?text=%E5%8A%A0%E8%BD%BD%E5%A4%B1%E8%B4%A5"></af-img>
+  </div>
+
+  <p class="caption text-muted p-3 t-center" id="tip" role="status" aria-live="polite">已加载 0 / 4</p>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+await register('af-img');
+
+const tip = document.getElementById('tip');
+const imgs = document.querySelectorAll('af-img');
+let loaded = 0;
+imgs.forEach((im) => {
+  im.addEventListener('af-img:load', () => {
+    loaded += 1;
+    tip.textContent = '已加载 ' + loaded + ' / ' + imgs.length;
+  });
+  im.addEventListener('af-img:error', () => {
+    tip.textContent = '有图片加载失败，已展示兜底图';
+  });
+});
+</script>
+</body>
+</html>

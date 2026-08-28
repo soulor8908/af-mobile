@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>购物车</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">购物车</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <div class="list">
+    <div class="list-item g-3" data-price="59">
+      <img class="thumb" src="https://placehold.co/144x144" alt="">
+      <div class="flex-1 min-w-0 fc g-1">
+        <span class="title ellipsis">云感纯棉 T 恤</span>
+        <span class="caption text-muted">白色 · L</span>
+        <span class="price">¥59.00</span>
+      </div>
+      <af-stepper value="1" min="1" max="99" step="1" aria-label="云感纯棉 T 恤购买数量"></af-stepper>
+    </div>
+    <div class="list-item g-3" data-price="129">
+      <img class="thumb" src="https://placehold.co/144x144" alt="">
+      <div class="flex-1 min-w-0 fc g-1">
+        <span class="title ellipsis">直筒牛仔裤</span>
+        <span class="caption text-muted">深蓝 · 32</span>
+        <span class="price">¥129.00</span>
+      </div>
+      <af-stepper value="1" min="1" max="99" step="1" aria-label="直筒牛仔裤购买数量"></af-stepper>
+    </div>
+  </div>
+
+  <div class="cob cob-fx">
+    <div class="flex-1 fc g-1">
+      <span class="caption text-muted">合计（不含运费）</span>
+      <span class="price" id="total">¥188.00</span>
+    </div>
+    <button class="btn" id="checkout">结算</button>
+  </div>
+
+  <af-toast id="toast"></af-toast>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+await register('af-stepper', 'af-toast');
+
+const totalEl = document.getElementById('total');
+const recalc = () => {
+  let sum = 0;
+  document.querySelectorAll('.list-item[data-price]').forEach((row) => {
+    const step = row.querySelector('af-stepper');
+    sum += Number(row.dataset.price) * (Number(step.value) || 1);
+  });
+  totalEl.textContent = '¥' + sum.toFixed(2);
+};
+
+document.querySelectorAll('af-stepper').forEach((st) => {
+  st.addEventListener('af-stepper:change', () => recalc());
+});
+recalc();
+
+document.getElementById('checkout').addEventListener('click', () => {
+  document.getElementById('toast').show('已提交结算：' + totalEl.textContent);
+});
+</script>
+</body>
+</html>

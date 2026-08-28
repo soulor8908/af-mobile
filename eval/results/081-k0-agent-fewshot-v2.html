@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>经营数据</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">经营数据</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <section class="stats-grid m-3" aria-label="核心指标">
+    <div class="fc g-1">
+      <span class="stat-num text-brand">¥8,642</span>
+      <span class="caption text-muted">今日销售额</span>
+    </div>
+    <div class="fc g-1">
+      <span class="stat-num text-success">326</span>
+      <span class="caption text-muted">今日订单</span>
+    </div>
+    <div class="fc g-1">
+      <span class="stat-num">¥265</span>
+      <span class="caption text-muted">客单价</span>
+    </div>
+    <div class="fc g-1">
+      <span class="stat-num">4.8%</span>
+      <span class="caption text-muted">支付转化率</span>
+    </div>
+  </section>
+
+  <section class="card m-3 p-4 fc g-2">
+    <div class="section-tt m-0">近 7 日销售额</div>
+    <af-chart-line id="trend" smooth legend show-axis height="240"></af-chart-line>
+  </section>
+
+  <p class="caption text-muted p-3 t-center" id="tip" role="status" aria-live="polite">点击数据点查看当日销售额</p>
+</div>
+
+<script type="module">
+import { registerChart } from '../../src/charts/index.js';
+registerChart('af-chart-line');
+
+const chart = document.getElementById('trend');
+const pad = (n) => String(n).padStart(2, '0');
+const labels = [];
+for (let i = 6; i >= 0; i -= 1) {
+  const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+  labels.push(pad(d.getMonth() + 1) + '-' + pad(d.getDate()));
+}
+chart.labels = labels;
+chart.series = [{ name: '销售额', values: [5210, 6340, 4880, 7260, 6830, 7920, 8642] }];
+
+chart.addEventListener('af-chart-line:select', (e) => {
+  document.getElementById('tip').textContent =
+    (e.detail.label || '') + ' 销售额 ¥' + Number(e.detail.value).toLocaleString();
+});
+</script>
+</body>
+</html>

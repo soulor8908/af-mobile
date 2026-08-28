@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>搜索</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">搜索</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <af-search-bar id="sb" value="连衣裙" placeholder="搜索商品、店铺" clearable></af-search-bar>
+
+  <section class="px-3 py-3 fc g-2">
+    <span class="body t-b">热门搜索</span>
+    <div class="chips">
+      <span class="tag" data-kw="连衣裙">连衣裙</span>
+      <span class="tag" data-kw="小白鞋">小白鞋</span>
+      <span class="tag" data-kw="防晒衣">防晒衣</span>
+      <span class="tag" data-kw="双肩包">双肩包</span>
+      <span class="tag" data-kw="纯棉 T 恤">纯棉 T 恤</span>
+    </div>
+  </section>
+
+  <section class="px-3 py-2 f aic jcsb">
+    <span class="body t-b">历史记录</span>
+    <button class="btn btn-ghost btn-sm" id="clearHistory">清空</button>
+  </section>
+
+  <div class="list" id="history">
+    <div class="list-item g-3">
+      <span class="icon-badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+      <span class="title flex-1 ellipsis">连衣裙</span>
+      <span class="meta text-muted">今天 14:20</span>
+    </div>
+    <div class="list-item g-3">
+      <span class="icon-badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+      <span class="title flex-1 ellipsis">小白鞋</span>
+      <span class="meta text-muted">昨天</span>
+    </div>
+    <div class="list-item g-3">
+      <span class="icon-badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+      <span class="title flex-1 ellipsis">防晒衣</span>
+      <span class="meta text-muted">08-25</span>
+    </div>
+  </div>
+
+  <p class="caption text-muted px-3 py-3 t-center" id="tip" role="status" aria-live="polite"></p>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+await register('af-search-bar');
+
+const sb = document.getElementById('sb');
+const tip = document.getElementById('tip');
+
+sb.addEventListener('af-search-bar:search', (e) => {
+  tip.textContent = '已搜索：' + (e.detail.value || '').trim();
+});
+sb.addEventListener('af-search-bar:clear', () => {
+  tip.textContent = '已清除搜索词';
+});
+
+document.querySelectorAll('.chips .tag').forEach((el) => {
+  el.addEventListener('click', () => {
+    sb.value = el.dataset.kw;
+    tip.textContent = '已选择热门词：' + el.dataset.kw;
+  });
+});
+
+document.getElementById('clearHistory').addEventListener('click', () => {
+  document.getElementById('history').innerHTML = '';
+  tip.textContent = '已清空历史记录';
+});
+</script>
+</body>
+</html>

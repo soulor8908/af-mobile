@@ -122,6 +122,10 @@ jobs:
       - name: Eval prompts format check
         run: npm run eval:dry
 
+      # Step 6b: 组件考题覆盖矩阵（36 组件 × 考题，缺失阻断——飞轮盲区防回退）
+      - name: Eval component coverage
+        run: node scripts/eval-coverage.mjs
+
 # Step 6: CODEOWNERS 审批由 GitHub Branch Protection Rules 自动处理
 # 配置：Settings → Branches → Branch protection rules → Require review from Code Owners
 # 关键文件 → Owner 映射见 .github/CODEOWNERS

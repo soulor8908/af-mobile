@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>地址选择</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">地址选择</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <div class="list m-3">
+    <div class="cell g-3" id="regionRow" role="button" tabindex="0" aria-label="选择所在地区">
+      <span class="body flex-1">所在地区</span>
+      <span class="caption text-muted ellipsis" id="regionVal">请选择省 / 市 / 区</span>
+      <span class="caption">›</span>
+    </div>
+  </div>
+
+  <div class="p-3">
+    <button class="btn btn-block" id="saveBtn">确认</button>
+  </div>
+
+  <p class="caption text-muted p-3 t-center" id="tip" role="status" aria-live="polite">点击「所在地区」开始省市区三级联动选择</p>
+
+  <af-picker id="picker" title="请选择省市区"></af-picker>
+  <af-toast id="toast"></af-toast>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+await register('af-picker', 'af-toast');
+
+const REGION = {
+  广东省: { 广州市: ['天河区', '海珠区', '越秀区'], 深圳市: ['南山区', '福田区', '罗湖区'] },
+  浙江省: { 杭州市: ['西湖区', '滨江区', '余杭区'], 宁波市: ['海曙区', '鄞州区'] },
+  江苏省: { 南京市: ['玄武区', '鼓楼区', '建邺区'], 苏州市: ['姑苏区', '工业园区'] },
+};
+const DEFAULT_PROVINCE = '广东省';
+const DEFAULT_CITY = '广州市';
+
+const picker = document.getElementById('picker');
+const regionRow = document.getElementById('regionRow');
+const regionVal = document.getElementById('regionVal');
+const tip = document.getElementById('tip');
+const toast = document.getElementById('toast');
+
+const cityNames = (p) => Object.keys(REGION[p] || {});
+const districtNames = (p, c) => (REGION[p] && REGION[p][c]) || [];
+
+picker.columns = [Object.keys(REGION), cityNames(DEFAULT_PROVINCE), districtNames(DEFAULT_PROVINCE, DEFAULT_CITY)];
+picker.values = [DEFAULT_PROVINCE, DEFAULT_CITY, districtNames(DEFAULT_PROVINCE, DEFAULT_CITY)[0]];
+
+let curProvince = DEFAULT_PROVINCE;
+
+picker.addEventListener('af-picker:change', (e) => {
+  if (e.detail.column === 0) {
+    curProvince = e.detail.value;
+    const cities = cityNames(curProvince);
+    picker.setColumn(1, cities);
+    picker.setColumn(2, districtNames(curProvince, cities[0]));
+  } else if (e.detail.column === 1) {
+    picker.setColumn(2, districtNames(curProvince, e.detail.value));
+  }
+});
+picker.addEventListener('af-picker:confirm', (e) => {
+  const values = e.detail.values || [];
+  regionVal.textContent = values.join(' · ');
+  tip.textContent = '已选择：' + values.join(' / ');
+});
+
+const openPicker = () => picker.open();
+regionRow.addEventListener('click', openPicker);
+regionRow.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    openPicker();
+  }
+});
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+  if (regionVal.textContent === '请选择省 / 市 / 区') {
+    openPicker();
+    return;
+  }
+  toast.show('地址已保存：' + regionVal.textContent);
+});
+</script>
+</body>
+</html>

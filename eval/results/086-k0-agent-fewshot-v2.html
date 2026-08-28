@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI 客服</title>
+<link rel="stylesheet" href="../../src/index.css">
+<style>
+  html, body { height: 100%; }
+</style>
+</head>
+<body class="fc">
+<main class="page-col p-0">
+  <header class="navbar shrink-0">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <span class="title flex-1 t-center">AI 客服</span>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <p class="caption text-muted px-3 py-1 shrink-0" id="lastAsk" role="status" aria-live="polite"></p>
+
+  <af-chat id="chat" class="flex-1" placeholder="请输入您的问题"></af-chat>
+
+  <div class="safe-bottom shrink-0"></div>
+</main>
+
+<script type="module">
+import { registerChat, createSession } from '../../src/chat/index.js';
+registerChat();
+
+const chat = document.getElementById('chat');
+const lastAsk = document.getElementById('lastAsk');
+
+// 演示后端：把用户消息回显为自动回复（OpenAI SSE 帧格式）
+const enc = new TextEncoder();
+const sse = (obj) => 'data: ' + JSON.stringify(obj) + '\n\n';
+const echoStream = (text) => new Response(enc.encode(
+  sse({ choices: [{ delta: { content: '已收到您的问题：「' + text + '」。演示环境由智能客服自动回复，人工客服工作时间 9:00-21:00 在线。' } }] })
+  + 'data: [DONE]\n\n'
+), { status: 200, headers: { 'Content-Type': 'text/event-stream' } });
+
+const session = createSession({
+  endpoint: '/mock/chat',
+  requestFn: (_url, init) => {
+    let last = '';
+    try {
+      const body = JSON.parse((init && init.body) || '{}');
+      const msgs = body.messages || [];
+      last = msgs.length ? String(msgs[msgs.length - 1].content || '') : '';
+    } catch (err) {
+      last = '';
+    }
+    return Promise.resolve(echoStream(last));
+  },
+  systemPrompt: '你是 af-mobile 演示智能客服。',
+});
+chat.session = session;
+// 预置一条欢迎消息
+session.append({ role: 'assistant', content: [{ type: 'text', text: '您好，我是智能客服小助手，欢迎咨询订单、物流、售后等问题。' }] });
+
+chat.addEventListener('af-chat:send', (e) => {
+  const text = (e.detail && e.detail.text ? e.detail.text : '').trim();
+  if (text) lastAsk.textContent = '最近提问：' + text;
+});
+</script>
+</body>
+</html>

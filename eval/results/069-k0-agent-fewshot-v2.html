@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>酒店预订</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page p-0">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">酒店预订</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <af-calendar id="cal"></af-calendar>
+
+  <section class="card m-3 p-4 fc g-2">
+    <div class="section-tt m-0">房费明细</div>
+    <div class="f aic jcsb">
+      <span class="body">高级大床房 · 1 晚</span>
+      <span class="price">¥328.00</span>
+    </div>
+    <div class="f aic jcsb">
+      <span class="body">服务费</span>
+      <span class="price">¥20.00</span>
+    </div>
+    <div class="divider"></div>
+    <div class="f aic jcsb">
+      <span class="body t-b">合计</span>
+      <span class="price">¥348.00</span>
+    </div>
+    <span class="caption text-muted" id="stayHint" role="status"></span>
+  </section>
+
+  <div class="cob cob-fx">
+    <button class="btn btn-block" id="bookBtn">确认预订</button>
+  </div>
+
+  <af-toast id="toast"></af-toast>
+</div>
+
+<script type="module">
+import { register } from '../../src/index.js';
+await register('af-calendar', 'af-toast');
+
+const cal = document.getElementById('cal');
+const stayHint = document.getElementById('stayHint');
+const toast = document.getElementById('toast');
+
+const pad = (n) => String(n).padStart(2, '0');
+const fmt = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const today = fmt(new Date());
+
+cal.min = today; // 入住日期限制：今天起
+cal.value = today;
+let checkIn = today;
+
+const update = () => {
+  const d = new Date(checkIn + 'T00:00:00');
+  const next = new Date(d.getTime() + 24 * 60 * 60 * 1000);
+  stayHint.textContent = '入住 ' + checkIn + (checkIn === today ? '（今日）' : '') + ' · 离店 ' + fmt(next);
+};
+update();
+
+cal.addEventListener('af-calendar:select', (e) => {
+  checkIn = e.detail.date;
+  update();
+});
+
+document.getElementById('bookBtn').addEventListener('click', () => {
+  toast.show('已预订 ' + checkIn + ' 入住，房费合计 ¥348.00');
+});
+</script>
+</body>
+</html>

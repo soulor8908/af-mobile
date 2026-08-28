@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>设置</title>
+<link rel="stylesheet" href="../../src/index.css">
+</head>
+<body>
+<div class="page">
+  <header class="navbar">
+    <button class="btn btn-ghost btn-sm" aria-label="返回">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m15 4-8 8 8 8"/></svg>
+    </button>
+    <h1 class="title flex-1 t-center">设置</h1>
+    <span class="btn-sm shrink-0"></span>
+  </header>
+
+  <div class="list m-3">
+    <div class="cell">
+      <div class="flex-1 min-w-0 fc g-1">
+        <span class="title">消息推送</span>
+        <span class="caption text-muted">订单、物流与促销活动通知</span>
+      </div>
+      <af-switch id="sw-push" checked></af-switch>
+    </div>
+    <div class="cell">
+      <div class="flex-1 min-w-0 fc g-1">
+        <span class="title">夜间模式</span>
+        <span class="caption text-muted">日落后自动降低屏幕亮度</span>
+      </div>
+      <af-switch id="sw-dark"></af-switch>
+    </div>
+    <div class="cell">
+      <div class="flex-1 min-w-0 fc g-1">
+        <span class="title">震动反馈</span>
+        <span class="caption text-muted">关键操作时轻微震动提醒</span>
+      </div>
+      <af-switch id="sw-vibra" checked></af-switch>
+    </div>
+  </div>
+
+  <p class="caption text-muted p-3 t-center" id="tip" role="status" aria-live="polite">开关状态实时生效（演示）</p>
+</div>
+
+<script type="module">
+import { register, setTheme } from '../../src/index.js';
+await register('af-switch');
+
+const tip = document.getElementById('tip');
+document.getElementById('sw-push').addEventListener('af-switch:change', (e) => {
+  tip.textContent = '消息推送已' + (e.detail.checked ? '开启' : '关闭');
+});
+document.getElementById('sw-dark').addEventListener('af-switch:change', (e) => {
+  setTheme(e.detail.checked ? 'dark' : 'light');
+  tip.textContent = '夜间模式已' + (e.detail.checked ? '开启' : '关闭');
+});
+document.getElementById('sw-vibra').addEventListener('af-switch:change', (e) => {
+  tip.textContent = '震动反馈已' + (e.detail.checked ? '开启' : '关闭');
+});
+</script>
+</body>
+</html>

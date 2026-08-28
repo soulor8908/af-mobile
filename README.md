@@ -4,7 +4,7 @@ Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系*
 
 - **L1 Token**：92 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效，含 8 档灰阶，关键组合 WCAG AA 对比度由 CI 断言）
 - **L2 配方 + 原子**：228 个白名单封闭集 class（136 配方 + 92 原子，`btn`/`card`/`p-4`/...）
-- **L3 真组件**：30 个原生 Custom Elements（`af-list`/`af-dialog`/`...`），ESM 命名导出 + Tree Shaking
+- **L3 真组件**：36 个原生 Custom Elements（30 通用组件 + 5 图表组件 + 1 会话组件，`af-list`/`af-dialog`/`...`），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 24 条规则兜底 + CI 保护
 
 ## 在线 Demo
@@ -489,13 +489,13 @@ toggleTheme();            // 切换并持久化
 
 > 该脚本不依赖 @af-mobile/ui，可独立内联；组件库的 `initTheme()` 仍可调用（幂等，重复设同值无副作用）。
 
-## L4 禁令（25 条，ESLint error 级）
+## L4 禁令（ESLint error 级，共 24 条规则）
 
 写 AI 生成代码时务必遵守：
 
 1. `tokens.css` 以外不可重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 2. `style=""` 不可设置 `color/background*/padding*/margin*/font-size/border-radius/box-shadow`
-3. 不可使用 173 白名单外的 class 名或自定义组件标签
+3. 不可使用 228 个白名单之外的 class 名或自定义组件标签
 4. `.btn`（非 ghost）不可叠加 `text-brand/text-danger/text-success`
 5. `.input` 不可叠加 `t-sm/t-xs`（iOS 聚焦 < 16px 自动放大页面）
 6. `.cell/.list-item` 不可叠加 `f/fc` 原子
@@ -580,9 +580,9 @@ PR 触发 CI 检查链路（任一失败即阻断合并）：
 
 | 包 | 用途 | 安装/接入 |
 |---|---|---|
-| `@af-mobile/ui` | 主包：30 组件 + 路由/状态/主题/i18n + charts 图表子库（`/charts` 入口，5 图表组件）+ chat 对话子库（`/chat` 入口，SSE 会话核心）+ CLI | `npm i @af-mobile/ui` / `npm create af-mobile` |
+| `@af-mobile/ui` | 主包：30 组件（+ charts 图表子库 `/charts` 入口 5 图表组件 + chat 会话子库 `/chat` 入口）+ 路由/状态/主题/i18n + CLI | `npm i @af-mobile/ui` / `npm create af-mobile` |
 | `create-af-mobile` | 脚手架薄壳（npm create 约定入口，转发主包 CLI） | `npm create af-mobile@latest my-app` |
-| `@af-mobile/eslint-plugin` | 20 条 AI 约束规则（白名单/禁令/组件质量） | devDependency + flat config |
+| `@af-mobile/eslint-plugin` | 24 条 AI 约束规则（白名单/禁令/组件质量） | devDependency + flat config |
 | `@af-mobile/mcp` | MCP Server：`get_prompt` / `check_compliance` / `fix_code` / `generate_page` / `flywheel_report` | `npx @af-mobile/mcp`（注册进 TRAE / Claude Code / Cursor） |
 | `@af-mobile/prompt` | System Prompt 构建器（按需求裁剪白名单+组件 API+few-shot） | `import { buildPrompt } from '@af-mobile/prompt'` |
 | `@af-mobile/adapters` | 后端 scheme 适配器：`supabase://table?...` → PostgREST（零 BaaS SDK） | `npm i @af-mobile/adapters`（peer 依赖主包） |

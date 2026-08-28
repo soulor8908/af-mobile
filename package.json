@@ -115,6 +115,7 @@
     "eval:dry": "node eval/run.mjs --dry-run",
     "eval:flywheel": "node eval/flywheel.mjs",
     "publish:check": "node scripts/publish-check.mjs",
+    "registry:check": "node scripts/check-registry.mjs",
     "changeset": "changeset",
     "changeset:check": "changeset status --since=main",
     "version-packages": "changeset version",

@@ -103,14 +103,16 @@ async function runSteps(page, steps) {
       if (s.action === 'click') {
         await page.locator(s.sel).first().click({ timeout: 2000 });
       } else if (s.action === 'fill') {
-        // 赋 value 后派发 input/change；宿主无 value 时穿透 light/shadow 找 input/textarea
+        // 优先穿透 light/shadow 找内部 input/textarea（走组件内部监听路径，如 af-stepper 的 _onChange→setValue）；
+        // 仅当内部无输入元素时才退回宿主（直接赋 value property 不经 setter，可能不触发组件联动）
         await page.locator(s.sel).first().evaluate((el, v) => {
-          const t = 'value' in el ? el
-            : el.querySelector('input,textarea') || (el.shadowRoot && el.shadowRoot.querySelector('input,textarea')) || el;
+          const t = el.querySelector('input,textarea') || (el.shadowRoot && el.shadowRoot.querySelector('input,textarea')) || el;
           t.value = v;
           t.dispatchEvent(new Event('input', { bubbles: true }));
           t.dispatchEvent(new Event('change', { bubbles: true }));
         }, s.value);
+        // 组件常有 debounce（如 af-search-bar 300ms）/异步联动，留出窗口再断言
+        await page.waitForTimeout(450);
       } else if (s.action === 'pressKey') {
         await page.locator(s.sel).first().evaluate((el, k) => {
           for (const type of ['keydown', 'keypress', 'keyup']) {
@@ -123,7 +125,7 @@ async function runSteps(page, steps) {
           if (!sel) { window.scrollTo(0, top); return; }
           const el = document.querySelector(sel);
           if (!el) throw new Error(sel + ' not found');
-          const scrollers = [el, ...(el.shadowRoot ? [...el.shadowRoot.querySelectorAll('*')] : [])]
+          const scrollers = [el, ...el.querySelectorAll('*'), ...(el.shadowRoot ? [...el.shadowRoot.querySelectorAll('*')] : [])]
             .filter((n) => n.scrollHeight > n.clientHeight + 1);
           if (!scrollers.length) throw new Error(sel + ' 无可滚动容器');
           scrollers[0].scrollTop = top;

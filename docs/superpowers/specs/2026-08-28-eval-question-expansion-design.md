@@ -45,7 +45,7 @@
 
 ### 2.1 DSL
 
-asserts 数组内每条 assert 可选 `steps` 字段，语义：**按序执行完 steps 后，再对该条 assert 求值**。
+asserts 数组内每条 assert 可选 `steps` 字段，语义：**按序执行完 steps 后，再对该条 assert 求值**。题级可选 `"noAutoOpen":true`。
 
 ```jsonc
 {
@@ -66,6 +66,7 @@ asserts 数组内每条 assert 可选 `steps` 字段，语义：**按序执行�
 | `fill` | 赋 `value` property + 派发 `input`/`change` 事件 | 组件靠事件响应，必须派发 |
 | `pressKey` | `dispatchEvent(new KeyboardEvent(...))` | 补 fill 不够的场景 |
 | `waitFor` | 轮询 selector 出现/可见，默认超时 3s | 异步链路必需 |
+| `scroll` | window.scrollTo(0, top) 或滚动 sel 宿主/其 shadow 内滚动容器 | 098 上拉加载 |
 
 ### 2.2 设计约束
 
@@ -73,16 +74,17 @@ asserts 数组内每条 assert 可选 `steps` 字段，语义：**按序执行�
 - step 失败 = 该 assert 失败，错误信息含 step 序号与 action（如 `step#2 fill → af-search-bar input not found`），区分模型错 vs 基建错
 - 截图时机：全部 asserts 求值后截一张终态图；调试期可加中间态开关
 - 兼容：无 steps 的 assert 走现有逻辑，86 道旧题零改动
-- 顺手项：把 af-number-keyboard 补进 visual.mjs 弹层强制打开名单（076 残留尾巴）
+- 强开名单**不新增** af-number-keyboard：强开会掩盖「弹层未开」考点（087/076 类题要求模型自己调 open()）
+- 题级 `noAutoOpen:true` 字段：声明后 renderCapture 跳过弹层强开与升级等待（stress 题 093–098 使用，避免交互链被基建代开污染）
 
 ## 3. 复合判据（D）的计算
 
-variant：`46v-trap-current` / `46v-trap-nofewshot`。flywheel.mjs 增加 `difficulty` 分组统计。
+variant：`46v-trap-current` / `46v-trap-nofewshot`。judge.mjs 的 fullJudge 报告增加 `byDifficulty` 分组与 `errorModes` 错误模式标签。
 
 | 判据 | 达标线 | 来源 |
 |---|---|---|
-| ① A 类通过率净胜 | current 净胜 ≥2 题（6 道 trap） | report.byDifficulty |
-| ② 错误模式计数差 | nofewshot 犯「教材反例区登记过的错误」比 current 多 ≥3 次 | 失败按错误模式标签归类 |
+| ① A 类通过率净胜 | current 净胜 ≥2 题（6 道 trap） | judge.mjs fullJudge 报告 byDifficulty |
+| ② 错误模式计数差 | nofewshot 犯「教材反例区登记过的错误」比 current 多 ≥3 次 | judge.mjs fullJudge 报告 errorModes |
 | ③ 轮数差（辅助） | 只记录，不作达标项 | attempts[].rounds |
 
 **①或②任一达标 → 教材增量成立**；均不达标 → 「12 题规模下未检出增量」，并用错误模式分布决定教材下一轮补什么。

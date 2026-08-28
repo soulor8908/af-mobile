@@ -69,8 +69,10 @@ export function startServer(port = 0) {
       const ext = extname(file);
       res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
       // /af-mobile.js：返回同步注册组件的包装模块（见 WRAP_MOD）
+      // dist/index.js 未构建时 fallback 到 /src/index.js（src 映射必有，快速 eval 免 npm run build）
       if (url.pathname.split('?')[0] === '/af-mobile.js') {
-        res.end(WRAP_MOD('/index.js'));
+        const target = existsSync(join(DIST, 'index.js')) ? '/index.js' : '/src/index.js';
+        res.end(WRAP_MOD(target));
         return;
       }
       // /af-mobile-blocks.js：返回注册全部 Block 的包装模块（见 BLOCK_WRAP_MOD）

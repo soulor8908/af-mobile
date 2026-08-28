@@ -147,11 +147,19 @@
 
 **通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`；数组/对象型属性（columns/series/data 等）必须在 `await register()` 完成后用 JS property 注入（attribute 只传字符串标量）。
 
+**接入铁律（单文件页面）**：页面只要用了任何 `af-*` 组件，`<script type="module">` 内**必须** `import { register } from '/af-mobile.js'` 并 `await register('af-xxx', ...)`（或至少 `import '/af-mobile.js'` 触发升级）。漏掉 import = 组件永远不升级，渲染为空盒——这是视觉验收最常见的失败原因，交付前自查：每个 af-* 页面都有主入口 import。
+
 ***
 
 # 子库入口（按需引入，不占主包）
 
-> **注册入口警示**：charts/chat 组件不在主入口 `register()` 范围——charts 用 `import { registerChart } from '../../src/charts/index.js'` 后 `registerChart('af-chart-line')`，chat 用 `registerChat()`；误用 `register('af-chart-line')` 会静默失败（元素不升级、渲染空白）。
+> **注册入口警示**：charts/chat 组件不在主入口 `register()` 范围，且**必须从子库路径引入专属注册函数**：
+> - charts：`import { registerChart } from '/af-mobile/charts/index.js'` 后 `await registerChart('af-chart-line')`（或 `registerCharts()` 注册全部）
+> - chat：`import { registerChat, createSession, defineTool } from '@af-mobile/ui/chat'` 后 `registerChat()`
+>
+> 两种致命误用（元素不升级、渲染空白）：
+> 1. ❌ 从主入口引 charts 函数：`import { registerChart } from '/af-mobile.js'` —— 主入口**没有** `registerChart` 导出，直接模块加载报错
+> 2. ❌ 用主入口 `register('af-chart-line')` —— 静默失败（不在主入口注册表）
 
 ## AI 对话（@af-mobile/ui/chat）
 
@@ -207,6 +215,10 @@
   （`tag-ok` 与 `tag-danger` 互斥变体叠加，只能选一个）
 - ❌ `<form onsubmit="return validate()">` + 手写校验 JS → ✅ `<input class="input" required type="email" pattern="[^@]+@[^@]+" />`
   （原生 Constraint Validation API：`.input:user-invalid` 自动红框，无需 JS；提交时 `form.reportValidity()` 走原生气泡）
+- ❌ 页面用了 `<af-tabbar>` 但 script 内没有任何 `/af-mobile.js` import → ✅ `import { register } from '/af-mobile.js'; await register('af-tabbar');`
+  （漏主入口 import = 组件不升级渲染空盒，见「接入铁律」）
+- ❌ `import { registerChart } from '/af-mobile.js'` → ✅ `import { registerChart } from '/af-mobile/charts/index.js'`
+  （charts 注册函数只在子库入口，主入口引会模块加载报错，见「子库入口」）
 
 ***
 

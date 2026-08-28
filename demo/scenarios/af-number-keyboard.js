@@ -10,12 +10,15 @@ export default {
       fewshot: {
         html: `<af-password-input id="pi" length="6" mask></af-password-input>
 <af-number-keyboard id="kb" random title="输入密码"></af-number-keyboard>`,
-        js: `const kb = document.getElementById('kb');
+        js: `import { register } from '/af-mobile.js'; // 页面用任何 af-* 都必须先引主入口
+await register('af-password-input', 'af-number-keyboard', 'af-toast');
+const kb = document.getElementById('kb');
 const pi = document.getElementById('pi');
 kb.addEventListener('af-number-keyboard:input', (e) => { pi.value = e.detail.value; });
 kb.addEventListener('af-number-keyboard:complete', (e) => console.log('完成:', e.detail.value));
-kb.addEventListener('af-number-keyboard:delete', (e) => { pi.value = e.detail.value; });`,
-        note: 'random 随机布局键盘；input 载荷 { key, value }，输满 maxlength 派发 complete；与 af-password-input 配对使用',
+kb.addEventListener('af-number-keyboard:delete', (e) => { pi.value = e.detail.value; });
+kb.open(); // 弹层组件（原生 dialog），默认关闭，必须调用 open() 才可见`,
+        note: '弹层组件：默认关闭，必须 kb.open()（可进入页面即调）；random 随机布局键盘；input 载荷 { key, value }，输满 maxlength 派发 complete；与 af-password-input 配对使用',
       },
       html: `
         <div class="actions">

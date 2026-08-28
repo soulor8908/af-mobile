@@ -13,30 +13,49 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CACHE_DIR = join(ROOT, '.cache/generate');
 
 // 调用 LLM 生成首版代码（标准 OpenAI 兼容协议，与 ai-fix.mjs 的 callLLM 同步）
+// 429 限流 / 网络异常时指数退避重试（30s/60s/120s/240s/480s，最多 5 次）
 async function callLLM(systemPrompt, userPrompt) {
   const url = process.env.AFMOBILE_AI_API_URL;
   const key = process.env.AFMOBILE_AI_API_KEY;
   const model = process.env.AFMOBILE_AI_MODEL || 'gpt-4o';
   if (!url) return null;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(key ? { Authorization: `Bearer ${key}` } : {}),
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.1,
-      top_p: 0.5,
-    }),
-  });
-  if (!res.ok) throw new Error(`LLM API ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  return data.content || data.choices?.[0]?.message?.content || data.text || '';
+  let lastErr = null;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    if (attempt > 0) {
+      const delay = Math.min(30000 * 2 ** (attempt - 1), 480000);
+      process.stderr.write(`  [callLLM] ${lastErr?.message?.slice(0, 80) || lastErr}，${delay / 1000}s 后重试 (${attempt}/5)\n`);
+      await new Promise(r => setTimeout(r, delay));
+    }
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(key ? { Authorization: `Bearer ${key}` } : {}),
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          temperature: 0.1,
+          top_p: 0.5,
+        }),
+      });
+      if (res.status === 429 || res.status >= 500) {
+        lastErr = new Error(`LLM API ${res.status}: ${(await res.text()).slice(0, 200)}`);
+        continue;
+      }
+      if (!res.ok) throw new Error(`LLM API ${res.status}: ${await res.text()}`);
+      const data = await res.json();
+      return data.content || data.choices?.[0]?.message?.content || data.text || '';
+    } catch (e) {
+      if (/^LLM API \d+/.test(e.message)) throw e; // 非 429/5xx 的 HTTP 错误不重试
+      lastErr = e; // fetch failed 等网络异常 → 重试
+    }
+  }
+  throw lastErr || new Error('LLM API 重试耗尽');
 }
 
 // 提取代码块（```...``` 围栏），去掉围栏

@@ -9,11 +9,28 @@
 // 用法（独立调用）：
 //   node eval/judge.mjs eval/results/raw-*.json              # 仅 lint 聚合
 //   node eval/judge.mjs eval/results/raw-*.json --visual     # 附加截图 + LLM 视觉评审
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+// dist 新鲜度守卫：dist/index.js 早于 src 侧最新修改时告警（过期 bundle 会导致
+// COMPONENT_TAGS 丢失/动态分包 404，静默毒化视觉评审——2026-08-24 复测踩坑）
+export function checkDistFreshness({ autoBuild = true } = {}) {
+  const distEntry = join(ROOT, 'dist', 'index.js');
+  if (!existsSync(distEntry)) return { fresh: true, reason: 'dist 未构建（服务器会 fallback 到 src）' };
+  const distMtime = statSync(distEntry).mtimeMs;
+  const newestSrc = ['src/index.js', 'src/index.css', 'src/charts/index.js', 'src/chat/index.js', 'src/blocks/index.js']
+    .map(f => { try { return statSync(join(ROOT, f)).mtimeMs; } catch { return 0; } })
+    .reduce((a, b) => Math.max(a, b), 0);
+  if (distMtime >= newestSrc) return { fresh: true };
+  if (!autoBuild) return { fresh: false, reason: 'dist/index.js 落后于 src 修改' };
+  console.error('⚠ dist 过期（早于 src 修改），自动执行 npm run build …');
+  const { execSync } = require('node:child_process');
+  execSync('npm run build', { cwd: ROOT, stdio: 'inherit' });
+  return { fresh: true, rebuilt: true };
+}
 
 // ===== 纯函数：lint 聚合（同步，不依赖浏览器）=====
 export function judge(results, opts = {}) {
@@ -73,6 +90,7 @@ function loadPromptMap() {
 export async function judgeVisual(results, opts = {}) {
   const { startServer, renderCapture } = await import('./visual.mjs');
   const { visualReferee } = await import('./visual-judge.mjs');
+  checkDistFreshness();
   const shotsDir = opts.shotsDir || join(ROOT, 'eval/results/shots');
   mkdirSync(shotsDir, { recursive: true });
   const promptMap = opts.promptMap || loadPromptMap();

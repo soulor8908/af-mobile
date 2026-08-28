@@ -8,7 +8,9 @@ export default {
       name: '标签切换',
       fewshot: {
         html: '<af-tabbar id="tb" active-index="0"></af-tabbar>',
-        js: `const tb = document.getElementById('tb');
+        js: `import { register } from '/af-mobile.js'; // 页面用任何 af-* 都必须先引主入口
+await register('af-tabbar');
+const tb = document.getElementById('tb');
 tb.tabs = [
   { label: '首页', value: 'home' },
   { label: '消息', value: 'msg', badge: '3' }, // badge 可选

@@ -53,9 +53,9 @@
 {"id":"053","category":"complex","prompt":"会员中心：等级卡片、权益网格、任务列表、积分商城入口、底部 tabbar","expects":[".card",".list",".tabbar"]}
 {"id":"054","category":"complex","prompt":"订单管理：tab 切换（全部/待付款/待发货/待收货/已完成）+ 对应订单列表，含空状态","expects":["af-tabs",".list",".empty"]}
 {"id":"055","category":"complex","prompt":"商品搜索：搜索框+历史+热门、搜索结果列表（含紧凑/正常模式切换）、筛选排序面板","expects":[".search-input",".tag",".list",".list-item"]}
-{"id":"056","category":"form","prompt":"设置页开关组：三个 af-switch 开关项（消息推送/夜间模式/震动反馈），每项含标题与说明，放在 cell 行内右侧","expects":["af-switch",".cell",".title"]}
+{"id":"056","category":"form","prompt":"设置页开关组：三个 af-switch 开关项（消息推送/夜间模式/震动反馈），每项行标题用 .title、说明用 .caption，放在 cell 行内右侧","expects":["af-switch",".cell",".title"]}
 {"id":"057","category":"form","prompt":"商品搜索页：顶部 af-search-bar 组件含清除按钮，下方热门搜索 tag 标签与历史记录列表","expects":["af-search-bar",".tag"]}
-{"id":"058","category":"feedback","prompt":"商品列表加载骨架屏：用 af-skeleton-page 组件渲染 list 变体，含多个 skeleton-line 占位","expects":["af-skeleton-page",".skeleton-line"]}
+{"id":"058","category":"feedback","prompt":"商品列表加载骨架屏：用 af-skeleton-page 组件渲染 list 变体，含多个 .sk-ln 骨架占位行","expects":["af-skeleton-page",".sk-ln"]}
 {"id":"059","category":"feedback","prompt":"表单提交反馈：点击按钮后用 af-toast.show() 弹出成功提示，2 秒后自动消失","expects":["af-toast",".btn"]}
 {"id":"060","category":"form","prompt":"地址选择表单：省市区三级联动，用 af-picker 组件选择，含标题与确认按钮","expects":["af-picker",".btn"]}
 {"id":"061","category":"form","prompt":"商品排序栏：顶部 af-dropdown 下拉菜单（综合/销量/价格升/价格降），下方商品列表","expects":["af-dropdown",".list"]}
@@ -69,14 +69,14 @@
 {"id":"069","category":"form","prompt":"酒店预订页：af-calendar 日历选择入住日期（min 限制今天起），下方房费明细 .card 与「确认预订」.btn","expects":["af-calendar",".card",".btn"],"asserts":[{"sel":"af-calendar","visible":true},{"sel":".price","text":"¥"}]}
 {"id":"070","category":"list","prompt":"购物车商品行：af-stepper 数量选择器（min=1，max=99，step=1）放商品行右侧，行内含 .thumb 缩略图、.title 与 .price","expects":["af-stepper",".thumb",".title",".price"],"asserts":[{"sel":"af-stepper","visible":true},{"sel":".price","text":"¥"}]}
 {"id":"071","category":"form","prompt":"商品评价表单：af-rate 五星评分（max=5，默认 5 分可改），下方 .textarea 评价内容与提交 .btn","expects":["af-rate",".textarea",".btn"],"asserts":[{"sel":"af-rate","visible":true}]}
-{"id":"072","category":"detail","prompt":"限时秒杀专区：af-countdown 倒计时（autostart）显示距结束时分秒，下方秒杀商品 .grid 两列卡片","expects":["af-countdown",".grid"],"asserts":[{"sel":"af-countdown","visible":true}]}
+{"id":"072","category":"detail","prompt":"限时秒杀专区：af-countdown 倒计时（autostart）显示距结束时分秒，下方秒杀商品 .grid 两列卡片","expects":["af-countdown",".grid,.grid-2"],"asserts":[{"sel":"af-countdown","visible":true}]}
 {"id":"073","category":"detail","prompt":"会员成长值页：af-progress 进度条（value=680，max=1000）展示成长值，下方会员权益 .list","expects":["af-progress",".list"],"asserts":[{"sel":"af-progress","visible":true}]}
 {"id":"074","category":"detail","prompt":"订单跟踪页：af-steps 步骤条（提交订单→付款→发货→收货，current=2），下方物流信息 .card 与商品 .thumb","expects":["af-steps",".card",".thumb"],"asserts":[{"sel":"af-steps","visible":true}]}
 {"id":"075","category":"nav","prompt":"首页公告栏：af-notice-bar 滚动公告（scroll）置于页面顶部，下方 .list 商品推荐列表","expects":["af-notice-bar",".list"],"asserts":[{"sel":"af-notice-bar","visible":true}]}
 {"id":"076","category":"form","prompt":"支付验证页：af-password-input 六位密码格子（mask 遮掩）+ af-number-keyboard 数字键盘（random 随机键盘），输入完成触发 complete 后用 af-toast.show() 提示支付成功","expects":["af-password-input","af-number-keyboard","af-toast"],"asserts":[{"sel":"af-number-keyboard","visible":true},{"sel":"af-password-input","visible":true}]}
 {"id":"077","category":"form","prompt":"实名认证上传页：af-upload 上传身份证正反面（accept=image，max-count=2，button-text 上传证件），下方提交 .btn","expects":["af-upload",".btn"],"asserts":[{"sel":"af-upload","visible":true}]}
 {"id":"078","category":"list","prompt":"资讯列表页：af-pull-refresh 包裹 .list 新闻列表，下拉触发刷新（refreshing 状态 2 秒后复位）","expects":["af-pull-refresh",".list"],"asserts":[{"sel":"af-pull-refresh","visible":true}]}
-{"id":"079","category":"list","prompt":"消息列表页：每项用 af-swipe-cell 包裹，左滑露出删除按钮，点击删除移除该项；列表项含 .avatar、.title、.meta 时间","expects":["af-swipe-cell",".avatar",".title",".meta"],"asserts":[{"sel":"af-swipe-cell","count":3}]}
+{"id":"079","category":"list","prompt":"消息列表页：每项用 af-swipe-cell 包裹，左滑露出删除按钮，点击删除移除该项；列表项含 .avatar、.title、.meta 时间","expects":["af-swipe-cell",".avatar",".title",".meta"],"asserts":[{"sel":"af-swipe-cell","count":3,"min":true}]}
 {"id":"080","category":"form","prompt":"地址编辑表单：省市区选择行点击打开 af-cascade-picker（tree 三级数据），确认后选中值回填 .input；表单含收件人与手机号 .input","expects":["af-cascade-picker",".input"],"asserts":[{"sel":"af-cascade-picker","visible":true}]}
 {"id":"081","category":"complex","prompt":"经营数据看板：顶部 .stats-grid 四张 KPI 卡，下方 af-chart-line 折线图（labels 近 7 日 + series 销售额，smooth）","expects":["af-chart-line",".stats-grid"],"asserts":[{"sel":"af-chart-line","visible":true}]}
 {"id":"082","category":"complex","prompt":"销量分析页：af-chart-bar 柱状图（默认 column 变体，legend 图例）展示各品类销量，下方 .list 品类明细","expects":["af-chart-bar",".list"],"asserts":[{"sel":"af-chart-bar","visible":true}]}

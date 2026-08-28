@@ -93,20 +93,39 @@ describe('MCP / get_prompt（零 LLM）', () => {
 
 describe('MCP / generate_page（手动模式）', () => {
   it('tailored 模式返回裁剪后的 systemPrompt', async () => {
-    const r = await generatePage({ prompt: '登录页：手机号验证码' });
-    expect(r.passed).toBe(false);
-    expect(r.mode).toBe('manual');
-    expect(r.systemPrompt).toContain('page-login');
-    // tailored 应不含 page-list few-shot
-    expect(r.systemPrompt).not.toContain('## 示例 1：page-list');
+    // 零 LLM 契约测试：屏蔽环境里可能存在的真实 API 配置（否则 callLLM 真调远端导致超时）
+    const savedUrl = process.env.AFMOBILE_AI_API_URL;
+    const savedKey = process.env.AFMOBILE_AI_API_KEY;
+    delete process.env.AFMOBILE_AI_API_URL;
+    delete process.env.AFMOBILE_AI_API_KEY;
+    try {
+      const r = await generatePage({ prompt: '登录页：手机号验证码' });
+      expect(r.passed).toBe(false);
+      expect(r.mode).toBe('manual');
+      expect(r.systemPrompt).toContain('page-login');
+      // tailored 应不含 page-list few-shot
+      expect(r.systemPrompt).not.toContain('## 示例 1：page-list');
+    } finally {
+      if (savedUrl !== undefined) process.env.AFMOBILE_AI_API_URL = savedUrl;
+      if (savedKey !== undefined) process.env.AFMOBILE_AI_API_KEY = savedKey;
+    }
   });
 
   it('full 模式返回全量 systemPrompt', async () => {
-    const r = await generatePage({ prompt: '登录页', promptMode: 'full' });
-    expect(r.mode).toBe('manual');
-    // full 模式含全部 few-shot
-    expect(r.systemPrompt).toContain('page-login');
-    expect(r.systemPrompt).toContain('page-list');
+    const savedUrl = process.env.AFMOBILE_AI_API_URL;
+    const savedKey = process.env.AFMOBILE_AI_API_KEY;
+    delete process.env.AFMOBILE_AI_API_URL;
+    delete process.env.AFMOBILE_AI_API_KEY;
+    try {
+      const r = await generatePage({ prompt: '登录页', promptMode: 'full' });
+      expect(r.mode).toBe('manual');
+      // full 模式含全部 few-shot
+      expect(r.systemPrompt).toContain('page-login');
+      expect(r.systemPrompt).toContain('page-list');
+    } finally {
+      if (savedUrl !== undefined) process.env.AFMOBILE_AI_API_URL = savedUrl;
+      if (savedKey !== undefined) process.env.AFMOBILE_AI_API_KEY = savedKey;
+    }
   });
 });
 

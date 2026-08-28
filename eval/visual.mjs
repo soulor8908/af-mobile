@@ -20,6 +20,9 @@ const ROUTES = {
   '/index.js': 'index.js',
 };
 
+// 子库路径映射：/af-mobile/{charts,chat,k,blocks,lib} → src/*（npm exports 子入口 + 跨库公共 lib 的开发态直引）
+const SUBPATH_RE = /^af-mobile\/(charts|chat|k|blocks|lib)(\/.*)?$/;
+
 // /af-mobile.js 的包装模块：按需注册所有组件后 re-export（registerAll/UMD 已移除，铁律：只按需引入）。
 // 生成页面只 import 原语（signal/effect），不负责注册组件；这里模拟真实接入，
 // 使 af-* 元素在页面脚本执行前 upgrade，属性 setter 才能生效。
@@ -45,9 +48,13 @@ export function startServer(port = 0) {
       const url = new URL(req.url, 'http://localhost');
       let path = url.pathname.split('?')[0].replace(/^\/+/, '');
       const mapped = ROUTES[url.pathname.split('?')[0]];
+      const sub = path.match(SUBPATH_RE);
       let file;
       if (mapped) {
         file = join(DIST, mapped);
+      } else if (sub) {
+        // 子库直引：/af-mobile/charts/index.js → src/charts/index.js
+        file = join(ROOT, 'src', sub[1] + (sub[2] || '/index.js'));
       } else if (/(\.html|\.png|\.jpg|\.svg)$/.test(path)) {
         // eval 生成的页面/截图：从 eval/results 下服务
         file = join(ROOT, 'eval/results', path);
@@ -148,14 +155,15 @@ export async function renderCapture(htmlPath, expects, { port, outDir }) {
     // 等待弹层类组件完成升级（源码直引时 register 为异步链，未 upgrade 时 open() 调用无效）
     await page
       .waitForFunction(
-        () => !document.querySelector('af-dialog:not(:defined), af-action-sheet:not(:defined)'),
+        () => !document.querySelector('af-dialog:not(:defined), af-action-sheet:not(:defined), af-picker:not(:defined), af-cascade-picker:not(:defined)'),
         { timeout: 3000 },
       )
       .catch(() => {});
-    // 强制打开弹层类组件（af-dialog/af-action-sheet 默认关闭，评审前触发打开）
+    // 强制打开弹层类组件（af-dialog/af-action-sheet/picker 系默认关闭，评审前触发打开）
     await page.evaluate(() => {
       document.querySelectorAll('af-dialog').forEach((el) => { try { el.open && el.open(); } catch {} });
       document.querySelectorAll('af-action-sheet').forEach((el) => { try { el.showPopover && el.showPopover(); } catch {} });
+      document.querySelectorAll('af-picker, af-cascade-picker').forEach((el) => { try { el.open && el.open(); } catch {} });
     }).catch(() => {});
     await page.waitForTimeout(300);
     // 真实 DOM 断言：expects 是否都存在于渲染后 DOM
@@ -170,11 +178,19 @@ export async function renderCapture(htmlPath, expects, { port, outDir }) {
         fails.push(`缺少 ${a.sel}`);
         continue;
       }
-      if (a.count && n !== a.count) fails.push(`${a.sel} 数量 ${n} != ${a.count}`);
+      // count 精确匹配；min:true 时放宽为下限（题集不限定确切数量时用，如"每项包裹"类需求）
+      if (a.count && (a.min ? n < a.count : n !== a.count)) fails.push(`${a.sel} 数量 ${n} ${a.min ? '<' : '!='} ${a.count}`);
       if (a.visible) {
         const visibleN = await page
           .locator(a.sel)
-          .evaluateAll((es) => es.filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; }).length)
+          .evaluateAll((es) => es.filter((e) => {
+            const vis = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
+            // 宿主 display:contents（picker 等弹层语义）自身尺寸恒 0：Light DOM 子树 + shadowRoot 任一元素可见即视为可见
+            if (vis(e)) return true;
+            const lights = [...e.querySelectorAll('*')];
+            const shadows = e.shadowRoot ? [...e.shadowRoot.querySelectorAll('*')] : [];
+            return [...lights, ...shadows].some(vis);
+          }).length)
           .catch(() => 0);
         if (visibleN === 0) fails.push(`${a.sel} 不可见`);
       }

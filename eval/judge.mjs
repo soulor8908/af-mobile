@@ -70,6 +70,30 @@ export function judge(results, opts = {}) {
   };
 }
 
+// ===== 错误模式标签：把 lint/视觉失败归到教材反例区登记的错误模式（与 prompt 反例区同步维护）=====
+const POPOVER_TAGS = ['af-dialog', 'af-action-sheet', 'af-picker', 'af-cascade-picker', 'af-number-keyboard', 'af-dropdown'];
+export function tagErrorModes(lintFailures = [], visualResults = []) {
+  const modes = {};
+  const bump = (l) => { modes[l] = (modes[l] || 0) + 1; };
+  for (const f of lintFailures) {
+    for (const e of f.errors || []) {
+      const msg = e.message || '';
+      if (e.rule === 'af-mobile/token-whitelist') bump('token 越界');
+      else if (e.rule === 'af-mobile/wc-event-naming') bump('事件名错');
+      else if (/export named 'register(Chart|Chat)'/.test(msg)) bump('错误引路');
+      else if (e.rule === 'af-mobile/semantic-visual') bump('漏-register');
+    }
+  }
+  for (const v of visualResults) {
+    for (const f of v.fails || []) {
+      const tag = (f.split(' ')[0] || '').replace(/:not.*/, '');
+      if (/不可见/.test(f) && POPOVER_TAGS.includes(tag)) bump('弹层未开');
+      else if (/不可见|缺少/.test(f)) bump('漏-register');
+    }
+  }
+  return modes;
+}
+
 // 从 prompts.jsonl 读取 id → prompt 映射（raw 结果不含 prompt 字段）
 function loadPromptMap() {
   const path = join(ROOT, 'eval/prompts.jsonl');
@@ -78,7 +102,7 @@ function loadPromptMap() {
     for (const line of readFileSync(path, 'utf8').split('\n')) {
       if (!line.trim()) continue;
       const o = JSON.parse(line);
-      if (o.id) map[o.id] = { prompt: o.prompt || '', expects: o.expects || [], asserts: o.asserts || [] };
+      if (o.id) map[o.id] = { prompt: o.prompt || '', expects: o.expects || [], asserts: o.asserts || [], difficulty: o.difficulty || 'none', noAutoOpen: o.noAutoOpen === true };
     }
   } catch { /* prompts.jsonl 不存在时忽略 */ }
   return map;
@@ -104,7 +128,7 @@ export async function judgeVisual(results, opts = {}) {
     for (const r of samples) {
       const p = promptMap[r.id] || {};
       const semantic = (p.asserts || []).map((a) => (typeof a === 'string' ? { sel: a } : a));
-      const dom = await renderCapture(r.best.codePath, [...(r.expects || []), ...semantic], { port, outDir: shotsDir });
+      const dom = await renderCapture(r.best.codePath, [...(r.expects || []), ...semantic], { port, outDir: shotsDir, noAutoOpen: p.noAutoOpen === true });
       // LLM 视觉评审：默认关闭（省 token），仅 --visual-llm 显式开启时用截图评审
       let llm = null;
       if (opts.llm === true) {
@@ -160,7 +184,24 @@ export async function fullJudge(results, opts = {}) {
     const item = results.find(x => x.id === v.id);
     if (item && byCategory[item.category] && v.passed) byCategory[item.category].visualPassed++;
   }
-  return { ...lint, ...visual, byCategory };
+
+  // difficulty 分组（trap/stress/none）+ 错误模式标签
+  const promptMap = opts.promptMap || loadPromptMap();
+  const byDifficulty = {};
+  for (const r of results) {
+    const d = (promptMap[r.id] || {}).difficulty || 'none';
+    if (!byDifficulty[d]) byDifficulty[d] = { total: 0, lintPassed: 0, visualPassed: 0 };
+    byDifficulty[d].total++;
+    if (r.passed) byDifficulty[d].lintPassed++;
+  }
+  for (const v of visual.visualResults) {
+    const item = results.find((x) => x.id === v.id);
+    const d = item ? ((promptMap[item.id] || {}).difficulty || 'none') : 'none';
+    if (v.passed && byDifficulty[d]) byDifficulty[d].visualPassed++;
+  }
+  const errorModes = tagErrorModes(lint.lintFailures, visual.visualResults);
+
+  return { ...lint, ...visual, byCategory, byDifficulty, errorModes };
 }
 
 // CLI 独立调用（Windows 兼容：与 run.mjs 同款判定，import.meta.url 与 argv[1] 分隔符/盘符差异归一化）

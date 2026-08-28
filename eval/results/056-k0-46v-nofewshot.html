@@ -1,0 +1,70 @@
+
+```html<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">设置</nav>
+  
+  <div class="list">
+    <div class="cell">
+      <div class="fc aic">
+        <div class="fc f">
+          <span class="body">消息推送</span>
+          <span class="caption text-muted">接收新消息通知</span>
+        </div>
+        <af-switch id="pushSwitch"></af-switch>
+      </div>
+    </div>
+    
+    <div class="cell">
+      <div class="fc aic">
+        <div class="fc f">
+          <span class="body">夜间模式</span>
+          <span class="caption text-muted">自动切换深色主题</span>
+        </div>
+        <af-switch id="nightSwitch"></af-switch>
+      </div>
+    </div>
+    
+    <div class="cell">
+      <div class="fc aic">
+        <div class="fc f">
+          <span class="body">震动反馈</span>
+          <span class="caption text-muted">操作时震动提醒</span>
+        </div>
+        <af-switch id="vibrateSwitch"></af-switch>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { register } from '/af-mobile.js';
+
+// 注册组件
+await register();
+
+// 获取开关元素
+const pushSwitch = document.getElementById('pushSwitch');
+const nightSwitch = document.getElementById('nightSwitch');
+const vibrateSwitch = document.getElementById('vibrateSwitch');
+
+// 添加事件监听
+pushSwitch.addEventListener('af-switch:change', (e) => {
+  console.log('消息推送:', e.detail.checked);
+});
+
+nightSwitch.addEventListener('af-switch:change', (e) => {
+  console.log('夜间模式:', e.detail.checked);
+});
+
+vibrateSwitch.addEventListener('af-switch:change', (e) => {
+  console.log('震动反馈:', e.detail.checked);
+});
+</script>
+</body>
+</html>```

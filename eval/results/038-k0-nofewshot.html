@@ -1,0 +1,37 @@
+<!doctype html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-dialog id="deleteDialog" title="删除确认">
+    <div slot="body"><p class="body">确定要删除这条记录吗？</p></div>
+    <div slot="footer">
+      <button class="btn btn-ghost btn-block" data-act="cancel">取消</button>
+      <button class="btn btn-block" data-act="confirm">删除</button>
+    </div>
+  </af-dialog>
+</div>
+<script type="module">
+import { signal, effect, fetchPage } from '/af-mobile.js';
+const deleteDialog = document.getElementById('deleteDialog');
+
+// 示例：触发删除确认弹窗
+// deleteDialog.open();
+
+deleteDialog.addEventListener('af-dialog:close', (e) => {
+  if (e.detail.action === 'confirm') {
+    // 执行删除操作
+    console.log('执行删除操作');
+  } else {
+    // 取消删除
+    console.log('取消删除');
+  }
+});
+</script>
+</body>
+</html>

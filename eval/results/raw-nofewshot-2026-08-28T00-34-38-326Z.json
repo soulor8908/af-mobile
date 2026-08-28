@@ -1,0 +1,282 @@
+[
+  {
+    "id": "038",
+    "category": "feedback",
+    "expects": [
+      "af-dialog",
+      ".btn"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  },
+  {
+    "id": "056",
+    "category": "form",
+    "expects": [
+      "af-switch",
+      ".cell",
+      ".title"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  },
+  {
+    "id": "057",
+    "category": "form",
+    "expects": [
+      "af-search-bar",
+      ".tag"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  },
+  {
+    "id": "060",
+    "category": "form",
+    "expects": [
+      "af-picker",
+      ".btn"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  },
+  {
+    "id": "061",
+    "category": "form",
+    "expects": [
+      "af-dropdown",
+      ".list"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  },
+  {
+    "id": "062",
+    "category": "detail",
+    "expects": [
+      "af-img"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  },
+  {
+    "id": "064",
+    "category": "starter",
+    "expects": [
+      "af-search-bar",
+      "af-list"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  },
+  {
+    "id": "069",
+    "category": "form",
+    "expects": [
+      "af-calendar",
+      ".card",
+      ".btn"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  },
+  {
+    "id": "070",
+    "category": "list",
+    "expects": [
+      "af-stepper",
+      ".thumb",
+      ".title",
+      ".price"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  },
+  {
+    "id": "079",
+    "category": "list",
+    "expects": [
+      "af-swipe-cell",
+      ".avatar",
+      ".title",
+      ".meta"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  },
+  {
+    "id": "081",
+    "category": "complex",
+    "expects": [
+      "af-chart-line",
+      ".stats-grid"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  },
+  {
+    "id": "086",
+    "category": "complex",
+    "expects": [
+      "af-chat"
+    ],
+    "passed": false,
+    "attempts": [
+      {
+        "ok": false,
+        "exitCode": 3,
+        "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+        "codePath": null
+      }
+    ],
+    "best": {
+      "ok": false,
+      "exitCode": 3,
+      "error": "LLM API 400: {\"error\":{\"code\":\"1214\",\"message\":\"modelCode：不存在\"}}",
+      "codePath": null
+    }
+  }
+]

@@ -1,0 +1,41 @@
+<!doctype html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <div class="navbar">商品列表</div>
+  <div class="input-bar input-bar-fx">
+    <af-dropdown id="sort-dd" placeholder="综合排序"></af-dropdown>
+  </div>
+  <af-list id="list" item-height="100" refresh></af-list>
+</div>
+<script type="module">
+import { signal, effect, fetchPage } from '/af-mobile.js';
+const list = document.getElementById('list');
+const items = signal([]);
+const sortOptions = [
+  { value: 'all', text: '综合排序' },
+  { value: 'sales', text: '销量排序' },
+  { value: 'price_asc', text: '价格升序' },
+  { value: 'price_desc', text: '价格降序' }
+];
+const dd = document.getElementById('sort-dd');
+dd.options = sortOptions;
+dd.addEventListener('af-dropdown:select', (e) => {
+  const sortType = e.detail.value;
+  fetchItems(sortType);
+});
+effect(() => { list.data = items(); });
+async function fetchItems(sortType) {
+  const response = await fetchPage('/api/products', { sort: sortType });
+  items.set(response.list);
+}
+fetchItems('all');
+</script>
+</body>
+</html>

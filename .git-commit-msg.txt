@@ -1,0 +1,15 @@
+feat: P0 prompt 包发布 + P1.2 纯 API 教材复测双臂实验
+
+- P0：@af-mobile/prompt@2.1.0 已发布 npm（含 36 组件精校教材资产）
+- LLM 接入修复：callLLM（generate/ai-fix）私有 {system,user} 协议升级为标准 OpenAI
+  兼容 messages 格式（智谱 /v4/chat/completions 实测通过，glm-4-flash / glm-4.6v）
+- eval 基础设施：visual.mjs 渲染注入 importmap（模型按发布包名 @af-mobile/ui/* import
+  子库时浏览器可解析，映射到 src/ 源码）；run.mjs variant 字符串化支持 nofewshot 对照臂
+  （含 46v-nofewshot 复合命名），generate 支持 no-fewshot promptMode（剥离教材段单变量对照）
+- P1.2 实验（12 组件考题）结论：
+  - glm-4-flash：两臂输出逐字节相同，教材零增量（temp 0.1 贪心解码无视 1KB 教材段）
+  - glm-4.6v：教材有响应（产物不同）但断言通过率两臂持平（2/4，importmap 修复后双涨）
+  - 教材增量与模型指令跟随/照抄约束正相关：agent 模式（显式要求照抄）实测修复轮 5→0，
+    纯 API 自由发挥场景不显著——教材投放策略应优先 agent/强约束链路
+- 飞轮回写：af-dialog 教材补 open 初始态、af-swipe-cell 补多实例提示（实验暴露的片段盲区）
+- 实验产物入库（raw/report/ab-judge JSON + 16 个 46v 页面 + flash 双臂 12 页面）

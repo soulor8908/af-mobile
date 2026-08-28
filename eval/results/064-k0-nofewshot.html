@@ -1,0 +1,76 @@
+<!doctype html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-search-bar id="search" placeholder="搜索商品"></af-search-bar>
+  <af-list id="list" page-size="20" refresh item-height="100"></af-list>
+</div>
+<script type="module">
+import { signal, effect, fetchPage } from '/af-mobile.js';
+
+const list = document.getElementById('list');
+const items = signal([]);
+const total = signal(0);
+
+// 模拟后端数据
+const mockData = [
+  { id: 1, title: '商品 1', price: '￥99.00' },
+  { id: 2, title: '商品 2', price: '￥199.00' },
+  { id: 3, title: '商品 3', price: '￥299.00' },
+  { id: 4, title: '商品 4', price: '￥399.00' },
+  { id: 5, title: '商品 5', price: '￥499.00' }
+];
+
+// 获取商品数据
+async function fetchProducts() {
+  try {
+    const response = await fetchPage('supabase://products?select=id,title,price&order=created_at.desc');
+    return { data: response.data, total: response.total };
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return { data: mockData, total: mockData.length };
+  }
+}
+
+// 初始化商品列表
+effect(async () => {
+  const { data, total } = await fetchProducts();
+  items.set(data);
+  total.set(total);
+  list.data = items();
+});
+
+// 渲染商品列表项
+list.renderItem = (item) => `
+  <div class="list-item g-3 aic">
+    <img class="avatar" src="https://via.placeholder.com/72x72" alt="${item.title}">
+    <div class="flex-1 fc">
+      <div class="jcsb aic">
+        <span class="body t-b">${item.title}</span>
+        <span class="caption text-muted">${item.price}</span>
+      </div>
+    </div>
+  </div>
+`;
+
+// 加载更多商品
+list.addEventListener('af-list:loadmore', async () => {
+  const { data, total } = await fetchProducts();
+  items.set([...items(), ...data]);
+  total.set(total);
+  list.endLoadMore(data.length >= total);
+});
+
+// 点击商品列表项
+list.addEventListener('af-list:itemclick', (e) => {
+  window.location.href = `/detail/${e.detail.item.id}`;
+});
+</script>
+</body>
+</html>

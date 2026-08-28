@@ -1,0 +1,47 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page center">
+  <button class="btn" id="openDialog">删除</button>
+  
+  <af-dialog id="deleteDialog" title="确认删除" open>
+    <div slot="body">
+      <p class="body">确定要删除这条记录吗？此操作不可恢复。</p>
+    </div>
+    <div slot="footer">
+      <button class="btn btn-ghost btn-block" data-act="cancel">取消</button>
+      <button class="btn btn-block btn-danger" data-act="confirm">删除</button>
+    </div>
+  </af-dialog>
+</div>
+<script type="module">
+const dialog = document.getElementById('deleteDialog');
+const openBtn = document.getElementById('openDialog');
+
+openBtn.addEventListener('click', () => dialog.open());
+
+dialog.addEventListener('af-dialog:close', (e) => {
+  if (e.detail.action === 'confirm') {
+    // 执行删除操作
+    console.log('执行删除');
+  }
+});
+
+// 为按钮添加点击事件
+dialog.querySelectorAll('[data-act]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const action = btn.dataset.act;
+    if (action === 'confirm') {
+      dialog.close('confirm');
+    } else {
+      dialog.close('cancel');
+    }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!doctype html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">地址选择</nav>
+  <div class="fc g-3 p-3">
+    <af-picker id="addressPicker" title="选择地址" columns="addressColumns" values="addressValues" confirm-button-text="确认"></af-picker>
+  </div>
+</div>
+<script type="module">
+import { fetchPage, back } from '/af-mobile.js';
+import { addressColumns, addressValues } from '/address.js'; // 假设已定义省市区数据
+
+const picker = document.getElementById('addressPicker');
+picker.columns = addressColumns;
+picker.values = addressValues;
+
+picker.addEventListener('af-picker:confirm', (e) => {
+  console.log('选中的地址:', e.detail.values);
+  // 处理选中的地址，例如存储到本地或发送请求
+});
+
+</script>
+</body>
+</html>

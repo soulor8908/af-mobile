@@ -1,0 +1,41 @@
+<!doctype html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <div class="cell">
+    <span class="body">消息推送</span>
+    <af-switch id="sw-push"></af-switch>
+    <span class="caption">接收应用推送消息</span>
+  </div>
+  <div class="cell">
+    <span class="body">夜间模式</span>
+    <af-switch id="sw-night"></af-switch>
+    <span class="caption">开启夜间模式，保护视力</span>
+  </div>
+  <div class="cell">
+    <span class="body">震动反馈</span>
+    <af-switch id="sw-vibrate"></af-switch>
+    <span class="caption">开启震动反馈，增强交互体验</span>
+  </div>
+</div>
+<script type="module">
+import { fetchPage, back } from '/af-mobile.js';
+
+// 示例：监听开关状态变化
+const swPush = document.getElementById('sw-push');
+swPush.addEventListener('af-switch:change', (e) => console.log('消息推送开关:', e.detail.checked));
+
+const swNight = document.getElementById('sw-night');
+swNight.addEventListener('af-switch:change', (e) => console.log('夜间模式开关:', e.detail.checked));
+
+const swVibrate = document.getElementById('sw-vibrate');
+swVibrate.addEventListener('af-switch:change', (e) => console.log('震动反馈开关:', e.detail.checked));
+</script>
+</body>
+</html>

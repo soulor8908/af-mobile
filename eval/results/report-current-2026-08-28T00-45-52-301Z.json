@@ -1,0 +1,399 @@
+{
+  "passK": 1,
+  "total": 12,
+  "lintPassed": 12,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.00",
+  "errorsByRule": {},
+  "byCategory": {
+    "feedback": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 0
+    },
+    "form": {
+      "total": 5,
+      "lintPassed": 5,
+      "visualPassed": 1
+    },
+    "detail": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "starter": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "list": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 0
+    },
+    "complex": {
+      "total": 2,
+      "lintPassed": 2,
+      "visualPassed": 1
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": false,
+      "missing": [
+        "af-dialog[open]"
+      ],
+      "fails": [
+        "缺少 af-dialog[open]"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-current.png",
+      "errors": []
+    },
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".title"
+      ],
+      "fails": [
+        "缺少 .title"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-current.png",
+      "errors": []
+    },
+    {
+      "id": "057",
+      "category": "form",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\057-k0-current.png",
+      "errors": []
+    },
+    {
+      "id": "060",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".btn"
+      ],
+      "fails": [
+        "缺少 .btn"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\060-k0-current.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ]
+    },
+    {
+      "id": "061",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".list"
+      ],
+      "fails": [
+        "缺少 .list"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\061-k0-current.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "HTTP 404"
+      ]
+    },
+    {
+      "id": "062",
+      "category": "detail",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\062-k0-current.png",
+      "errors": []
+    },
+    {
+      "id": "064",
+      "category": "starter",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\064-k0-current.png",
+      "errors": [
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc. URL scheme \"supabase\" is not supported.",
+        "Fetch API cannot load supabase://products?select=id,title,price&order=created_at.desc. URL scheme \"supabase\" is not supported.",
+        "Error fetching products: TypeError: Failed to fetch\n    at _doFetch (http://127.0.0.1:61758/index.js:239:6041)",
+        "total.set is not a function"
+      ]
+    },
+    {
+      "id": "069",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".price"
+      ],
+      "fails": [
+        "af-calendar 不可见",
+        "缺少 .price"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\069-k0-current.png",
+      "errors": [
+        "Failed to resolve module specifier \"@af-mobile/ui\". Relative references must start with either \"/\", \"./\", or \"../\"."
+      ]
+    },
+    {
+      "id": "070",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-stepper 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\070-k0-current.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ]
+    },
+    {
+      "id": "079",
+      "category": "list",
+      "domPass": false,
+      "missing": [
+        "af-swipe-cell",
+        ".avatar",
+        ".title",
+        ".meta",
+        "af-swipe-cell"
+      ],
+      "fails": [
+        "缺少 af-swipe-cell",
+        "缺少 .avatar",
+        "缺少 .title",
+        "缺少 .meta",
+        "缺少 af-swipe-cell"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\079-k0-current.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "HTTP 404"
+      ]
+    },
+    {
+      "id": "081",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\081-k0-current.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "HTTP 404"
+      ]
+    },
+    {
+      "id": "086",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-chat 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\086-k0-current.png",
+      "errors": [
+        "Failed to resolve module specifier \"@af-mobile/ui/chat\". Relative references must start with either \"/\", \"./\", or \"../\"."
+      ]
+    }
+  ],
+  "visualPassed": 4,
+  "visualPassRate": "33.3%",
+  "visualFailures": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": false,
+      "missing": [
+        "af-dialog[open]"
+      ],
+      "fails": [
+        "缺少 af-dialog[open]"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-current.png",
+      "errors": []
+    },
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".title"
+      ],
+      "fails": [
+        "缺少 .title"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-current.png",
+      "errors": []
+    },
+    {
+      "id": "060",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".btn"
+      ],
+      "fails": [
+        "缺少 .btn"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\060-k0-current.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ]
+    },
+    {
+      "id": "061",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".list"
+      ],
+      "fails": [
+        "缺少 .list"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\061-k0-current.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "HTTP 404"
+      ]
+    },
+    {
+      "id": "069",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".price"
+      ],
+      "fails": [
+        "af-calendar 不可见",
+        "缺少 .price"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\069-k0-current.png",
+      "errors": [
+        "Failed to resolve module specifier \"@af-mobile/ui\". Relative references must start with either \"/\", \"./\", or \"../\"."
+      ]
+    },
+    {
+      "id": "070",
+      "category": "list",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-stepper 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\070-k0-current.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ]
+    },
+    {
+      "id": "079",
+      "category": "list",
+      "domPass": false,
+      "missing": [
+        "af-swipe-cell",
+        ".avatar",
+        ".title",
+        ".meta",
+        "af-swipe-cell"
+      ],
+      "fails": [
+        "缺少 af-swipe-cell",
+        "缺少 .avatar",
+        "缺少 .title",
+        "缺少 .meta",
+        "缺少 af-swipe-cell"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\079-k0-current.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "HTTP 404"
+      ]
+    },
+    {
+      "id": "086",
+      "category": "complex",
+      "domPass": false,
+      "missing": [],
+      "fails": [
+        "af-chat 不可见"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\086-k0-current.png",
+      "errors": [
+        "Failed to resolve module specifier \"@af-mobile/ui/chat\". Relative references must start with either \"/\", \"./\", or \"../\"."
+      ]
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "variant": "current"
+}

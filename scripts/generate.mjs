@@ -12,7 +12,7 @@ import { recordRun, detectTool } from '../eval/telemetry.mjs';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CACHE_DIR = join(ROOT, '.cache/generate');
 
-// 调用 LLM 生成首版代码（与 ai-fix.mjs 的 callLLM 同协议）
+// 调用 LLM 生成首版代码（标准 OpenAI 兼容协议，与 ai-fix.mjs 的 callLLM 同步）
 async function callLLM(systemPrompt, userPrompt) {
   const url = process.env.AFMOBILE_AI_API_URL;
   const key = process.env.AFMOBILE_AI_API_KEY;
@@ -24,7 +24,15 @@ async function callLLM(systemPrompt, userPrompt) {
       'Content-Type': 'application/json',
       ...(key ? { Authorization: `Bearer ${key}` } : {}),
     },
-    body: JSON.stringify({ model, system: systemPrompt, user: userPrompt, temperature: 0.1, top_p: 0.5 }),
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.1,
+      top_p: 0.5,
+    }),
   });
   if (!res.ok) throw new Error(`LLM API ${res.status}: ${await res.text()}`);
   const data = await res.json();
@@ -42,6 +50,7 @@ function stripCodeFence(text) {
 // 输入：需求描述字符串 + { outputPath, promptMode }
 // promptMode: 'full'（全量，读 system-prompt.md 快照）| 'tailored'（buildPrompt 按需求裁剪，默认）
 //           | 'blocks'（tailored + L3.5 Block 表/优先指引，A/B 实验处理组）
+//           | 'no-fewshot'（tailored 剥离内联组件教材段，教材效果 A/B 对照组）
 // 输出：{ ok, code, rounds, exitCode, lastErrors, outputPath }
 export async function generate(userPrompt, opts = {}) {
   const outputPath = opts.outputPath || join(CACHE_DIR, `gen-${Date.now()}.html`);
@@ -56,6 +65,16 @@ export async function generate(userPrompt, opts = {}) {
         ? readFileSync(snapshot, 'utf8')
         : '(System Prompt 未构建，请先运行 npm run prompt)')
     : buildPrompt({ userPrompt, blocks: opts.promptMode === 'blocks' });
+
+  // 教材效果 A/B：对照组剥离「命中组件的用法教材」段（保留其余裁剪逻辑，单变量对照）
+  let finalPrompt = systemPrompt;
+  if (opts.promptMode === 'no-fewshot') {
+    const start = finalPrompt.indexOf('## 命中组件的用法教材');
+    if (start !== -1) {
+      const next = finalPrompt.indexOf('\n# ', start + 1);
+      finalPrompt = finalPrompt.slice(0, start) + (next === -1 ? '' : finalPrompt.slice(next + 1));
+    }
+  }
 
   // 需求分布遥测（kind='prompt'）：只记命中的场景包 key（封闭集），不落需求原文（隐私红线）
   recordRun({
@@ -90,7 +109,7 @@ export async function generate(userPrompt, opts = {}) {
   writeFileSync(outputPath, firstCode);
 
   // Step 2-4: 复用 ai-fix 闭环（lint → 修正 → 再生，最多 3 轮）
-  const fixResult = await runAiFixLoop(outputPath, callLLM, systemPrompt, opts.eslintOpts || {});
+  const fixResult = await runAiFixLoop(outputPath, callLLM, finalPrompt, opts.eslintOpts || {});
   const finalCode = readFileSync(outputPath, 'utf8');
 
   return {

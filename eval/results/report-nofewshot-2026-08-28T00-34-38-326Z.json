@@ -1,0 +1,120 @@
+{
+  "passK": 1,
+  "total": 12,
+  "lintPassed": 0,
+  "lintPassRate": "0.0%",
+  "avgRounds": "3.00",
+  "errorsByRule": {},
+  "byCategory": {
+    "feedback": {
+      "total": 1,
+      "lintPassed": 0,
+      "visualPassed": 0
+    },
+    "form": {
+      "total": 5,
+      "lintPassed": 0,
+      "visualPassed": 0
+    },
+    "detail": {
+      "total": 1,
+      "lintPassed": 0,
+      "visualPassed": 0
+    },
+    "starter": {
+      "total": 1,
+      "lintPassed": 0,
+      "visualPassed": 0
+    },
+    "list": {
+      "total": 2,
+      "lintPassed": 0,
+      "visualPassed": 0
+    },
+    "complex": {
+      "total": 2,
+      "lintPassed": 0,
+      "visualPassed": 0
+    }
+  },
+  "lintFailures": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "056",
+      "category": "form",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "057",
+      "category": "form",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "060",
+      "category": "form",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "061",
+      "category": "form",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "062",
+      "category": "detail",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "064",
+      "category": "starter",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "069",
+      "category": "form",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "070",
+      "category": "list",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "079",
+      "category": "list",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "081",
+      "category": "complex",
+      "exitCode": 3,
+      "errors": []
+    },
+    {
+      "id": "086",
+      "category": "complex",
+      "exitCode": 3,
+      "errors": []
+    }
+  ],
+  "visualResults": [],
+  "visualPassed": 0,
+  "visualPassRate": "0.0%",
+  "visualFailures": [],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots",
+  "variant": "nofewshot"
+}

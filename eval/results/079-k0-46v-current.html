@@ -1,0 +1,61 @@
+<!doctype html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">消息列表</nav>
+  <af-list id="list" item-height="64" refresh></af-list>
+</div>
+<script type="module">
+import { signal, effect, fetchPage } from '/af-mobile.js';
+const list = document.getElementById('list');
+const items = signal([]);
+
+effect(() => { list.data = items(); });
+
+list.renderItem = (item) => `
+  <af-swipe-cell>
+    <div slot="content" class="list-item g-3 aic">
+      <img class="avatar" src="${item.avatar}" alt="${item.name}">
+      <div class="flex-1 fc">
+        <div class="jcsb aic">
+          <span class="title t-b">${item.name}</span>
+          <span class="meta text-muted">${item.time}</span>
+        </div>
+        <span class="caption text-muted ellipsis">${item.lastMsg}</span>
+      </div>
+    </div>
+    <div slot="right">
+      <button class="btn btn-danger" data-action="delete">删除</button>
+    </div>
+  </af-swipe-cell>
+`;
+
+list.addEventListener('af-list:refresh', async () => {
+  items.set(await fetchPage('/api/messages'));
+  list.endRefresh();
+});
+
+list.addEventListener('af-list:loadmore', async () => {
+  const newItems = await fetchPage('/api/messages?page=2');
+  items.set([...items(), ...newItems]);
+  list.endLoadMore(newItems.length > 0);
+});
+
+list.addEventListener('af-swipe-cell:action', (e) => {
+  if (e.detail.action === 'delete') {
+    const index = e.detail.index;
+    const newItems = items().filter((_, i) => i !== index);
+    items.set(newItems);
+  }
+});
+
+items.set(await fetchPage('/api/messages'));
+</script>
+</body>
+</html>

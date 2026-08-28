@@ -1,0 +1,45 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <nav class="navbar">设置</nav>
+  <div class="list">
+    <div class="cell">
+      <div class="fc aic jcsb">
+        <div>
+          <span class="body">消息推送</span>
+          <span class="caption text-muted">接收应用消息通知</span>
+        </div>
+        <af-switch id="push"></af-switch>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="fc aic jcsb">
+        <div>
+          <span class="body">夜间模式</span>
+          <span class="caption text-muted">自动切换深色主题</span>
+        </div>
+        <af-switch id="night"></af-switch>
+      </div>
+    </div>
+    <div class="cell">
+      <div class="fc aic jcsb">
+        <div>
+          <span class="body">震动反馈</span>
+          <span class="caption text-muted">操作时手机震动</span>
+        </div>
+        <af-switch id="vibrate"></af-switch>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module">
+import { register } from '/af-mobile.js';
+register();
+</script>
+</body>
+</html>

@@ -100,11 +100,41 @@ export async function renderCapture(htmlPath, expects, { port, outDir }) {
         const st = document.createElement('style');
         st.textContent = 'af-list{height:720px}af-swiper{height:320px}.page{min-height:100vh}body{margin:0}';
         (document.head || document.documentElement).appendChild(st);
+        // importmap：模型常按发布包名 import 子库（模板子库章节写法），eval 源码直引环境映射到 src/
+        const im = document.createElement('script');
+        im.type = 'importmap';
+        im.textContent = JSON.stringify({
+          imports: {
+            '@af-mobile/ui': '/src/index.js',
+            '@af-mobile/ui/': '/src/',
+            '@af-mobile/ui/chat': '/src/chat/index.js',
+            '@af-mobile/ui/charts': '/src/charts/index.js',
+            '@af-mobile/ui/blocks': '/src/blocks/index.js',
+          },
+        });
+        (document.head || document.documentElement).appendChild(im);
       };
       if (document.head) addStyles();
       else document.addEventListener('DOMContentLoaded', addStyles);
     });
     const url = `http://127.0.0.1:${port}/${htmlPath.split(/[\\/]/).pop()}`;
+    // importmap 静态注入：模型常按发布包名 import 子库（模板子库章节写法），bare specifier 浏览器无法解析，
+    // 拦截 HTML 在 </head> 前插入 importmap（动态插入无效——Chrome 要求 importmap 先于任何模块解析）
+    const IMPORTMAP = JSON.stringify({
+      imports: {
+        '@af-mobile/ui': '/src/index.js',
+        '@af-mobile/ui/': '/src/',
+        '@af-mobile/ui/chat': '/src/chat/index.js',
+        '@af-mobile/ui/charts': '/src/charts/index.js',
+        '@af-mobile/ui/blocks': '/src/blocks/index.js',
+      },
+    });
+    await page.route('**/*.html', async (route) => {
+      const res = await route.fetch();
+      const html = (await res.text()).replace(/<\/head>/i,
+        '<script type="importmap">' + IMPORTMAP + '</script></head>');
+      return route.fulfill({ contentType: 'text/html; charset=utf-8', body: html });
+    }).catch(() => {});
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });

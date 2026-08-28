@@ -140,7 +140,16 @@ async function callLLM(systemPrompt, userPrompt) {
       'Content-Type': 'application/json',
       ...(key ? { Authorization: `Bearer ${key}` } : {}),
     },
-    body: JSON.stringify({ model, system: systemPrompt, user: userPrompt, temperature: 0.1, top_p: 0.5 }),
+    // 标准 OpenAI 兼容协议（智谱 /v4/chat/completions、OpenAI、各类代理网关通用）
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.1,
+      top_p: 0.5,
+    }),
   });
   if (!res.ok) throw new Error(`LLM API ${res.status}: ${await res.text()}`);
   const data = await res.json();

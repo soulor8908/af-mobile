@@ -1,0 +1,82 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page fc g-3">
+  <af-chat id="chat" placeholder="请输入您的问题"></af-chat>
+</div>
+<script type="module">
+import { registerChat, createSession } from '@af-mobile/ui/chat';
+
+// 注册AI对话组件
+await registerChat();
+
+// 创建会话实例
+const session = createSession({
+  endpoint: '/api/chat',
+  // 预置欢迎消息
+  initialMessages: [{
+    type: 'text',
+    content: '您好！我是AI客服，很高兴为您服务。请问有什么可以帮助您的吗？'
+  }]
+});
+
+// 获取chat元素
+const chat = document.getElementById('chat');
+
+// 绑定会话
+chat.session = session;
+
+// 监听发送事件
+chat.addEventListener('af-chat:send', async (e) => {
+  const userMessage = e.detail.text;
+  
+  // 添加用户消息
+  chat.addMessage({
+    type: 'text',
+    content: userMessage,
+    role: 'user'
+  });
+  
+  try {
+    // 模拟AI回复
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // 添加AI回复
+    chat.addMessage({
+      type: 'text',
+      content: `您的问题"${userMessage}"我已经收到，正在为您处理中...`,
+      role: 'assistant'
+    });
+  } catch (error) {
+    // 错误处理
+    chat.addMessage({
+      type: 'text',
+      content: '抱歉，处理您的请求时出现了一些问题，请稍后再试。',
+      role: 'assistant'
+    });
+  }
+});
+
+// 监听其他事件（可选）
+chat.addEventListener('af-chat:action', (e) => {
+  console.log('用户点击了操作按钮:', e.detail);
+});
+
+chat.addEventListener('af-chat:confirm', (e) => {
+  console.log('用户确认了操作:', e.detail);
+});
+
+chat.addEventListener('af-chat:abort', (e) => {
+  console.log('用户取消了操作:', e.detail);
+});
+
+chat.addEventListener('af-chat:error', (e) => {
+  console.error('聊天错误:', e.detail);
+});
+</script>
+</body>
+</html>

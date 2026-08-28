@@ -64,19 +64,21 @@ async function main() {
   let ids = [];
   let passK = 1;
   let dryRun = false;
-  let variant = 'current'; // current（现行 prompt）| blocks（Block 版 prompt，A/B 处理组）
+  let variant = 'current'; // current（现行 prompt 含教材）| blocks（Block 版）| nofewshot（剥离教材，教材 A/B 对照组）
   let resume = false;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--limit') limit = parseInt(args[++i]);
     else if (args[i] === '--category') category = args[++i];
     else if (args[i] === '--ids') ids = args[++i].split(',').filter(Boolean);
     else if (args[i] === '--pass-k') passK = parseInt(args[++i]);
-    else if (args[i] === '--variant') variant = args[++i] === 'blocks' ? 'blocks' : 'current';
+    else if (args[i] === '--variant') variant = args[++i];
     else if (args[i] === '--dry-run') dryRun = true;
     else if (args[i] === '--resume') resume = true;
   }
-  const promptMode = variant === 'blocks' ? 'blocks' : 'tailored';
-  const CACHE_PATH = join(RESULTS_DIR, variant === 'blocks' ? 'raw-blocks.json' : 'raw.json');
+  const promptMode = variant === 'blocks' ? 'blocks'
+    : /(^|-)nofewshot($|-)/.test(variant) ? 'no-fewshot'
+    : 'tailored';
+  const CACHE_PATH = join(RESULTS_DIR, `raw-${variant}.json`);
 
   const prompts = loadPrompts();
   console.error(`✓ 加载 ${prompts.length} 条 eval prompt`);

@@ -1,0 +1,28 @@
+<!doctype html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <div class="list-item">
+    <img class="thumb" src="product-image.jpg" alt="商品缩略图">
+    <div class="flex-1 fc">
+      <div class="title">商品名称（长标题用 ellipsis-2 截断）</div>
+      <div class="price">¥99.00</div>
+    </div>
+    <af-stepper id="stepper" min="1" max="99" step="1"></af-stepper>
+  </div>
+</div>
+<script type="module">
+import { fetchPage } from '/af-mobile.js';
+const stepper = document.getElementById('stepper');
+stepper.addEventListener('af-stepper:change', (e) => {
+  console.log('当前数量：', e.detail.value);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+{
+  "passK": 1,
+  "total": 4,
+  "lintPassed": 4,
+  "lintPassRate": "100.0%",
+  "avgRounds": "1.25",
+  "errorsByRule": {
+    "af-mobile/semantic-visual": 7
+  },
+  "byCategory": {
+    "feedback": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    },
+    "form": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 0
+    },
+    "list": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 0
+    },
+    "complex": {
+      "total": 1,
+      "lintPassed": 1,
+      "visualPassed": 1
+    }
+  },
+  "lintFailures": [],
+  "visualResults": [
+    {
+      "id": "038",
+      "category": "feedback",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\038-k0-46v-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".title"
+      ],
+      "fails": [
+        "缺少 .title"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-46v-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "079",
+      "category": "list",
+      "domPass": false,
+      "missing": [
+        "af-swipe-cell",
+        ".avatar",
+        ".title",
+        ".meta",
+        "af-swipe-cell"
+      ],
+      "fails": [
+        "缺少 af-swipe-cell",
+        "缺少 .avatar",
+        "缺少 .title",
+        "缺少 .meta",
+        "缺少 af-swipe-cell"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\079-k0-46v-nofewshot.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "HTTP 404"
+      ]
+    },
+    {
+      "id": "086",
+      "category": "complex",
+      "domPass": true,
+      "missing": [],
+      "fails": [],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": true,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\086-k0-46v-nofewshot.png",
+      "errors": []
+    }
+  ],
+  "visualPassed": 2,
+  "visualPassRate": "50.0%",
+  "visualFailures": [
+    {
+      "id": "056",
+      "category": "form",
+      "domPass": false,
+      "missing": [
+        ".title"
+      ],
+      "fails": [
+        "缺少 .title"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\056-k0-46v-nofewshot.png",
+      "errors": []
+    },
+    {
+      "id": "079",
+      "category": "list",
+      "domPass": false,
+      "missing": [
+        "af-swipe-cell",
+        ".avatar",
+        ".title",
+        ".meta",
+        "af-swipe-cell"
+      ],
+      "fails": [
+        "缺少 af-swipe-cell",
+        "缺少 .avatar",
+        "缺少 .title",
+        "缺少 .meta",
+        "缺少 af-swipe-cell"
+      ],
+      "llmPass": null,
+      "llmReason": null,
+      "passed": false,
+      "screenshotPath": "D:\\projects\\aiflow-ui\\eval\\results\\shots\\079-k0-46v-nofewshot.png",
+      "errors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "HTTP 404"
+      ]
+    }
+  ],
+  "shotsDir": "D:\\projects\\aiflow-ui\\eval\\results\\shots"
+}

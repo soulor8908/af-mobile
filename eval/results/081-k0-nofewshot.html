@@ -1,0 +1,44 @@
+<!doctype html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page p-0">
+  <section class="stats-grid fc g-3">
+    <div class="fc aic g-1">
+      <span class="stat-num text-brand">12000</span>
+      <span class="caption">今日销售额</span>
+    </div>
+    <div class="fc aic g-1">
+      <span class="stat-num text-brand">30000</span>
+      <span class="caption">本周销售额</span>
+    </div>
+    <div class="fc aic g-1">
+      <span class="stat-num text-brand">50000</span>
+      <span class="caption">本月销售额</span>
+    </div>
+    <div class="fc aic g-1">
+      <span class="stat-num text-brand">100000</span>
+      <span class="caption">本年销售额</span>
+    </div>
+  </section>
+  <af-chart-line id="chart" smooth labels="近 7 日" series="销售额"></af-chart-line>
+</div>
+<script type="module">
+import { signal, effect, fetchPage } from '/af-mobile.js';
+import { registerChart } from '../../src/charts/index.js';
+
+await registerChart('af-chart-line');
+
+const chart = document.getElementById('chart');
+const data = await fetchPage('/api/sales-data');
+chart.labels = data.labels;
+chart.series = [{ name: '销售额', values: data.values }];
+
+</script>
+</body>
+</html>

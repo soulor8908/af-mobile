@@ -1,0 +1,60 @@
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page fc g-3">
+  <div class="hero-grad fc aic g-2">
+    <h1 class="title">AI 客服</h1>
+  </div>
+  <af-chat id="chat" placeholder="请输入您的问题"></af-chat>
+</div>
+<script type="module">
+import { registerChat, createSession } from '@af-mobile/ui/chat';
+
+// 注册chat子库
+await registerChat();
+
+// 创建session
+const session = createSession({
+  endpoint: '/api/chat',
+  welcomeMessage: '您好！我是AI客服，很高兴为您服务。请问有什么可以帮您？'
+});
+
+// 获取chat元素
+const chat = document.getElementById('chat');
+
+// 绑定session
+chat.session = session;
+
+// 处理发送事件
+chat.addEventListener('af-chat:send', async (e) => {
+  const text = e.detail.text;
+  try {
+    // 模拟发送消息并获取回复
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+    const data = await response.json();
+    
+    // 添加回复消息
+    chat.addMessage({
+      type: 'text',
+      content: data.reply,
+      role: 'assistant'
+    });
+  } catch (error) {
+    chat.addMessage({
+      type: 'text',
+      content: '抱歉，服务器暂时无法响应，请稍后再试。',
+      role: 'assistant'
+    });
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/af-mobile.css">
+</head>
+<body>
+<div class="page">
+  <af-search-bar id="search" placeholder="搜索商品" clearable></af-search-bar>
+  <div class="section p-3">
+    <div class="body t-b">热门搜索</div>
+    <div class="chips">
+      <span class="tag">手机</span>
+      <span class="tag">电脑</span>
+      <span class="tag">耳机</span>
+      <span class="tag">手表</span>
+    </div>
+  </div>
+  <div class="section p-3">
+    <div class="body t-b">历史记录</div>
+    <div class="list">
+      <div class="list-item">
+        <span class="body">手机</span>
+      </div>
+      <div class="list-item">
+        <span class="body">耳机</span>
+      </div>
+      <div class="list-item">
+        <span class="body">电脑</span>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module">
+import { signal, effect, fetchPage } from '/af-mobile.js';
+const search = document.getElementById('search');
+const history = signal([]);
+
+effect(() => {
+  const list = document.querySelector('.list');
+  list.innerHTML = history().map(item => `
+    <div class="list-item">
+      <span class="body">${item}</span>
+    </div>
+  `).join('');
+});
+
+search.addEventListener('af-search-bar:search', async (e) => {
+  // 搜索逻辑...
+});
+
+search.addEventListener('af-search-bar:clear', () => {
+  history([]);
+});
+</script>
+</body>
+</html>

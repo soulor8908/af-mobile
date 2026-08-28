@@ -14,7 +14,7 @@ export default {
         js: `document.querySelector('af-swipe-cell').addEventListener('af-swipe-cell:action', (e) => {
   if (e.detail.action === 'delete') /* 移除该项 */;
 });`,
-        note: 'slot=content 主内容 / slot=right 操作区；操作按钮 data-action 值进载荷 e.detail.action',
+        note: 'slot=content 主内容 / slot=right 操作区；操作按钮 data-action 值进载荷 e.detail.action；同类单元按数据条数重复多个',
       },
       html: `
         <div class="list">

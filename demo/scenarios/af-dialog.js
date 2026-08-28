@@ -12,7 +12,7 @@ export default {
     {
       name: '基础用法',
       fewshot: {
-        html: `<af-dialog id="d" title="确认操作">
+        html: `<af-dialog id="d" title="确认操作" open>
   <div slot="body"><p class="body">确定要删除这条记录吗？</p></div>
   <div slot="footer">
     <button class="btn btn-ghost btn-block" data-act="cancel">取消</button>
@@ -20,10 +20,10 @@ export default {
   </div>
 </af-dialog>`,
         js: `const d = document.getElementById('d');
-d.open(); // 打开（组件方法控制显隐，焦点陷阱内置）
+d.open(); // 打开（组件方法控制显隐，焦点陷阱内置）；初始即打开可加 open 属性
 d.querySelector('[data-act="confirm"]').addEventListener('click', () => d.close('confirm'));
 d.addEventListener('af-dialog:close', (e) => console.log(e.detail.action)); // 'confirm' / undefined=取消`,
-        note: '内容用 slot=body / slot=footer 分发；open()/close(action) 控制显隐，action 进 close 事件载荷',
+        note: '内容用 slot=body / slot=footer 分发；open 属性=初始打开；open()/close(action) 控制显隐，action 进 close 事件载荷',
       },
       html: `
         <af-dialog open title="确认操作">

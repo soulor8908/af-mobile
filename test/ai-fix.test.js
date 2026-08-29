@@ -1,12 +1,16 @@
 // L4 §4 ai-fix.mjs 3 轮修正流程测试
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { writeFileSync, mkdirSync, rmSync, readFileSync, existsSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, readFileSync, existsSync, mkdtempSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractCode, buildFixPrompt, runAiFixLoop } from '../scripts/ai-fix.mjs';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const TMP = join(ROOT, '.cache/ai-fix-tests');
+// 每轮一个唯一目录（mkdtempSync），不用固定目录名：
+// 沙箱 safe-delete 把 rmSync shim 成异步删除，全量并发跑时上一轮的删除会延迟生效，
+// 误伤下一轮刚 writeTmp 出来的文件 → readFileSync 偶发 ENOENT（曾稳定复现于 ai-fix 的 3 个用例）。
+// 仍置于 ROOT/.cache 下：ESLint 需向上命中 ROOT 的 flat config（并落在 .cache/** 配置段内）
+let TMP;
 
 // 写临时测试文件到 .cache/ai-fix-tests/（不被 git 跟踪，ESLint 仍能找到 ROOT 下的 flat config）
 function writeTmp(name, content) {
@@ -18,16 +22,17 @@ function writeTmp(name, content) {
 
 // 清理 best-effort：沙箱 safe-delete shim 下 rmSync 可能失败，.cache/ 已 gitignore 残留无害
 function cleanTmp() {
-  try { rmSync(TMP, { recursive: true, force: true }); } catch { /* 下轮 beforeEach 重建 */ }
+  if (!TMP) return;
+  try { rmSync(TMP, { recursive: true, force: true }); } catch { /* .cache/ 残留无害 */ }
 }
 
 beforeEach(() => {
-  cleanTmp();
-  mkdirSync(TMP, { recursive: true });
+  TMP = mkdtempSync(join(ROOT, '.cache/ai-fix-tests-'));
 });
 
 afterEach(() => {
   cleanTmp();
+  TMP = undefined;
 });
 
 describe('ai-fix / extractCode', () => {

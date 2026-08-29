@@ -1,0 +1,68 @@
+name: Preview Deploy
+
+# 每个 PR 构建 demo 并部署到 IGA Pages，把 preview URL 评论回 PR。
+# 仅 PR 触发，不影响 main/发版流程；与 release.yml 完全隔离。
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+# 同一 PR 的并发推送只保留最新一次（旧构建即失效，避免互相覆盖）
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write   # 评论 preview URL
+  contents: read
+
+jobs:
+  preview:
+    name: Deploy demo preview to IGA Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      # 与 ci.yml 同因锁定 npm 11.9.0（根包自引用 workspaces + workspace 链接依赖 npm 11 解析）
+      - name: Pin npm version
+        run: npm install -g npm@11.9.0
+
+      - run: npm ci
+
+      # demo 构建：vite.config 默认 base=/af-mobile/demo/（子路径前缀），直接部署会 404；
+      # preview 独立托管到根路径，故用 --base=/ 覆盖
+      - name: Build demo (root base for standalone hosting)
+        run: npx vite build --base=/
+
+      - name: Deploy preview to IGA Pages
+        id: deploy
+        env:
+          IGA_AK: ${{ secrets.IGA_AK }}
+          IGA_SK: ${{ secrets.IGA_SK }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          npm i -g @iga-pages/cli@latest
+          iga login --accessKey "$IGA_AK" --secretKey "$IGA_SK"
+          cd demo-dist
+          out="$(iga pages deploy --name "af-mobile-preview-$PR_NUMBER" 2>&1 || true)"
+          echo "$out"
+          # full URL（含 iga_token/iga_time 签名参数），缺参可能导致访问失败
+          url="$(printf '%s' "$out" | grep -oE 'https://[^[:space:]]*iga_token=[^[:space:]]*' | head -1 || true)"
+          [ -z "$url" ] && url="$(printf '%s' "$out" | grep -oE 'https://[^[:space:]]+' | tail -1 || true)"
+          echo "preview_url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Comment preview URL on PR
+        if: always()
+        env:
+          URL: ${{ steps.deploy.outputs.preview_url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -n "$URL" ]; then
+            gh pr comment "$PR_NUMBER" --body "✅ **demo preview**: $URL"
+          else
+            gh pr comment "$PR_NUMBER" --body "⚠️ preview 未部署成功或未解析到 URL，请查看 Actions 日志" || true
+          fi

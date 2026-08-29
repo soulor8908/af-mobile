@@ -42,7 +42,7 @@ export function updateBubble(el, msg, callMap, streaming, t) {
   if (txt._h !== html) {   // 同串跳过重排（流式逐字高频调用）
     txt.innerHTML = html;
     txt._h = html;
-    for (const b of txt.querySelectorAll('.cc')) b.setAttribute('aria-label', t('ct.cc'));
+    for (const b of txt.querySelectorAll('.cc')) b.setAttribute('aria-label', t('ct.cp'));
   }
   // 思考折叠：原生 details/summary 零 JS；流式无正文=「思考中…」，否则「已思考」
   const think = msg.content.find((b) => b.type === 'think');

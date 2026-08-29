@@ -91,7 +91,7 @@ describe('chat render 纯函数', () => {
     expect(x.querySelector('li').textContent).toBe('项');
     expect(x.querySelector('.cd pre').textContent).toBe('const a="<b>";');
     expect(x.querySelector('.cd pre b')).toBeNull();   // 引号/尖括号已转义：不被解析为标签
-    expect(x.querySelector('button.cc').getAttribute('aria-label')).toBe('复制代码');
+    expect(x.querySelector('button.cc').getAttribute('aria-label')).toBe('复制');
     expect(x.querySelector('script')).toBeNull();
   });
 

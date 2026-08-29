@@ -10,6 +10,8 @@ export { createSession } from './session.js';
 export { createMessage } from './message.js';
 export { parseSSE } from './stream.js';
 export { defineTool } from './tool.js';
+// 多会话（D-014，可选能力）：af-chat 不静态依赖 sessions.js，tree-shaking 下不用不付费
+export { createSessions, sessionsHTML, bindSessions } from './sessions.js';
 
 // ct.* 字典随入口注册（addMessages 幂等合并，深路径导入组件时需自行 import './i18n.js'）
 import './i18n.js';

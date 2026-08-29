@@ -98,13 +98,17 @@ const BUDGET = {
   chartsPerComponent: 2.8, // KB，单图表组件（同主库 perComponent 语义）
   chartsTotal: 15.0,   // KB，charts 全量（Phase 1 预估 ~11KB，预留 Phase 2 radar+funnel ~2.5KB + 容差）
   // chat 子库（src/chat，独立入口 @af-mobile/ui/chat，不计入主库 total）：AI 对话会话核心（OpenAI SSE + 工具循环）
-  chatRuntime: 2.5,    // KB，session+message+stream+tool 内核 + ct.* 字典（独立预算；v2.1.0 富内容后实测 2.157KB，regenerate/resend/think 解析 +209B）
+  chatRuntime: 2.5,    // KB，session+message+stream+tool 内核 + ct.*/cs.* 字典（独立预算；v2.1.0 后实测 ~2.22KB）
   // chatUI 3.0→3.3（v2.0.0 实施）：af-chat 为复合容器（气泡流+composer+chips+错误重试+回底+卡片渲染管线）。
   // chatUI 3.3→4.6（v2.1.0 富内容，D-013 用户确认）：markdown 安全子集渲染（lib/md.js，escape-first）+ 代码块复制
   //   + 思考折叠（原生 details）+ 消息操作行（复制/重新生成）+ 忙碌排队 + 草稿事件；实测 4.514KB，
   //   含 v2.0.0 遗留欠账 147B（auto-grow/三点占位/clear/retry 已落地未调预算）。
-  // 总量约束：chat 子库合计 ≤ 7.1KB（docs/design/af-chat-rich-features-design.md，覆盖旧版 §9 的 5.5KB）
+  // 总量约束：chat 子库合计 ≤ 8.5KB（docs/design/af-chat-rich-features-design.md §7/§10，覆盖旧版 §9 的 5.5KB）
   chatUI: 4.6,         // KB，af-chat 组件 + render 渲染器 + md 渲染器（UI 层；基类/with-i18n/i18n 与主库共享 external，session 经 property 注入不静态依赖）
+  // chatSessions ≤ 0.9（v2.1.0 多会话，D-014 用户确认）：sessions.js 单文件三合一（仓库+列表 HTML+绑定器），
+  // 无组件方案（light DOM 白名单 class + 原生 Popover API）。可选能力：af-chat 不静态依赖，tree-shaking 下不用不付费；
+  // 口径 = chatRuntime 存在前提下的净增量（session/i18n/html 共享核心 external），实测 0.883KB
+  chatSessions: 0.9,   // KB，多会话 store+sessionsHTML+bindSessions
   // k 渲染层（src/k，独立入口 @af-mobile/ui/k，不计入主库 total）：html`` 声明式模板 + 细粒度响应式绑定
   // 响应式核心复用 lib/state.js（external 共享，不重复计费）；实测 1.399KB，与 chat 内核同量级
   kRuntime: 2.0,       // KB，html``+Show/For/Switch+render/clean（B3 实验：代码量 -23%，会话成本 -24%）
@@ -291,6 +295,26 @@ async function measureChatUI() {
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
 
+// chat 多会话（D-014）：sessions.js 单文件三合一（仓库+列表 HTML+绑定器）净增量
+// 口径：chatRuntime 存在前提下——session.js/i18n/html 共享核心 external，af-chat 不静态依赖本文件（不用不付费）
+async function measureChatSessions() {
+  const dir = mkdtempSync(join(tmpdir(), 'af-mobile-chat-sessions-'));
+  const entry = join(dir, 'entry.js');
+  const toPosix = (p) => p.replace(/\\/g, '/');
+  writeFileSync(entry,
+    `import { createSessions, sessionsHTML, bindSessions } from '${toPosix(join(SRC, 'chat/sessions.js'))}';\n` +
+    `// 引用以防 tree-shake 摇除\n` +
+    `globalThis.__afMobile_chatSessions = [createSessions, sessionsHTML, bindSessions];\n`
+  );
+  const res = await build({
+    entryPoints: [entry],
+    bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+    absWorkingDir: ROOT,
+    external: ['../lib/i18n.js', '../lib/html.js', './session.js'],
+  });
+  return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
+}
+
 // k 渲染层（独立入口 @af-mobile/ui/k，不计入主库 total）：html``+Show/For/Switch+render/clean
 // D-001=B：入口另含 res/route 原语（createResource + router 全套）
 // 共享运行时 lib/state.js、lib/resource.js、lib/router.js 与主库同模块单份，external 掉（防重复计费）
@@ -443,6 +467,10 @@ async function main() {
   const chatUIOver = chatUIGz > BUDGET.chatUI * KB;
   console.log(`chat UI（af-chat+render）  ${fmt(chatUIGz).padStart(10)}  预算 ≤ ${BUDGET.chatUI}KB  ${chatUIOver ? '✗ 超限' : '✓'}`);
   if (chatUIOver) violations.push(`chat UI ${fmt(chatUIGz)} > ${BUDGET.chatUI}KB`);
+  const chatSessionsGz = await measureChatSessions();
+  const chatSessionsOver = chatSessionsGz > BUDGET.chatSessions * KB;
+  console.log(`chat Sessions（多会话净增量）${fmt(chatSessionsGz).padStart(4)}  预算 ≤ ${BUDGET.chatSessions}KB  ${chatSessionsOver ? '✗ 超限' : '✓'}`);
+  if (chatSessionsOver) violations.push(`chat Sessions ${fmt(chatSessionsGz)} > ${BUDGET.chatSessions}KB`);
 
   // k 渲染层（独立入口 ./k，不计入主库 total）
   console.log('\n── k 渲染层（@af-mobile/ui/k，独立预算）──');

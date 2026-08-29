@@ -19,6 +19,7 @@
 | D-011 | 2026-08-29 | 已决：教材补子库清单；demo 重构为子库组件 | chat/charts 子库进 grill 教材（真实生成场景踩中 088 号 trap 的活体案例） |
 | D-012 | 2026-08-29 | 已决：A（嵌入式能干活的 AI） | af-chat 定位收敛：不做聊天主界面，砍 markdown/会话管理/图片/时间戳 |
 | D-013 | 2026-08-29 | 已决：局部推翻 D-012（用户拍板） | chat 富内容升级：markdown 内置安全子集 + 消息操作 + 思考展示；chatUI 预算 3.3→4.6KB |
+| D-014 | 2026-08-29 | 已决：推翻 D-012「会话管理不做」（用户拍板） | chat 多会话：单文件三合一（store+列表 HTML+绑定器）无组件方案；新预算线 chatSessions 0.9KB |
 
 ---
 
@@ -209,3 +210,18 @@
 - 时间戳/日期分组/图片/多会话维持不做（D-012 该部分不受影响）
 
 **残余风险**：regenerate 重跑工具循环会重复执行副作用工具——已在设计文档「边界」章节立规：无 confirm 闸门的副作用工具不得接入 regenerate 场景；undo（D-012 连带发现 #1）优先级提升为下一批候选。
+
+## D-014 chat 多会话（无组件方案），推翻 D-012「会话管理不做」（2026-08-29，已决）
+
+**决策输入**：用户提出查看历史/新增/删除会话诉求后两轮体积收敛——组件方案实测 +1593B 被否；对大头（自定义元素固定成本：Shadow CSS 模板串/cssTag/withI18n/生命周期管道，占组件体积 ~60%）重设计为**单文件三合一纯函数**，实测 +806B。
+
+**决策**（用户拍板）：`src/chat/sessions.js` 单文件导出三函数——`createSessions()`（多会话仓库：创建/删除/切换 + localStorage 防抖 300ms 落盘 + 恢复走 `initialMessages`）/ `sessionsHTML(store)`（列表 HTML，全 L2 白名单 class，cardNode 同款先例）/ `bindSessions(el, store, target?)`（渲染 + 事件委托 + 自动重渲染 + 传入 af-chat 则自动换绑 session）。af-chat 与 chatRuntime 零改动；tree-shaking 下不用会话管理的消费端 0 付费（新预算线 chatSessions ≤ 0.9KB，仅测量该文件）。
+
+**浏览器特性替代库代码**：原生 Popover API 承担弹层（`popover=auto` + `popovertarget`，light-dismiss/top-layer 0 字节）；`aria-current` 承担 active 态（0 CSS，宿主可选 1 行样式）；`crypto.randomUUID` 生成 id；`setTimeout` 防抖。
+
+**放弃了什么**：
+- 组件化封装（Shadow 隔离 / 事件派发 / 框架无关实例）——换 -49% 体积；宿主自管容器与弹层关闭时机
+- 重命名 / 自动标题 / 会话搜索 / 日期分组 / 虚拟化（不在用户三能力内，D-012 其余砍项维持）
+- 立即落盘改防抖落盘（300ms）——流式期间逐 token stringify 整个历史的性能坑顺带修掉；结构性操作（create/remove/select）走同步 flush 不受影响
+
+**边界**：宿主需自写 1 行 active 样式（`[aria-current]` 着色）；popover 内点击不自动关闭，需关闭在 `store.subscribe` 回调里自行处理。实测与 API 详见 docs/design/af-chat-rich-features-design.md §10。

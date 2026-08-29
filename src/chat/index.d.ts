@@ -120,3 +120,38 @@ export interface AfChatEventMap {
 
 export declare const CHAT_TAGS: { 'af-chat': CustomElementConstructor };
 export declare function registerChat(tag?: string): void;
+
+/** 多会话记录（localStorage 持久化单元；messages 与 session.messages 同引用） */
+export interface SessionRecord {
+  id: string;
+  title: string;
+  createdAt: number;
+  messages: Message[];
+}
+export interface SessionsOptions {
+  /** 透传 createSession */
+  endpoint?: string;
+  requestFn?: (url: string, init: RequestInit) => Promise<Response>;
+  tools?: Tool[];
+  systemPrompt?: string | (() => string);
+  /** localStorage key；缺省内存模式（SSR/测试安全） */
+  storage?: string;
+}
+export interface Sessions {
+  records: SessionRecord[];
+  readonly activeId: string | null;
+  active(): Session | null;
+  /** 无效 id 不通知 */
+  select(id: string): void;
+  /** 自动激活新会话；默认标题取 cs.new */
+  create(): SessionRecord;
+  /** 删 active 时自动切最近一条 */
+  remove(id: string): void;
+  subscribe(fn: () => void): () => boolean;
+}
+/** 多会话仓库（D-014；持久化防抖 300ms，结构性操作同步 flush） */
+export declare function createSessions(opts?: SessionsOptions): Sessions;
+/** 列表 HTML（全 L2 白名单 class；active 项 aria-current="true"，样式宿主 1 行可选） */
+export declare function sessionsHTML(store: Sessions): string;
+/** 渲染 + 事件委托 + 自动重渲染；传 target（af-chat）则自动换绑 session（含初次） */
+export declare function bindSessions(el: HTMLElement, store: Sessions, target?: HTMLElement): void;

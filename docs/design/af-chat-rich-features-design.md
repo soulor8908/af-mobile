@@ -75,7 +75,7 @@ assistant 气泡新增三区（`<span class="x">` → `<div class="x">`）：
 ```
 
 - 完成态 sr-only 播报、aria-hidden 流式时序、光标 `.cu` 机制不变
-- 代码块复制按钮 `data-copy` 事件委托到 `.lg`（copy `pre.textContent`）；按钮文案走 `content:attr(aria-label)`（`ct.cc`），零文本节点
+- 代码块复制按钮 `data-copy` 事件委托到 `.lg`（copy `pre.textContent`）；按钮文案走 `content:attr(aria-label)`（`ct.cp`，与消息操作行复制共用），零文本节点
 
 ### 5.3 输入区
 
@@ -89,7 +89,7 @@ assistant 气泡新增三区（`<span class="x">` → `<div class="x">`）：
 ### 5.4 事件与 i18n
 
 - 事件新增：`af-chat:draft`、`af-chat:queued`（复用 `af-{component}:{action}` 命名 + bubbles+composed）
-- 字典新增 5 键 ×2 语言：`ct.cc`（复制代码）/`ct.cp`（复制）/`ct.rg`（重新生成）/`ct.tk`（思考中…）/`ct.tkd`（已思考）
+- 字典新增 4 键 ×2 语言：`ct.cp`（复制，代码块复制与消息操作行共用）/`ct.rg`（重新生成）/`ct.tk`（思考中…）/`ct.tkd`（已思考）
 
 ## 6. 安全分析
 
@@ -109,6 +109,7 @@ assistant 气泡新增三区（`<span class="x">` → `<div class="x">`）：
 | chatRuntime | 2.5KB | 2.5KB（不变） | 实测 2.157KB |
 | chatUI | 3.3KB | **4.6KB** | 实测 4.514KB；含 md.js + 既有欠账 147B（auto-grow/三点占位/clear/retry 已落地未调预算） |
 | 子库合计 | 5.5KB（设计文档 §9，未入 CI） | 7.1KB | 主库 23KB 红线零影响 |
+| chatSessions（§10 增补） | — | **0.9KB** | 多会话单文件（tree-shakable，不用不付费，实测 0.883KB）；主库 23KB 红线零影响 |
 
 ## 8. 测试清单
 
@@ -123,3 +124,35 @@ assistant 气泡新增三区（`<span class="x">` → `<div class="x">`）：
 - **md 全量重解析**：每个 delta 对全文跑 replace 链（O(n²) 字符级）——长回答场景可接受（与旧版全量 textContent 比对同量级）；虚拟化/分片渲染留给长列表议题
 - **操作行/折叠/复制按钮的命令式文案**不随 localechange 热更新（每次 updateBubble 重设，下次对话回合生效）；静态 i18n 映射（placeholder/回底/空态）不受影响
 - **混合标记列表**：`- a` 与 `1. b` 连续行合并为单列表（CommonMark 会拆分）——省 85B 的已知取舍，AI 输出场景罕见
+
+## 10. 多会话（D-014 增补，无组件方案）
+
+推翻 D-012「会话管理不做」。两轮体积收敛：组件方案实测 +1593B（自定义元素固定成本占 ~60%）被否；**单文件三合一纯函数**实测净增量 +926B（sessions.js 0.883KB + 字典 43B）。
+
+### 10.1 API（src/chat/sessions.js，唯一新文件）
+
+| 导出 | 职责 |
+|---|---|
+| `createSessions(opts)` | 仓库：`records`（{id,title,createdAt,messages}）/ `activeId` / `active()` / `create()` / `remove(id)`（删 active 自动切最近一条）/ `select(id)` / `subscribe(fn)`。opts 透传 createSession + `storage`（localStorage key，缺省内存） |
+| `sessionsHTML(store)` | 列表 HTML：新对话钮（`btn btn-ghost` data-new）+ items（`list-item`/`body`，active 项 `aria-current="true"`，删除钮 aria-label）；全部 L2 白名单 class（cardNode 同款先例），XSS 走 escapeHtml |
+| `bindSessions(el, store, target?)` | 初次渲染 + 单监听事件委托（data-new/data-rm/data-id → store 调用）+ subscribe 自动重渲染；传 target（af-chat 元素）则含初次在内自动换绑 `target.session` |
+
+持久化：防抖 300ms（流式逐 token notify 不能每帧 stringify 整个历史）；结构性操作（create/remove/select）同步 flush，UI 零感知延迟。恢复：records.messages → `createSession({ initialMessages })`（既有能力）。
+
+### 10.2 浏览器特性替代库代码（0 字节）
+
+弹层 = 原生 Popover API（`<button popovertarget=hist>` + `<div id=hist popover=auto>`，light-dismiss/top-layer 免费）；active 样式 = 宿主 1 行 `[aria-current]{border-color:var(--c-brand);color:var(--c-brand)}`（可选）；id = `crypto.randomUUID()`。
+
+### 10.3 宿主用量（2 行）
+
+```js
+const store = createSessions({ endpoint: '/api/chat', tools, storage: 'aitodo.chats' });
+bindSessions($('#hist'), store, chat);
+```
+
+### 10.4 预算与边界
+
+- 新预算线 `chatSessions ≤ 0.9KB`（仅测 sessions.js；不进 chatRuntime/chatUI 口径——af-chat 不静态依赖它，tree-shaking 下不用不付费）
+- 字典 `cs.new/cs.del` 随 chat/i18n.js（计入 chatRuntime 口径，实测 2.157→2.200KB ≤ 2.5 ✓）
+- 不做：重命名/自动标题/搜索/日期分组/虚拟化/事件派发；popover 内点击不自动关闭（宿主在 subscribe 回调处理）
+- 测试：test/chat-sessions.test.js（内存与持久化/恢复/防抖/损坏 JSON 降级/HTML XSS/委托绑定/自动换绑/退订）

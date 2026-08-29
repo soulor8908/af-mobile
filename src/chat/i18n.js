@@ -9,14 +9,15 @@ addMessages('zh-CN', {
   'ct.stop': '停止',
   'ct.rt': '重试',
   'ct.tl': '回到底部',
-  'ct.cf': '确认',
+  'ct.cf': '确定',
   'ct.cn': '取消',
   'ct.em': '开始对话',
-  'ct.cc': '复制代码',
   'ct.cp': '复制',
   'ct.rg': '重新生成',
   'ct.tk': '思考中…',
   'ct.tkd': '已思考',
+  'cs.new': '新对话',
+  'cs.del': '删除',
 });
 
 addMessages('en-US', {
@@ -28,9 +29,10 @@ addMessages('en-US', {
   'ct.cf': 'Confirm',
   'ct.cn': 'Cancel',
   'ct.em': 'Start a conversation',
-  'ct.cc': 'Copy code',
   'ct.cp': 'Copy',
   'ct.rg': 'Regenerate',
   'ct.tk': 'Thinking…',
   'ct.tkd': 'Thought',
+  'cs.new': 'New chat',
+  'cs.del': 'Delete',
 });

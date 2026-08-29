@@ -1,6 +1,6 @@
 {
   "name": "@af-mobile/mcp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "description": "af-mobile UI MCP Server — get_prompt / check_compliance / fix_code / generate_page / flywheel_report（零 LLM 配置可用）",
   "exports": {
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@af-mobile/eslint-plugin": "^2.0.0"
+    "@af-mobile/eslint-plugin": "^2.2.0"
   },
   "peerDependencies": {
     "eslint": ">=9.0.0"

@@ -1,5 +1,41 @@
 # Changelog
 
+## 1.8.0
+
+### Minor Changes
+
+- 535433c: 新增 `@af-mobile/ui/blocks` 子路径与 `registerBlocks()` 入口：子库 L3.5 Block 扩至 5 个（新增 `af-product-grid` / `af-order-list` / `af-auth-form`，加上既有 `af-product-card` / `af-setting-group`）。
+  
+  - 列表型 Block 共享 `list-block.js` 基座：五态（idle/loading/error/empty/success）+ 键盘导航 + 点击委托；
+  - wc-block-* 四条规则（states / props-count / no-internal-ref / variant-enum）启用到 `src/blocks/af-*.js`；
+  - 默认 System Prompt 仍不含 Block（冻结原状）；Block 表经 `buildPrompt({ blocks: true })` 按需注入，仅 `node eval/ab.mjs` A/B 对照实验处理组使用。
+- 00e541a: chat 子库富内容升级（D-013，局部推翻 D-012）：af-chat 对标成熟对话产品补齐 5 项基础能力。
+  
+  - **markdown 安全子集渲染**：新增 `src/chat/lib/md.js`（escape-first，全文先转义再标注）——h1-h3 / ul/ol / 围栏代码 / 粗斜体 / 行内码 / http(s) 链接；代码块自带复制按钮（`content:attr(aria-label)` 零文本节点）。`javascript:` 链接与 img/script 生成路径被拒绝
+  - **消息操作**：`session.regenerate()`（末轮重跑，残片清理语义同 retry）/ `session.resend(id, text)`（编辑重发）；气泡操作行支持复制全文（markdown 原文）与重新生成。副作用工具须 confirm 卡片前置（重复执行风险闸门）
+  - **思考展示**：`delta.reasoning_content`（DeepSeek-R1 / o1 类）聚合为 `think` 内容块，UI 原生 `<details>` 折叠（流式无正文=「思考中…」）；think 不回传 API
+  - **输入区**：绑定模式忙碌排队（流式中 Enter/发送入队，回空闲自动消化，`af-chat:queued` 事件）；`af-chat:draft` 草稿事件
+  - **多会话**（D-014，无组件方案）：`createSessions()`（创建/删除/切换 + localStorage 防抖落盘 + 恢复）/ `sessionsHTML()` / `bindSessions(el, store, target?)`（含 af-chat 自动换绑）；列表复用 L2 白名单 class，弹层交给原生 Popover API；新预算线 chatSessions ≤ 0.9KB（实测 0.883KB，tree-shaking 不用不付费）
+  - **预算**：chatUI 3.3→4.6KB（实测 4.514KB），chatRuntime 2.5KB 不变（实测 ~2.22KB）；主库 23KB 红线零影响
+  
+  设计文档：docs/design/af-chat-rich-features-design.md
+- c5c3130: 新增 `af-mobile doctor` 与 `af-mobile deploy`（交付链 P1）：AI 生成代码之后到「手机浏览器可访问」之间的命令补位。
+  
+  - `doctor`：只读自检 —— 构建产物、P0 配件（manifest + 3 图标 + favicon，且 index.html 已引用）、密钥 `VITE_` 前缀红线、部署端环境变量提示、target 专属检查（Supabase 环境变量 / wrangler.toml 含 D1 binding）、线上可达（`--url`）
+  - `deploy`：前置检查全绿才执行，Cloudflare provider 已实现（Pages 静态托管 / Workers 全栈）；`self-hosted` 与 `cn` 按 D-010 留接口并明确报未实现
+  - 两个正交维度：`target`（后端形态 supabase / cloudflare）与 `provider`（部署落点 cloudflare / self-hosted / cn），组合非笛卡尔积 —— Workers 全栈不可脱离 Cloudflare
+  - 网络与命令执行均可注入（`opts.fetch` / `opts.run`），便于测试与 mock
+- 81ec650: `@af-mobile/ui/k` 入口升级为应用层（DECISIONS.md D-001=B）：新增 `createResource`（res）与路由全套原语（`route`/`go`/`back`/`forward`/`beforeEach`/`afterEach`/`notFound`/`current`/`start`/`RouterError`）重导出——用 k 写应用不再需要回主包取数与路由 API。
+  
+  - 词表卡定版于 `src/k/README.md`（含双 `html\`\`` 同名不同义警示、双向绑定组合范式、占位符禁区）；
+  - k 独立体积预算不变（≤2KB gzip，共享运行时模块 external 计量）；
+  - k 层占位符报警器（patch，同版本合入）：属性名位 / 带引号混合值插值静默失败改为 console.warn。
+
+### Patch Changes
+
+- dee4343: `@af-mobile/ui/k` 模板占位符位置校验：属性名位插值（`<div ${name}="v">`）与带引号混合值插值（`class="btn ${x}"`）此前静默丢失绑定，现于模板首次解析时 console.warn 一次（模板缓存级去重）。仅告警，不改变绑定行为。
+- 9e5fb9a: 脚手架补齐 PWA 配件（G1 消费端交付链 P0）：`create` 生成的工程开箱含 manifest.webmanifest、三张占位图标（192/512/maskable-512）与 favicon.ico，index.html 增加 theme-color / description / og 分享 meta；新增 `--desc` / `--theme` 参数控制插值。图标随包分发于 `assets/icons/`，配套 `npm run scaffold:check` 验证闸门。
+
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 约定，版本号遵循语义化版本（SemVer）。
 
 > 早期版本（v1.0.0 ~ v1.3.x）未维护本文件，变更记录自 v1.4.0 起。

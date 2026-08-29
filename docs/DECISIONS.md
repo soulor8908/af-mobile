@@ -225,3 +225,11 @@
 - 立即落盘改防抖落盘（300ms）——流式期间逐 token stringify 整个历史的性能坑顺带修掉；结构性操作（create/remove/select）走同步 flush 不受影响
 
 **边界**：宿主需自写 1 行 active 样式（`[aria-current]` 着色）；popover 内点击不自动关闭，需关闭在 `store.subscribe` 回调里自行处理。实测与 API 详见 docs/design/af-chat-rich-features-design.md §10。
+
+## D-015 workspaces 纳入根包，推翻 overrides（2026-08-29，已决）
+
+背景：Release workflow 首跑即失败——changesets 报 `Found changeset … for package @af-mobile/ui which is not in the workspace`。根因：只要 `package.json` 声明 `workspaces`，changesets（经 @manypkg/get-packages）就只认 workspace 成员包、排除根包，而本仓全部 changeset 都指向根包 `@af-mobile/ui`（发布主体）。
+
+- **决策**：`workspaces` 数组加入 `"."`（根包自引用），同时**删除根 `overrides`**（`"@af-mobile/ui": "file:."`）——workspaces 成员按 semver 自动链接本地根包，overrides 冗余且与 `"."` 冲突（npm EOVERRIDE 实证）。release.yml 无需改动。
+- **理由**：这是不搬目录的最小修复。备选全部更重：移除 workspaces 会让 changesets 无法再发布 mcp/eslint-plugin/tokens/prompt 子包（release.yml 的 publish 段作废）；迁移 `packages/ui` 涉及全仓路径重构。业界同型案例：pnpm-workspace.yaml 加 `"."`、pion#122 同问题（其选择删 workspaces，因它无子包发布需求）。
+- **放弃了什么**：overrides 的显式强链接语义（依赖 npm "版本范围匹配则链接 workspace" 的默认行为；若子包声明的 range 与根包版本不匹配，会静默改拉 registry 版——CI 冒烟与 `changeset publish` 拓扑排序兜底）。

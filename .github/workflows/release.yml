@@ -31,7 +31,7 @@ jobs:
           # 生成 ~/.npmrc（_authToken=${NODE_AUTH_TOKEN}），publish 鉴权必需
           registry-url: 'https://registry.npmjs.org'
 
-      # 与 ci.yml 同因锁定 npm 11.9.0：根 overrides("@af-mobile/ui":"file:.") 依赖 npm 11 解析行为
+      # 与 ci.yml 同因锁定 npm 11.9.0：根包自引用 workspaces(".") + 子包 workspace 链接依赖 npm 11 解析行为
       - name: Pin npm version
         run: npm install -g npm@11.9.0
 

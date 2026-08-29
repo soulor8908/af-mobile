@@ -37,13 +37,6 @@ jobs:
 
       - run: npm ci
 
-      - name: REAL publish diagnostic (surface actual error / publish 1.8.0)
-        run: |
-          echo "node: $(node -v) npm: $(npm -v)"
-          npm_config_provenance=true npm publish 2>&1
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
       # changesets 单 job 两段式（官方模式，拆 job 会有竞态）：
       #  - main 有 .changeset/*.md → 执行 version：bump 版本 + 写 CHANGELOG + 创建/更新 Version Packages PR
       #  - main 无 changeset 且有未发布版本 → 执行 publish：逐包触发 prepublishOnly 后 npm publish --provenance

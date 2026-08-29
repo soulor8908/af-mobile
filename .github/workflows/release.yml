@@ -40,7 +40,7 @@ jobs:
       - name: Diagnostic prepublish (surface REAL failure)
         run: |
           echo "node: $(node -v) npm: $(npm -v)"
-          npm run build && npm run publish:check; echo "DIAG_EXIT=$?"; exit 0
+          npm publish --dry-run 2>&1; echo "DIAG_EXIT=$?"; exit 0
 
       # changesets 单 job 两段式（官方模式，拆 job 会有竞态）：
       #  - main 有 .changeset/*.md → 执行 version：bump 版本 + 写 CHANGELOG + 创建/更新 Version Packages PR

@@ -37,12 +37,12 @@ jobs:
 
       - run: npm ci
 
-      - name: Diagnostic prepublish (surface REAL failure)
+      - name: REAL publish diagnostic (surface actual error / publish 1.8.0)
         run: |
           echo "node: $(node -v) npm: $(npm -v)"
-          echo "WHOAMI=$(npm whoami --registry https://registry.npmjs.org 2>&1)"
-          echo "IDTOKEN_SET=${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}"
-          npm_config_provenance=true npm publish --dry-run 2>&1; echo "DIAG_EXIT=$?"; exit 0
+          npm_config_provenance=true npm publish 2>&1
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # changesets 单 job 两段式（官方模式，拆 job 会有竞态）：
       #  - main 有 .changeset/*.md → 执行 version：bump 版本 + 写 CHANGELOG + 创建/更新 Version Packages PR

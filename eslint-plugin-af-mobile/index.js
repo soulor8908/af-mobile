@@ -1,6 +1,8 @@
 // af-mobile UI —— eslint-plugin-af-mobile 入口（ESLint 9 flat config 兼容）
 // 24 条规则：L1(2) + L2(8) + L3(6) + L3.5(5) + k(3)
 // （definePage 消费端 7 条规则已随 definePage 全局单例移除）
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
 import noTokenModification from './rules/no-token-modification.js';
 import noInlineStyle from './rules/no-inline-style.js';
 import tokenWhitelist from './rules/token-whitelist.js';
@@ -27,7 +29,7 @@ import kNoObjectInterpolation from './rules/k-no-object-interpolation.js';
 import kForRequireKey from './rules/k-for-require-key.js';
 
 const plugin = {
-  meta: { name: 'eslint-plugin-af-mobile', version: '2.1.0' },
+  meta: { name: 'eslint-plugin-af-mobile', version: require('./package.json').version },
   rules: {
     // L1（2 条，全部 error；tokens-css-locked 由 CODEOWNERS + 分支保护，非 ESLint 规则）
     'no-token-modification': noTokenModification,

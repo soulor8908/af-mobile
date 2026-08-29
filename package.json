@@ -122,7 +122,7 @@
     "registry:check": "node scripts/check-registry.mjs",
     "changeset": "changeset",
     "changeset:check": "changeset status --since=main",
-    "version-packages": "changeset version",
+    "version-packages": "changeset version && node scripts/gen-whitelist.mjs",
     "release": "changeset publish",
     "build": "node scripts/build.mjs",
     "prepublishOnly": "npm run build && npm run publish:check",

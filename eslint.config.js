@@ -105,6 +105,21 @@ export default [
     plugins: { 'af-mobile': afMobilePlugin },
     rules: { ...AI_RULES },
   },
+  // Demo 页面代码：消费端示范代码，启用完整 AI 规则集（demo 是 AI 学习组件库的第一手素材，本身必须合规）
+  // 分层沿用 scripts/check-demo.mjs 的既有设计意图：
+  //   demo/components/ + demo/scenarios/ = 组件示范区（AI 逐行模仿）→ 严格白名单
+  //   demo/playground/ + props-panel.js  = 宿主页面（调试台/属性面板）→ 宿主骨架 class 豁免白名单
+  // 注：demo 目录曾长期不在 lint 范围（docs/incidents.md #9），导致 25 处违规被 demo:check 漏检
+  {
+    files: ['demo/components/**/*.js', 'demo/scenarios/**/*.js'],
+    plugins: { 'af-mobile': afMobilePlugin },
+    rules: { ...AI_RULES, 'af-mobile/token-whitelist': ['error', BLOCK_TAGS_OPT] },
+  },
+  {
+    files: ['demo/playground/**/*.js', 'demo/props-panel.js'],
+    plugins: { 'af-mobile': afMobilePlugin },
+    rules: { ...AI_RULES, 'af-mobile/token-whitelist': 'off' },
+  },
   // ESLint 规则测试夹具 + ai-fix 循环测试 + 修复循环回归测试 + MCP 工具测试 + lint 采集测试：含故意违规用例以验证规则/修复/采集本身，关闭 AI 约束
   {
     files: ['test/eslint-plugin/**/*.js', 'test/ai-fix.test.js', 'test/fix-loop-regression.test.js', 'test/mcp.test.js', 'test/mcp-bundle.test.js', 'test/lint-flywheel.test.js'],

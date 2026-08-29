@@ -47,7 +47,7 @@ c.series = [{ name: '销售额', values: [1280, 960, 540] }];`,
       name: '迷你趋势 spark',
       html: `
         <div class="card">
-          <div class="cell f aic jcsb"><span class="body">本周访问量</span><span class="stat-num">2,820</span></div>
+          <div class="cell jcsb"><span class="body">本周访问量</span><span class="stat-num">2,820</span></div>
           <af-chart-line id="demo2" variant="spark" height="96"></af-chart-line>
           <p class="caption">spark 形态：无坐标轴与 tooltip，适合 KPI 卡内嵌；tap 不派发 select</p>
         </div>

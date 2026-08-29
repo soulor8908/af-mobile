@@ -58,7 +58,7 @@ export default {
         </style>
         <div class="card">
           <p class="caption">position 切到 left-bottom 时按钮出现在左下角；点按钮或调用 scrollToTop() 均可平滑回顶。</p>
-          <div class="cell f g-2">
+          <div class="cell g-2">
             <button class="btn btn-sm btn-ghost" data-act="bt2-call">scrollToTop()</button>
           </div>
         </div>

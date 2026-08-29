@@ -17,7 +17,7 @@
 
 ```bash
 # ESLint（全目录，0 warning 0 error）
-npx eslint src/ test/ scripts/ e2e/ prompt/ eval/ mcp/ eslint-plugin-af-mobile/ adapters/ starter/src/ --max-warnings 0
+npx eslint src/ test/ scripts/ e2e/ prompt/ eval/ mcp/ eslint-plugin-af-mobile/ adapters/ starter/src/ demo/ --max-warnings 0
 # 单元测试全绿
 npx vitest run
 # 体积 + 白名单三源 + 类型 + ARIA（一体化）
@@ -40,6 +40,8 @@ npm run demo:check
 │  └─ Shadow DOM 组件？→ CSS 必须 var(--*)，动画必须加 prefers-reduced-motion
 ├─ src/*.css → tokens.css 变量禁他处重定义；recipes.css 新增 class 必须同步三源白名单
 ├─ test/ scripts/ 等目录 → 受完整 AI 规则约束（token 白名单 / 禁内联 style / 禁 Tailwind 语法）
+├─ demo/components/ demo/scenarios/ → 消费端示范代码：完整 AI 规则 + 严格白名单（demo 是 AI 学习素材，自身必须合规）
+├─ demo/playground/ props-panel.js → 宿主页面（调试台）：完整 AI 规则，但豁免白名单（骨架 class 自建）
 └─ 仓库外消费端 → 只能用白名单 class + af-* 标签；先跑脚手架（§3）
 ```
 

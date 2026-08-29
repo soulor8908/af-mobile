@@ -26,7 +26,7 @@ pr.addEventListener('af-pull-refresh:refresh', () => {
         </af-pull-refresh>
         <p class="caption" id="pr-log">下拉触发 af-pull-refresh:refresh（触摸设备体验更佳）</p>
         <div class="card">
-          <button class="btn btn-ghost btn-block" onclick="document.getElementById('pr').endRefresh()">结束刷新</button>
+          <button class="btn btn-ghost btn-block" data-act="pr-end">结束刷新</button>
         </div>
       `,
       main: { selector: '#pr' },
@@ -34,6 +34,7 @@ pr.addEventListener('af-pull-refresh:refresh', () => {
       init: () => {
         const pr = document.getElementById('pr');
         const log = document.getElementById('pr-log');
+        document.querySelector('[data-act="pr-end"]')?.addEventListener('click', () => pr.endRefresh());
         pr.addEventListener('af-pull-refresh:refresh', () => {
           if (log) log.textContent = '刷新中...';
           setTimeout(() => pr.endRefresh(), 1500);

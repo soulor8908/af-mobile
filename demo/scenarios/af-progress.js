@@ -16,7 +16,7 @@ export default {
           <div class="cell"><span class="body">下载中…</span><af-progress id="p2" value="0"></af-progress></div>
         </div>
         <div class="card">
-          <button class="btn btn-ghost btn-block" onclick="var p1=document.getElementById('p1'),p2=document.getElementById('p2');p1.value=Math.min(100,p1.value+10);p2.value=Math.min(100,p2.value+10);">推进 +10</button>
+          <button class="btn btn-ghost btn-block" data-act="progress-advance">推进 +10</button>
         </div>
       `,
       main: { selector: '#p1' },
@@ -28,6 +28,14 @@ export default {
       styleTokens: [
         { token: '--c-brand', label: '主色', type: 'color' },
       ],
+      init: () => {
+        document.querySelector('[data-act="progress-advance"]')?.addEventListener('click', () => {
+          for (const id of ['p1', 'p2']) {
+            const el = document.getElementById(id);
+            if (el) el.value = Math.min(100, el.value + 10);
+          }
+        });
+      },
     },
     {
       name: '状态色变体',

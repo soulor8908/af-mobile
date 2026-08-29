@@ -19,7 +19,7 @@ cp.open();`,
       },
       html: `
         <div class="card">
-          <div class="cell"><span class="body">地区</span><button class="btn btn-sm btn-ghost" onclick="document.getElementById('cp').open()">选择</button></div>
+          <div class="cell"><span class="body">地区</span><button class="btn btn-sm btn-ghost" data-act="cp-open">选择</button></div>
         </div>
         <p class="caption" id="cp-log">点击「选择」打开级联面板，滚轮选择省 / 市 / 区。</p>
         <af-cascade-picker id="cp" title="选择地区"></af-cascade-picker>
@@ -53,13 +53,14 @@ cp.open();`,
           const log = document.getElementById('cp-log');
           if (log) log.textContent = `选中 ${e.detail.values.join(' / ')}`;
         });
+        document.querySelector('[data-act="cp-open"]')?.addEventListener('click', () => cp.open());
       },
     },
     {
       name: '两层级联与默认选中',
       html: `
         <div class="card">
-          <div class="cell f aic jcsb"><span class="body">商圈</span><button class="btn btn-sm btn-ghost" data-act="cp2-open">选择</button></div>
+          <div class="cell jcsb"><span class="body">商圈</span><button class="btn btn-sm btn-ghost" data-act="cp2-open">选择</button></div>
         </div>
         <p class="caption" id="cp2-log">默认选中「上海 / 浦东」，确认与取消均记录日志</p>
         <af-cascade-picker id="cp2" title="选择商圈"></af-cascade-picker>

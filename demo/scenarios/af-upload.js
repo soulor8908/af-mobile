@@ -18,7 +18,7 @@ export default {
           <p class="body">图片多选 · 限制 3 张 · 单张 ≤ 2MB</p>
           <af-upload id="upload" accept="image/*" multiple max-count="3" max-size="2097152"></af-upload>
           <div class="actions">
-            <button class="btn btn-ghost" type="button" onclick="document.getElementById('upload').clear()">清空</button>
+            <button class="btn btn-ghost" type="button" data-act="up-clear">清空</button>
           </div>
         </section>
         <p class="caption" id="up-log">选择文件后显示结果</p>
@@ -34,6 +34,7 @@ export default {
       init: () => {
         const upload = document.getElementById('upload');
         const log = document.getElementById('up-log');
+        document.querySelector('[data-act="up-clear"]')?.addEventListener('click', () => upload.clear());
         upload.addEventListener('af-upload:change', (e) => {
           if (log) log.textContent = `已选 ${e.detail.files.length} 个，错误 ${e.detail.errors.length} 个`;
         });

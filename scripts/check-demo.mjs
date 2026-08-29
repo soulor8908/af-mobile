@@ -11,6 +11,8 @@
 //     R6 <style> 必须带豁免注释（开标签前后含「豁免」字样）
 //   demo/scenarios/*.js：
 //     R7 tag 必须是完整标签名 'af-xxx'
+//   demo/**/*.css：
+//     R8 禁硬编码色值（#hex / rgb / rgba），须走 var(--*) token；就地 /* 豁免：原因 */ 可放行
 // 白名单校验豁免宿主页面（index/kitchen-sink/perf/playground/props-panel——非组件示范）。
 // 用法：npm run demo:check ；违规非零退出。
 import { readdirSync, readFileSync } from 'node:fs';
@@ -60,17 +62,31 @@ const check = (rel, src, { whitelist: doWhitelist, antiflash } = {}) => {
   }
 };
 
-const walkHtml = (dir, rel, opts) => {
+// R8 CSS 硬编码色值：独立 .css 文件此前从未被扫描（playground.css 76 行全硬编码长期逃逸）。
+// 豁免口径：就地行尾 /* 豁免：原因 */ —— 与 demo/README.md 的样式豁免口径一致（豁免必须就地定位）。
+const COLOR_RE = /#[0-9a-fA-F]{3,8}\b|rgba?\(/g;
+const checkCss = (rel, src) => {
+  src.split('\n').forEach((raw, i) => {
+    if (raw.includes('豁免')) return;
+    const code = raw.replace(/\/\*.*?\*\//g, ''); // 剥离行内注释，避免注释里的色值误判
+    for (const m of code.matchAll(COLOR_RE)) {
+      errors.push(`${rel}:${i + 1} 硬编码色值 "${m[0]}"（改用 var(--*) token，或就地加 /* 豁免：原因 */ 注释）`);
+    }
+  });
+};
+
+const walkDir = (dir, rel, opts) => {
   for (const f of readdirSync(dir)) {
     const p = join(dir, f);
     if (f.endsWith('.html')) check(`${rel}/${f}`, readFileSync(p, 'utf8'), opts);
     else if (f.endsWith('.js')) check(`${rel}/${f}`, readFileSync(p, 'utf8'), { ...opts, antiflash: false });
+    else if (f.endsWith('.css')) checkCss(`${rel}/${f}`, readFileSync(p, 'utf8'));
   }
 };
 
-walkHtml(join(DEMO, 'components'), 'demo/components', { whitelist: true, antiflash: true });
-walkHtml(join(DEMO, 'scenarios'), 'demo/scenarios', { whitelist: true });
-walkHtml(join(DEMO, 'playground'), 'demo/playground', {});
+walkDir(join(DEMO, 'components'), 'demo/components', { whitelist: true, antiflash: true });
+walkDir(join(DEMO, 'scenarios'), 'demo/scenarios', { whitelist: true });
+walkDir(join(DEMO, 'playground'), 'demo/playground', {});
 for (const f of ['index.html', 'kitchen-sink.html', 'perf.html', 'props-panel.js']) {
   check(`demo/${f}`, readFileSync(join(DEMO, f), 'utf8'), {});
 }

@@ -22,7 +22,7 @@ const MAX_TOOL_ROUNDS = 6;
 /**
  * 创建一个会话实例
  * @param {SessionOptions} opts
- * @returns {{messages: import('./message.js').Message[], state: 'idle'|'streaming'|'error', send: (text: string) => Promise<void>, abort: () => void, subscribe: (fn: () => void) => () => void}}
+ * @returns {{messages: import('./message.js').Message[], state: 'idle'|'streaming'|'error', send: (text: string) => Promise<void>, retry: () => Promise<void>, regenerate: () => Promise<void>, resend: (id: string, text: string) => Promise<void>, clear: () => void, append: (msg: object) => object, abort: () => void, subscribe: (fn: () => void) => () => void}}
  */
 export function createSession(opts) {
   const messages = (opts.initialMessages ?? []).map((m) => createMessage(m));
@@ -106,6 +106,14 @@ export function createSession(opts) {
       try { data = JSON.parse(frame.data); } catch { continue; }
       const delta = data.choices?.[0]?.delta;
       if (!delta) continue;
+      // 推理内容（DeepSeek-R1 / o1 类）：独立 think 块累积，UI 折叠展示；toAPIMessages 不回传
+      if (delta.reasoning_content) {
+        const last = assistant.content.at(-1);
+        if (last?.type === 'think') last.text += delta.reasoning_content;
+        else assistant.content.push({ type: 'think', text: delta.reasoning_content });
+        pushAssistant();
+        onMessage(assistant); notify();
+      }
       if (delta.content) {
         const last = assistant.content.at(-1);
         if (last?.type === 'text') last.text += delta.content;
@@ -126,7 +134,8 @@ export function createSession(opts) {
     for (const acc of pending.values()) {
       let args = {};
       try { args = JSON.parse(acc.args || '{}'); } catch { /* 非法参数保持空对象 */ }
-      assistant.content.push({ type: 'tool_call', id: acc.id, name: acc.name, args });
+      // label 供 UI 芯片显示（函数名用户读不懂）；发往 API 的 name 不变
+      assistant.content.push({ type: 'tool_call', id: acc.id, name: acc.name, label: tools.get(acc.name)?.label, args });
       pushAssistant();
       notify();
       calls.push({ id: acc.id, name: acc.name, args });
@@ -164,6 +173,41 @@ export function createSession(opts) {
     send(text) {
       push(createMessage({ role: 'user', content: [{ type: 'text', text }] }));
       return stream();
+    },
+    // 失败重发：沿用已 push 的 user 消息（不重复 push，否则上下文出现两条相同 user 消息），
+    // 并丢弃失败轮在 user 之后产生的 assistant/tool 残片——tool_calls 缺对应 tool 结果会让 API 报 400。
+    // 用法：请求失败后由 UI 的重试按钮调用（等价于"重发最后一句话"）
+    retry() {
+      const idx = messages.findLastIndex((m) => m.role === 'user');
+      if (idx < 0) return Promise.resolve();   // 无 user 消息：splice(0) 会清空全部，必须拦
+      messages.splice(idx + 1);
+      notify();
+      return stream();
+    },
+    // 重新生成：丢弃末条 user 之后的 assistant/tool 残片（保留该 user），重新流式。
+    // 注意：会重跑工具循环——副作用工具须 confirm 卡片前置（DECISIONS D-012/D-013）
+    regenerate() {
+      if (state !== 'idle') return Promise.resolve();
+      const idx = messages.findLastIndex((m) => m.role === 'user');
+      if (idx < 0) return Promise.resolve();
+      messages.splice(idx + 1);
+      notify();
+      return stream();
+    },
+    // 编辑重发：移除指定 user 消息及其后全部，以新文本重新 push 并流式（UI 编辑入口由宿主自建）
+    resend(id, text) {
+      if (state !== 'idle') return Promise.resolve();
+      const idx = messages.findIndex((m) => m.id === id && m.role === 'user');
+      if (idx < 0) return Promise.resolve();
+      messages.splice(idx);
+      push(createMessage({ role: 'user', content: [{ type: 'text', text }] }));
+      return stream();
+    },
+    // 清空会话（新建对话）：原地清空同一数组引用（订阅者持有的引用持续有效）并通知重渲染。
+    // 外部直接改 session.messages.length = 0 不会通知 UI——必须走本方法
+    clear() {
+      messages.length = 0;
+      notify();
     },
     // 注入外部消息（本地引擎结果 / 系统注入），不触发网络请求
     append(msg) {

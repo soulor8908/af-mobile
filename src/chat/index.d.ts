@@ -6,10 +6,17 @@ export interface TextBlock {
   type: 'text';
   text: string;
 }
+/** 推理内容（DeepSeek-R1 / o1 类 reasoning_content 聚合）；UI 折叠展示，不回传 API */
+export interface ThinkBlock {
+  type: 'think';
+  text: string;
+}
 export interface ToolCallBlock {
   type: 'tool_call';
   id: string;
   name: string;
+  /** 芯片显示名（来自 Tool.label），缺省回落 name */
+  label?: string;
   args: Record<string, unknown>;
 }
 export interface ToolResultBlock {
@@ -32,7 +39,7 @@ export interface CardBlock {
   id?: string;
   card: CardPayload;
 }
-export type ContentBlock = TextBlock | ToolCallBlock | ToolResultBlock | CardBlock;
+export type ContentBlock = TextBlock | ThinkBlock | ToolCallBlock | ToolResultBlock | CardBlock;
 
 export interface Message {
   role: 'user' | 'assistant' | 'tool' | 'system';
@@ -42,6 +49,8 @@ export interface Message {
 
 export interface Tool {
   name: string;
+  /** UI 芯片显示的人类可读短名；缺省回落到 name */
+  label?: string;
   description: string;
   parameters?: Record<string, unknown>;
   execute: (args: Record<string, unknown>) => unknown | Promise<unknown>;
@@ -61,6 +70,17 @@ export interface Session {
   messages: Message[];
   state: 'idle' | 'streaming' | 'error';
   send: (text: string) => Promise<void>;
+  /**
+   * 请求失败后重发最后一条 user 消息：不重复 push（避免上下文出现两条相同 user 消息），
+   * 并丢弃失败轮在其后产生的 assistant/tool 残片
+   */
+  retry: () => Promise<void>;
+  /** 重新生成：丢弃末条 user 之后的残片重新流式；流式中/无 user 消息时空操作。副作用工具须 confirm 前置（D-013） */
+  regenerate: () => Promise<void>;
+  /** 编辑重发：移除指定 user 消息及其后全部，以新文本重新 push 并流式；UI 编辑入口由宿主自建 */
+  resend: (id: string, text: string) => Promise<void>;
+  /** 清空会话（新建对话）：原地清空 messages 并通知订阅者（外部直接改数组不会通知 UI） */
+  clear: () => void;
   append: (msg: Partial<Message>) => Message;
   abort: () => void;
   subscribe: (fn: () => void) => () => void;
@@ -77,6 +97,8 @@ export class AfChat extends HTMLElement {
   placeholder: string | null;
   busy: boolean;
   focus(): void;
+  /** 清空会话（新建对话）：清卡片投影 + 内核/受控数组，重渲染回空态 */
+  clear(): void;
   scrollToBottom(): void;
   addEventListener<K extends keyof AfChatEventMap>(
     type: K, listener: (this: AfChat, ev: AfChatEventMap[K]) => void, options?: boolean | AddEventListenerOptions
@@ -90,6 +112,10 @@ export interface AfChatEventMap {
   'af-chat:confirm': CustomEvent<{ cardId: string; accepted: boolean }>;
   'af-chat:abort': CustomEvent<Record<string, never>>;
   'af-chat:error': CustomEvent<{ message: string }>;
+  /** 输入草稿变化（input 事件）；持久化由宿主负责 */
+  'af-chat:draft': CustomEvent<{ text: string }>;
+  /** 绑定模式忙碌排队：流式中发送/Enter/chip 触发，回空闲后自动消化发送 */
+  'af-chat:queued': CustomEvent<{ text: string }>;
 }
 
 export declare const CHAT_TAGS: { 'af-chat': CustomElementConstructor };

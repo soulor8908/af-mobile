@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { bubbleHTML, updateBubble, cardNode, chipsHTML, toolCallMap } from '../src/chat/lib/render.js';
 import { AfChat } from '../src/chat/components/af-chat.js';
 import { createMessage } from '../src/chat/message.js';
+import { t } from '../src/lib/i18n.js';
 // ct.* 字典在 chat 子库入口注册（不占主库核心运行时），测试直接导入组件文件需显式注册
 import '../src/chat/i18n.js';
 
@@ -45,12 +46,16 @@ describe('chat render 纯函数', () => {
     expect(h).not.toContain('<b>hi</b>');
   });
 
-  it('bubbleHTML：assistant 气泡含 text 区/光标/卡片投影 slot', () => {
+  it('bubbleHTML：assistant 气泡含 text 区/思考折叠/操作行/光标/卡片投影 slot', () => {
     const h = bubbleHTML(msg('assistant', []), {});
     // eslint-disable-next-line af-mobile/token-whitelist -- 断言 shadow 内部结构 class（组件私有，非消费端白名单域）
     expect(h).toContain('class="m a"');
     // eslint-disable-next-line af-mobile/token-whitelist -- 断言 shadow 内部结构 class（组件私有，非消费端白名单域）
-    expect(h).toContain('<span class="x"');
+    expect(h).toContain('<div class="x"');
+    // eslint-disable-next-line af-mobile/token-whitelist -- 断言 shadow 内部结构 class（组件私有，非消费端白名单域）
+    expect(h).toContain('<details class="kt" hidden>');
+    // eslint-disable-next-line af-mobile/token-whitelist -- 断言 shadow 内部结构 class（组件私有，非消费端白名单域）
+    expect(h).toContain('<div class="ma" hidden>');
     expect(h).toContain('<slot name="card-assistant"');
   });
 
@@ -60,20 +65,69 @@ describe('chat render 纯函数', () => {
     expect(h).toContain('get_weather');
   });
 
-  it('updateBubble：流式文本用 textContent（防 XSS）+ aria-hidden 时序', () => {
+  it('updateBubble：流式文本经 md 渲染（escape-first 防 XSS）+ aria-hidden 时序', () => {
     const el = document.createElement('div');
     el.innerHTML = bubbleHTML(msg('assistant', []), {});
     const m = msg('assistant', [{ type: 'text', text: '<img onerror=alert(1)>' }]);
-    updateBubble(el, m, {}, true);
+    updateBubble(el, m, {}, true, t);
     expect(el.querySelector('.x').textContent).toBe('<img onerror=alert(1)>');
     expect(el.querySelector('img')).toBeNull();
     expect(el.querySelector('.x').getAttribute('aria-hidden')).toBe('true');
     expect(el.querySelector('.cu').hidden).toBe(false);
     // 完成：移除 aria-hidden，sr-only 播报节点出现全文
-    updateBubble(el, m, {}, false);
+    updateBubble(el, m, {}, false, t);
     expect(el.querySelector('.x').getAttribute('aria-hidden')).toBeNull();
     expect(el.querySelector('.sr').textContent).toBe('<img onerror=alert(1)>');
     expect(el.querySelector('.cu').hidden).toBe(true);
+  });
+
+  it('updateBubble：markdown 文本渲染为安全 HTML（标题/列表/代码块 + 复制钮 aria-label）', () => {
+    const el = document.createElement('div');
+    el.innerHTML = bubbleHTML(msg('assistant', []), {});
+    const m = msg('assistant', [{ type: 'text', text: '# 标\n- 项\n```js\nconst a="<b>";\n```' }]);
+    updateBubble(el, m, {}, false, t);
+    const x = el.querySelector('.x');
+    expect(x.querySelector('h1').textContent).toBe('标');
+    expect(x.querySelector('li').textContent).toBe('项');
+    expect(x.querySelector('.cd pre').textContent).toBe('const a="<b>";');
+    expect(x.querySelector('.cd pre b')).toBeNull();   // 引号/尖括号已转义：不被解析为标签
+    expect(x.querySelector('button.cc').getAttribute('aria-label')).toBe('复制代码');
+    expect(x.querySelector('script')).toBeNull();
+  });
+
+  it('updateBubble：think 块渲染 details 折叠（流式无正文=思考中…，其余=已思考）；无 think 隐藏', () => {
+    const el = document.createElement('div');
+    el.innerHTML = bubbleHTML(msg('assistant', []), {});
+    // 流式且仅有 think：思考中…
+    const m1 = msg('assistant', [{ type: 'think', text: '推理过程' }]);
+    updateBubble(el, m1, {}, true, t);
+    const kt = el.querySelector('.kt');
+    expect(kt.hidden).toBe(false);
+    expect(el.querySelector('.tx').textContent).toBe('推理过程');
+    expect(el.querySelector('.tb').textContent).toBe('思考中…');
+    // 正文到达：已思考
+    m1.content.push({ type: 'text', text: '答' });
+    updateBubble(el, m1, {}, true, t);
+    expect(el.querySelector('.tb').textContent).toBe('已思考');
+    // 无 think：隐藏
+    updateBubble(el, msg('assistant', [{ type: 'text', text: 'x' }]), {}, false, t);
+    expect(el.querySelector('.kt').hidden).toBe(true);
+  });
+
+  it('updateBubble：操作行 streaming/空文本隐藏，完成后显示复制/重新生成', () => {
+    const el = document.createElement('div');
+    el.innerHTML = bubbleHTML(msg('assistant', []), {});
+    const m = msg('assistant', [{ type: 'text', text: '内容' }]);
+    updateBubble(el, m, {}, true, t);
+    expect(el.querySelector('.ma').hidden).toBe(true);
+    updateBubble(el, m, {}, false, t);
+    const ma = el.querySelector('.ma');
+    expect(ma.hidden).toBe(false);
+    expect(ma.querySelector('[data-act=cp]').textContent).toBe('复制');
+    expect(ma.querySelector('[data-act=rg]').textContent).toBe('重新生成');
+    // 空文本（仅工具调用）：隐藏
+    updateBubble(el, msg('assistant', [{ type: 'tool_call', id: 't1', name: 'x', args: {} }]), {}, false, t);
+    expect(el.querySelector('.ma').hidden).toBe(true);
   });
 
   it('updateBubble：assistant 内 tool_call 块渲染进行中芯片', () => {
@@ -306,11 +360,12 @@ describe('af-chat composer 与事件', () => {
     expect(handler.mock.calls[1][0].detail).toEqual({ cardId: 'c1', accepted: false });
   });
 
-  it('绑定模式错误：session.send reject → af-chat:error + 错误条 + 重试重发', async () => {
+  it('绑定模式错误：session.send reject → af-chat:error + 错误条 + 重试走 session.retry（不重复 push user）', async () => {
     const el = makeChat();
-    const s = mockSession({ send: vi.fn()
-      .mockRejectedValueOnce(new Error('网络错误'))
-      .mockResolvedValueOnce() });
+    const s = mockSession({
+      send: vi.fn().mockRejectedValueOnce(new Error('网络错误')).mockResolvedValueOnce(),
+      retry: vi.fn().mockResolvedValue(undefined),
+    });
     el.session = s;
     const errHandler = vi.fn();
     el.addEventListener('af-chat:error', errHandler);
@@ -321,8 +376,69 @@ describe('af-chat composer 与事件', () => {
     expect(bar).not.toBeNull();
     expect(bar.textContent).toContain('网络错误');
     bar.querySelector('.rt').click();
-    expect(s.send).toHaveBeenCalledTimes(2);
+    // 绑定模式重试走内核 retry（沿用原 user 消息），不得再调 send——否则上下文出现两条相同 user 消息
+    expect(s.retry).toHaveBeenCalledTimes(1);
+    expect(s.send).toHaveBeenCalledTimes(1);
     expect(s.send).toHaveBeenLastCalledWith('hi');
+  });
+
+  it('thinking 占位：streaming 且最后一条为 user 时出现，assistant 到达后移除', () => {
+    const el = makeChat();
+    const s = mockSession({ state: 'streaming', messages: [msg('user', [{ type: 'text', text: 'hi' }], 'u1')] });
+    el.session = s;   // setter 内 _sync() 无参：不算 streaming，不出现占位
+    expect(el.$('.tk')).toBeNull();
+    s.notify();       // _sync(true)：首个 delta 未到 → 三点占位
+    expect(el.$('.tk')).not.toBeNull();
+    s.messages = [...s.messages, msg('assistant', [{ type: 'text', text: '你' }], 'a1')];
+    s.notify();       // assistant 已出现 → 占位移除，不与内容并存
+    expect(el.$('.tk')).toBeNull();
+    expect(el.$('.ms').textContent).toContain('你');
+    s.state = 'idle';
+    s.notify();
+    expect(el.$('.tk')).toBeNull();
+  });
+
+  it('工具芯片显示 label（人类可读名），缺省回落 name', () => {
+    const el = makeChat();
+    el.session = mockSession({
+      messages: [
+        msg('user', [{ type: 'text', text: '统计' }], 'u1'),
+        msg('assistant', [
+          { type: 'tool_call', id: 't1', name: 'get_stats', label: '统计待办', args: {} },
+          { type: 'tool_call', id: 't2', name: 'add_todo', args: {} },
+        ], 'a1'),
+      ],
+    });
+    const chips = [...el.$('.ms').querySelectorAll('.tw .c')].map((n) => n.textContent);
+    expect(chips[0]).toContain('统计待办');   // 有 label 用 label
+    expect(chips[0]).not.toContain('get_stats');
+    expect(chips[1]).toContain('add_todo');   // 无 label 回落 name（不显示 undefined）
+  });
+
+  it('clear 清空会话：绑定模式交内核并回到空态；受控模式清自身数组', () => {
+    const el = makeChat();
+    const s = mockSession({
+      clear: vi.fn(() => { s.messages.length = 0; s.notify(); }),
+      messages: [msg('user', [{ type: 'text', text: 'hi' }], 'u1')],
+    });
+    el.session = s;
+    expect(el.$('.ms').children.length).toBeGreaterThan(0);
+    el.clear();
+    expect(s.clear).toHaveBeenCalledTimes(1);
+    expect(s.messages).toHaveLength(0);
+    expect(el.$('.ey')).not.toBeNull();   // 回到空态
+
+    const el2 = makeChat({ messages: [msg('user', [{ type: 'text', text: 'hi' }], 'u1')] });
+    el2.clear();
+    expect(el2.messages).toHaveLength(0);
+  });
+
+  it('输入 autoresize：按内容高度增高（上限交给 CSS max-height）', () => {
+    const el = makeChat();
+    const ta = el.$('.in');
+    Object.defineProperty(ta, 'scrollHeight', { value: 96, configurable: true });
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(ta.style.height).toBe('96px');   // 不做行数估算：封顶由 .in 的 max-height 负责
   });
 
   it('绑定模式中止：send 抛 AbortError 不渲染错误条不发 af-chat:error', async () => {
@@ -338,5 +454,81 @@ describe('af-chat composer 与事件', () => {
     await new Promise((r) => setTimeout(r, 0));
     expect(errHandler).not.toHaveBeenCalled();
     expect(el.$('.eb')).toBeNull();
+  });
+
+  it('忙碌排队：绑定模式流式中发送 → af-chat:queued + 清空输入 + 回空闲自动消化', () => {
+    const el = makeChat();
+    const s = mockSession();
+    el.session = s;
+    const queuedHandler = vi.fn();
+    el.addEventListener('af-chat:queued', queuedHandler);
+    s.state = 'streaming';
+    s.notify();
+    expect(el.busy).toBe(true);
+    const ta = el.$('.in');
+    ta.value = '排队消息';
+    ta.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    expect(queuedHandler).toHaveBeenCalledWith(expect.objectContaining({ detail: { text: '排队消息' } }));
+    expect(ta.value).toBe('');
+    expect(s.send).not.toHaveBeenCalled();
+    s.state = 'idle';
+    s.notify();   // 回空闲 → 消化队列
+    expect(s.send).toHaveBeenCalledWith('排队消息');
+  });
+
+  it('受控模式 busy：发送不入队不发事件不清输入（维持旧行为）', () => {
+    const el = makeChat();
+    const sendHandler = vi.fn();
+    const queuedHandler = vi.fn();
+    el.addEventListener('af-chat:send', sendHandler);
+    el.addEventListener('af-chat:queued', queuedHandler);
+    el.busy = true;
+    const ta = el.$('.in');
+    ta.value = 'x';
+    ta.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+    expect(sendHandler).not.toHaveBeenCalled();
+    expect(queuedHandler).not.toHaveBeenCalled();
+    expect(ta.value).toBe('x');
+  });
+
+  it('draft 事件：input 触发 af-chat:draft（草稿持久化由宿主负责）', () => {
+    const el = makeChat();
+    const handler = vi.fn();
+    el.addEventListener('af-chat:draft', handler);
+    const ta = el.$('.in');
+    ta.value = '草稿';
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(handler).toHaveBeenCalledWith(expect.objectContaining({ detail: { text: '草稿' } }));
+  });
+
+  it('代码块复制：点击 .cc 写 pre 纯文本到剪贴板', () => {
+    const el = makeChat();
+    el.messages = [msg('assistant', [{ type: 'text', text: '```\ncode1\n```' }], 'a1')];
+    const writeText = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    el.$('.cc').click();
+    expect(writeText).toHaveBeenCalledWith('code1');
+    delete navigator.clipboard;
+  });
+
+  it('操作行委托：复制全文（textOf 原文）/ 重新生成走 session.regenerate', () => {
+    const writeText = vi.fn();
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    const el = makeChat();
+    const regen = vi.fn().mockResolvedValue(undefined);
+    el.session = mockSession({
+      regenerate: regen,
+      messages: [
+        msg('user', [{ type: 'text', text: '问' }], 'u1'),
+        msg('assistant', [{ type: 'text', text: '**答**内容' }], 'a1'),
+      ],
+    });
+    const ma = el.$('.ma');
+    expect(ma.hidden).toBe(false);
+    ma.querySelector('[data-act=cp]').click();
+    expect(writeText).toHaveBeenCalledWith('**答**内容');   // 复制 markdown 原文而非渲染 HTML
+    ma.querySelector('[data-act=rg]').click();
+    expect(regen).toHaveBeenCalledTimes(1);
+    delete navigator.clipboard;
   });
 });

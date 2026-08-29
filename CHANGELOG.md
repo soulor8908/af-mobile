@@ -7,6 +7,7 @@
 ## [Unreleased]
 
 ### Added
+- **chat 富内容升级**（D-013，局部推翻 D-012 的 markdown/regenerate 禁令）：`src/chat/lib/md.js` 安全子集渲染（escape-first：h1-h3/ul/ol/围栏代码/粗斜体/行内码/http(s) 链接）+ 代码块复制；`session.regenerate()/resend()` 与气泡操作行（复制全文/重新生成）；`delta.reasoning_content` → `think` 块 + 原生 `<details>` 思考折叠（不回传 API）；绑定模式忙碌排队（`af-chat:queued`）+ `af-chat:draft` 草稿事件。chatUI 预算 3.3→4.6KB（实测 4.514KB），chatRuntime 不变（实测 2.157KB）；主库 23KB 红线零影响（设计文档 docs/design/af-chat-rich-features-design.md）
 - **i18n 治理闸门**：`scripts/check-i18n.mjs` 静态扫描组件/blocks 的字典定义（messages 对象与 addMessages 两种形态）与引用，校验 key 已注册且 zh-CN ↔ en-US 对齐；npm script `i18n:check` + CI Step 1f（11 单测）
 
 ### Changed

@@ -3,6 +3,7 @@
 /**
  * @typedef {Object} Tool
  * @property {string} name
+ * @property {string} [label] - 人类可读短名（UI 芯片显示；缺省回落到 name）
  * @property {string} description
  * @property {Record<string, unknown>} [parameters] - JSON Schema
  * @property {(args: Record<string, unknown>) => Promise<unknown>|unknown} execute

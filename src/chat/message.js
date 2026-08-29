@@ -1,4 +1,4 @@
-// 消息模型：user/assistant/tool 角色 + 内容分块（text/tool_call/tool_result/card）
+// 消息模型：user/assistant/tool 角色 + 内容分块（text/think/tool_call/tool_result/card）
 
 /**
  * @typedef {Object} Message
@@ -9,8 +9,8 @@
 
 /**
  * @typedef {Object} ContentBlock
- * @property {'text'|'tool_call'|'tool_result'|'card'} type
- * @property {string} [text]
+ * @property {'text'|'think'|'tool_call'|'tool_result'|'card'} type
+ * @property {string} [text] - text/think 块正文；think 为 reasoning_content 逐字累积（不回传 API）
  */
 
 /**

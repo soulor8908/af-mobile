@@ -12,6 +12,11 @@ addMessages('zh-CN', {
   'ct.cf': '确认',
   'ct.cn': '取消',
   'ct.em': '开始对话',
+  'ct.cc': '复制代码',
+  'ct.cp': '复制',
+  'ct.rg': '重新生成',
+  'ct.tk': '思考中…',
+  'ct.tkd': '已思考',
 });
 
 addMessages('en-US', {
@@ -23,4 +28,9 @@ addMessages('en-US', {
   'ct.cf': 'Confirm',
   'ct.cn': 'Cancel',
   'ct.em': 'Start a conversation',
+  'ct.cc': 'Copy code',
+  'ct.cp': 'Copy',
+  'ct.rg': 'Regenerate',
+  'ct.tk': 'Thinking…',
+  'ct.tkd': 'Thought',
 });

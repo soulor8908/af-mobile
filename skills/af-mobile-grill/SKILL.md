@@ -135,7 +135,12 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 - 反馈：`af-dialog` `af-action-sheet` `af-toast` `af-notice-bar` `af-badge` `af-progress` `af-steps` `af-countdown`
 - 展示：`af-swiper` `af-img` `af-skeleton-page` `af-backtop` `af-pull-refresh`
 
-完整属性/事件表：已安装项目读 `node_modules/@af-mobile/ui/src/index.d.ts`——全部方法签名与事件 payload 的单一真相源，**一次读全**（单文件约 1 次读取即得全部 API），**禁止逐个读 `src/components/` 组件源码**（高成本零增量信息）。
+**子库组件（不在主入口 `register()` 注册表，注册 API 不同，漏注册 = 静默失败）：**
+- AI 对话（`@af-mobile/ui/chat`）：`<af-chat>` 气泡流+composer+工具调用管线。`import { registerChat, createSession, defineTool } from '.../chat/index.js'` → `registerChat()`（幂等）→ `el.session = createSession({ endpoint, tools, requestFn })`。接真 LLM 只换 `requestFn`/endpoint，工具零改动
+- 图表（`@af-mobile/ui/charts`）：`af-chart-line/bar/pie/radar/funnel`。`import { registerChart } from '.../charts/index.js'` → **`registerChart(tag)` 单标签逐个调用**（非变参，与主库 `register` 不同！），或 `registerCharts()` 全量
+- 需求涉及聊天/图表时**必须用子库**，禁止手写气泡流/CSS 图表（重复造轮子且无工具调用协议）
+
+完整属性/事件表：已安装项目读 `node_modules/@af-mobile/ui/src/index.d.ts`（子库另有 `src/chat/`、`src/charts/` 各自入口与类型）——全部方法签名与事件 payload 的单一真相源，**一次读全**（单文件约 1 次读取即得全部 API），**禁止逐个读 `src/components/` 组件源码**（高成本零增量信息）。
 
 **页面范式（createPage，铁律）：**
 `const page = createPage({ state, computed, actions, setup })` → `ctx.outlet.innerHTML`（组件属性 `:attr="state.x"` / `:attr="derived.x"` 响应式绑定）→ `page.mount(ctx.outlet)`（启动 :bind）→ `ctx.signal` abort 时 `page.unmount()` 级联清理；响应式重渲染写在 `setup` 内 `effect()`（归属页面 root，unmount 自动清理）

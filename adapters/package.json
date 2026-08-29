@@ -17,5 +17,9 @@
   "peerDependencies": {
     "@af-mobile/ui": "^1.4.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soulor8908/af-mobile.git"
+  }
 }

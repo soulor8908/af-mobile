@@ -12,5 +12,12 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "scripts": {
+    "prepublishOnly": "node ../scripts/build-tokens-pkg.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soulor8908/af-mobile.git"
+  }
 }

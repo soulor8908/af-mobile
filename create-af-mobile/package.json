@@ -19,5 +19,9 @@
     "af-mobile",
     "af-mobile"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soulor8908/af-mobile.git"
+  }
 }

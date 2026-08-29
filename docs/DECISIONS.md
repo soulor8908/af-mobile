@@ -12,6 +12,11 @@
 | D-004 | 2026-08-26 | 已决：保留 | i18n 完整模块 |
 | D-005 | 2026-08-26 | 已决：砍 | k 层 bind 指令语法（组合范式替代） |
 | D-006 | 2026-08-27 | 已决：甲（不重采）+ 择 B 维持推广；实验完结 | r2 判据回收：安全性达标、成本论据不稳健 |
+| D-007 | 2026-08-28 | 已决：P0 已实施；P1a/P1b/P2 待排期 | 平台化生产基建：发布自动化 + 平台后台（主 Cloudflare） |
+| D-008 | 2026-08-29 | 已决：业务产品 CF 全栈；starter 双 target 变体待实施 | 业务产品走 Cloudflare 全栈，脚手架 starter 维持 Supabase 默认 + 补 `--target cloudflare` |
+| D-009 | 2026-08-29 | 已决：配件直做、deploy/doctor 可插拔 | 消费端交付链适配双后端 |
+| D-010 | 2026-08-29 | 已决：阶段 1 全走 CF，按流量触发逐级迁移 | 部署平台三阶段演进（CF → 香港 → 国内） |
+| D-011 | 2026-08-29 | 已决：教材补子库清单；demo 重构为子库组件 | chat/charts 子库进 grill 教材（真实生成场景踩中 088 号 trap 的活体案例） |
 
 ---
 
@@ -93,3 +98,67 @@
 - **决策**：k 层不实现独立双向绑定指令语法（`<input {bind(name)} />`），用组合范式：`.value=${() => s()} @input=${e => s.set(e.target.value)}`（src/k/README.md 已定版教学）。
 - **理由**：flow.js 解析器零改动（属性名位刚被占位符报警器定为禁区）；组合范式两行可表达全部双向绑定；无高频需求证据（外部设计词表之外无消费方）。
 - **放弃了什么**：单语法糖。重开条件：r2 补跑（D-001 发布前验证）发现 AI 高频手写 bind 指令。
+
+## D-007 平台化生产基建：发布自动化 + 平台后台（2026-08-28，已决）
+
+产品定位从「纯前端 npm 库」扩展为「平台型产品」。详细设计：[docs/design/platform-backend-design.md](./design/platform-backend-design.md)。
+
+- **决策**：
+  1. 发布自动化：新增 `.github/workflows/release.yml`（changesets 单 job 两段式：Version Packages PR → 合并即 `changeset publish --provenance` + registry smoke）；mcp/prompt/tokens 补 `prepublishOnly`；7 个可发包补 `repository` 字段（npm provenance 硬性要求）
+  2. 平台后台定位：**只服务开发工具链（MCP/CLI/CI 的 opt-in 遥测），不托管消费者业务后台**（消费者继续走 adapters/supabase.js 自选接入）；技术栈主 Cloudflare（Workers + D1），存储驱动接口留 Supabase 扩展点，monorepo `server/` workspace 承载（P1b）
+- **理由**：npm publish 曾靠本地手动且因 E401 失败（@af-mobile/prompt v2.1.0）；多包无自动化在包数量增长后不可持续。后台边界「工具链遥测」避免库方为用户业务数据担责。
+- **放弃了什么**：两驱动同写（Supabase 驱动延后至真实需求触发）；另起新仓库（失去 sanitizeMessage 复用与 CI 串联）；默认收集遥测（维持 opt-in，隐私红线不放宽）。
+
+## D-008 业务产品 Cloudflare 全栈 + starter 双后端 target（2026-08-29，已决）
+
+冲突背景：`production-platform-design.md` §3.3 要求 starter 删掉 Supabase 改 CF 全栈，`consumer-delivery-design.md` P0 要求保留 Supabase 只加 PWA 配件 —— 同一个 `starter/` 方向相反，必须先决断。设计出处：[docs/design/production-platform-design.md](./design/production-platform-design.md)（业务仓）、[docs/design/consumer-delivery-design.md](./design/consumer-delivery-design.md)（消费端）。
+
+- **决策**：
+  1. **业务产品**（`aiflow-app`，混仓承载见 D-007）确定走 Cloudflare 全栈：Workers + D1 + 同源 `/api`，不用 Supabase（密钥保管 / 敏感 tool / 记账限流三件事放后端）
+  2. **脚手架 `starter/`** 维持 Supabase 为默认后端，另补 `--target cloudflare` 变体（`wrangler.toml` + D1 migrations + 同源 `/api` 客户端），两条路并存
+- **理由**：业务产品是自家唯一确定性场景，单一后端不留抽象成本；starter 面向外部消费端，强改默认会破坏已生成项目与 `adapters` 资产的价值（`adapters/supabase.js` 已发布且有真实消费者）。双 target 让 CF 全栈在业务仓先行验证，成熟后再考虑提升为默认。
+- **放弃了什么**：starter 单一后端的维护简单性（两个变体 = 两份模板与两份文档）；业务产品复用 `adapters/supabase.js` 的可能（该产品内自建 `$api` 客户端；adapters 保留在库仓供消费端，其处置仍为待登记项，见 production-platform-design.md §9.2）。
+- **回链**：A1（业务产品仓归属）随之关闭 —— 取**混仓**，与 D-007 一致。`production-platform-design.md` §3.1 的独立建仓论述保留为备选论据记录，**以本条为准**，不再重开讨论。
+
+## D-009 消费端交付链适配双后端（2026-08-29，已决）
+
+设计出处：[docs/design/consumer-delivery-design.md](./design/consumer-delivery-design.md)。
+
+- **决策**：
+  1. **Web 化配件**（manifest / 图标 / 分享 meta / favicon）与后端无关，**直接做**，不等 target 变体落地
+  2. `af-mobile deploy` / `af-mobile doctor` 做成**可插拔**：后端无关的通用检查项（构建产物、线上可达、配件完整）+ Supabase 与 Cloudflare 各一套专属检查项，按项目 target 分发
+  3. 部署平台**不预先锁死** —— 按同日 **D-010** 的三阶段路径演进（CF → 香港 → 国内），按流量触发迁移
+- **理由**：配件是纯生成物，与后端解耦即可立即交付；deploy/doctor 的后端耦合部分做成可插拔，避免 starter 双 target 后工具链出现分叉。
+- **放弃了什么**：一次性定死部署平台带来的设计简洁性；以及「先写代码再测可达性」的速度。
+- **后续**：部署平台选型已由同日的 **D-010** 锁定为三阶段演进路径，本条不再承担平台选型职责。
+
+## D-010 部署平台三阶段演进：CF → 香港 → 国内（2026-08-29，已决）
+
+背景：已核实所有「让 Cloudflare 在中国大陆变快」的官方路径都长在门槛后面 —— Cloudflare China Network（京东云运营）与 Global Acceleration 均需 **Enterprise plan + 每个域名 ICP 备案**，个人/小团队不可得。同时香港与国内方案的实测数据已摸清（详见 `consumer-delivery-design.md` §7）。
+
+- **决策**：部署平台按**流量与实测数据**逐级迁移，不为未验证的流量提前付费。
+
+| 阶段 | 平台 | 触发条件（判据） | 成本 |
+|---|---|---|---|
+| **1（当前 → 首发）** | **全走 Cloudflare**（Pages/Workers + D1） | 默认态，产品未发布 | 0 元 |
+| **2（发布后视情况）** | 转**香港 self-hosted**（VPS + nginx，免备案） | 国内用户占比显著 且 出现真实的访问失败/超时反馈 | ≈20 元/月起（三网优化 2H2G 15M） |
+| **3（流量足够大）** | 转**国内 COS/OSS + CDN**（需 ICP 备案） | 带宽成本成为主要支出，或香港方案带宽撑不住并发 | 0–几十元/月（免费额度内 0 元）+ 备案成本 |
+
+- **理由**：产品未验证前为不存在的流量付备案成本是纯浪费；CF 零成本零运维，适合验证期。香港与国内都是**可增量切换**的 —— 只要阶段 1 守住防锁定约束（见下），迁移成本就只是换一个 deploy provider，不是重写应用。
+- **放弃了什么**：首发阶段的国内用户体验（可能慢、可能不稳）；以及「一次就选对平台」的幻想。接受分三次付迁移成本，换取不在错误阶段过度投入。
+- **强制前置 —— 防锁定约束**（阶段 1 编码时必须遵守，否则本决策失效）：
+  1. 业务代码**不得直接依赖 CF 专有能力**（Workers KV、Durable Objects、D1 方言 SQL、平台特有 API）；需要存储/队列时走 adapter 抽象
+  2. 数据访问统一走 `fetchPage` + `adapters/`，后端可替换
+  3. 部署统一走 `af-mobile deploy` 的 **provider 抽象**（`cloudflare` / `self-hosted` / `cn`），业务代码不含平台调用
+  4. 配置与密钥不写死平台，走 env；域名不硬编码
+- **待办**：阶段 2 触发时新开条目登记（记录实测数据与迁移范围），回链本条。
+
+## D-011 chat/charts 子库进 grill 教材（2026-08-29，已决）
+
+背景：AI 待办 demo 生成任务中，AI 按教材（grill SKILL.md「L3 组件选型 28 个」+ 主入口 `src/index.js`）选型，**完全漏掉 chat/charts 两个子库**，手写了气泡流与 CSS 图表——正是 eval 088 题（"charts 必须子库引入 + registerChart"）设计要抓的 trap 在真实场景复现。另实踩 `registerChart(tag)` 单参数 API（与主库变参 `register` 不一致，多传静默失败）。
+
+- **决策**：
+  1. grill SKILL.md「规范速查」补「子库组件」段：chat（registerChat/createSession/defineTool）与 charts（registerChart 单标签逐个调用）的引入与注册方式；涉及聊天/图表需求**必须用子库**，禁止手写气泡流/CSS 图表
+  2. demo（ai-todo-demo.html）重构为 af-chat + af-chart-* + defineTool 工具链版（已完成，lint 全绿 + 浏览器实测通过）
+- **理由**：子库是库方资产（af-chat 含工具调用协议/SSE 流式，charts 含五态图表内核），AI 手写替代 = 重复造轮子且丢失协议能力；教材不列 = AI 必然漏用（已实证）。
+- **放弃了什么**：教材「单清单」的简洁性（主库 28 个 + 子库分列，AI 需多读一段）；未把 registerChart 改成变参 API（改库 API 超出本次范围，且单参 + `registerCharts()` 全量已可用——若后续高频踩坑再开条目改 API）。

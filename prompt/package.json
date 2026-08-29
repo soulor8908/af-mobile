@@ -15,5 +15,12 @@
     "dist/",
     "assets/"
   ],
+  "scripts": {
+    "prepublishOnly": "node ../scripts/build-prompt-pkg.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soulor8908/af-mobile.git"
+  },
   "license": "MIT"
 }

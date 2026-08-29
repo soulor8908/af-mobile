@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:   # 兜底入口：Version Packages PR 冲突解决后手动重跑
+
+# 发布不可中途取消，排队执行（防两个 push 竞态发布）
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write       # changeset version 提交 + git tag
+  pull-requests: write  # 创建 Version Packages PR
+  id-token: write       # npm provenance（OIDC 签名，要求 npm >= 9.5）
+
+jobs:
+  release:
+    name: Version Packages PR or Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # changeset status 需对比 baseBranch（main）的完整历史
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          # 生成 ~/.npmrc（_authToken=${NODE_AUTH_TOKEN}），publish 鉴权必需
+          registry-url: 'https://registry.npmjs.org'
+
+      # 与 ci.yml 同因锁定 npm 11.9.0：根 overrides("@af-mobile/ui":"file:.") 依赖 npm 11 解析行为
+      - name: Pin npm version
+        run: npm install -g npm@11.9.0
+
+      - run: npm ci
+
+      # changesets 单 job 两段式（官方模式，拆 job 会有竞态）：
+      #  - main 有 .changeset/*.md → 执行 version：bump 版本 + 写 CHANGELOG + 创建/更新 Version Packages PR
+      #  - main 无 changeset 且有未发布版本 → 执行 publish：逐包触发 prepublishOnly 后 npm publish --provenance
+      #    （changesets 按依赖拓扑排序发包：ui 先于 create-af-mobile，防 ETARGET 事故复发）
+      - name: Changesets version or publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: npm run version-packages
+          publish: npm run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          HUSKY: '0'   # 发布提交不跑 git hooks
+
+      # P0 简版 smoke（设计文档 §1.4）：registry 可见性轮询。
+      # 同步延迟不阻断发布（仅 warning），P2 升级为 create-af-mobile 全量 e2e smoke。
+      - name: Publish smoke (registry visibility)
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          for i in 1 2 3; do
+            v=$(npm view @af-mobile/ui version 2>/dev/null || true)
+            if [ -n "$v" ]; then
+              echo "registry @af-mobile/ui@$v confirmed"
+              exit 0
+            fi
+            echo "attempt $i: not visible yet"; sleep 10
+          done
+          echo "::warning::npm view @af-mobile/ui 未返回版本，registry 同步可能有延迟，请人工确认"

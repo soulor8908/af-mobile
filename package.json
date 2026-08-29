@@ -70,6 +70,7 @@
     "scripts/create-app.mjs",
     "scripts/af-mobile.mjs",
     "scripts/lint-flywheel.mjs",
+    "scripts/deploy.mjs",
     "scripts/ai-fix.mjs",
     "scripts/resolve-asset.mjs"
   ],
@@ -119,7 +120,7 @@
     "changeset": "changeset",
     "changeset:check": "changeset status --since=main",
     "version-packages": "changeset version",
-    "release": "changeset publish",
+    "release": "changeset publish --provenance",
     "build": "node scripts/build.mjs",
     "prepublishOnly": "npm run build && npm run publish:check",
     "ci": "node scripts/check-contrast.mjs && vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs && node scripts/check-tokens-sync.mjs && node scripts/check-types-sync.mjs && node scripts/check-aria-sync.mjs",
@@ -139,6 +140,10 @@
     "tree-shaking"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soulor8908/af-mobile.git"
+  },
   "devDependencies": {
     "@changesets/cli": "^3.0.1",
     "@modelcontextprotocol/sdk": "^1.30.0",

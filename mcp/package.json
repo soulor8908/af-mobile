@@ -14,6 +14,13 @@
     "eslint.config.mjs",
     "assets/"
   ],
+  "scripts": {
+    "prepublishOnly": "node ../scripts/build-mcp.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soulor8908/af-mobile.git"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@af-mobile/eslint-plugin": "^2.0.0"

@@ -1,9 +1,10 @@
-// af-mobile 脚手架：node scripts/create-app.mjs <dir> [--flywheel]
-// 生成最小可运行工程（npm 版本依赖 + hash 路由 + FOUC 防闪 + ESLint 约束 + vitest 测试链路），
+// af-mobile 脚手架：node scripts/create-app.mjs <dir> [--flywheel] [--desc <描述>] [--theme <主题色>]
+// 生成最小可运行工程（npm 版本依赖 + hash 路由 + FOUC 防闪 + ESLint 约束 + vitest 测试链路 + PWA 配件），
 // 并自动安装 af-mobile-grill skill（多工具目标），形成迭代闭环。
 // --flywheel：生成 .mcp.json（@af-mobile/mcp 数据飞轮，显式 opt-in，默认不开启以尊重隐私）
+// --desc：应用描述（进 manifest / meta description / og）；--theme：主题色（进 manifest / meta theme-color）
 // 用法等价：npx @af-mobile/ui create <dir>
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, copyFileSync } from 'node:fs';
 import { join, resolve, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -15,12 +16,20 @@ const args = process.argv.slice(2);
 const flywheel = args.includes('--flywheel');
 const dirArg = args.find((a) => !a.startsWith('--'));
 if (!dirArg) {
-  console.error('用法：node scripts/create-app.mjs <目录名> [--flywheel]');
+  console.error('用法：node scripts/create-app.mjs <目录名> [--flywheel] [--desc <描述>] [--theme <主题色>]');
   process.exit(1);
 }
 
 const dir = resolve(dirArg);
 const name = basename(dir).toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'af-mobile-app';
+
+// PWA 配件变量（consumer-delivery-design.md §3.1）
+function flagValue(flag, fallback) {
+  const i = args.indexOf(flag);
+  return i !== -1 && args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : fallback;
+}
+const APP_DESCRIPTION = flagValue('--desc', `${name} app`);
+const THEME_COLOR = /^#[0-9a-fA-F]{6}$/.test(flagValue('--theme', '')) ? flagValue('--theme', '') : '#1677ff';
 
 if (existsSync(dir) && readdirSync(dir).length > 0) {
   console.error(`✗ 目录已存在且非空：${dir}`);
@@ -65,6 +74,14 @@ const files = {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>${name}</title>
+  <meta name="theme-color" content="${THEME_COLOR}">
+  <meta name="description" content="${APP_DESCRIPTION}">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <meta property="og:title" content="${name}">
+  <meta property="og:description" content="${APP_DESCRIPTION}">
+  <meta property="og:image" content="/icon-512.png">
   <script>
     // 先于首次 paint 设定主题，避免暗色模式 FOUC（无需等组件库加载）
     try {
@@ -78,6 +95,22 @@ const files = {
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
+`,
+
+  'public/manifest.webmanifest': `{
+  "name": "${name}",
+  "short_name": "${name}",
+  "description": "${APP_DESCRIPTION}",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "${THEME_COLOR}",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
 `,
 
   'vite.config.js': `// Vite 仅作打包器，零框架零插件；test 段供 vitest 复用（jsdom 环境 + setup 桩）
@@ -334,6 +367,15 @@ for (const [rel, content] of Object.entries(files)) {
   mkdirSync(dirname(dest), { recursive: true });
   writeFileSync(dest, content);
   console.log(`+ ${rel}`);
+}
+
+// PWA 图标与 favicon：随包分发的预生成占位图（PNG/ICO，apple-touch-icon 与 /favicon.ico 不支持 SVG），
+// 消费端按需替换 public/ 下同名文件（见 README / DEPLOY.md）
+for (const icon of ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'favicon.ico']) {
+  const dest = join(dir, 'public', icon);
+  mkdirSync(dirname(dest), { recursive: true });
+  copyFileSync(join(ROOT, 'assets', 'icons', icon), dest);
+  console.log(`+ public/${icon}`);
 }
 
 // 数据飞轮（显式 opt-in）：生成 .mcp.json，MCP 客户端（TRAE / Claude Code / Cursor）自动注册

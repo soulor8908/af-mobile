@@ -1,6 +1,6 @@
 {
   "name": "@af-mobile/tokens",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "af-mobile UI L1 design tokens (W3C Design Tokens Format 1.1) — generated from src/tokens.css, the single source of truth",
   "license": "MIT",
   "type": "module",

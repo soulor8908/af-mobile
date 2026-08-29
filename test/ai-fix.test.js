@@ -26,7 +26,9 @@ function cleanTmp() {
   try { rmSync(TMP, { recursive: true, force: true }); } catch { /* .cache/ 残留无害 */ }
 }
 
+// 先建 .cache/（CI checkout 无此目录，且 mkdtempSync 无 recursive 支持）；清理 best-effort，残留无害
 beforeEach(() => {
+  mkdirSync(join(ROOT, '.cache'), { recursive: true });
   TMP = mkdtempSync(join(ROOT, '.cache/ai-fix-tests-'));
 });
 

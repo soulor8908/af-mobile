@@ -123,7 +123,7 @@
     "changeset": "changeset",
     "changeset:check": "changeset status --since=main",
     "version-packages": "changeset version",
-    "release": "changeset publish --provenance",
+    "release": "changeset publish",
     "build": "node scripts/build.mjs",
     "prepublishOnly": "npm run build && npm run publish:check",
     "ci": "node scripts/check-contrast.mjs && vitest run && node scripts/size-check.mjs && node scripts/check-whitelist-sync.mjs && node scripts/check-tokens-sync.mjs && node scripts/check-types-sync.mjs && node scripts/check-aria-sync.mjs",

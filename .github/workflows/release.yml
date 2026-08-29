@@ -51,6 +51,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # changesets 3.x 移除了 publish --provenance flag，改用 npm config env 保留出处签名（D-007）
+          npm_config_provenance: 'true'
           HUSKY: '0'   # 发布提交不跑 git hooks
 
       # P0 简版 smoke（设计文档 §1.4）：registry 可见性轮询。

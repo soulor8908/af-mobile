@@ -86,6 +86,7 @@ const walkDir = (dir, rel, opts) => {
 
 walkDir(join(DEMO, 'components'), 'demo/components', { whitelist: true, antiflash: true });
 walkDir(join(DEMO, 'scenarios'), 'demo/scenarios', { whitelist: true });
+walkDir(join(DEMO, 'apps'), 'demo/apps', { whitelist: true, antiflash: true });
 walkDir(join(DEMO, 'playground'), 'demo/playground', {});
 for (const f of ['index.html', 'kitchen-sink.html', 'perf.html', 'props-panel.js']) {
   check(`demo/${f}`, readFileSync(join(DEMO, f), 'utf8'), {});

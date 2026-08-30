@@ -4,12 +4,12 @@
 //
 // 两个正交维度（勿混淆）：
 //   target   = 后端形态（supabase 静态前端 + Supabase BaaS / cloudflare Workers + D1 全栈），脚手架生成时定
-//   provider = 部署落点（cloudflare / self-hosted / cn），部署时选，D-010 阶段切换
+//   provider = 部署落点（cloudflare / iga / self-hosted / cn），部署时选，D-010 阶段切换；iga 为 D-016 国内选项
 // 组合非笛卡尔积：Workers 全栈不可脱离 Cloudflare（见 ALLOWED）。
 //
 // 用法：
-//   node scripts/deploy.mjs doctor [--dir <项目根>] [--url <线上地址>]
-//   node scripts/deploy.mjs deploy [--dir <项目根>] [--project <name>] [--dry-run]
+//   node scripts/deploy.mjs doctor [--dir <项目根>] [--url <线上地址>] [--provider <cloudflare|iga>]
+//   node scripts/deploy.mjs deploy [--dir <项目根>] [--project <name>] [--provider <cloudflare|iga>] [--dry-run]
 //
 // 依赖注入（测试用）：opts.fetch / opts.run，默认分别取全局 fetch 与 spawnSync。
 import { existsSync, readFileSync } from 'node:fs';
@@ -18,11 +18,11 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 export const TARGETS = ['supabase', 'cloudflare'];
-export const PROVIDERS = ['cloudflare', 'self-hosted', 'cn'];
+export const PROVIDERS = ['cloudflare', 'iga', 'self-hosted', 'cn'];
 
 // 组合矩阵：target=cloudflare 是 Workers 全栈，只能落在 Cloudflare
 const ALLOWED = {
-  supabase: ['cloudflare', 'self-hosted', 'cn'],
+  supabase: ['cloudflare', 'iga', 'self-hosted', 'cn'],
   cloudflare: ['cloudflare'],
 };
 

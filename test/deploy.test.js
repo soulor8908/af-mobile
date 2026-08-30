@@ -73,20 +73,21 @@ describe('deploy / 配置解析', () => {
 
   it('取值集合与文档一致', () => {
     expect(TARGETS).toEqual(['supabase', 'cloudflare']);
-    expect(PROVIDERS).toEqual(['cloudflare', 'self-hosted', 'cn']);
+    expect(PROVIDERS).toEqual(['cloudflare', 'iga', 'self-hosted', 'cn']);
   });
 });
 
 describe('deploy / 组合矩阵', () => {
-  it('supabase 可落三个 provider', () => {
+  it('supabase 可落四个 provider（iga 为 D-016 国内选项）', () => {
     for (const p of PROVIDERS) expect(checkCombo('supabase', p).ok).toBe(true);
   });
 
-  it('cloudflare 全栈只能落 cloudflare（Workers 不可脱离 CF）', () => {
+  it('cloudflare 全栈只能落 cloudflare（Workers 不可脱离 CF，iga 亦不可）', () => {
     expect(checkCombo('cloudflare', 'cloudflare').ok).toBe(true);
+    expect(checkCombo('cloudflare', 'iga').ok).toBe(false);
     expect(checkCombo('cloudflare', 'self-hosted').ok).toBe(false);
     expect(checkCombo('cloudflare', 'cn').ok).toBe(false);
-    expect(checkCombo('cloudflare', 'self-hosted').reason).toContain('不兼容');
+    expect(checkCombo('cloudflare', 'iga').reason).toContain('不兼容');
   });
 });
 

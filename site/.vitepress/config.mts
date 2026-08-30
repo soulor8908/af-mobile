@@ -31,6 +31,7 @@ export default defineConfig({
             { text: '架构理念', link: '/guide/architecture' },
             { text: '主题定制', link: '/guide/theming' },
             { text: 'AI 协作', link: '/guide/ai-collaboration' },
+            { text: '应用配方', link: '/guide/app-recipe' },
           ],
         },
       ],

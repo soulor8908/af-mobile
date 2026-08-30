@@ -1,4 +1,4 @@
-# 部署指南（Cloudflare Pages）
+# 部署指南（Cloudflare Pages / IGA Pages）
 
 产物是 `dist/` 纯静态站点。两条路径二选一，都免费、10 分钟内可跑通。
 
@@ -29,6 +29,21 @@ npx wrangler pages deploy dist --project-name=<你的项目名>
 首次运行 `wrangler` 会打开浏览器做一次性 OAuth 登录（免费 Cloudflare 账号即可）。之后重复执行这条命令就是"重新部署"，改代码 → 重跑即完成一轮迭代。
 
 命令行方式不经过 Git 构建，环境变量取自本地 `.env`（`npm run build` 时注入）。
+
+## 路径 C：IGA Pages（国内用户推荐）
+
+火山引擎体系，部署后自动提供平台默认域名，国内可达性更优；自定义域名可选。
+
+```bash
+npm i -g @iga-pages/cli@latest
+iga login          # 本地浏览器登录；远程/CI 用 iga login --accessKey <AK> --secretKey <SK>（火山引擎 IAM 控制台取）
+npm run build
+af-mobile deploy --provider iga    # 首次指定后记住选择，之后 af-mobile deploy 即可
+```
+
+- **环境变量顺序**：先 `iga pages env add VITE_SUPABASE_URL`（配置项目级 env）**再** deploy——IGA 的 env 在下次 deploy 才生效，而 `VITE_*` 是构建时注入，顺序反了线上白屏
+- 更省事：`iga pages integration link supabase` 连接火山 Supabase，连接变量自动同步，免两处手工配置
+- 预览链接带 `?iga_token=…` 参数，分享时必须带全，否则打不开
 
 ## 自定义域名（可选）
 

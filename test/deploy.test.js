@@ -15,6 +15,8 @@ import {
   checkKeyPrefix,
   checkSupabaseEnv,
   checkWrangler,
+  checkIgaCli,
+  checkIgaAuth,
   checkOnline,
   buildDeployCommand,
   runDoctor,
@@ -235,6 +237,54 @@ describe('deploy / 命令构建', () => {
   it('非法组合优先报组合错误', () => {
     const c = buildDeployCommand({ target: 'cloudflare', provider: 'self-hosted' });
     expect(c.unsupported).toContain('不兼容');
+  });
+});
+
+describe('doctor / iga 专属检查项（D-016）', () => {
+  it('iga CLI：无 runFn → info 跳过；版本 ≥1.1.0 → 通过', () => {
+    expect(checkIgaCli(null).level).toBe('info');
+    expect(checkIgaCli(() => ({ status: 0, stdout: '1.1.0' })).ok).toBe(true);
+    expect(checkIgaCli(() => ({ status: 0, stdout: '2.3.0' })).ok).toBe(true);
+  });
+
+  it('iga CLI：未安装 / 版本过低 → required 失败', () => {
+    const miss = checkIgaCli(() => ({ status: 1, stdout: '' }));
+    expect(miss.ok).toBe(false);
+    expect(miss.level).toBe('required');
+    expect(miss.hint).toContain('@iga-pages/cli');
+    expect(checkIgaCli(() => ({ status: 0, stdout: '1.0.9' })).ok).toBe(false);
+  });
+
+  it('iga 登录态：whoami 成功且有输出 → 通过；否则失败', () => {
+    expect(checkIgaAuth(() => ({ status: 0, stdout: 'Account: x' })).ok).toBe(true);
+    const bad = checkIgaAuth(() => ({ status: 1, stdout: '' }));
+    expect(bad.ok).toBe(false);
+    expect(bad.hint).toContain('iga login');
+  });
+
+  it('runDoctor provider=iga：注入 run 后含 CLI/登录态检查；env 提示为 IGA 措辞', async () => {
+    const cwd = makeProject({ env: 'VITE_SUPABASE_URL=https://x\nVITE_SUPABASE_ANON_KEY=k', provider: 'iga' });
+    const r = await runDoctor({
+      dir: cwd,
+      run: (cmd, args) => (args[0] === '--version' ? { status: 0, stdout: '1.1.0' } : { status: 0, stdout: 'Account: x' }),
+    });
+    expect(r.ok).toBe(true);
+    expect(r.items.some(i => i.title.includes('iga CLI'))).toBe(true);
+    expect(r.items.some(i => i.title.includes('IGA 登录态'))).toBe(true);
+    expect(r.items.some(i => i.title.includes('IGA 环境变量'))).toBe(true);
+  });
+
+  it('runDoctor provider=iga 且 CLI 缺失 → 阻断', async () => {
+    const r = await runDoctor({ dir: makeProject({ provider: 'iga', env: 'VITE_SUPABASE_URL=https://x\nVITE_SUPABASE_ANON_KEY=k' }), run: () => ({ status: 1, stdout: '' }) });
+    expect(r.ok).toBe(false);
+  });
+
+  it('runDoctor cloudflare+supabase：含国内引导 info；iga 时不出现', async () => {
+    const cf = await runDoctor({ dir: makeProject({ env: 'VITE_SUPABASE_URL=https://x\nVITE_SUPABASE_ANON_KEY=k' }) });
+    expect(cf.items.some(i => i.title.includes('国内用户'))).toBe(true);
+    const cwd = makeProject({ env: 'VITE_SUPABASE_URL=https://x\nVITE_SUPABASE_ANON_KEY=k', provider: 'iga' });
+    const iga = await runDoctor({ dir: cwd, run: () => ({ status: 0, stdout: 'x' }) });
+    expect(iga.items.some(i => i.title.includes('国内用户'))).toBe(false);
   });
 });
 

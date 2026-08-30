@@ -126,6 +126,27 @@ export function checkSupabaseEnv(cwd) {
     : item('required', false, `Supabase 环境变量缺失：${missing.join(', ')}`, '从 Supabase 控制台 Project Settings → API 复制');
 }
 
+/** provider=iga：CLI 已安装且版本 ≥ 1.1.0（iga-pages skill 硬性要求） */
+export function checkIgaCli(runFn) {
+  if (!runFn) return item('info', true, '无命令执行器，跳过 iga CLI 检查');
+  const r = runFn('iga', ['--version'], { stdio: 'pipe' });
+  const m = /(\d+)\.(\d+)\.(\d+)/.exec(String((r && r.stdout) || ''));
+  const ok = !!m && (+m[1] > 1 || (+m[1] === 1 && +m[2] >= 1));
+  return ok
+    ? item('required', true, `iga CLI 版本合规（${m[0]}）`)
+    : item('required', false, 'iga CLI 未安装或版本过低（需 ≥ 1.1.0）', 'npm i -g @iga-pages/cli@latest');
+}
+
+/** provider=iga：登录态有效（whoami 成功且有输出） */
+export function checkIgaAuth(runFn) {
+  if (!runFn) return item('info', true, '无命令执行器，跳过 IGA 登录态检查');
+  const r = runFn('iga', ['whoami'], { stdio: 'pipe' });
+  const ok = !!r && r.status === 0 && String(r.stdout || '').trim() !== '';
+  return ok
+    ? item('required', true, 'IGA 登录态有效')
+    : item('required', false, 'IGA 未登录', '本地执行 iga login（浏览器）；远程/CI 用 iga login --accessKey <AK> --secretKey <SK>（火山引擎 IAM 控制台取）');
+}
+
 /** target=cloudflare：wrangler 配置与 D1 binding */
 export function checkWrangler(cwd) {
   const file = join(cwd, 'wrangler.toml');
@@ -185,7 +206,16 @@ export async function runDoctor(opts = {}) {
   items.push(checkDist(cwd));
   items.push(checkAssets(cwd));
   items.push(checkKeyPrefix(cwd));
-  items.push(item('info', true, '部署端环境变量需单独配置', 'VITE_* 在构建时注入：本地 .env 与部署平台两处各配一份，缺后者线上白屏'));
+  if (provider === 'iga') {
+    items.push(checkIgaCli(opts.run));
+    items.push(checkIgaAuth(opts.run));
+    items.push(item('info', true, 'IGA 环境变量下次 deploy 才生效', '先 iga pages env add <KEY> 再 deploy（VITE_* 构建时注入，顺序反了线上白屏）；可用 iga pages integration link supabase 自动同步连接变量'));
+  } else {
+    items.push(item('info', true, '部署端环境变量需单独配置', 'VITE_* 在构建时注入：本地 .env 与部署平台两处各配一份，缺后者线上白屏'));
+  }
+  if (provider === 'cloudflare' && target === 'supabase') {
+    items.push(item('info', true, '国内用户可选 IGA', 'af-mobile deploy --provider iga（火山引擎默认域名，国内可达性更优，D-016）'));
+  }
 
   if (target === 'supabase') items.push(checkSupabaseEnv(cwd));
   if (target === 'cloudflare') items.push(checkWrangler(cwd));

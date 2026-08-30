@@ -1,0 +1,47 @@
+# 临时诊断 workflow：在 ubuntu 上复刻 release 环境跑 prepublishOnly，完整输出不吞
+# 根因定位后删除（D-007 发布链调试）
+name: Debug publish check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Pin npm version
+        run: npm install -g npm@11.9.0
+
+      - run: npm ci
+
+      # 与 release.yml 的 changesets step 同 env
+      - name: Reproduce prepublishOnly (build + publish:check)
+        env:
+          npm_config_provenance: 'true'
+          HUSKY: '0'
+        run: |
+          set -x
+          node -v && npm -v
+          npm run build
+          echo "=== build exit: $? ==="
+          npm run publish:check
+          echo "=== publish:check exit: $? ==="
+
+      # 再复刻 changesets 的实际调用方式：npm publish --dry-run 触发 prepublishOnly
+      - name: Reproduce npm publish lifecycle (dry-run)
+        env:
+          npm_config_provenance: 'true'
+          HUSKY: '0'
+        run: |
+          npm publish --dry-run
+          echo "=== publish dry-run exit: $? ==="

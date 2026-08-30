@@ -1,5 +1,86 @@
 # Changelog
 
+## 1.9.0
+
+### Minor Changes
+
+- 57267a1: 新增 `.app-shell` 三段式 App 骨架（Issue 2，P0）
+  
+  此前库内只有 `.page`（内容随 body 滚动，做不了固定底栏）。新增 `.app-shell` 补齐整屏外壳：
+  `100dvh` 纵向 flex + `max-width: 640px` 居中，配合既有的 `.page-col.scroll-y` 得到
+  「顶栏不动 + 内容区独立滚动 + 底栏贴视口底部」。
+  
+  ```html
+  <div class="app-shell">
+    <header class="navbar"><h1 class="title">标题</h1></header>
+    <main class="page-col scroll-y p-4"><!-- 内容 --></main>
+    <af-tabbar></af-tabbar>
+  </div>
+  ```
+  
+  脚手架生成的页面默认改用该骨架，并新增「App 骨架」指引卡片。详见文档站「快速开始 · App 骨架」。
+- 57267a1: 注册 API 统一为变参 + DEV 漏注册告警（Issue 3，P1）
+  
+  **统一语义**：`registerChart(...tags)` 与 `registerChat(...tags)` 改为变参，与主库 `register(...tags)` 一致；
+  `registerChart('a','b')` 一次注册多个，`registerChat()` 无参仍默认注册 `af-chat`。单参旧调用向后兼容，既有代码无需改动。
+  
+  **不再静默失败**：开发态（`import.meta.env.DEV`）下，路由每次渲染后扫描 outlet，对
+  「页面已使用但未注册」的 `af-*` 标签打印：
+  
+  ```
+  [@af-mobile/ui] <af-switch> 已使用但未注册：不会渲染且无报错，请在入口 register('af-switch')
+  ```
+  
+  门控在调用点，生产构建 `import.meta.env.DEV` 恒为 `false`，告警代码被整体 tree-shake —— 产物零成本
+  （实测 `console.warn` 与 `"af-"` 检查均从产物中消失）。
+- 57267a1: 新增 `@af-mobile/ui/test` 测试环境预设（Issue 4，P1）
+  
+  一个 import 注入 jsdom 缺失的全部浏览器 API 桩，不用每个项目手抄一遍：
+  
+  ```js
+  // test/setup.js
+  import '@af-mobile/ui/test';
+  ```
+  
+  覆盖：matchMedia / `<dialog>` showModal·close / popover API + ToggleEvent / IntersectionObserver
+  （带 `trigger()` 供主动触发）/ ResizeObserver / requestAnimationFrame / slot assignedElements /
+  `URL.createObjectURL` / TouchEvent·Touch。
+  
+  脚手架生成的 `test/setup.js` 现在就是这一行 + 用例间清理；仓库自身的测试环境也改为复用同一份预设，
+  避免「脚手架模板 / 库内预设 / 仓库自用」三份桩各自漂移。
+  
+  > 非脚手架项目：把上面那行放进你的 setup 文件，并在 vite.config.js 配
+  > `test: { environment: 'jsdom', globals: true, setupFiles: ['./test/setup.js'] }`。
+
+### Patch Changes
+
+- 4afba87: chat 子库 index.d.ts 补契约 JSDoc：requestFn（标准 Response + OpenAI SSE）、createSession 管线、parseSSE、ContentBlock 与 OpenAI 格式映射——悬停即可见，不必读 session.js 源码
+- e9e9ec9: deploy 新增 IGA provider（D-016）：`af-mobile deploy --provider iga`（首次指定后持久化到 .af-mobile/deploy.json），doctor 增加 iga CLI/登录态检查、国内引导与 env 提示差异化；supabase target 可落 IGA Pages，Workers 全栈仍仅 Cloudflare
+- 57267a1: 脚手架默认引入 `src/styles.css`（Issue 1，P0）
+  
+  `create-app.mjs` 生成的 `src/main.js` 只 `import '@af-mobile/ui/css'`，没有引入同模板生成的 `src/styles.css`
+  ——自定义样式**完全不生效且无任何报错**，排查成本极高。现在模板默认带 `import './styles.css';`
+  （排在库 CSS 之后以便覆盖），并加注释标明「默认已引入，勿删」。
+  
+  > `starter/src/main.js` 一直有这行，只有 `create-app` 模板漏了。
+- 57267a1: chat 子库补「接真实 LLM」最小示例（Issue 5，P2）
+  
+  此前 `requestFn(url, init)` 的返回格式与消息转换规则只能靠读 `session.js` 源码搞清楚。
+  文档站 af-chat 页新增「接真实 LLM（`requestFn` 契约）」段：
+  
+  - 请求体结构（`messages` / `stream` / `tools`，含 assistant 的 `tool_calls` 与 `tool` 结果回传格式）
+  - 返回值必须是标准 `Response`（内部对 `res.body` 调 `getReader()` 解析 SSE）
+  - 示例 1：纯文本对话接 OpenAI 兼容 endpoint（注入 Authorization + model 的正确姿势）
+  - 示例 2：工具调用（`name` / `arguments` 跨帧分片的 SSE 实例 + 说明工具循环已内置，`requestFn` 无需分支）
+- 57267a1: hash 路由补 `hashchange` 监听（Issue 6，P3）
+  
+  hash 模式下手动修改地址栏属于同文档片段导航，**只触发 `hashchange`、不触发 `popstate`**，
+  此前路由完全无反应（程序内 `go()` 走 `pushState` 则正常）。
+  
+  现在 popstate / hashchange 共用同一个处理器，并在处理器内用当前路由 path 去重 ——
+  前进/后退时两个事件都会触发，不去重会导致同一次导航渲染两次。
+- 05253e8: 脚手架子路径部署适配：vite base './' + manifest start_url './' + index.html 配件相对引用（外部实战反馈：子路径部署 PWA 配件全 404）
+
 ## 1.8.0
 
 ### Minor Changes

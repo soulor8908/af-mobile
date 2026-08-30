@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AI 待办 · af-mobile 最小完整应用</title>
+  <link rel="stylesheet" href="../../src/index.css">
+  <!-- 豁免：app-shell 兜底——.page 底部留出固定 tabbar 高度 + 安全区，框架未提供该变体（kitchen-sink 同款） -->
+  <style>
+    .page { padding-bottom: calc(var(--s-4) + var(--tabbar-h) + env(safe-area-inset-bottom)); }
+  </style>
+  <!-- 主题防闪：先于组件挂载恢复 localStorage 主题 -->
+  <script>try{var saved=localStorage.getItem('theme');if(saved==='light'||saved==='dark')document.documentElement.dataset.theme=saved}catch(e){}</script>
+</head>
+<body>
+  <!-- app-shell：#app 为路由 outlet，af-tabbar 常驻 outlet 外（路由切换不销毁） -->
+  <div id="app"></div>
+  <af-tabbar id="tabbar" aria-label="主导航"></af-tabbar>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

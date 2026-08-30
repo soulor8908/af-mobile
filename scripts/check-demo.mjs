@@ -15,7 +15,7 @@
 //     R8 禁硬编码色值（#hex / rgb / rgba），须走 var(--*) token；就地 /* 豁免：原因 */ 可放行
 // 白名单校验豁免宿主页面（index/kitchen-sink/perf/playground/props-panel——非组件示范）。
 // 用法：npm run demo:check ；违规非零退出。
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -78,6 +78,11 @@ const checkCss = (rel, src) => {
 const walkDir = (dir, rel, opts) => {
   for (const f of readdirSync(dir)) {
     const p = join(dir, f);
+    if (statSync(p).isDirectory()) {
+      // 子目录递归（demo/apps/ai-todo 等嵌套结构）；平铺目录（components/scenarios）行为不变
+      walkDir(p, `${rel}/${f}`, opts);
+      continue;
+    }
     if (f.endsWith('.html')) check(`${rel}/${f}`, readFileSync(p, 'utf8'), opts);
     else if (f.endsWith('.js')) check(`${rel}/${f}`, readFileSync(p, 'utf8'), { ...opts, antiflash: false });
     else if (f.endsWith('.css')) checkCss(`${rel}/${f}`, readFileSync(p, 'utf8'));

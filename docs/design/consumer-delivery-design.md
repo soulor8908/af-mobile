@@ -110,14 +110,14 @@
 | 维度 | 含义 | 取值 | 谁决定 |
 |---|---|---|---|
 | **target**（后端形态） | 应用怎么存取数据 | `supabase`（静态前端 + Supabase BaaS）/ `cloudflare`（Workers + D1 全栈） | 脚手架生成时写入，D-008 |
-| **provider**（部署落点） | 产物部署到哪 | `cloudflare` / `self-hosted` / `cn` | 部署时选择，D-010 阶段切换 |
+| **provider**（部署落点） | 产物部署到哪 | `cloudflare` / `iga` / `self-hosted` / `cn`（D-016 新增 iga） | 部署时选择，D-010 阶段切换 |
 
 **组合矩阵**（不是笛卡尔积，Workers 全栈只能落在 CF）：
 
-| target ↓ \ provider → | `cloudflare` | `self-hosted` | `cn` |
-|---|---|---|---|
-| `supabase` | ✅ Pages 静态托管 | ✅ VPS + nginx（香港/新加坡…） | ✅ COS/OSS + CDN |
-| `cloudflare` | ✅ Workers + assets | ✗ Workers 不可脱离 CF | ✗ 同上 |
+| target ↓ \ provider → | `cloudflare` | `iga` | `self-hosted` | `cn` |
+|---|---|---|---|---|
+| `supabase` | ✅ Pages 静态托管 | ✅ IGA Pages 静态托管（D-016） | ✅ VPS + nginx（香港/新加坡…） | ✅ COS/OSS + CDN |
+| `cloudflare` | ✅ Workers + assets | ✗ Workers 不可脱离 CF | ✗ 同上 | ✗ 同上 |
 
 这解释了为什么香港不需要单独 target —— 它是 `self-hosted` provider 的一个实例位置。
 
@@ -251,3 +251,49 @@ af-mobile doctor
 | 国内备选平台（EdgeOne Pages / COS+CDN / OSS+CDN） | 备案要求、CI 部署方式、成本 | 待测 |
 
 结论：已由 D-010 转为三阶段演进，不再「评估后再定」。P0（配件）与平台无关照做；P1 的 `deploy` 命令按 provider 抽象实现，`cloudflare` provider 先做，`self-hosted` / `cn` 留接口后填。
+
+## 8. IGA provider：国内/海外双部署选项（D-016，2026-08-30）
+
+> 问题：D-010 的国内访问风险要等「发布后实测触发」才缓解；IGA Pages（火山引擎体系）默认域名国内可达性预期更好，可作为国内消费者的**前置可选**落点 —— 国内选 IGA，海外选 CF，用户按需选择。
+
+### 8.1 决断（2026-08-30）
+
+| 决策点 | 结论 | 放弃了什么 |
+|---|---|---|
+| provider 选择方式 | `--provider` flag + 持久化写入 `.af-mobile/deploy.json`，之后省略沿用 | 交互式菜单（破坏 AI 全自动链路）；纯手改 JSON（小白不友好） |
+| 缺省 provider | **维持 `cloudflare`**（D-010 阶段 1 不动）；doctor 在 `provider=cloudflare && target=supabase` 时输出一条 info 引导「国内用户可加 `--provider iga`」 | 把缺省压到 IGA（可达性/SPA fallback/计费均未实测）；脚手架时定 provider（用户往往还没想好，且全栈 target 下无效） |
+| 实现深度 | **薄封装**：现有 `deploy.mjs` 内加 iga 分支，约 +80 行，无新文件 | 深集成（自动化建立在未实测的 IGA 行为上，高返工风险）；provider 模块化重构（当前仅 2 个实现，预支抽象违反 YAGNI） |
+
+### 8.2 组合矩阵与部署命令
+
+- `ALLOWED` 矩阵：`supabase` target 增加 `iga`；`cloudflare` target（Workers 全栈）**维持仅 `cloudflare`** —— Workers 不可脱离 CF
+- 部署命令：`iga pages deploy --name <project>`（与 CF 路径同为「本地 build → 传产物」语义；IGA 对 Vite 的自动构建行为实施时实测，必要时命令前挂 `npm run build`）
+- IGA 部署后自动提供平台默认域名（自定义域名可选，非必需）；**preview URL 带 `?iga_token=…&iga_time=…`，分享必须带全 query**
+
+### 8.3 doctor 专属检查项（仅 `provider=iga` 时追加，`opts.run` 注入可 mock）
+
+```
+✓ iga CLI 已安装且版本 ≥ 1.1.0   （iga --version，required）
+✓ 登录态有效                     （iga whoami，required；未登录 → 本地浏览器登录 / 远程 IAM 控制台取 AK/SK）
+○ 项目 link 状态                 （info；未 link 不阻断，deploy 首跑自动建项目）
+```
+
+env 提示差异化：IGA env 为远程项目级配置、**下次 deploy 才生效**，且 `VITE_*` 构建时注入 —— 必须「先 `iga pages env add` 再 deploy」。国内用户优先引导 `iga pages integration link supabase`（连接变量自动同步，消掉「本地与部署端两处漏配」坑）。
+
+### 8.4 实现改动清单
+
+| 文件 | 改动 |
+|---|---|
+| `scripts/deploy.mjs` | `PROVIDERS` 加 `'iga'`；ALLOWED 矩阵；`buildDeployCommand` iga 分支；3 个 iga 检查函数；`--provider` 解析与成功后写回 deploy.json（doctor 子命令同样解析 `--provider` 但只读自检、**不写回**）；缺省引导 info |
+| `scripts/af-mobile.mjs` | 无改动（flag 已透传） |
+| `test/deploy.test.js` | 新增：iga 命令构造 / 矩阵合法性（`cloudflare+iga` 拒绝）/ flag 写回 / 检查项 mock |
+| `starter/DEPLOY.md` 模板 | 补 IGA 路径段：登录 → deploy → env/integration 说明 |
+
+### 8.5 验证闸门与实施时实测项
+
+- vitest 全绿（现有 35 例不破 + 新增 iga 用例）、ESLint 0 warning；`deploy --dry-run --provider iga` 冒烟；带 changeset
+- **实测项**（不实测不发布该 provider）：① `iga pages deploy` 对 Vite 的构建行为 ② `public/_redirects` SPA fallback 在 IGA 是否生效（不生效 = 深链 404，需找 IGA 等价配置）③ IGA 计费/免费额度 ④ 默认域名国内可达性抽样
+
+### 8.6 与 D-010 的关系
+
+D-016 不推翻 D-010 三阶段路径，而是在阶段 1 内**前置提供国内友好选项**：若 IGA 实测四项全过，国内用户可直接落在 IGA，阶段 2（香港 self-hosted）的触发概率下降；阶段 2/3 判据不变。防锁定四约束（§7.3）继续有效 —— IGA 只是 provider 抽象的又一个实现。

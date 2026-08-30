@@ -439,13 +439,14 @@ describe('router stop() 生命周期', () => {
   it('start() 返回 stop，stop() 移除 popstate 监听器防止累积', async () => {
     const fn = vi.fn();
     route('/stop1', fn);
+    route('/stop1b', fn);
     const s = start({ outlet: '#app' });
     expect(typeof s).toBe('function');
     await go('/stop1');
     expect(fn).toHaveBeenCalledTimes(1);
 
-    // 触发 popstate → 监听器仍生效，handler 再次执行
-    window.history.pushState({}, '', '/stop1');
+    // 触发 popstate（换一个路径，模拟真实前进/后退）→ 监听器仍生效，handler 再次执行
+    window.history.pushState({}, '', '/stop1b');
     window.dispatchEvent(new Event('popstate'));
     await new Promise(r => setTimeout(r, 0));
     expect(fn).toHaveBeenCalledTimes(2);
@@ -617,5 +618,60 @@ describe('router 路由懒加载 + meta', () => {
     route('/lazy-fail', () => Promise.reject(new Error('chunk load failed')));
     start({ outlet: '#app' });
     await expect(go('/lazy-fail')).rejects.toThrow('chunk load failed');
+  });
+});
+
+describe('hash 模式：外部导航（手动改地址栏只触发 hashchange）', () => {
+  it('hashchange 能触发路由', async () => {
+    const fn = vi.fn();
+    route('/h-manual', fn);
+    start({ outlet: '#app', hash: true });
+    window.location.hash = '#/h-manual';
+    window.dispatchEvent(new Event('hashchange'));
+    await Promise.resolve();
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(current().path).toBe('/h-manual');
+  });
+
+  it('同 path 的 hashchange 不重复渲染（前进/后退 popstate + hashchange 双发）', async () => {
+    const fn = vi.fn();
+    route('/h-dedupe', fn);
+    start({ outlet: '#app', hash: true });
+    await go('/h-dedupe');
+    expect(fn).toHaveBeenCalledTimes(1);
+    window.dispatchEvent(new Event('hashchange'));
+    await Promise.resolve();
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('stop() 移除 hashchange 监听', async () => {
+    const fn = vi.fn();
+    route('/h-stop', fn);
+    start({ outlet: '#app', hash: true });
+    stop();
+    window.dispatchEvent(new Event('hashchange'));
+    await Promise.resolve();
+    expect(fn).not.toHaveBeenCalled();
+  });
+});
+
+describe('DEV 漏注册告警', () => {
+  it('页面用到未注册的 af-* 组件时 console.warn', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    route('/dev-warn', (p, ctx) => { ctx.outlet.innerHTML = '<af-dev-missing></af-dev-missing>'; });
+    start({ outlet: '#app' });
+    await go('/dev-warn');
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('af-dev-missing'));
+    warn.mockRestore();
+  });
+
+  it('已注册的组件不告警', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    customElements.define('af-dev-registered', class extends HTMLElement {});
+    route('/dev-ok', (p, ctx) => { ctx.outlet.innerHTML = '<af-dev-registered></af-dev-registered>'; });
+    start({ outlet: '#app' });
+    await go('/dev-ok');
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 });

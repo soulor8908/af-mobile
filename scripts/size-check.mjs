@@ -243,6 +243,9 @@ async function measureCoreRuntime() {
     entryPoints: [entry],
     bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
     absWorkingDir: ROOT,
+    // 对齐生产构建口径：Vite/rollup 生产构建把 import.meta.env.DEV 恒定为 false，
+    // router.js 的 DEV 漏注册告警因此是死代码、不进产物。不 define 会把开发期代码算进预算。
+    define: { 'import.meta.env.DEV': 'false' },
   });
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }

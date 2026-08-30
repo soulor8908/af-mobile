@@ -233,3 +233,42 @@
 - **决策**：`workspaces` 数组加入 `"."`（根包自引用），同时**删除根 `overrides`**（`"@af-mobile/ui": "file:."`）——workspaces 成员按 semver 自动链接本地根包，overrides 冗余且与 `"."` 冲突（npm EOVERRIDE 实证）。release.yml 无需改动。
 - **理由**：这是不搬目录的最小修复。备选全部更重：移除 workspaces 会让 changesets 无法再发布 mcp/eslint-plugin/tokens/prompt 子包（release.yml 的 publish 段作废）；迁移 `packages/ui` 涉及全仓路径重构。业界同型案例：pnpm-workspace.yaml 加 `"."`、pion#122 同问题（其选择删 workspaces，因它无子包发布需求）。
 - **放弃了什么**：overrides 的显式强链接语义（依赖 npm "版本范围匹配则链接 workspace" 的默认行为；若子包声明的 range 与根包版本不匹配，会静默改拉 registry 版——CI 冒烟与 `changeset publish` 拓扑排序兜底）。
+
+## D-016 新增 IGA 部署 provider：国内/海外双选项（2026-08-30，已决）
+
+背景：D-010 的国内访问风险要等「发布后实测触发」才缓解（阶段 2 香港）。IGA Pages（火山引擎体系）部署后自动提供平台默认域名（自定义域名可选非必需），国内可达性预期优于 `*.pages.dev`，可作为国内消费者的前置可选落点 —— 国内选 IGA，海外选 CF，用户按需选择。
+
+- **决策**（用户三轮拍板）：
+  1. 选择方式：`af-mobile deploy --provider iga`，首次指定后持久化写入 `.af-mobile/deploy.json`，之后省略沿用
+  2. 缺省 provider **维持 `cloudflare`**（D-010 阶段 1 不动）；doctor 在 `provider=cloudflare && target=supabase` 时输出 info 引导「国内用户可加 `--provider iga`」
+  3. 实现深度：**薄封装** —— 现有 `scripts/deploy.mjs` 内加 iga 分支（`PROVIDERS`/ALLOWED 矩阵/部署命令 `iga pages deploy --name <project>`/3 个 doctor 检查项/flag 写回），约 +80 行无新文件
+  4. 组合矩阵：`supabase` target 增加 `iga`；`cloudflare` target（Workers 全栈）维持仅 CF
+- **理由**：flag+持久化与现有非交互式 CLI 风格一致，AI（P2 grill 交付段）可全自动驱动；缺省不动 = 已有 deploy.json 项目零影响、IGA 未实测项（Vite 构建行为/SPA fallback/计费/国内可达性）不压缺省；薄封装 = 不在未实测行为上建自动化，不为 2 个实现预支模块化抽象（YAGNI）。
+- **放弃了什么**：交互式选择菜单（破坏 AI 全自动链路）；深集成（自动 link/env 同步/SPA fallback 配置生成——等实测后再议）；provider 模块化重构（3+ provider 时再开条目）；把缺省改成 IGA。
+- **待办**：实施时实测四项（① `iga pages deploy` 对 Vite 的构建行为 ② `_redirects` SPA fallback 是否生效 ③ 计费/免费额度 ④ 默认域名国内可达性抽样），不实测不发布该 provider。设计详见 `docs/design/consumer-delivery-design.md` §8。
+
+## D-017 外部实战反馈 6 项：注册 API 统一变参 + DEV 漏注册告警 + hash 路由补 hashchange + app-shell（2026-08-30，已决）
+
+背景：外部用户（`@af-mobile/ui@1.8.0` + `npm create af-mobile` 生成的 AI 待办应用）提交 6 项实战反馈。逐条核实后确认为真问题的 5 项 + 1 项已被脚手架覆盖。D-011 当年明确「未把 `registerChart` 改成变参 API……若后续高频踩坑再开条目改 API」——**本次即该触发条件成立**（外部用户独立复现同一坑）。
+
+- **决策**：
+  1. **注册 API 统一为变参**：`registerChart(...tags)`、`registerChat(...tags)`（无参默认注册 `af-chat`），与主库 `register(...tags)` 同语义。单参旧调用向后兼容，无需改动既有代码
+  2. **DEV 漏注册告警**：`router.js` 每次渲染后扫 outlet，对「已使用但未注册」的 `af-*` 标签 `console.warn`。用 `import.meta.env?.DEV` 门控——生产构建恒定 `false`，esbuild 死代码消除，产物零成本。配套修正 `size-check.mjs` 的 coreRuntime 测量：加 `define: { 'import.meta.env.DEV': 'false' }` 对齐生产口径（否则把开发期代码算进预算）
+  3. **hash 路由补 `hashchange`**：手动改地址栏是同文档片段导航，只触发 `hashchange` 不触发 `popstate`；前进/后退两者都触发 → 用 `_currentRoute.path` 去重，避免同一次导航渲染两次
+  4. **脚手架补 `import './styles.css'`**：`create-app.mjs` 的 `src/main.js` 模板只引了 `@af-mobile/ui/css`，生成的 `src/styles.css` 是死文件 → 自定义样式静默失效（P0）
+  5. **app-shell 沉淀到库内**（用户拍板）：`recipes.css` 新增三段式骨架 class（顶栏 + 内部滚动内容区 + 底栏），而非只在脚手架模板里各项目复制一份
+- **理由**：1/3/4 是「静默失败」三连——不报错、不渲染、不生效，只能靠开发者自查，排查成本远高于修它；统一变参是向后兼容的纯增量；DEV 告警把静默失败显式化，且生产零成本（实测 esbuild 完全消除函数体）。app-shell 进库是因为「一个 4 页应用重复 4 次布局代码」是结构性重复，模板复制仍会漂移。
+- **放弃了什么**：不统一 `registerChat()` 的「无参默认」为「必须显式传参」（破坏既有 `registerChat()` 惯用法）；DEV 漏注册告警不做 `MutationObserver` 常驻监听（能覆盖异步插入的漏注册场景，但多一份常驻开销与生命周期管理，而「路由渲染后扫一次」已覆盖页面主路径）。
+- **回链**：D-011（子库进教材，本条补完其欠账的 API 一致性部分）；D-018（Issue 4 测试预设，本条原判不做，后按 issue 逐条推进补做）。
+
+## D-018 新增 `@af-mobile/ui/test` 测试环境预设（2026-08-30，已决）
+
+背景：D-017 逐条处理外部反馈 6 项时，Issue 4（jsdom 打桩成本高、缺官方一键注入预设）被判为「脚手架已生成 `test/setup.js`，缺口只在脚手架外的项目」而暂缓。用户要求**按 issue 逐条推进**，该项随之补做。
+
+- **决策**：
+  1. 新增 `src/test-setup.js`（副作用模块），`package.json` 加 `"./test"` 导出子路径，并在 `sideEffects` 登记（不登记会被打包器把 bare import 摇除）
+  2. 桩集合 = 脚手架模板里已有的那一份（matchMedia / showModal·close / popover + ToggleEvent / IntersectionObserver / ResizeObserver / rAF / slot assignedElements / createObjectURL / TouchEvent·Touch），**不新增内容**
+  3. **单一真相源**：脚手架的 `test/setup.js` 模板改为 `import '@af-mobile/ui/test';` + 用例间清理；**仓库自身的 `test/setup.js` 也改为 import 该预设**（自己吃自己的狗粮）
+- **理由**：三方各持一份桩（脚手架模板 / 库内预设 / 仓库自用）必然漂移，且漂移是静默的——等某天某个组件依赖了新 API，只有一边补桩，另两边要在某次测试里才炸。合并成一份后，桩的增删只在 `src/test-setup.js` 一处发生。
+- **放弃了什么**：不做 `vitest.setup` / `jest.setup` 两套入口（同一份副作用模块两种环境通用，拆开只是重复）；预设**不注册 `beforeEach` 清理钩子**（依赖 vitest/jest 的 globals 开关，放进预设会让非 globals 模式的项目直接炸——清理钩子留在消费端自己的 setup.js 里）。
+- **回链**：D-017。

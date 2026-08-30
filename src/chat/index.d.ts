@@ -119,7 +119,8 @@ export interface AfChatEventMap {
 }
 
 export declare const CHAT_TAGS: { 'af-chat': CustomElementConstructor };
-export declare function registerChat(tag?: string): void;
+/** 注册 af-chat（变参，与主库 register(...tags) 语义一致）：registerChat() 默认注册 'af-chat' */
+export declare function registerChat(...tags: string[]): void;
 
 /** 多会话记录（localStorage 持久化单元；messages 与 session.messages 同引用） */
 export interface SessionRecord {

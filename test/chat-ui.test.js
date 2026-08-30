@@ -532,3 +532,14 @@ describe('af-chat composer 与事件', () => {
     delete navigator.clipboard;
   });
 });
+
+describe('chat 入口 registerChat', () => {
+  it('变参注册：无参默认 af-chat，单参旧签名兼容，未知标签抛错', async () => {
+    const { registerChat, CHAT_TAGS } = await import('../src/chat/index.js');
+    expect(Object.keys(CHAT_TAGS)).toEqual(['af-chat']);
+    expect(() => registerChat()).not.toThrow();
+    expect(() => registerChat('af-chat')).not.toThrow();   // 旧单参签名向后兼容
+    expect(customElements.get('af-chat')).toBe(AfChat);
+    expect(() => registerChat('af-chat-nope')).toThrow(/未知组件标签/);
+  });
+});

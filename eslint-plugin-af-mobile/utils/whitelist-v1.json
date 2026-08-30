@@ -4,6 +4,7 @@
   "classes": {
     "recipe": [
       "actions",
+      "app-shell",
       "avatar",
       "badge",
       "body",

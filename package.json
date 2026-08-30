@@ -42,6 +42,7 @@
       "default": "./src/blocks/index.js"
     },
     "./blocks/*": "./src/blocks/*",
+    "./test": "./src/test-setup.js",
     "./css": "./src/index.css",
     "./af-mobile.css": "./src/index.css",
     "./tokens.css": "./src/tokens.css",
@@ -60,7 +61,8 @@
   },
   "sideEffects": [
     "**/*.css",
-    "src/chat/i18n.js"
+    "src/chat/i18n.js",
+    "src/test-setup.js"
   ],
   "files": [
     "src",

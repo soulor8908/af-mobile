@@ -58,7 +58,7 @@
   .btn-block { display: flex; width: 100%; }
   .btn-round { border-radius: var(--r-f); }
 
-  /* === 容器（7） === */
+  /* === 容器（9） === */
   .page {
     width: 100%;
     max-width: 640px;
@@ -66,6 +66,20 @@
     min-height: 100vh;
     min-height: 100dvh;
     padding: var(--s-4);
+    background: var(--c-bg);
+  }
+
+  /* App 骨架：整屏三段式外壳（顶栏 / 内容 / 底栏）——内容区独立滚动、底栏固定视口底部，
+     区别于 .page 的「整页随 body 滚动」。移动端居中 640px，桌面端不铺满。
+     内容区用 .page-col.scroll-y（见「导航」段），底栏用 .tabbar 或 af-tabbar */
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
     background: var(--c-bg);
   }
 

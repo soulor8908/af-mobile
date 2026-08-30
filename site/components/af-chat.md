@@ -51,6 +51,90 @@ chat.addEventListener('af-chat:send', (e) => {
 });
 ```
 
+## 接真实 LLM（`requestFn` 契约）
+
+默认 `requestFn` 就是 `fetch(endpoint, init)`，`init` 由 session 组装：
+
+```json
+{
+  "messages": [
+    { "role": "system", "content": "…" },
+    { "role": "user", "content": "…" },
+    { "role": "assistant", "content": "…", "tool_calls": [{ "id": "call_1", "type": "function", "function": { "name": "get_weather", "arguments": "{\"city\":\"上海\"}" } }] },
+    { "role": "tool", "tool_call_id": "call_1", "content": "{\"city\":\"上海\",\"weather\":\"晴\"}" }
+  ],
+  "stream": true,
+  "tools": [{ "type": "function", "function": { "name": "get_weather", "description": "查询城市天气", "parameters": { "type": "object", "properties": { "city": { "type": "string" } } } } }]
+}
+```
+
+**返回值必须是标准 `Response`**（内部对 `res.body` 调 `getReader()` 逐帧解析），响应体为 OpenAI 格式 SSE：
+`data: {"choices":[{"delta":{"content":"…"}}]}` 逐帧，以 `data: [DONE]` 结束。非 2xx 时 session 抛
+`chat request failed: <status>` 并进入 `error` 态（UI 出错误条 + 重试按钮）。
+
+推理模型可额外回 `delta.reasoning_content`（DeepSeek-R1 / o1 类），session 累积为独立 think 块由 UI 折叠展示，不回传给 API。
+
+### 示例 1：纯文本对话，接 OpenAI 兼容 endpoint
+
+```js
+import { createSession } from '@af-mobile/ui/chat';
+
+const session = createSession({
+  endpoint: 'https://api.openai.com/v1/chat/completions',
+  // 只在 init.body 上补 model：messages / stream / tools 由 session 组装，不要自己拼请求体
+  requestFn: (url, init) => fetch(url, {
+    ...init,
+    headers: { ...init.headers, Authorization: `Bearer ${import.meta.env.VITE_OPENAI_KEY}` },
+    body: JSON.stringify({ ...JSON.parse(init.body), model: 'gpt-4o-mini' }),
+  }),
+});
+```
+
+> API Key 不要下发到前端：生产请把 `endpoint` 指向自己的后端代理，由代理转发时补 Key。
+
+### 示例 2：工具调用（循环已内置，requestFn 无需分支）
+
+模型返回 `delta.tool_calls` 后，session **自动执行同名工具的 `execute`**，把结果作为 `role: 'tool'` 消息追加并发起下一轮请求
+（最多 `maxToolRounds` 轮，默认 6）。`requestFn` 只需保证 `tools` 字段透传、SSE 原样回传。
+
+```js
+import { createSession, defineTool } from '@af-mobile/ui/chat';
+
+const session = createSession({
+  endpoint: '/api/chat',
+  tools: [defineTool({
+    name: 'get_weather',
+    description: '查询城市天气',
+    parameters: { type: 'object', properties: { city: { type: 'string' } } },
+    execute: async (args) => ({ city: args.city, weather: '晴', temp: 25 }),
+  })],
+  requestFn: (url, init) => fetch(url, {
+    ...init,
+    body: JSON.stringify({ ...JSON.parse(init.body), model: 'gpt-4o-mini' }),
+  }),
+});
+```
+
+模型侧一次工具调用回传的帧（`name` / `arguments` 会跨帧分片，session 按 `index` 聚合）：
+
+```
+data: {"choices":[{"delta":{"tool_calls":[{"index":0,"id":"call_1","type":"function","function":{"name":"get_weather","arguments":""}}]}}]}
+
+data: {"choices":[{"delta":{"tool_calls":[{"index":0,"function":{"arguments":"{\"city\":"}}]}}]}
+
+data: {"choices":[{"delta":{"tool_calls":[{"index":0,"function":{"arguments":"\"上海\"}"}}]}}]}
+
+data: [DONE]
+```
+
+工具执行完自动进入第二轮，模型给出最终回答：
+
+```
+data: {"choices":[{"delta":{"content":"上海今天晴，25°C。"}}]}
+
+data: [DONE]
+```
+
 ## API
 
 <!-- gen:start:api -->

@@ -116,4 +116,15 @@ describe('charts 入口 registerChart', () => {
     expect(customElements.get('af-chart-funnel')).toBeDefined();
     expect(Object.keys(CHART_TAGS).length).toBe(5);
   });
+
+  it('registerChart 变参注册（与主库 register(...tags) 同语义）', async () => {
+    const { registerChart } = await import('../src/charts/index.js');
+    // 单参旧签名仍可用（向后兼容）；多参一次注册多个
+    registerChart('af-chart-line');
+    expect(customElements.get('af-chart-line')).toBeDefined();
+    expect(() => registerChart('af-chart-bar', 'af-chart-pie')).not.toThrow();
+    expect(customElements.get('af-chart-bar')).toBeDefined();
+    expect(customElements.get('af-chart-pie')).toBeDefined();
+    expect(() => registerChart('af-chart-nope')).toThrow(/未知图表标签/);
+  });
 });

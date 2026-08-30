@@ -180,7 +180,7 @@ export class AfChartFunnel extends AfElement implements ChartCommonProps {
 }
 
 // ============================================================
-// 注册辅助（保持 Tree Shaking：推荐 registerChart 单个注册）
+// 注册辅助（保持 Tree Shaking：推荐按需注册）
 // ============================================================
 
 /** 标签 → 组件类映射 */
@@ -192,8 +192,8 @@ export const CHART_TAGS: {
   'af-chart-funnel': typeof AfChartFunnel;
 };
 
-/** 注册单个图表组件 */
-export function registerChart(tag: keyof typeof CHART_TAGS): void;
+/** 注册图表组件（变参，与主库 register(...tags) 语义一致）：registerChart('af-chart-line', 'af-chart-bar') */
+export function registerChart(...tags: Array<keyof typeof CHART_TAGS>): void;
 
 /** 注册全部图表组件（失去 Tree Shaking） */
 export function registerCharts(): void;

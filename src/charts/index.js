@@ -29,11 +29,14 @@ export const CHART_TAGS = {
 };
 // ===== gen:tags:end
 
-// 注册单个图表组件（保持 Tree Shaking；幂等，重复调用安全）
-export function registerChart(tag) {
-  const C = CHART_TAGS[tag];
-  if (!C) throw new Error(`[af-mobile/charts] 未知图表标签：${tag}`);
-  if (!customElements.get(tag)) customElements.define(tag, C);
+// 注册图表组件（保持 Tree Shaking；幂等，重复调用安全）
+// 变参，与主库 register(...tags) 语义一致：registerChart('af-chart-line', 'af-chart-bar')
+export function registerChart(...tags) {
+  for (const tag of tags) {
+    const C = CHART_TAGS[tag];
+    if (!C) throw new Error(`[af-mobile/charts] 未知图表标签：${tag}`);
+    if (!customElements.get(tag)) customElements.define(tag, C);
+  }
 }
 
 // 注册全部图表组件（失去 Tree Shaking，全量 5 个）

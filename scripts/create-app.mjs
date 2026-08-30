@@ -128,114 +128,10 @@ export default defineConfig({
 });
 `,
 
-  'test/setup.js': `// 测试环境 polyfill：补 jsdom 缺失的浏览器 API（af-* 组件依赖的通用桩）
-// 缺的桩按需在此追加（jsdom 不支持的 API 默认按"未实现"假设）
-
-// === matchMedia（initTheme 依赖） ===
-if (!window.matchMedia) {
-  window.matchMedia = (query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: () => {},
-    removeListener: () => {},
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    dispatchEvent: () => false,
-  });
-}
-
-// === <dialog> showModal / close（af-dialog 依赖） ===
-if (!HTMLDialogElement.prototype.showModal) {
-  HTMLDialogElement.prototype.showModal = function () { this.open = true; };
-}
-if (!HTMLDialogElement.prototype.close) {
-  HTMLDialogElement.prototype.close = function (returnValue) {
-    this.open = false;
-    if (returnValue !== undefined) this.returnValue = returnValue;
-    this.dispatchEvent(new Event('close'));
-  };
-}
-
-// === popover API（af-action-sheet / af-dropdown / af-picker 依赖） ===
-if (!HTMLElement.prototype.showPopover) {
-  HTMLElement.prototype.showPopover = function () {
-    this.dataset.popoverOpen = 'true';
-    this.dispatchEvent(new ToggleEvent({ newState: 'open', oldState: 'closed' }));
-  };
-}
-if (!HTMLElement.prototype.hidePopover) {
-  HTMLElement.prototype.hidePopover = function () {
-    this.dataset.popoverOpen = 'false';
-    this.dispatchEvent(new ToggleEvent({ newState: 'closed', oldState: 'open' }));
-  };
-}
-if (typeof ToggleEvent === 'undefined') {
-  window.ToggleEvent = class ToggleEvent extends Event {
-    constructor(init = {}) {
-      super('toggle', { bubbles: false });
-      this.newState = init.newState || 'open';
-      this.oldState = init.oldState || 'closed';
-    }
-  };
-}
-
-// === IntersectionObserver（af-img 依赖） ===
-class MockIntersectionObserver {
-  constructor(callback) { this.callback = callback; }
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-  takeRecords() { return []; }
-}
-window.IntersectionObserver = MockIntersectionObserver;
-global.IntersectionObserver = MockIntersectionObserver;
-
-// === ResizeObserver（af-swiper 依赖） ===
-class MockResizeObserver {
-  constructor(callback) { this.callback = callback; }
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-}
-window.ResizeObserver = MockResizeObserver;
-global.ResizeObserver = MockResizeObserver;
-
-// === 滚动：jsdom 的 window.scrollTo 会打 not-implemented 噪音，静默替换 ===
-window.scrollTo = () => {};
-
-// === HTMLSlotElement.assignedElements（jsdom 未实现 slot 分配，af-swiper 依赖） ===
-if (!HTMLSlotElement.prototype.assignedElements) {
-  HTMLSlotElement.prototype.assignedElements = function () {
-    const host = this.getRootNode()?.host;
-    return host ? [...host.children] : [];
-  };
-}
-
-// === URL.createObjectURL / revokeObjectURL（af-upload 依赖） ===
-if (!URL.createObjectURL) {
-  URL.createObjectURL = () => 'blob:mock://' + Math.random().toString(36).slice(2);
-}
-if (!URL.revokeObjectURL) {
-  URL.revokeObjectURL = () => {};
-}
-
-// === TouchEvent / Touch（af-pull-refresh / af-swipe-cell 依赖） ===
-if (typeof global.Touch === 'undefined') {
-  global.Touch = class Touch {
-    constructor(init = {}) { Object.assign(this, init); }
-  };
-}
-if (typeof global.TouchEvent === 'undefined') {
-  global.TouchEvent = class TouchEvent extends Event {
-    constructor(type, init = {}) {
-      super(type, { bubbles: init.bubbles ?? false, cancelable: init.cancelable ?? false });
-      this.touches = init.touches || [];
-      this.targetTouches = init.targetTouches || [];
-      this.changedTouches = init.changedTouches || [];
-    }
-  };
-}
+  'test/setup.js': `// 测试环境：@af-mobile/ui/test 注入 jsdom 缺失的全部浏览器 API 桩
+// （matchMedia / showModal / popover + ToggleEvent / IntersectionObserver / ResizeObserver /
+//   requestAnimationFrame / slot assignedElements / createObjectURL / TouchEvent）
+import '@af-mobile/ui/test';
 
 // 全局清理：每个测试之间隔离
 beforeEach(() => {
@@ -271,6 +167,7 @@ dist/
 
   'src/main.js': `// 应用入口：注册组件 → 声明路由 → 启动（hash 模式，静态托管零配置）
 import '@af-mobile/ui/css';
+import './styles.css';                    // 项目级自定义样式入口（默认已引入，勿删）
 import { route, start, initTheme, register } from '@af-mobile/ui';
 import homePage from './pages/home.js';
 import docsPage from './pages/docs.js';
@@ -300,23 +197,28 @@ export default function homePage(params, ctx) {
     actions: { inc: (s) => { s.count += 1; } },
   });
 
+  // app-shell：整屏三段式骨架（顶栏 / 内容区独立滚动 / 底栏），各页复用同一份结构
+  // 底栏（.tabbar 或 <af-tabbar>）放在 .scroll-y 之后即可固定在视口底部
   ctx.outlet.innerHTML = \`
-    <main class="page">
-      <section class="hero">
-        <p class="eyebrow">af-mobile App</p>
-        <h1 class="display">我的应用</h1>
-        <p class="subtitle">项目已就绪</p>
-      </section>
-      <section class="card">
-        <h3 class="section-tt">下一步</h3>
-        <p class="body">用 TRAE 或任意 AI 编码工具打开本项目，说出你的想法，af-mobile-grill skill 会引导你完成需求确认与页面生成。</p>
-        <progress max="100" :value="derived.pct"></progress>
-        <button class="btn" data-role="inc">点我 +1</button>
-      </section>
-      <div class="actions">
-        <button class="btn btn-block" data-role="go-docs">查看开发指引</button>
-      </div>
-    </main>\`;
+    <div class="app-shell">
+      <header class="navbar"><h1 class="title">我的应用</h1></header>
+      <main class="page-col scroll-y p-4">
+        <section class="hero">
+          <p class="eyebrow">af-mobile App</p>
+          <h1 class="display">我的应用</h1>
+          <p class="subtitle">项目已就绪</p>
+        </section>
+        <section class="card">
+          <h3 class="section-tt">下一步</h3>
+          <p class="body">用 TRAE 或任意 AI 编码工具打开本项目，说出你的想法，af-mobile-grill skill 会引导你完成需求确认与页面生成。</p>
+          <progress max="100" :value="derived.pct"></progress>
+          <button class="btn" data-role="inc">点我 +1</button>
+        </section>
+        <div class="actions">
+          <button class="btn btn-block" data-role="go-docs">查看开发指引</button>
+        </div>
+      </main>
+    </div>\`;
 
   ctx.outlet.querySelector('[data-role="inc"]')
     .addEventListener('click', page.actions.inc);
@@ -335,24 +237,30 @@ export default function docsPage(params, ctx) {
   const page = createPage({});
 
   ctx.outlet.innerHTML = \`
-    <main class="page">
-      <header class="navbar navbar-fixed"><h1 class="title">开发指引</h1></header>
-      <section class="card">
-        <h3 class="section-tt">约束</h3>
-        <p class="body">只用白名单 class 和 af-* 组件标签；禁止内联 style 与 Tailwind 语法。</p>
-      </section>
-      <section class="card">
-        <h3 class="section-tt">页面范式</h3>
-        <p class="body">createPage({ state, computed, actions }) 声明逻辑；:attr="state.x" 响应式绑定组件属性；page.mount(ctx.outlet) 启动绑定，路由离开时 page.unmount() 级联清理。</p>
-      </section>
-      <section class="card">
-        <h3 class="section-tt">组件 API</h3>
-        <p class="body">见 node_modules/@af-mobile/ui/src/index.d.ts（方法签名与事件 payload，一次读全）。</p>
-      </section>
-      <div class="actions">
-        <button class="btn btn-ghost" data-role="back">返回首页</button>
-      </div>
-    </main>\`;
+    <div class="app-shell">
+      <header class="navbar"><h1 class="title">开发指引</h1></header>
+      <main class="page-col scroll-y p-4">
+        <section class="card">
+          <h3 class="section-tt">约束</h3>
+          <p class="body">只用白名单 class 和 af-* 组件标签；禁止内联 style 与 Tailwind 语法。</p>
+        </section>
+        <section class="card">
+          <h3 class="section-tt">页面范式</h3>
+          <p class="body">createPage({ state, computed, actions }) 声明逻辑；:attr="state.x" 响应式绑定组件属性；page.mount(ctx.outlet) 启动绑定，路由离开时 page.unmount() 级联清理。</p>
+        </section>
+        <section class="card">
+          <h3 class="section-tt">App 骨架</h3>
+          <p class="body">.app-shell（整屏 + 移动端 640 居中）套 .page-col.scroll-y 内容区；需要底部 Tab 时把 .tabbar 或 &lt;af-tabbar&gt; 放在滚动区之后。</p>
+        </section>
+        <section class="card">
+          <h3 class="section-tt">组件 API</h3>
+          <p class="body">见 node_modules/@af-mobile/ui/src/index.d.ts（方法签名与事件 payload，一次读全）。</p>
+        </section>
+        <div class="actions">
+          <button class="btn btn-ghost" data-role="back">返回首页</button>
+        </div>
+      </main>
+    </div>\`;
 
   ctx.outlet.querySelector('[data-role="back"]')
     .addEventListener('click', () => history.back());

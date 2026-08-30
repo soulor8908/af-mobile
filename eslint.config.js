@@ -70,6 +70,15 @@ export default [
     plugins: { 'af-mobile': afMobilePlugin },
     rules: { ...AI_RULES },
   },
+  // router 测试夹具：故意使用未注册的 af-* 标签验证 DEV 漏注册告警（测试夹具例外，非消费代码）
+  {
+    files: ['test/router.test.js'],
+    plugins: { 'af-mobile': afMobilePlugin },
+    rules: {
+      ...AI_RULES,
+      'af-mobile/token-whitelist': ['error', { extraComponents: ['af-dev-missing', 'af-dev-registered'] }],
+    },
+  },
   {
     files: ['.cache/**/*.js'],
     plugins: { 'af-mobile': afMobilePlugin },

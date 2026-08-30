@@ -18,10 +18,10 @@
 
 # L2 白名单（构建时注入）
 
-## L2 配方（136 个，按用途分组）
+## L2 配方（137 个，按用途分组）
 
 **按钮（10）：** `btn` `btn-sm` `btn-lg` `btn-mini` `btn-ghost` `btn-plain` `btn-danger` `btn-success` `btn-block` `btn-round`
-**容器（8）：** `page` `card` `cell` `center` `sheet` `eyebrow` `section` `section-tt`
+**容器（9）：** `page` `app-shell` `card` `cell` `center` `sheet` `eyebrow` `section` `section-tt`
 **文本（8）：** `display` `title` `subtitle` `body` `caption` `meta` `price` `price-del`
 **表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-ldg` `switch-th` `sb-wrap` `sb-icon` `sb-clear` `input-err` `upload-tg` `upload-gd`
 **列表（6）：** `list` `list-item` `list-item-cp` `divider` `thumb` `avatar`

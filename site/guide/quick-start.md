@@ -39,6 +39,46 @@ npm i @af-mobile/ui
 
    > 注意：`import '@af-mobile/ui'` 只是一次纯导入，**不会**自动注册组件。必须显式调用 `register()`，或直接取具名类用 `customElements.define`（全量注册 `registerAll()` 已移除——禁止一次性注册全部 30 个组件）。另外，`main` / `exports` 指向源码分发（裸 ESM），消费端需要有打包器（Vite / webpack / Rollup）；若需浏览器直引，用 `dist/af-mobile.umd.js`。
 
+3. **测试环境（非脚手架项目）**：jsdom 缺一批组件依赖的浏览器 API（`showModal` / popover / `IntersectionObserver` / `ResizeObserver` / `TouchEvent` …）。`@af-mobile/ui/test` 一个 import 全部补齐：
+
+   ```js
+   // test/setup.js
+   import '@af-mobile/ui/test';
+   ```
+
+   ```js
+   // vite.config.js
+   test: { environment: 'jsdom', globals: true, setupFiles: ['./test/setup.js'] }
+   ```
+
+   > `npm create af-mobile` 生成的工程已默认这么接（`test/setup.js` 里就是这一行 + 用例间清理）。用脚手架的项目不用自己写桩。
+
+## App 骨架（app-shell）
+
+每页都要「顶栏 + 内容区 + 底栏」时，用 `.app-shell` 三段式骨架，避免每页重写一套 flex 布局：
+
+```html
+<div class="app-shell">
+  <header class="navbar"><h1 class="title">标题</h1></header>
+  <main class="page-col scroll-y p-4">
+    <!-- 页面内容：这里独立滚动，顶栏底栏不动 -->
+  </main>
+  <af-tabbar></af-tabbar>
+</div>
+```
+
+| 类 | 职责 |
+| --- | --- |
+| `.app-shell` | 整屏外壳：`100dvh` 纵向 flex + `max-width: 640px` 居中（桌面端不铺满） |
+| `.page-col.scroll-y` | 内容区：占满剩余高度（`flex: 1; min-height: 0`）且 `overflow-y: auto` |
+| `.tabbar` / `<af-tabbar>` | 底栏：作为 flex 末项自然贴在视口底部，无需 `position: fixed` |
+
+要点：
+
+- **内部滚动而非 body 滚动** —— `.app-shell` 撑满视口、内容区自己滚，底栏才固定在视口底部。若页面没有底栏、内容可以随页面一起滚，用 `.page`（`min-height: 100dvh`）更省事。
+- `.page-col` 与 `.scroll-y` 的 `min-height: 0` 是必需的：flex 子项默认 `min-height: auto`，不加会让内容区被撑高、滚动失效。
+- 底栏需要避让 Home Indicator 时用 `.tabbar-fixed`（自带 `env(safe-area-inset-bottom)`），此时内容区要自行留出底部间距。
+
 ## 首个组件示例
 
 以模态对话框 `<af-dialog>` 为例。它的打开方式是调用实例方法 `dialog.show()`，事件名遵循 `af-{组件}:{动作}` 格式（如 `af-dialog:close`、`af-dialog:open`）：

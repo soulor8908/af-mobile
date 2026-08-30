@@ -109,6 +109,11 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 
 在写业务代码或测试前，先对齐以下 jsdom/vitest 的已知限制——这些都是上次 demo 项目真实踩过的坑：
 
+> **零成本起手**：脚手架生成的 `test/setup.js` 已 `import '@af-mobile/ui/test'`，一个 import 注入下表全部 API 桩
+> （matchMedia / showModal·close / popover + ToggleEvent / IntersectionObserver / ResizeObserver / rAF /
+> slot assignedElements / createObjectURL / TouchEvent·Touch）。**不要在项目里再抄一份桩**（会与库内预设漂移）；
+> 下表是「为什么需要这些桩」的说明，不是让你手写的清单。
+
 | 场景 | 契约 | 写法 |
 |---|---|---|
 | `HTMLDialogElement.showModal()` | jsdom 不支持，需打桩 | `HTMLDialogElement.prototype.showModal = () => {}`（在 test/setup.js） |
@@ -117,7 +122,7 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 | `import.meta.resolve` 相对路径 | vitest 下解析不稳定 | 数据层/资源测试用绝对路径：`import.meta.url` + `fileURLToPath` 派生 |
 | `navigator.clipboard` / `navigator.share` | jsdom 下只读或未实现 | 测试前 `Object.defineProperty(navigator, 'xxx', { value: stub, configurable: true })` |
 | `innerText` | jsdom 不支持（只支持 `textContent`） | 组件测试断言用 `textContent`，组件实现避免用 `innerText` |
-| `IntersectionObserver` / `ResizeObserver` | jsdom 不提供 | 在 `test/setup.js` 注入桩：`global.IntersectionObserver = class { observe(){} unobserve(){} disconnect(){} }` |
+| `IntersectionObserver` / `ResizeObserver` | jsdom 不提供 | 已由 `@af-mobile/ui/test` 注入；需主动触发可见性时用桩自带的 `io.trigger(target, true)`（jsdom 无布局，不会自动触发） |
 
 **未列入的 API 默认按"jsdom 不支持"假设**。在 demo 阶段就确定测试桩清单，不要等 Phase 5 自检失败才发现。
 
@@ -135,9 +140,9 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 - 反馈：`af-dialog` `af-action-sheet` `af-toast` `af-notice-bar` `af-badge` `af-progress` `af-steps` `af-countdown`
 - 展示：`af-swiper` `af-img` `af-skeleton-page` `af-backtop` `af-pull-refresh`
 
-**子库组件（不在主入口 `register()` 注册表，注册 API 不同，漏注册 = 静默失败）：**
-- AI 对话（`@af-mobile/ui/chat`）：`<af-chat>` 气泡流+composer+工具调用管线。`import { registerChat, createSession, defineTool } from '.../chat/index.js'` → `registerChat()`（幂等）→ `el.session = createSession({ endpoint, tools, requestFn })`。接真 LLM 只换 `requestFn`/endpoint，工具零改动
-- 图表（`@af-mobile/ui/charts`）：`af-chart-line/bar/pie/radar/funnel`。`import { registerChart } from '.../charts/index.js'` → **`registerChart(tag)` 单标签逐个调用**（非变参，与主库 `register` 不同！），或 `registerCharts()` 全量
+**子库组件（不在主入口 `register()` 注册表；漏注册不渲染，DEV 下 `console.warn` 告警）：**
+- AI 对话（`@af-mobile/ui/chat`）：`<af-chat>` 气泡流+composer+工具调用管线。`import { registerChat, createSession, defineTool } from '.../chat/index.js'` → `registerChat()`（幂等，无参默认注册 `af-chat`）→ `el.session = createSession({ endpoint, tools, requestFn })`。接真 LLM 只换 `requestFn`/endpoint，工具零改动；`requestFn(url, init)` 须返回 OpenAI 格式 SSE 的 `Response`（请求体/响应帧格式与两个最小示例见文档站 af-chat 页「接真实 LLM」段）
+- 图表（`@af-mobile/ui/charts`）：`af-chart-line/bar/pie/radar/funnel`。`import { registerChart } from '.../charts/index.js'` → `registerChart('af-chart-line', 'af-chart-bar')`（**变参，与主库 `register(...tags)` 同语义**），或 `registerCharts()` 全量
 - 需求涉及聊天/图表时**必须用子库**，禁止手写气泡流/CSS 图表（重复造轮子且无工具调用协议）
 
 完整属性/事件表：已安装项目读 `node_modules/@af-mobile/ui/src/index.d.ts`（子库另有 `src/chat/`、`src/charts/` 各自入口与类型）——全部方法签名与事件 payload 的单一真相源，**一次读全**（单文件约 1 次读取即得全部 API），**禁止逐个读 `src/components/` 组件源码**（高成本零增量信息）。

@@ -10,7 +10,7 @@ let _currentRoute = null;
 let _beforeEachGuard = null;
 const _afterEachHooks = new Set();   // v3.0：数组化，多页面 route effect 互不干扰
 let _notFoundHandler = null;
-let _popHandler = null;               // popstate 监听器引用，start() 注册、stop() 移除
+let _popHandler = null;               // popstate/hashchange 共用监听器引用，start() 注册、stop() 移除
 const _cache = new Map();           // path → { outlet, scrollTop, route }
 let _keepAliveMax = 5;
 let _scrollBehavior = null;         // (to, from, savedPosition) => position | false
@@ -30,6 +30,20 @@ function parsePath(fullPath) {
   const [cleanPath, hash = ''] = path.split('#');
   const query = Object.fromEntries(new URLSearchParams(search));
   return { path: cleanPath, query, hash };
+}
+
+// DEV 兜底：漏注册的 af-* 元素不渲染、控制台也无任何报错（静默失败最难排查）。
+// 渲染后扫一遍 outlet，把静默失败变成显式告警。
+// 门控放在调用点（import.meta.env.DEV 生产恒 false）→ 本函数与 _warnedTags 被整体 tree-shake，零产物成本。
+const _warnedTags = new Set();
+function warnUnregistered(root) {
+  if (!root?.querySelectorAll) return;
+  for (const el of root.querySelectorAll('*')) {
+    const tag = el.localName;
+    if (!tag.startsWith('af-') || customElements.get(tag) || _warnedTags.has(tag)) continue;
+    _warnedTags.add(tag);
+    console.warn(`[@af-mobile/ui] <${tag}> 已使用但未注册：不会渲染且无报错，请在入口 register('${tag}')`);
+  }
 }
 
 // 应用 scrollBehavior 返回值：{ x, y } | { el, top } | false | null
@@ -130,11 +144,16 @@ export function start(options = {}, extra) {
   _keepAliveMax = keepAliveMax;
   _scrollBehavior = scrollBehavior || null;
   _hashMode = hash;
+  // popstate = 前进/后退；hashchange = 手动改地址栏（同文档片段导航只触发 hashchange，不触发 popstate）。
+  // 两者在前进/后退时都会触发 → 用当前路由 path 去重，避免同一次导航渲染两次。
   _popHandler = () => {
+    const path = getFullPath();
+    if (path === _currentRoute?.path) return;
     document.documentElement.dataset.transition = 'back';
-    render(getFullPath());
+    render(path);
   };
   addEventListener('popstate', _popHandler);
+  if (hash) addEventListener('hashchange', _popHandler);   // 同一处理器，hash 模式额外挂一次
   // 首次渲染：仅在当前路径匹配已注册路由时自动渲染，避免首次加载即触发 notFound
   const currentPath = getFullPath();
   if (matchNested(currentPath).length > 0) {
@@ -147,6 +166,7 @@ export function start(options = {}, extra) {
 export function stop() {
   if (_popHandler) {
     removeEventListener('popstate', _popHandler);
+    if (_hashMode) removeEventListener('hashchange', _popHandler);   // hash 模式下挂了两次
     _popHandler = null;
   }
   _hashMode = false;
@@ -200,7 +220,7 @@ async function render(path) {
       ? await _scrollBehavior({ path: cleanPath, params: cached.params, query, meta: cached.route.meta || {} }, from, { x: 0, y: cached.scrollTop })
       : { x: 0, y: cached.scrollTop });
     callAfterEach(cached.route, cached.params, path);
-    return true;
+    return true;   // keep-alive 复用已扫描过的 DOM，无需重复告警
   }
 
   // 404：清空 outlet，让 notFound 渲染到干净容器（404 也是有效导航，提交 URL）
@@ -254,6 +274,7 @@ async function render(path) {
       ? await _scrollBehavior({ path: cleanPath, params: lastParams, query, meta: lastRoute.meta || {} }, from, null)
       : { x: 0, y: 0 });
   }
+  if (import.meta.env?.DEV) warnUnregistered(_rootOutlet);
   return true;
 }
 

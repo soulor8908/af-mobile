@@ -47,10 +47,9 @@ describe('create-app scaffold', () => {
     expect(vite).toContain("environment: 'jsdom'");
     expect(vite).toContain("setupFiles: ['./test/setup.js']");
 
+    // 环境桩走包内预设（@af-mobile/ui/test），项目里不再复制一份，防两边漂移
     const setup = readFileSync(join(dir, 'test/setup.js'), 'utf8');
-    expect(setup).toContain('IntersectionObserver');
-    expect(setup).toContain('ResizeObserver');
-    expect(setup).toContain('showModal');
+    expect(setup).toContain("import '@af-mobile/ui/test'");
 
     const html = readFileSync(join(dir, 'index.html'), 'utf8');
     expect(html).toContain('localStorage.getItem(\'theme\')'); // 暗色 FOUC 内联脚本
@@ -67,6 +66,8 @@ describe('create-app scaffold', () => {
 
     const main = readFileSync(join(dir, 'src/main.js'), 'utf8');
     expect(main).toContain("start('#app', { hash: true })");
+    // 自定义样式入口必须默认引入：否则 src/styles.css 是死文件，自定义样式静默失效
+    expect(main).toContain("import './styles.css';");
 
     // 页面范式收敛到 createPage（grill 与脚手架同构，AGENTS.md §3）
     const home = readFileSync(join(dir, 'src/pages/home.js'), 'utf8');

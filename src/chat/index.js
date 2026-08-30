@@ -24,8 +24,12 @@ export { AfChat };
 export const CHAT_TAGS = { 'af-chat': AfChat };
 
 // 注册 af-chat 组件（幂等，重复调用安全）
-export function registerChat(tag = 'af-chat') {
-  const C = CHAT_TAGS[tag];
-  if (!C) throw new Error(`[af-mobile/chat] 未知组件标签：${tag}`);
-  if (!customElements.get(tag)) customElements.define(tag, C);
+// 变参，与主库 register(...tags) 语义一致：registerChat() 默认注册 'af-chat'，
+// registerChat('af-chat') 显式注册等价（旧签名，向后兼容）
+export function registerChat(...tags) {
+  for (const tag of (tags.length ? tags : ['af-chat'])) {
+    const C = CHAT_TAGS[tag];
+    if (!C) throw new Error(`[af-mobile/chat] 未知组件标签：${tag}`);
+    if (!customElements.get(tag)) customElements.define(tag, C);
+  }
 }

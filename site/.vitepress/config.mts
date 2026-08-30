@@ -32,6 +32,7 @@ export default defineConfig({
             { text: '主题定制', link: '/guide/theming' },
             { text: 'AI 协作', link: '/guide/ai-collaboration' },
             { text: '应用配方', link: '/guide/app-recipe' },
+            { text: '实战教程', link: '/guide/tutorial-todo-app' },
           ],
         },
       ],

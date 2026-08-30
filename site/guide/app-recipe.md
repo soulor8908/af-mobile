@@ -45,4 +45,4 @@
 ## 部署
 
 - 脚手架默认相对路径（vite `base: './'` + manifest `start_url: "./"`），GitHub Pages / Vercel 子目录 / 妙搭等子路径部署开箱即用
-- 完整链路见 starter `DEPLOY.md`；最小完整应用源码见仓库 `demo/apps/ai-todo/`（教程：从零到跑通）
+- 完整链路见 starter `DEPLOY.md`；最小完整应用源码见仓库 `demo/apps/ai-todo/`（教程：[从零到跑通](/guide/tutorial-todo-app)）

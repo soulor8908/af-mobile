@@ -156,6 +156,10 @@ export async function checkOnline(url, fetchFn = globalThis.fetch) {
 export function buildDeployCommand({ target, provider, project = '' }) {
   const combo = checkCombo(target, provider);
   if (!combo.ok) return { unsupported: combo.reason };
+  if (provider === 'iga') {
+    const name = project || 'af-mobile-app';
+    return { cmd: 'iga', args: ['pages', 'deploy', '--name', name], note: `IGA Pages 静态托管（project=${name}）；IGA 对 Vite 的自动构建行为实施时实测（D-016 §8.5）` };
+  }
   if (provider !== 'cloudflare') {
     return { unsupported: `provider=${provider} 尚未实现；${PROVIDER_TODO[provider] || ''}`.trim() };
   }

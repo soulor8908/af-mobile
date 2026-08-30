@@ -207,6 +207,23 @@ describe('deploy / 命令构建', () => {
     expect(c.args).toEqual(['wrangler', 'deploy']);
   });
 
+  it('supabase + iga → iga pages deploy --name <project>', () => {
+    const c = buildDeployCommand({ target: 'supabase', provider: 'iga', project: 'demo' });
+    expect(c.cmd).toBe('iga');
+    expect(c.args).toEqual(['pages', 'deploy', '--name', 'demo']);
+    expect(c.note).toContain('IGA');
+  });
+
+  it('iga 缺省项目名回落 af-mobile-app', () => {
+    const c = buildDeployCommand({ target: 'supabase', provider: 'iga' });
+    expect(c.args).toContain('af-mobile-app');
+  });
+
+  it('cloudflare 全栈 + iga → 组合错误（非 unsupported）', () => {
+    const c = buildDeployCommand({ target: 'cloudflare', provider: 'iga' });
+    expect(c.unsupported).toContain('不兼容');
+  });
+
   it('未实现的 provider → unsupported 且带 D-010 阶段说明', () => {
     const a = buildDeployCommand({ target: 'supabase', provider: 'self-hosted' });
     expect(a.unsupported).toContain('self-hosted');

@@ -1,6 +1,6 @@
 // 交付链 P1 —— doctor / deploy 测试（网络与命令执行全部 mock，无副作用）
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -19,6 +19,7 @@ import {
   checkIgaAuth,
   checkOnline,
   buildDeployCommand,
+  persistProvider,
   runDoctor,
   printDoctor,
   runDeploy,
@@ -386,5 +387,49 @@ describe('deploy / 执行', () => {
     const r = await runDeploy({ dir: makeProject({ env: goodEnv }) });
     expect(r.dryRun).toBe(true);
     expect(r.status).toBe(0);
+  });
+});
+
+describe('deploy / provider 持久化（D-016）', () => {
+  it('persistProvider：写入新文件 / 保留其他字段 / 同值不写', () => {
+    const cwd = join(tmpDir, 'p1');
+    mkdirSync(join(cwd, '.af-mobile'), { recursive: true });
+    writeFileSync(join(cwd, '.af-mobile', 'deploy.json'), JSON.stringify({ provider: 'cloudflare', host: 'x' }));
+    expect(persistProvider(cwd, 'iga')).toBe(true);
+    const cur = JSON.parse(readFileSync(join(cwd, '.af-mobile', 'deploy.json'), 'utf8'));
+    expect(cur.provider).toBe('iga');
+    expect(cur.host).toBe('x');
+    expect(persistProvider(cwd, 'iga')).toBe(false);
+  });
+
+  it('persistProvider：目录不存在时自动创建', () => {
+    const cwd = join(tmpDir, 'p2');
+    mkdirSync(cwd, { recursive: true });
+    expect(persistProvider(cwd, 'iga')).toBe(true);
+    expect(resolveProvider(cwd)).toBe('iga');
+  });
+
+  it('runDeploy --provider iga 成功后写回 deploy.json', async () => {
+    const cwd = makeProject({ env: 'VITE_SUPABASE_URL=https://x\nVITE_SUPABASE_ANON_KEY=k' });
+    const r = await runDeploy({ dir: cwd, provider: 'iga', run: () => ({ status: 0, stdout: '1.1.0' }) });
+    expect(r.status).toBe(0);
+    expect(JSON.parse(readFileSync(join(cwd, '.af-mobile', 'deploy.json'), 'utf8')).provider).toBe('iga');
+  });
+
+  it('dry-run 不写回', async () => {
+    const cwd = makeProject({ env: 'VITE_SUPABASE_URL=https://x\nVITE_SUPABASE_ANON_KEY=k' });
+    await runDeploy({ dir: cwd, provider: 'iga', dryRun: true });
+    expect(JSON.parse(readFileSync(join(cwd, '.af-mobile', 'deploy.json'), 'utf8')).provider).toBe('cloudflare');
+  });
+
+  it('命令失败不写回', async () => {
+    const cwd = makeProject({ env: 'VITE_SUPABASE_URL=https://x\nVITE_SUPABASE_ANON_KEY=k' });
+    await runDeploy({
+      dir: cwd,
+      provider: 'iga',
+      // 区分三次调用：--version 合规 / whoami 通过 / iga pages deploy 失败
+      run: (cmd, args) => (args[0] === '--version' ? { status: 0, stdout: '1.1.0' } : args[0] === 'whoami' ? { status: 0, stdout: 'Account: x' } : { status: 1, stdout: '' }),
+    });
+    expect(JSON.parse(readFileSync(join(cwd, '.af-mobile', 'deploy.json'), 'utf8')).provider).toBe('cloudflare');
   });
 });

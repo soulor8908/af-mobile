@@ -12,7 +12,7 @@
 //   node scripts/deploy.mjs deploy [--dir <项目根>] [--project <name>] [--provider <cloudflare|iga>] [--dry-run]
 //
 // 依赖注入（测试用）：opts.fetch / opts.run，默认分别取全局 fetch 与 spawnSync。
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -52,6 +52,16 @@ export function resolveTarget(cwd) {
 export function resolveProvider(cwd) {
   const p = readJson(join(cwd, '.af-mobile', 'deploy.json'))?.provider;
   return PROVIDERS.includes(p) ? p : 'cloudflare';
+}
+
+/** 把 provider 持久化到 .af-mobile/deploy.json（保留其他字段）；同值不写返回 false */
+export function persistProvider(cwd, provider) {
+  const file = join(cwd, '.af-mobile', 'deploy.json');
+  const cur = readJson(file) || {};
+  if (cur.provider === provider) return false;
+  mkdirSync(join(cwd, '.af-mobile'), { recursive: true });
+  writeFileSync(file, `${JSON.stringify({ ...cur, provider }, null, 2)}\n`);
+  return true;
 }
 
 /** 组合合法性：Workers 全栈不可脱离 CF */
@@ -262,7 +272,10 @@ export async function runDeploy(opts = {}) {
     return { status: 0, dryRun: true, doctor, command };
   }
   const r = opts.run(command.cmd, args, { cwd: doctor.cwd, stdio: 'inherit' });
-  return { status: r?.status ?? 1, doctor, command };
+  const status = r?.status ?? 1;
+  // --provider 显式指定且部署成功 → 持久化选择，之后省略 flag 沿用（D-016）
+  if (status === 0 && opts.provider) persistProvider(doctor.cwd, opts.provider);
+  return { status, doctor, command };
 }
 
 // CLI
@@ -271,7 +284,7 @@ if (isMain) {
   const args = process.argv.slice(2);
   const sub = args[0];
   if (sub !== 'doctor' && sub !== 'deploy') {
-    console.error('Usage: deploy.mjs <doctor|deploy> [--dir <项目根>] [--project <name>] [--url <线上地址>] [--dry-run]');
+    console.error('Usage: deploy.mjs <doctor|deploy> [--dir <项目根>] [--project <name>] [--url <线上地址>] [--provider <cloudflare|iga>] [--dry-run]');
     process.exit(2);
   }
   const opts = {};
@@ -279,6 +292,7 @@ if (isMain) {
     if (args[i] === '--dir') opts.dir = args[++i];
     else if (args[i] === '--project') opts.project = args[++i];
     else if (args[i] === '--url') opts.url = args[++i];
+    else if (args[i] === '--provider') opts.provider = args[++i];
     else if (args[i] === '--dry-run') opts.dryRun = true;
   }
   opts.run = (cmd, argv, spawnOpts) => spawnSync(cmd, argv, spawnOpts);

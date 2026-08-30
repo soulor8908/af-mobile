@@ -1,9 +1,12 @@
-# 临时诊断 workflow：在 ubuntu 上复刻 release 环境跑 prepublishOnly，完整输出不吞
+# 临时诊断 workflow（第 2 步）：真实 publish @af-mobile/ui@1.9.0，完整输出定位 changesets 吞掉的报错
 # 根因定位后删除（D-007 发布链调试）
-name: Debug publish check
+name: Debug publish real
 
 on:
   workflow_dispatch:
+
+permissions:
+  id-token: write   # npm provenance（OIDC）
 
 jobs:
   debug:
@@ -24,24 +27,16 @@ jobs:
 
       - run: npm ci
 
-      # 与 release.yml 的 changesets step 同 env
-      - name: Reproduce prepublishOnly (build + publish:check)
+      # 与 release.yml 的 changesets step 同 env（含 auth），真实 publish
+      - name: Real npm publish (root = @af-mobile/ui)
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           npm_config_provenance: 'true'
           HUSKY: '0'
         run: |
           set -x
-          node -v && npm -v
-          npm run build
-          echo "=== build exit: $? ==="
-          npm run publish:check
-          echo "=== publish:check exit: $? ==="
-
-      # 再复刻 changesets 的实际调用方式：npm publish --dry-run 触发 prepublishOnly
-      - name: Reproduce npm publish lifecycle (dry-run)
-        env:
-          npm_config_provenance: 'true'
-          HUSKY: '0'
-        run: |
-          npm publish --dry-run
-          echo "=== publish dry-run exit: $? ==="
+          npm whoami
+          npm view @af-mobile/ui version || true
+          npm publish --access public
+          echo "=== publish exit: $? ==="

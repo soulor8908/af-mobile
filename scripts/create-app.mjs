@@ -76,12 +76,12 @@ const files = {
   <title>${name}</title>
   <meta name="theme-color" content="${THEME_COLOR}">
   <meta name="description" content="${APP_DESCRIPTION}">
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="./icon-192.png">
   <meta property="og:title" content="${name}">
   <meta property="og:description" content="${APP_DESCRIPTION}">
-  <meta property="og:image" content="/icon-512.png">
+  <meta property="og:image" content="./icon-512.png">
   <script>
     // 先于首次 paint 设定主题，避免暗色模式 FOUC（无需等组件库加载）
     try {
@@ -101,7 +101,7 @@ const files = {
   "name": "${name}",
   "short_name": "${name}",
   "description": "${APP_DESCRIPTION}",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "${THEME_COLOR}",
@@ -118,6 +118,7 @@ const files = {
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base: './',
   build: { target: 'es2022' },
   test: {
     environment: 'jsdom',

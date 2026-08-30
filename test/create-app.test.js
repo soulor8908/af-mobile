@@ -55,6 +55,16 @@ describe('create-app scaffold', () => {
     const html = readFileSync(join(dir, 'index.html'), 'utf8');
     expect(html).toContain('localStorage.getItem(\'theme\')'); // 暗色 FOUC 内联脚本
 
+    // 子路径部署适配：vite base + manifest start_url + 配件引用全部相对路径
+    expect(vite).toContain("base: './'");
+    const manifest = JSON.parse(readFileSync(join(dir, 'public/manifest.webmanifest'), 'utf8'));
+    expect(manifest.start_url).toBe('./');
+    expect(html).toContain('href="./manifest.webmanifest"');
+    expect(html).toContain('href="./favicon.ico"');
+    expect(html).toContain('href="./icon-192.png"');
+    expect(html).toContain('content="./icon-512.png"');
+    expect(html).not.toMatch(/(href|content)="\/(manifest|favicon|icon)/);
+
     const main = readFileSync(join(dir, 'src/main.js'), 'utf8');
     expect(main).toContain("start('#app', { hash: true })");
 

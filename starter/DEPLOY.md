@@ -41,3 +41,9 @@ Pages 项目 → Custom domains → 添加域名并按提示加 CNAME 记录，H
 ## 错误监控（可选）
 
 本模板不内置监控。上线后如需观测线上报错，可接入 Sentry 等外部方案：安装 SDK → 在 `src/main.js` 顶部初始化 → 把 DSN 配成 `VITE_` 变量（DSN 本身是公开的，可加前缀）。
+
+## 子路径部署
+
+脚手架默认相对路径（vite `base: './'`、manifest `start_url: "./"`、index.html 配件 `./` 引用），
+GitHub Pages `/repo/`、Vercel 子目录等子路径部署开箱即用，无需配置。
+前提是 hash 路由（本脚手架默认）；若自行切换 history 路由需重新评估 base 策略。

@@ -2,7 +2,7 @@
   "name": "af-mobile App",
   "short_name": "af-mobile",
   "description": "af-mobile starter app",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#1677ff",

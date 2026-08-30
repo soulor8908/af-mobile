@@ -42,12 +42,12 @@ try {
   // index.html：配件 meta 齐全
   const html = readFileSync(join(app, 'index.html'), 'utf8');
   const needs = [
-    '<link rel="manifest" href="/manifest.webmanifest">',
+    '<link rel="manifest" href="./manifest.webmanifest">',
     '<meta name="theme-color" content="#ff5a00">',
     '<meta name="description" content="测试描述">',
-    '<link rel="icon" href="/favicon.ico" sizes="any">',
-    '<link rel="apple-touch-icon" href="/icon-192.png">',
-    '<meta property="og:image" content="/icon-512.png">',
+    '<link rel="icon" href="./favicon.ico" sizes="any">',
+    '<link rel="apple-touch-icon" href="./icon-192.png">',
+    '<meta property="og:image" content="./icon-512.png">',
   ];
   for (const frag of needs) ok(html.includes(frag), `index.html 含 ${frag}`);
 

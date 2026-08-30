@@ -1,6 +1,6 @@
 // AI 助手页 —— chat 子库完整闭环：af-chat + defineTool（AI 直接操作待办）+ sessions.js 多会话
 // 先起 mock LLM：node mock-llm.mjs；接真实 LLM 见 site 教程「换真实 LLM」一节
-import { createSessions, bindSessions, defineTool } from '../../src/chat/index.js';
+import { createSessions, bindSessions, defineTool } from '../../../../src/chat/index.js';
 import { store } from '../store.js';
 
 const ENDPOINT = 'http://localhost:8787/v1/chat/completions';

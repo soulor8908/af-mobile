@@ -1,6 +1,6 @@
 // 列表页 —— 主库 CRUD 范式：createPage 同构（outlet 模板 + 事件 + ctx.signal 级联清理）
 // 组件：af-swipe-cell（滑动删除）/ af-dialog（确认）/ af-toast（反馈）；全部白名单 class
-import { escapeHtml as esc } from '../../src/index.js';
+import { escapeHtml as esc } from '../../../../src/index.js';
 import { store } from '../store.js';
 
 export default function listPage(params, ctx) {

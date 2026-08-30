@@ -1,8 +1,8 @@
 // AI 待办 · 最小完整应用（三页：列表 / AI 助手 / 统计）——官方教科书画像
 // 三页各覆盖一个能力域：主库 CRUD / chat 子库工具闭环 / charts 子库
-import { register, route, start, afterEach, go, initLocale } from '../../src/index.js';
-import { registerChat } from '../../src/chat/index.js';
-import { registerChart } from '../../src/charts/index.js';
+import { register, route, start, afterEach, go, initLocale } from '../../../src/index.js';
+import { registerChat } from '../../../src/chat/index.js';
+import { registerChart } from '../../../src/charts/index.js';
 import listPage from './pages/list.js';
 import chatPage from './pages/chat.js';
 import statsPage from './pages/stats.js';

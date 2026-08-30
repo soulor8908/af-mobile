@@ -39,6 +39,7 @@ export interface CardBlock {
   id?: string;
   card: CardPayload;
 }
+/** 内部块格式。与 OpenAI 格式的映射：text ↔ delta.content 拼接；tool_call ↔ delta.tool_calls（args 发送时 JSON.stringify 回 function.arguments）；tool_result ↔ role:'tool' 消息（result JSON.stringify 进 content）；think ↔ delta.reasoning_content（不回传 API）；card 为库扩展（AI 在 text 中以 JSON 协议产出） */
 export type ContentBlock = TextBlock | ThinkBlock | ToolCallBlock | ToolResultBlock | CardBlock;
 
 export interface Message {
@@ -60,6 +61,13 @@ export interface SessionOptions {
   endpoint: string;
   systemPrompt?: string | (() => string);
   tools?: Tool[];
+  /**
+   * 自定义请求函数。契约：
+   * - 入参 (url, init)：init 由 createSession 组装（POST + JSON body：messages（OpenAI 格式）/ stream:true / tools）
+   * - 返回值必须是标准 Response（内部对 res.body 调 getReader() 逐帧解析 SSE）——
+   *   注入 Authorization、换 baseURL、走代理都在这里做，工具循环已内置，无需分支处理 tool_calls
+   * - 非 2xx 时 session.state 置 'error'，UI 渲染错误条 + retry()
+   */
   requestFn?: (url: string, init: RequestInit) => Promise<Response>;
   maxToolRounds?: number;
   onMessage?: (msg: Message) => void;
@@ -86,8 +94,18 @@ export interface Session {
   subscribe: (fn: () => void) => () => void;
 }
 
+/**
+ * 创建会话实例。管线：send() push user 消息 → requestFn 请求 → 解析 OpenAI 格式 SSE
+ * （delta.content / delta.tool_calls 按 index 聚合 / delta.reasoning_content → think 块）→
+ * 内部块格式（ContentBlock）渲染 → 流末工具调用自动执行并以 tool 消息回传 → 下一轮（≤ maxToolRounds）。
+ * 订阅 subscribe() 在每次内容变化时通知（流式逐 token 高频）。
+ */
 export declare function createSession(opts: SessionOptions): Session;
 export declare function createMessage(init?: Partial<Message>): Message;
+/**
+ * 解析标准 SSE Response 为帧流（{ event, data }）。data === '[DONE]' 的帧由调用方自行判停；
+ * 纯传输层：不解析 OpenAI 结构，可独立用于任何 SSE 端点。
+ */
 export declare function parseSSE(res: Response): AsyncGenerator<{ event: string; data: string }, void, unknown>;
 export declare function defineTool(tool: Tool): Tool;
 

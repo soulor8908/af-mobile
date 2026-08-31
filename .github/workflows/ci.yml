@@ -31,9 +31,10 @@ jobs:
 
       # Step 0: changesets 闸门（仅 PR）—— 有包改动但缺 changeset 时阻断，需先 `npm run changeset`
       # checkout@v4 只建 origin/* 远程引用，changeset status --since=main 需要
-      # 本地 main 分支才能计算 merge-base，故先从 origin/main 补建
+      # 本地 main 分支才能计算 merge-base，故先从 origin/main 补建。
+      # changeset-release/*（changesets 发版 PR）上 changesets 已被消费，status 必然失败，跳过。
       - name: Changesets check (PR only)
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'changeset-release/')
         run: |
           git branch main origin/main
           npm run changeset:check

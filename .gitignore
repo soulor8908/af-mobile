@@ -70,3 +70,9 @@ site/.vitepress/dist/
 site/.vitepress/cache/
 site/public/demo/
 .smoke/
+
+# AI 工具本地产物（skill 安装缓存，不入库）
+.agents/
+.claude/
+.trae/
+skills-lock.json

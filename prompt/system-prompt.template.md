@@ -53,7 +53,7 @@
 
 ***
 
-# 25 条禁令（ESLint error 级，务必遵守）
+# 26 条禁令（ESLint error 级，务必遵守）
 
 1. 禁止 tokens.css 以外重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 2. 禁止 `style=""` 设置 color/background\*/padding\*/margin\*/font-size/border-radius/box-shadow
@@ -81,6 +81,7 @@
 23. 禁止手动创建 `.toast` 元素（必须通过 `af-toast.show()` 单例管理）
 24. 禁止骨架屏 `style=""` 设宽高（请用 `.sk-ln` 配方或 `recipes.project.css` 扩展）
 25. 禁止在 JS 事件回调内调用 `setAttribute` 修改自身 attribute（单向数据流：attribute=输入 / event=输出 / 内部状态用 `this._xxx` 私有字段）
+26. 禁止把 API Key/密钥等敏感凭据硬编码进源码（由用户在设置页运行时输入，仅存 localStorage 等本地存储；示例与 demo 一律用占位符）
 
 ***
 
@@ -194,10 +195,16 @@
 4. API 返回 {list: \[...], total: N}，分页由 af-list 自动处理
 5. 列表加载：list.data = await fetchPage(url)
 
+> 提醒：手写列表（非 af-list）innerHTML 重渲染后，旧元素上的事件监听随之失效——重渲染后必须重新绑定，
+> 或把监听一次挂到持久容器（outlet）上用事件委托（`e.target.closest('[data-role=\"...\"]')` 取目标）。
+
 ## 详情数据
 
 1. 单条数据通过 DOM 注入：getElementById + textContent/value
 2. 富文本用 innerHTML（需 escapeHtml 转义，或用 html 模板标签）
+
+> 边界：同一数据只用一条更新通道——随交互变化的 state 数据优先 `:bind` 响应式绑定（自动同步，免手写回填）；
+> `getElementById + textContent` 手动注入仅限一次性静态位。同一页面混用两通道易漏更新、产生竞态。
 
 ## 表单数据
 

@@ -6,7 +6,7 @@
 //   node scripts/lint-flywheel.mjs page.html --source cli   # 指定来源（默认按 env.CI 判断）
 //   node scripts/lint-flywheel.mjs src/ --record-clean      # 干净文件也记录（默认只记违规）
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, rmSync, statSync, existsSync } from 'node:fs';
-import { join, resolve, dirname, extname, relative } from 'node:path';
+import { join, resolve, dirname, extname, relative, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractCode, RULE_HINTS } from './ai-fix.mjs';
 import { recordRun } from '../eval/telemetry.mjs';
@@ -16,8 +16,26 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 // 发布态 lint 基准 = 消费端项目自身 flat config（尊重 extraClass 登记）；开发态 = 仓库根 config（.cache 片段走 AI_RULES）
 const IS_PKG = !existsSync(join(ROOT, 'eslint.config.js'));
 const LINT_CWD = IS_PKG ? process.cwd() : ROOT;
-const TMP_DIR = IS_PKG ? join(process.cwd(), 'node_modules', '.af-mobile-lint') : join(ROOT, '.cache/lint-flywheel');
+// 片段组（仓内文件 / HTML / 无 config 外部文件）的 lint 基准：开发态 = 仓库根 config；发布态 = 消费端 cwd config
+const BASE_CTX = LINT_CWD;
 const LINT_EXT = new Set(['.js', '.mjs', '.html']);
+
+// 文件的 lint 上下文根：仓内 / HTML（走片段抽取）→ ROOT；
+// 外部 JS/MJS → 向上找最近的 eslint.config.js|.mjs（套该项目 flat config，extraClass 生效，
+// 修「开发态跨项目 lint 误报」：外部项目已登记的 extraClass 不再被仓库 config 拦截）；
+// 找不到 config → 回落 ROOT（保留对任意裸文件的通用 lint 能力）
+export function findLintContextRoot(file, isHtml = false) {
+  const rel = relative(ROOT, file);
+  const isExternal = !rel || rel.startsWith('..') || isAbsolute(rel);
+  if (!isExternal || isHtml) return ROOT;
+  let dir = dirname(file);
+  while (true) {
+    if (existsSync(join(dir, 'eslint.config.js')) || existsSync(join(dir, 'eslint.config.mjs'))) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) return ROOT;
+    dir = parent;
+  }
+}
 
 // 递归展开路径 → 待 lint 文件列表
 function expandPaths(inputs) {
@@ -43,43 +61,59 @@ export async function lintAndHarvest(inputs, opts = {}) {
   const files = expandPaths(inputs);
   if (files.length === 0) return { byFile: [], exitCode: 0, linted: 0 };
 
-  // HTML 抽 script + 整体嵌入（与 ai-fix 同策略）；JS/MJS 直接读
-  // 清理 best-effort：沙箱 shim 下 rmSync 可能失败，TMP_DIR 内容随后被覆盖写入，无需强删
-  try { rmSync(TMP_DIR, { recursive: true, force: true }); } catch { /* 同 finally 策略 */ }
-  mkdirSync(TMP_DIR, { recursive: true });
-  const snippets = files.map((f, i) => {
-    const ext = extname(f).toLowerCase();
-    const isHtml = ext === '.html';
-    const js = isHtml ? extractCode(f).js : readFileSync(f, 'utf8');
-    const snippetPath = join(TMP_DIR, `${i}.js`);
-    writeFileSync(snippetPath, js || ' ');
-    return { file: f, snippetPath, isHtml };
-  });
+  // 按项目上下文分组：BASE_CTX 组走片段抽取 + 基准 config（开发态=仓库根 / 发布态=消费端 cwd）；
+  // 外部项目组 JS/MJS 直接 lint 原文件（套该项目 flat config），HTML 仍走片段
+  const groups = new Map();   // ctxRoot → [{ file, isHtml }]
+  for (const f of files) {
+    const isHtml = extname(f).toLowerCase() === '.html';
+    // ROOT 上下文归一到 BASE_CTX（发布态包目录无 config，片段组须以消费端 cwd 为基准）
+    const found = findLintContextRoot(f, isHtml);
+    const ctx = found === ROOT ? BASE_CTX : found;
+    if (!groups.has(ctx)) groups.set(ctx, []);
+    groups.get(ctx).push({ file: f, isHtml });
+  }
 
   const { ESLint } = await import('eslint');
-  const engine = new ESLint({ cwd: LINT_CWD });
-  // 发布态：JS/MJS 直接 lint 原文件（套消费端 flat config，extraClass 生效）；
-  // 仅 HTML 走抽取片段（片段位于消费端 node_modules 下不被 files 匹配 → HTML 检测以开发态/MCP 为主）
-  const target = (s) => (IS_PKG && !s.isHtml ? s.file : s.snippetPath);
-  let results;
-  try {
-    results = await engine.lintFiles(snippets.map(target));
-  } finally {
-    // 清理 best-effort：沙箱环境（WorkBuddy safe-delete shim）删临时目录可能失败，残留由 .cache/ 兜底
-    try { rmSync(TMP_DIR, { recursive: true, force: true }); } catch { /* 与 ai-fix.mjs runEslint 同策略 */ }
-  }
-  const bySnippet = new Map(results.map(r => [r.filePath, r]));
-
   const byFile = [];
-  for (const s of snippets) {
-    const r = bySnippet.get(target(s));
-    const messages = (r?.messages || []).map(m => ({
-      line: m.line,
-      rule: m.ruleId || '(no-rule)',
-      severity: m.severity === 2 ? 'error' : 'warn',
-      message: m.message,
-    }));
-    byFile.push({ file: relative(LINT_CWD, s.file), messages });
+  for (const [ctxRoot, items] of groups) {
+    const isExternal = ctxRoot !== BASE_CTX;
+    // HTML 抽 script + 整体嵌入（与 ai-fix 同策略）；JS/MJS 直接读
+    // 清理 best-effort：沙箱 shim 下 rmSync 可能失败，TMP_DIR 内容随后被覆盖写入，无需强删
+    const tmpDir = isExternal
+      ? join(ctxRoot, 'node_modules', '.af-mobile-lint')
+      : (IS_PKG ? join(BASE_CTX, 'node_modules', '.af-mobile-lint') : join(BASE_CTX, '.cache', 'lint-flywheel'));
+    try { rmSync(tmpDir, { recursive: true, force: true }); } catch { /* 同 finally 策略 */ }
+    mkdirSync(tmpDir, { recursive: true });
+    const snippets = items.map((it, i) => {
+      const js = it.isHtml ? extractCode(it.file).js : readFileSync(it.file, 'utf8');
+      const snippetPath = join(tmpDir, `${i}.js`);
+      writeFileSync(snippetPath, js || ' ');
+      return { ...it, snippetPath };
+    });
+
+    const engine = new ESLint({ cwd: ctxRoot });
+    // 外部项目：JS/MJS 直接 lint 原文件（套消费端 flat config，extraClass 生效）；
+    // 仅 HTML 走抽取片段（片段不被消费端 files 模式匹配 → HTML 检测以开发态/MCP 为主）
+    const target = (s) => (isExternal && !s.isHtml ? s.file : s.snippetPath);
+    let results;
+    try {
+      results = await engine.lintFiles(snippets.map(target));
+    } finally {
+      // 清理 best-effort：沙箱环境（WorkBuddy safe-delete shim）删临时目录可能失败，残留由 .cache/ 兜底
+      try { rmSync(tmpDir, { recursive: true, force: true }); } catch { /* 与 ai-fix.mjs runEslint 同策略 */ }
+    }
+    const bySnippet = new Map(results.map(r => [r.filePath, r]));
+
+    for (const s of snippets) {
+      const r = bySnippet.get(target(s));
+      const messages = (r?.messages || []).map(m => ({
+        line: m.line,
+        rule: m.ruleId || '(no-rule)',
+        severity: m.severity === 2 ? 'error' : 'warn',
+        message: m.message,
+      }));
+      byFile.push({ file: relative(LINT_CWD, s.file), messages });
+    }
   }
 
   // 遥测：默认只记违规文件（防本地/CI 重复膨胀）；--record-clean 记全部

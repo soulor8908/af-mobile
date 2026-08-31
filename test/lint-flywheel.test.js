@@ -72,4 +72,24 @@ describe('lint-flywheel / 违规采集', () => {
     expect(r.exitCode).toBe(0);
     expect(r.linted).toBe(0);
   });
+
+  it('外部项目 JS：套用其自身 eslint.config.js（跨项目不再误报）', async () => {
+    const projDir = join(tmpDir, 'consumer-proj');
+    mkdirSync(join(projDir, 'src'), { recursive: true });
+    // 外部项目 config 放空 rules：仓库 config 会拦的 class/inline-style 在此项目已属合法
+    writeFileSync(join(projDir, 'eslint.config.js'), 'export default [{ rules: {} }];\n');
+    writeFileSync(join(projDir, 'src', 'page.js'), 'export const html = `<div class="my-custom-card" style="color:red">x</div>`;\n');
+    const r = await lintAndHarvest([join(projDir, 'src')], { source: 'cli' });
+    expect(r.exitCode).toBe(0);
+  });
+
+  it('外部项目无 config：回落基准 config（保留通用 lint 能力）', async () => {
+    const projDir = join(tmpDir, 'plain-proj');
+    mkdirSync(join(projDir, 'src'), { recursive: true });
+    writeFileSync(join(projDir, 'src', 'page.js'), 'export const html = `<div class="my-custom-card">x</div>`;\n');
+    const r = await lintAndHarvest([join(projDir, 'src')], { source: 'cli' });
+    expect(r.exitCode).toBe(1);
+    const bad = r.byFile.find(f => f.file.endsWith('page.js'));
+    expect(bad.messages.map(m => m.rule)).toContain('af-mobile/token-whitelist');
+  });
 });

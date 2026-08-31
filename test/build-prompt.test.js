@@ -197,8 +197,8 @@ describe('build-prompt / 端到端：生成 Prompt 与三源同步', () => {
     expect(prompt).not.toContain('PROJECT_EXTENSION_INJECTION_POINT');
   });
 
-  it('Prompt 含 25 条禁令节', () => {
-    expect(prompt).toContain('# 25 条禁令');
+  it('Prompt 含 26 条禁令节', () => {
+    expect(prompt).toContain('# 26 条禁令');
   });
 });
 

@@ -16,3 +16,9 @@ lint 消费端文件时，消费端已登记的 extraClass 被仓库 config 误�
 - 数据契约节补边界说明：同一数据只用一条更新通道（`:bind` 响应式绑定优先，
   手动 `textContent` 仅限一次性静态位），避免混用产生漏更新/竞态
 - 列表数据节补提醒：innerHTML 重渲染后旧元素监听失效，必须重绑或对持久容器用事件委托
+
+**3. 教材与脚手架收尾**（外部 review 6 项评估，详见 docs/DECISIONS.md D-020）：
+
+- `demo/apps/ai-todo/app.js`（官方教科书入口）去掉顶层 `await register(...)` TLA 写法，
+  对齐 02cfca2 register-state 修复后的官方推荐（入口禁 TLA，router 渲染前自动等待）
+- 脚手架 docs 页新增「密钥与凭据」警告：禁止硬编码、运行时输入、仅存本地（呼应禁令 26）

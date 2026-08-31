@@ -250,6 +250,10 @@ export default function docsPage(params, ctx) {
           <p class="body">只用白名单 class 和 af-* 组件标签；禁止内联 style 与 Tailwind 语法。</p>
         </section>
         <section class="card">
+          <h3 class="section-tt">密钥与凭据</h3>
+          <p class="body">API Key 等敏感凭据禁止硬编码进源码或提交仓库；由用户在设置页运行时输入，仅存 localStorage 等本地存储。接入真实 AI 服务前，先向用户说明「Key 存本地、仅本机使用」的风险。</p>
+        </section>
+        <section class="card">
           <h3 class="section-tt">页面范式</h3>
           <p class="body">createPage({ state, computed, actions }) 声明逻辑；:attr="state.x" 响应式绑定组件属性；page.mount(ctx.outlet) 启动绑定，路由离开时 page.unmount() 级联清理。</p>
         </section>

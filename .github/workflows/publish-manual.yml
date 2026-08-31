@@ -1,0 +1,40 @@
+name: Publish Manual
+
+# 临时调试/兜底发布：changesets publish 吞掉 npm publish 的真实报错（1.8s 静默失败），
+# 此 workflow 每步输出完整可见，先发上包，再回填根因修复。
+# 根因确认后此文件应删除。
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write   # npm provenance（OIDC）
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm install -g npm@11.9.0
+      - run: npm ci
+
+      # 分步执行，哪一步失败一眼可见
+      - name: Build
+        run: npm run build
+      - name: Publish check
+        run: npm run publish:check
+      - name: Publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          npm_config_provenance: 'true'
+        run: npm publish

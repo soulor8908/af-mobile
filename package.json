@@ -1,6 +1,6 @@
 {
   "name": "@af-mobile/ui",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Mobile-first Web Components library with L1/L2/L3 layered design system",
   "workspaces": [
     ".",

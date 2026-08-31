@@ -9,6 +9,8 @@
 export { AfElement, escapeHtml, html } from './lib/af-element.js';
 export { getTheme, setTheme, toggleTheme, initTheme } from './lib/theme.js';
 
+import { trackRegistration } from './lib/register-state.js';
+
 // ===== gen:entry:start（由 scripts/gen-entry.mjs 自动生成，勿手改；新增组件后跑 npm run entry）
 import { AfActionSheet } from './components/af-action-sheet.js';
 import { AfBacktop } from './components/af-backtop.js';
@@ -86,16 +88,48 @@ const LAZY = {
 // （原 REGISTRY 同步 [tag, Ctor] 表已删——无人需要同步 Ctor，仅徒增重复与产物体积）
 export const COMPONENT_TAGS = Object.keys(LAZY);
 
-// 变参按需注册（懒加载）：await register('af-list') 或 register('af-list', 'af-dialog')，与 no-register-all 规则推荐用法一致
-// 铁律：禁止全量注册（原 registerAll 已移除）——只注册页面实际用到的组件，保证 Tree Shaking
-// 返回 Promise：渲染前 await，确保 property 绑定在元素 upgrade 之后设置
-export async function register(...names) {
-  await Promise.all(names.map(async (name) => {
-    const load = LAZY[name];
-    if (!load) throw new Error(`[@af-mobile/ui] unknown component: ${name}`);
-    if (!customElements.get(name)) customElements.define(name, await load());
-  }));
+// 看门狗阈值（ms，0 = 关闭）：组件 chunk 加载超时只告警不 reject（慢网下 chunk 最终仍会到达）。
+// 唯一目的是把「生产分包循环依赖 → 应用空白且零报错」变成一条可检索的诊断；
+// 完整根因分析与三种修法见 docs/incidents.md「register 生产分包死锁」。
+let _warnMs = 2000;
+
+/** 设置/关闭 register 加载看门狗阈值（ms，传 0 关闭）；返回旧值 */
+export function setRegisterTimeout(ms) {
+  const o = _warnMs;
+  _warnMs = ms > 0 ? +ms : 0;
+  return o;
 }
+
+// 超时诊断：ASCII 文案（gzip 友好），完整根因与三种修法见 docs/incidents.md「register 生产分包死锁」
+function diag(tag) {
+  console.error(`[@af-mobile/ui] register('${tag}') not loaded in ${_warnMs}ms: likely entry top-level await register() deadlock under prod code-splitting (blank page, no error). Fix: drop the await, use register('${tag}'); start('#app'); (router waits via whenReady). See docs/incidents.md.`);
+}
+
+async function loadOne(name) {
+  const load = LAZY[name];
+  if (!load) throw new Error(`[@af-mobile/ui] unknown component: ${name}（可用标签：${COMPONENT_TAGS.join(', ')}）`);
+  if (customElements.get(name)) return;
+  const t = _warnMs ? setTimeout(diag, _warnMs, name) : 0;
+  try {
+    customElements.define(name, await load());
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+// 变参按需注册（懒加载）：register('af-list') 或 register('af-list', 'af-dialog')，与 no-register-all 规则推荐用法一致
+// 铁律：禁止全量注册（原 registerAll 已移除）——只注册页面实际用到的组件，保证 Tree Shaking
+//
+// 返回 Promise，但**入口不要 await**（尤其禁止顶层 await）：register 会把 promise 登记到注册状态
+// 中心，router 在首次渲染前自动等待（whenReady），因此无需 TLA 也能保证「渲染前已注册」。
+// 反例：入口顶层 `await register(...)` 会让入口 chunk 变成 TLA 模块，生产分包下与组件 chunk 形成
+// entry ↔ chunk 循环依赖 → 组件永不注册、页面空白且零报错（见 src/lib/register-state.js 顶部说明）。
+export async function register(...names) {
+  await Promise.all(names.map((name) => trackRegistration(loadOne(name))));
+}
+
+/** 等待所有已发起的 register() 完成；自绘（不用 router）时在渲染前 await 它 */
+export { whenReady } from './lib/register-state.js';
 
 // ============================================================
 // 核心运行时（按需 import，不计入组件体积预算）

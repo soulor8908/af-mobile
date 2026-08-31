@@ -1,12 +1,12 @@
 # 返工案例与详细规则（incidents）
 
-> 本文件是根 [AGENTS.md](../AGENTS.md) 的细节层：11 条返工反模式、库/消费端详细边界、
+> 本文件是根 [AGENTS.md](../AGENTS.md) 的细节层：12 条返工反模式、库/消费端详细边界、
 > 修改 checklist、数据飞轮接入细节。根宪章只保留原则 + 门禁 + 指针，本文件按需读取。
-> 新增反模式条目时编号顺延（当前 #1-#11），并同步更新根 AGENTS.md 的指针。
+> 新增反模式条目时编号顺延（当前 #1-#12），并同步更新根 AGENTS.md 的指针。
 
 ---
 
-## 一、返工反模式清单（11 条）
+## 一、返工反模式清单（12 条）
 
 > 每条都是从 v1.3.0 返工案例提炼的**实际发生过的积分浪费**，违反即返工。
 
@@ -103,6 +103,27 @@
 - 后果：Vite 不支持 `<link>` 裸导入，会当 SPA 路由回退，**静默返回 573B HTML 而非 CSS**，样式整包丢失且**不报任何错**——肉眼看似正常渲染，实为下降到浏览器默认样式
 - 正确做法：CSS 一律在 `<script type="module">` 内 `import '@af-mobile/ui/css'`（走 exports，与脚手架 `src/main.js` 一致）；组件按需引入用 `@af-mobile/ui/components/af-x.js`；`<link>` 仅限无构建双击打开场景用相对路径 `node_modules/@af-mobile/ui/src/index.css`
 - 交付前用 `getComputedStyle` 抽查按钮/文字色值与圆角，确认非浏览器默认值；核对 `document.styleSheets` 含 `.btn` 规则、CSS 请求 `content-type: text/css`
+
+**#12 工程入口禁止顶层 `await register(...)`（生产分包 entry ↔ chunk 循环死锁）**
+
+- 反模式：Vite/Rollup 工程的入口 `main.js` 写顶层 `await register('af-tabbar', ...)`（TLA）
+- 根因：`register()` 走动态 `import()` 按需分包。生产分参会把「入口与组件 chunk 共用的模块」
+  （典型：入口经 `src/index.js` 再导出 `escapeHtml`/`html`/`t`，组件又从 `lib/af-element.js`/
+  `lib/i18n.js` 引入**同一个模块**）划入**入口 chunk**，组件 chunk 因此反向静态 import 入口 chunk。
+  入口一旦 TLA，求值被自己 `await` 的 chunk 卡住，chunk 又等着入口求值完成——互等死锁：
+  chunk 永不 resolve、组件永不注册、**应用全白且控制台零报错**（dev 原生 ESM 不复现，
+  只在生产构建暴露；无共用模块的组件如 `af-switch` 能注册，更添迷惑性）
+- 真实案例：「AI 待办」应用（豆包二次使用本框架生成），dev 全绿 → 生产构建白屏 → 无头浏览器
+  逐 chunk 定位才发现循环依赖，最终靠改成静态导入绕过（2026-08-31，@af-mobile/ui 1.9.0）
+- 正确做法：入口 `register(...)` **不 await**（只发起注册），`route(...)` 后 `start('#app')` ——
+  router 在每次渲染前 `whenReady()` 统一等待注册完成（无待办时 `hasPending()` 短路，零额外微任务）；
+  不使用 router 自绘时，在注入组件 property 前 `await whenReady()`；
+  或静态导入组件类 + `customElements.define`（tree-shaking 最优）；
+  或构建配置 `inlineDynamicImports: true`（关闭分包，失去按需加载）
+- 排查特征：页面空白 + 控制台零报错 + `customElements.get('af-x')` 部分为 undefined +
+  构建产物中组件 chunk 顶部出现 `import { ... } from "./index-xxx.js"`（反向依赖入口 chunk）。
+  register 的看门狗（默认 2s，`setRegisterTimeout` 可调/可关）超时会输出此诊断
+- 关联测试：`test/register-state.test.js`（whenReady 语义 / 首渲染等待 / API 语义统一）
 
 ---
 

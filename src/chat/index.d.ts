@@ -118,6 +118,8 @@ export class AfChat extends HTMLElement {
   /** 清空会话（新建对话）：清卡片投影 + 内核/受控数组，重渲染回空态 */
   clear(): void;
   scrollToBottom(): void;
+  /** 公开发送入口（宿主/自动化测试编程调用）：等价于输入框输入 text 后触发发送；空文本忽略 */
+  send(text: string): Promise<void>;
   addEventListener<K extends keyof AfChatEventMap>(
     type: K, listener: (this: AfChat, ev: AfChatEventMap[K]) => void, options?: boolean | AddEventListenerOptions
   ): void;

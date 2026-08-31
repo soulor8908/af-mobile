@@ -37,6 +37,6 @@ describe('blocks 入口', () => {
   });
 
   it('registerBlocks(未知标签) 抛错', () => {
-    expect(() => registerBlocks('af-nope')).toThrow(/未知组件标签/);
+    expect(() => registerBlocks('af-nope')).toThrow(/unknown component/);
   });
 });

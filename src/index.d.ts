@@ -977,8 +977,21 @@ export class AfPasswordInput extends AfElement {
 // 注册接口
 // ============================================================
 
-/** 按需注册组件（懒加载，变参传入一个或多个标签名；渲染前 await，确保 property 绑定在 upgrade 后设置） */
+/**
+ * 按需注册组件（懒加载，变参传入一个或多个标签名）
+ *
+ * **入口不要 await**（尤其禁止顶层 await）：register 会把 promise 登记到注册状态中心，
+ * router 在首次渲染前自动等待，因此无需 TLA 也能保证「渲染前已注册」。
+ * 入口顶层 `await register(...)` 会让入口 chunk 变成 TLA 模块，生产分包下与组件 chunk
+ * 形成 entry ↔ chunk 循环依赖 → 组件永不注册、页面空白且零报错（dev 不复现）。
+ */
 export function register(...names: string[]): Promise<void>;
+
+/** 等待所有已发起的 register() 完成；自绘（不使用 router）时在渲染前 await 它 */
+export function whenReady(): Promise<void>;
+
+/** 设置/关闭 register 的加载看门狗阈值（ms，传 0 关闭）；返回旧值 */
+export function setRegisterTimeout(ms: number): number;
 
 // 铁律：禁止全量注册（registerAll 已移除）与 UMD 直引——组件一律按需引入
 

@@ -125,6 +125,6 @@ describe('charts 入口 registerChart', () => {
     expect(() => registerChart('af-chart-bar', 'af-chart-pie')).not.toThrow();
     expect(customElements.get('af-chart-bar')).toBeDefined();
     expect(customElements.get('af-chart-pie')).toBeDefined();
-    expect(() => registerChart('af-chart-nope')).toThrow(/未知图表标签/);
+    expect(() => registerChart('af-chart-nope')).toThrow(/unknown component/);
   });
 });

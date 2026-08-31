@@ -26,9 +26,11 @@
 
 <!-- {{{ COMPONENT_TABLE_INJECTION_POINT }}} -->
 
-**通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`；数组/对象型属性（columns/series/data 等）必须在 `await register()` 完成后用 JS property 注入（attribute 只传字符串标量）。
+**通用规则**：事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`；Light DOM 组件不可含 `<style>`；数组/对象型属性（columns/series/data 等）必须在组件已注册（upgrade）之后用 JS property 注入（attribute 只传字符串标量）——Vite 工程由 router 首渲染前统一等待注册（见下条铁律），单文件页面用 `await register(...)`。
 
 **接入铁律（单文件页面）**：页面只要用了任何 `af-*` 组件，`<script type="module">` 内**必须** `import { register } from '/af-mobile.js'` 并 `await register('af-xxx', ...)`（或至少 `import '/af-mobile.js'` 触发升级）。漏掉 import = 组件永远不升级，渲染为空盒——这是视觉验收最常见的失败原因，交付前自查：每个 af-* 页面都有主入口 import。
+
+**接入铁律（Vite/Rollup 工程，违反 = 生产静默白屏）**：工程入口 `main.js` **禁止顶层 `await register(...)`（TLA）**——生产分参会把入口与组件 chunk 共用的模块（如 `html`/`t`）划入入口 chunk，组件 chunk 反向静态 import 入口，而入口又被自己的 `await` 卡住 → entry ↔ chunk 互等：组件永不注册、页面空白且**零报错**（dev 原生 ESM 不复现，只在生产构建暴露）。正确写法：`register('af-tabbar', 'af-dialog'); route(...); start('#app', { hash: true });`——`register` 只负责发起注册，router 首次渲染前自动等待；不用 router 自绘时才 `await whenReady()` 后注入 property。
 
 ***
 
@@ -650,7 +652,7 @@ export default function listPage(params, ctx) {
 **app-shell 范式要点：**
 
 - `index.html`：`#app`（路由 outlet）+ `<af-tabbar>`（常驻底部导航，在 outlet 外避免路由销毁）
-- `main.js`：显式 `customElements.define` 或 `await register('af-x', ...)` 按需注册（**禁止 registerAll / 禁止 UMD 直引**）→ `route()` → `start({ hash: true })`
+- `main.js`：显式 `customElements.define` 或 `register('af-x', ...)` 按需注册（**禁止 registerAll / 禁止 UMD 直引 / 禁止入口顶层 `await register(...)`** —— TLA 会在生产分包下与组件 chunk 形成循环依赖，页面静默白屏）→ `route()` → `start({ hash: true })`
 - 页面统一 createPage 范式：`createPage({ state, computed, actions, setup })` → `ctx.outlet.innerHTML` → `page.mount(ctx.outlet)` → `ctx.signal` abort 时 `page.unmount()` 级联清理
 - 响应式重渲染写在 `setup` 内 `effect()`（归属页面 root，unmount 自动清理）；store signal（如 `todos()`）在 effect 内读取即自动追踪；组件属性用 `:attr="state.x"` / `:attr="derived.x"` 响应式绑定
 - 页面用 `.page-col` + `.scroll-y` + `.navbar-fixed` 组建骨架（不私建 class）

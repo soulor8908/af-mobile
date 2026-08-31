@@ -133,7 +133,8 @@
     "demo:build": "vite build",
     "docs:dev": "vitepress dev site",
     "docs:build": "vitepress build site",
-    "docs:gen": "node scripts/gen-docs.mjs"
+    "docs:gen": "node scripts/gen-docs.mjs",
+    "register:e2e": "node scripts/check-register-e2e.mjs"
   },
   "keywords": [
     "web-components",

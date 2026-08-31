@@ -100,7 +100,7 @@ description: "Conversational AI scaffold for af-mobile mobile H5 apps. Grills th
 
 - `src/pages/<name>.js` ← demo 的 createPage 页面函数原样复制，仅改 import 来源为 `@af-mobile/ui`（`node_modules/@af-mobile/ui/src/index.js` → 包名），其余逻辑（含 mount/unmount 生命周期）不动
 - 数据层（如 `src/store.js`）← demo 假 store 原样复制，**只替换读写函数体**为真实实现（localStorage / Supabase，per 拆分表），函数签名与页面调用不动
-- `src/main.js` → 替换路由表（保留 `initTheme/start('#app', { hash: true })` 两件套；**组件注册用显式 `await register(...names)`**，禁止 `registerAll()`，否则触发 `af-mobile/no-register-all` 且失去 Tree Shaking）
+- `src/main.js` → 替换路由表（保留 `initTheme/start('#app', { hash: true })` 两件套；**组件注册用显式 `register(...names)`，禁止 `registerAll()`**（否则触发 `af-mobile/no-register-all` 且失去 Tree Shaking），**禁止入口顶层 `await register(...)`**——生产分包下 TLA 会与组件 chunk 形成 entry ↔ chunk 循环依赖，页面静默白屏且零报错；`register` 只发起注册，router 首渲染前自动等待）
 - `src/styles.css` → 项目级自定义样式（只用 `var(--*)` token；白名单外 class 必须在 `eslint.config.js` 用 `extraClass` 登记）
 
 规则：事件名 `af-{组件}:{动作}`；分页判停 `endLoadMore`；暗色 FOUC 用 `<head>` 内联同步脚本设 `data-theme`；假数据换成真实数据层（per 拆分表）。

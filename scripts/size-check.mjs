@@ -90,9 +90,9 @@ const BUDGET = {
   css: 7.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径；v1.6.1 上调 6.0→7.0：新增 40 个高视觉 class，用户已确认，实测 ~6.9KB）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
-  total: 23.0,         // KB，30 组件 + 基类（v4.3：新增 af-number-keyboard/af-password-input，20.4 上调容纳）
+  total: 23.3,         // KB，30 组件 + 基类（v4.3：新增 af-number-keyboard/af-password-input，20.4 上调容纳；v4.5 上调 23.0→23.3，用户已确认：P0 注册死锁修复新增 register 状态中心 + 看门狗诊断，实测 23.230）
   onDemand2: 6.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
-  coreRuntime: 6.8,    // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind）
+  coreRuntime: 6.85,   // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind；v4.5 上调 6.8→6.85，用户已确认：router 渲染前 whenReady 等待注册，实测 6.816）
   // charts 子库（charts-sublibrary-detailed-design.md §7）：独立入口 ./charts，不计入 total
   chartsRuntime: 4.5,  // KB，charts 内核（scale+geometry+render+chart-theme+tooltip+chart-base，Phase 2 radar/funnel 复用）
   chartsPerComponent: 2.8, // KB，单图表组件（同主库 perComponent 语义）

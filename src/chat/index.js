@@ -16,6 +16,7 @@ export { createSessions, sessionsHTML, bindSessions } from './sessions.js';
 // ct.* 字典随入口注册（addMessages 幂等合并，深路径导入组件时需自行 import './i18n.js'）
 import './i18n.js';
 
+import { defineTags } from '../lib/register-error.js';
 import { AfChat } from './components/af-chat.js';
 
 export { AfChat };
@@ -27,9 +28,5 @@ export const CHAT_TAGS = { 'af-chat': AfChat };
 // 变参，与主库 register(...tags) 语义一致：registerChat() 默认注册 'af-chat'，
 // registerChat('af-chat') 显式注册等价（旧签名，向后兼容）
 export function registerChat(...tags) {
-  for (const tag of (tags.length ? tags : ['af-chat'])) {
-    const C = CHAT_TAGS[tag];
-    if (!C) throw new Error(`[af-mobile/chat] 未知组件标签：${tag}`);
-    if (!customElements.get(tag)) customElements.define(tag, C);
-  }
+  defineTags(CHAT_TAGS, tags.length ? tags : Object.keys(CHAT_TAGS));
 }

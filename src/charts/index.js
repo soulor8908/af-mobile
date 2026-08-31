@@ -18,6 +18,8 @@ export { CHART_COLORS, seriesColor, seriesOpacity, CHART_CSS } from './lib/chart
 export { createTooltip, nearestIndex } from './lib/tooltip.js';
 export { AfChart } from './lib/chart-base.js';
 
+import { defineTags } from '../lib/register-error.js';
+
 // ===== gen:tags:start（由 scripts/gen-entry.mjs 自动生成，勿手改；新增组件后跑 npm run entry）
 // 标签 → 类映射（registerChart 用）
 export const CHART_TAGS = {
@@ -30,16 +32,13 @@ export const CHART_TAGS = {
 // ===== gen:tags:end
 
 // 注册图表组件（保持 Tree Shaking；幂等，重复调用安全）
-// 变参，与主库 register(...tags) 语义一致：registerChart('af-chart-line', 'af-chart-bar')
+// 变参，与主库 register(...tags) 语义一致：registerChart('af-chart-line', 'af-chart-bar')；
+// 无参注册全部 5 个（与 registerChat()/registerBlocks() 的「无参 = 全量」语义对齐）
 export function registerChart(...tags) {
-  for (const tag of tags) {
-    const C = CHART_TAGS[tag];
-    if (!C) throw new Error(`[af-mobile/charts] 未知图表标签：${tag}`);
-    if (!customElements.get(tag)) customElements.define(tag, C);
-  }
+  defineTags(CHART_TAGS, tags);
 }
 
-// 注册全部图表组件（失去 Tree Shaking，全量 5 个）
+// 注册全部图表组件（失去 Tree Shaking，全量 5 个）；registerChart() 的等价别名
 export function registerCharts() {
-  for (const tag of Object.keys(CHART_TAGS)) registerChart(tag);
+  defineTags(CHART_TAGS, Object.keys(CHART_TAGS));
 }

@@ -172,9 +172,14 @@ import { route, start, initTheme, register } from '@af-mobile/ui';
 import homePage from './pages/home.js';
 import docsPage from './pages/docs.js';
 
-// 按需注册页面用到的 af-* 组件（禁止 registerAll()，会失去 Tree Shaking）
-// 例：await register('af-list', 'af-dialog', 'af-field', 'af-toast');
-await register();
+// 按需注册页面用到的 af-* 组件（禁止 registerAll()，会失去 Tree Shaking）。
+// 例：register('af-list', 'af-dialog', 'af-field', 'af-toast');
+//
+// ⚠️ 不要写「入口顶层 await register(...)」：生产构建（Vite/Rollup 分包）会把入口变成
+// TLA 模块，与组件 chunk 形成 entry ↔ chunk 循环依赖 —— 组件永不注册、页面空白且零报错
+// （dev 原生 ESM 不复现）。register() 只负责发起注册，router 首次渲染前会自动等待
+// （start 内部 whenReady），直接调用即可；不使用 router 自绘时才手动 await whenReady()。
+register();
 
 initTheme();
 

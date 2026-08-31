@@ -8,8 +8,9 @@ import listPage from './pages/list.js';
 import detailPage from './pages/detail.js';
 
 // 显式注册页面用到的 af-* 组件（禁止 registerAll()，会失去 Tree Shaking）
-// register 懒加载：await 确保组件定义后再渲染（property 绑定需在 upgrade 后设置）
-await register('af-list', 'af-search-bar', 'af-navbar', 'af-img', 'af-field');
+// ⚠️ 不要写「入口顶层 await register(...)」：生产分包下会形成 entry ↔ chunk 循环依赖，
+// 组件永不注册、页面空白且零报错。register() 只负责发起注册，router 首次渲染前会自动等待。
+register('af-list', 'af-search-bar', 'af-navbar', 'af-img', 'af-field');
 
 route('/login', loginPage);
 route('/', listPage);

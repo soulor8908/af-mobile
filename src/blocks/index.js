@@ -27,15 +27,11 @@ export const BLOCK_TAGS = {
 };
 // ===== gen:tags:end
 
-// 注册 blocks 组件（幂等，重复调用安全）；不传参注册全部，传 tag 只注册单个
-export function registerBlocks(tag) {
-  if (tag != null) {
-    const C = BLOCK_TAGS[tag];
-    if (!C) throw new Error(`[af-mobile/blocks] 未知组件标签：${tag}`);
-    if (!customElements.get(tag)) customElements.define(tag, C);
-    return;
-  }
-  for (const [t, C] of Object.entries(BLOCK_TAGS)) {
-    if (!customElements.get(t)) customElements.define(t, C);
-  }
+import { defineTags } from '../lib/register-error.js';
+
+// 注册 blocks 组件（幂等，重复调用安全）
+// 变参，与主库 register(...tags) 语义一致：registerBlocks('af-product-card', 'af-order-list')；
+// 无参注册全部（旧签名 registerBlocks(tag) 单参形式向后兼容）
+export function registerBlocks(...tags) {
+  defineTags(BLOCK_TAGS, tags);
 }

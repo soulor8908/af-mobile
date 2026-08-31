@@ -540,6 +540,6 @@ describe('chat 入口 registerChat', () => {
     expect(() => registerChat()).not.toThrow();
     expect(() => registerChat('af-chat')).not.toThrow();   // 旧单参签名向后兼容
     expect(customElements.get('af-chat')).toBe(AfChat);
-    expect(() => registerChat('af-chat-nope')).toThrow(/未知组件标签/);
+    expect(() => registerChat('af-chat-nope')).toThrow(/unknown component/);
   });
 });

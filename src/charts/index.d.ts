@@ -192,10 +192,14 @@ export const CHART_TAGS: {
   'af-chart-funnel': typeof AfChartFunnel;
 };
 
-/** 注册图表组件（变参，与主库 register(...tags) 语义一致）：registerChart('af-chart-line', 'af-chart-bar') */
+/**
+ * 注册图表组件（变参，与主库 register(...tags) 语义一致）
+ * 传标签只注册指定项（保持 Tree Shaking）：registerChart('af-chart-line', 'af-chart-bar')；
+ * 无参注册全部（与 registerChat()/registerBlocks() 的「无参 = 全量」语义对齐）
+ */
 export function registerChart(...tags: Array<keyof typeof CHART_TAGS>): void;
 
-/** 注册全部图表组件（失去 Tree Shaking） */
+/** 注册全部图表组件（失去 Tree Shaking）；registerChart() 的等价别名 */
 export function registerCharts(): void;
 
 // ============================================================

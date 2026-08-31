@@ -2,6 +2,7 @@
 // route/go/back/forward + beforeEach/afterEach/notFound + router-view + keep-alive + 转场
 // W7：query string 支持（parsePath 分离）+ outlet 失败抛 RouterError + scrollBehavior 仿 Vue Router
 // 顶层无副作用，start() 显式启动（SSR 安全）；stop() 显式停止（移除 popstate、释放引用）
+import { whenReady, hasPending } from './register-state.js';
 
 const _routes = [];
 let _rootOutlet = null;
@@ -187,6 +188,10 @@ function detachCurrent() {
 
 // 返回 true = 导航成立（渲染完成或进入 404，可提交 URL）；返回 false = 被守卫阻止（不提交 URL）
 async function render(path) {
+  // 渲染前统一等待按需注册的组件到位：入口因此无需顶层 await register(...)（TLA 会与生产分包
+  // 形成 entry ↔ chunk 循环依赖 → 组件永不注册且零报错）；见 lib/register-state.js。
+  // hasPending 短路：无待办注册时零额外 await，保持原有渲染时序。
+  if (hasPending()) await whenReady();
   _currentNav?.abort();
   const from = _currentRoute ? toObj(_currentRoute) : null;   // 导航前捕获旧路由
   const { path: cleanPath, query } = parsePath(path);

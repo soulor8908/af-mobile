@@ -51,7 +51,9 @@ export class AfChat extends withI18n(AfElement) {
   };
 
   shadowHTML() {
-    return `${AfElement.cssTag(CSS, 'af-chat')}<div class="lg" role="log" aria-live="polite" tabindex="0"><div class="ms"></div><button class="pl" hidden>↓</button></div><div class="cs" hidden></div><div class="cp"><textarea class="in" rows="1"></textarea><button class="sd"></button></div>`;
+    // data-role 为稳定测试契约（log/bubbles/chips/input/send/scroll-bottom/error/retry），
+    // 自动化测试不必依赖 shadow 私有缩写 class（.lg/.ms/.in… 仅作样式钩子）
+    return `${AfElement.cssTag(CSS, 'af-chat')}<div class="lg" data-role="log" role="log" aria-live="polite" tabindex="0"><div class="ms" data-role="bubbles"></div><button class="pl" data-role="scroll-bottom" hidden>↓</button></div><div class="cs" data-role="chips" hidden></div><div class="cp"><textarea class="in" data-role="input" rows="1"></textarea><button class="sd" data-role="send"></button></div>`;
   }
 
   // messages/session 手写 getter/setter（defineProp 的 Object 序列化到 attribute 不可接受）
@@ -96,6 +98,14 @@ export class AfChat extends withI18n(AfElement) {
   }
 
   focus() { this.$('.in')?.focus(); }
+
+  /**
+   * 公开发送入口（宿主/自动化测试编程调用）：等价于在输入框输入 text 后触发发送。
+   * 空文本静默忽略；busy 时绑定模式入队、受控模式忽略（与 UI 发送路径行为一致）。
+   * @param {string} text
+   * @returns {Promise<void>}
+   */
+  send(text) { return this._send(text); }
 
   // 清空会话（新建对话）：清 light DOM 卡片 → 绑定模式交内核 clear（通知后重渲染回空态）
   clear() {
@@ -257,7 +267,7 @@ export class AfChat extends withI18n(AfElement) {
   _err(err) {
     const log = this.$('.lg');
     log.insertAdjacentHTML('beforeend',
-      `<div class="eb"><span>${esc(String(err?.message ?? err))}</span><button class="rt"></button></div>`);
+      `<div class="eb" data-role="error"><span>${esc(String(err?.message ?? err))}</span><button class="rt" data-role="retry"></button></div>`);
     const bar = log.lastElementChild;
     const btn = bar?.querySelector('.rt');
     if (btn) {

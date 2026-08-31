@@ -135,4 +135,5 @@ export declare const BLOCK_TAGS: {
   'af-order-list': CustomElementConstructor;
   'af-auth-form': CustomElementConstructor;
 };
-export declare function registerBlocks(tag?: string): void;
+/** 注册 blocks 组件（变参，与主库 register(...tags) 语义一致）；无参注册全部 */
+export declare function registerBlocks(...tags: Array<keyof typeof BLOCK_TAGS>): void;

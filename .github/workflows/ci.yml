@@ -30,9 +30,13 @@ jobs:
       - run: npm ci
 
       # Step 0: changesets 闸门（仅 PR）—— 有包改动但缺 changeset 时阻断，需先 `npm run changeset`
+      # checkout@v4 只建 origin/* 远程引用，changeset status --since=main 需要
+      # 本地 main 分支才能计算 merge-base，故先从 origin/main 补建
       - name: Changesets check (PR only)
         if: github.event_name == 'pull_request'
-        run: npm run changeset:check
+        run: |
+          git branch main origin/main
+          npm run changeset:check
 
       # Step 1: 白名单三源同步检查（A 源码 ↔ B whitelist-v1.json ↔ C Prompt 注入）
       - name: Whitelist sync (3-source diff)

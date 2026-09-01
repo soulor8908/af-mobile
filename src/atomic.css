@@ -39,11 +39,12 @@
   .shrink-0  { flex-shrink: 0; }
   .w-full    { width: 100%; }
 
-  /* === 圆角（5） === */
+  /* === 圆角（6） === */
   .r-0 { border-radius: 0; }
   .r-s { border-radius: var(--r-s); }
   .r-m { border-radius: var(--r-m); }
   .r-l { border-radius: var(--r-l); }
+  .r-c { border-radius: var(--r-c); }
   .r-f { border-radius: var(--r-f); }
 
   /* === 文本字号（6） === */

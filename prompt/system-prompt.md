@@ -43,13 +43,13 @@
 **指示器（3）：** `dots` `dot` `dot-on`
 **图标底座（1）：** `icon-badge`
 
-## L2 原子（92 个，按用途分组）
+## L2 原子（93 个，按用途分组）
 
 **间距 padding（10）：** `p-0` `p-1` `p-2` `p-3` `p-4` `p-5` `p-6` `p-7` `p-8` `p-10`
 **间距 margin（6）：** `m-0` `m-1` `m-2` `m-3` `m-4` `m-5`
 **间距 gap（5）：** `g-0` `g-1` `g-2` `g-3` `g-4`
 **Flex/Grid 布局（10）：** `f` `fi` `fc` `aic` `jcc` `jcsb` `jce` `flex-1` `shrink-0` `w-full`
-**圆角（5）：** `r-0` `r-s` `r-m` `r-l` `r-f`
+**圆角（6）：** `r-0` `r-s` `r-m` `r-l` `r-c` `r-f`
 **文本字号（6）：** `t-display` `t-xs` `t-sm` `t-md` `t-lg` `t-xl`
 **字重（3）：** `t-b` `t-m` `t-semibold`
 **行高（2）：** `lh-tight` `lh-normal`
@@ -92,9 +92,9 @@
 
 `<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-calendar>` `<af-cascade-picker>` `<af-chart-bar>` `<af-chart-funnel>` `<af-chart-line>` `<af-chart-pie>` `<af-chart-radar>` `<af-chat>` `<af-countdown>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-notice-bar>` `<af-number-keyboard>` `<af-password-input>` `<af-picker>` `<af-progress>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-steps>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
-## L1 Token 变量（92 个，必须用 var(--*) 引用）
+## L1 Token 变量（93 个，必须用 var(--*) 引用）
 
-`--c-bg` `--c-border` `--c-brand` `--c-brand-soft` `--c-brand-strong` `--c-card` `--c-danger` `--c-gray-1` `--c-gray-2` `--c-gray-3` `--c-gray-4` `--c-gray-5` `--c-gray-6` `--c-gray-7` `--c-gray-8` `--c-muted` `--c-muted-bg` `--c-onbrand` `--c-onwarn` `--c-success` `--c-text` `--c-warn` `--dur-base` `--dur-fast` `--dur-slow` `--ease-in-out` `--ease-out` `--fw-bold` `--fw-medium` `--fw-normal` `--fw-semibold` `--lh-display` `--lh-normal` `--lh-tight` `--ls-caption` `--ls-display` `--palette-bg` `--palette-border` `--palette-brand` `--palette-brand-soft` `--palette-brand-strong` `--palette-card` `--palette-color-scheme` `--palette-danger` `--palette-gray-1` `--palette-gray-2` `--palette-gray-3` `--palette-gray-4` `--palette-gray-5` `--palette-gray-6` `--palette-gray-7` `--palette-gray-8` `--palette-muted` `--palette-muted-bg` `--palette-onbrand` `--palette-onwarn` `--palette-shadow-lg` `--palette-shadow-md` `--palette-shadow-sm` `--palette-success` `--palette-text` `--palette-warn` `--r-f` `--r-l` `--r-m` `--r-s` `--r-xs` `--ring-focus` `--s-1` `--s-2` `--s-3` `--s-4` `--s-5` `--s-6` `--s-7` `--s-8` `--shadow-brand` `--shadow-lg` `--shadow-md` `--shadow-sm` `--t-display` `--t-input` `--t-lg` `--t-md` `--t-sm` `--t-xl` `--t-xs` `--tabbar-h` `--z-base` `--z-dropdown` `--z-modal` `--z-sticky`
+`--c-bg` `--c-border` `--c-brand` `--c-brand-soft` `--c-brand-strong` `--c-card` `--c-danger` `--c-gray-1` `--c-gray-2` `--c-gray-3` `--c-gray-4` `--c-gray-5` `--c-gray-6` `--c-gray-7` `--c-gray-8` `--c-muted` `--c-muted-bg` `--c-onbrand` `--c-onwarn` `--c-success` `--c-text` `--c-warn` `--dur-base` `--dur-fast` `--dur-slow` `--ease-in-out` `--ease-out` `--fw-bold` `--fw-medium` `--fw-normal` `--fw-semibold` `--lh-display` `--lh-normal` `--lh-tight` `--ls-caption` `--ls-display` `--palette-bg` `--palette-border` `--palette-brand` `--palette-brand-soft` `--palette-brand-strong` `--palette-card` `--palette-color-scheme` `--palette-danger` `--palette-gray-1` `--palette-gray-2` `--palette-gray-3` `--palette-gray-4` `--palette-gray-5` `--palette-gray-6` `--palette-gray-7` `--palette-gray-8` `--palette-muted` `--palette-muted-bg` `--palette-onbrand` `--palette-onwarn` `--palette-shadow-lg` `--palette-shadow-md` `--palette-shadow-sm` `--palette-success` `--palette-text` `--palette-warn` `--r-c` `--r-f` `--r-l` `--r-m` `--r-s` `--r-xs` `--ring-focus` `--s-1` `--s-2` `--s-3` `--s-4` `--s-5` `--s-6` `--s-7` `--s-8` `--shadow-brand` `--shadow-lg` `--shadow-md` `--shadow-sm` `--t-display` `--t-input` `--t-lg` `--t-md` `--t-sm` `--t-xl` `--t-xs` `--tabbar-h` `--z-base` `--z-dropdown` `--z-modal` `--z-sticky`
 
 ## 禁止内联 style 的属性（17 个）
 

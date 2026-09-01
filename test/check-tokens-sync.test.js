@@ -99,7 +99,7 @@ describe('tokens / 真实仓库基线', () => {
       }
       return n;
     };
-    expect(count(generated)).toBe(88);
+    expect(count(generated)).toBe(89);
     expect(generated.palette).toBeDefined();
     expect(generated.color).toBeDefined();
     expect(generated.spacing).toBeDefined();

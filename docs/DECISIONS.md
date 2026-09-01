@@ -22,6 +22,7 @@
 | D-014 | 2026-08-29 | 已决：推翻 D-012「会话管理不做」（用户拍板） | chat 多会话：单文件三合一（store+列表 HTML+绑定器）无组件方案；新预算线 chatSessions 0.9KB |
 | D-019 | 2026-08-31 | 已决 | 外部实战反馈第二轮：学习成本专项（mock LLM + 契约 JSDoc + 上手指南 + 最小完整应用 + 脚手架子路径修复） |
 | D-020 | 2026-08-31 | 已决：两项拒绝、两项缓做、两项采纳 | 外部 review 第三批 6 项：components.css 顶层导出与组件自引 CSS 拒绝；脚手架 SW 与 extraClass 扫描缓做；demo 入口 TLA 修正与凭据警告采纳 |
+| D-022 | 2026-09-01 | 已决：脚手架接线 afMobileTrimLazy（构建期根治） | 消费端 chunk 死重问题收口：OPT-4 插件已存在，缺口在脚手架未接线（ai-todo 实测死重 56.7KB） |
 
 ---
 
@@ -283,15 +284,37 @@
 - **理由**：豆包自认严格验证的慢是质量保证——目标是消除纯摩擦（来回试/读源码/规则散落），不是降低验证标准；demo 是 AI 学习素材（D-011 同构），门禁管住不漂移
 - **放弃了什么**：环境摩擦项不立项（非框架职责）；mock server 不进 npm 包（浏览器库不背 Node 脚本）；脚手架 `--template chat` 模板变体（分叉成本，等真实需求触发）；.d.ts 生成式改造（手工 JSDoc 已满足）
 
-## D-020 �ⲿ review ������ 6 ��������2026-08-31���Ѿ���
+## D-020 �ⲿ review ������ 6 ��������2026-08-31���Ѿ���
 
-�������ⲿ��ƣ�ai-todo ���Ѷ���Ŀ review �ĺ��� review �嵥����� 6 ��飺P0��src/components.css + exports ./components.css����P1�����ּܼ� Service Worker / extraClass �Զ�ɨ�貹ȫ���� / ƾ�ݷ��վ��桹��P2����̬ע�����ʵ���̿� / ������� CSS �� tree-shake ��������
+�������ⲿ��ƣ�ai-todo ���Ѷ���Ŀ review �ĺ��� review �嵥����� 6 ��飺P0��src/components.css + exports ./components.css����P1�����ּܼ� Service Worker / extraClass �Զ�ɨ�貹ȫ���� / ƾ�ݷ��վ��桹��P2����̬ע�����ʵ���̿� / ������� CSS �� tree-shake ��������
 
-- **����**��
-  1. **�ܾ� components.css ���㵼��**��`./dist/components.css` �Ѵ��ڣ�build.mjs 3.5��Shadow ��� CSS �ⲿ������� `AfElement.cssMode='external'` + cssBaseUrl ���� CSP external ģʽ���������ǡ��ⲿ����ʽ�����ǡ���������ʽ�������Ѷ���ʽ�ַ���·�� `./css`��ȫ����ռ�����Դ�뼶 `./tokens.css`+`./recipes.css`+`./atomic.css` ��ϡ�Shadow �����ʽ�������� JS ����� Tree Shaking�����赥�� import
-  2. **�ܾ�������� CSS �� tree-shake ����**��������ӲԼ����ͻ��L1+L2 ȫ����̬���� / ��������ռ���Դͬ�� / sideEffects ȫ CSS ע�ᣩ��CSS �ü����й����� shakeCss ���ߣ�test/css-tree-shake.test.js������
-  3. **���ɣ�����������**��P2a `demo/apps/ai-todo/app.js` ���ȥ TLA��register-state �޸� 02cfca2 ��Ĺٷ�д���̿����̲����������ֲ㣺��ڽ� await / ģ��Ƭ�ν��� property ������ await��+ P1c ���ּ� docs ҳ��������Կ��ƾ�ݡ����棨��Ӧ���� 26��
-  4. **������backlog�����ݴ��������**�����ּ� Service Worker�����������������뻺����ԣ�ai-todo ʵ�� manifest + icons �����㾲̬�йܲ��𣩣�extraClass �Զ�ɨ�貹ȫ���ߣ�eslint ������Ϣ�Ѹ���ճ��Ƭ�Σ�ʹ���ʣһ���ֶ�ճ����
-- **����**��components.css ����Դ�ڰ� CSP external �������Ϊ������ʽ��ڣ�������� CSS �� Vue/React ����ⳣ����ʽ�����뱾��Ŀ����ռ� + ȫ�����롹��ȫģ�ͳ�ͻ�������������������ѡ�����ɶȣ�����ʱ��������ʽ���ؿ�Ư����
-- **������ʲô**�����ṩ���� `./components.css` ������`./dist/components.css` �ѿ��ã�·���Գ�����CSS �ü��������ڣ�������ʱ���裻���ּ��ݲ��� PWA ��������
-- **����**��D-019��ͬԴ�ⲿ��������02cfca2��register-state �޸����������д�����ݣ�
+- **����**��
+  1. **�ܾ� components.css ���㵼��**��`./dist/components.css` �Ѵ��ڣ�build.mjs 3.5��Shadow ��� CSS �ⲿ������� `AfElement.cssMode='external'` + cssBaseUrl ���� CSP external ģʽ���������ǡ��ⲿ����ʽ�����ǡ���������ʽ�������Ѷ���ʽ�ַ���·�� `./css`��ȫ����ռ�����Դ�뼶 `./tokens.css`+`./recipes.css`+`./atomic.css` ��ϡ�Shadow �����ʽ�������� JS ����� Tree Shaking�����赥�� import
+  2. **�ܾ�������� CSS �� tree-shake ����**��������ӲԼ����ͻ��L1+L2 ȫ����̬���� / ��������ռ���Դͬ�� / sideEffects ȫ CSS ע�ᣩ��CSS �ü����й����� shakeCss ���ߣ�test/css-tree-shake.test.js������
+  3. **���ɣ�����������**��P2a `demo/apps/ai-todo/app.js` ���ȥ TLA��register-state �޸� 02cfca2 ��Ĺٷ�д���̿����̲����������ֲ㣺��ڽ� await / ģ��Ƭ�ν��� property ������ await��+ P1c ���ּ� docs ҳ��������Կ��ƾ�ݡ����棨��Ӧ���� 26��
+  4. **������backlog�����ݴ��������**�����ּ� Service Worker�����������������뻺����ԣ�ai-todo ʵ�� manifest + icons �����㾲̬�йܲ��𣩣�extraClass �Զ�ɨ�貹ȫ���ߣ�eslint ������Ϣ�Ѹ���ճ��Ƭ�Σ�ʹ���ʣһ���ֶ�ճ����
+- **����**��components.css ����Դ�ڰ� CSP external �������Ϊ������ʽ��ڣ�������� CSS �� Vue/React ����ⳣ����ʽ�����뱾��Ŀ����ռ� + ȫ�����롹��ȫģ�ͳ�ͻ�������������������ѡ�����ɶȣ�����ʱ��������ʽ���ؿ�Ư����
+- **������ʲô**�����ṩ���� `./components.css` ������`./dist/components.css` �ѿ��ã�·���Գ�����CSS �ü��������ڣ�������ʱ���裻���ּ��ݲ��� PWA ��������
+- **����**��D-019��ͬԴ�ⲿ��������02cfca2��register-state �޸����������д�����ݣ�
+
+## D-021 OPT-2 表单对话框采用无组件 helper 方案（2026-09-01，已决）
+
+背景：docs/framework-optimizations.md OPT-2（消费端表单对话框手写两遍 ~60 行）落地时二选一：A. 新组件 af-form-dialog（预估 1.5~2KB gzip，需上调 total 主预算 + entry/types/aria/whitelist/i18n 全套同步）；B. lib 层薄 helper openFormDialog({ schema, onSubmit })（复用 af-dialog + af-field，只做 schema 到渲染与 required/number 校验）。
+
+- **决策**：B 方案。实测 1.158KB（独立预算 formDialog 1.2KB），消费端同为 1 行调用，主预算零增长（tree-shaking 不用不付费，chatSessions 先例同构）
+- **理由**：同等价值、约 1/3 成本；校验/无障碍/样式已由 af-field（.form-err、.input:user-invalid）与 af-dialog（焦点陷阱）收敛，helper 只补 schema 映射这一缺口
+- **放弃了什么**：自定义字段插槽、跨字段联动校验、schema 递归嵌套（出现真实需求时再升级为组件，helper 保持 API 兼容）
+- **关联**：OPT-1/3/4/5/6/7/8 同批落地（2026-09-01）；预算变更 coreRuntime 6.85→6.95、total 23.3→23.4（用户已确认）
+
+## D-022 组件 chunk 死重收口：脚手架接线 afMobileTrimLazy（2026-09-01，已决）
+
+背景：ai-todo 消费端评测（豆包生成器项目反向优化）实测：`src/index.js` 的 LAZY 懒加载表对全部组件发动态 import()，Rollup 全量产出组件 chunk——应用仅注册 10 个时，dist 中约 20 个 chunk（56.7KB raw）成为交付死重（运行时不加载，但进入 dist/zip）。
+
+实施过程两阶段：
+1. 先为消费端写了事后裁剪脚本 prune-dist.mjs（ai-todo 项目，实测裁剪 21 chunk / 省 56.7KB，浏览器复验渲染正常）；期间踩坑：按文件名反解 tag 会被 Vite hash 含 '-'（如 `af-tabbar-LucXK-_9.js`）误判，必须前缀匹配。
+2. 收口时核查发现 **OPT-4 的构建期插件 `afMobileTrimLazy()`（`@af-mobile/ui/vite`）已实施并有测试**（`test/vite-plugin.test.js`，实测 35 chunk → 4 chunk）——真正缺口是 `create-app.mjs` 的 vite.config 模板没接线，导致脚手架生成的项目（含 ai-todo）全部裸奔。
+
+- **决策**：脚手架 `vite.config.js` 模板接入 `afMobileTrimLazy()`，回退 prune 脚本方案（构建期根治优于事后删文件）；事后裁剪脚本保留在 ai-todo 项目内（其依赖的发布版库不含 `./vite` 导出，无法用插件）
+- **理由**：插件在 transform 阶段裁剪 LAZY 表，打包器根本不为未用组件出 chunk，且带保底（无 register 字面量 / 动态注册时全量保留，宁大勿错）；事后脚本要自己维护引用图判定，脆弱且多一次扫描
+- **放弃了什么**：脚手架内置 prune-dist.mjs（已回退）；已存在的消费端项目仍需手动接线插件或用事后脚本（升级 `@af-mobile/ui` 到含 `./vite` 导出的版本后接线即可）
+- **关联**：ai-todo 同批反向优化还修复了库端 router 的 ViewTransition ready 未接 rejection（`Transition was skipped` 未捕获 rejection，`src/lib/router.js`，test/router.test.js 有回归测试）；根 eslint.config.js 为 e2e 夹具补了 no-af-pierce 豁免块（OPT-5 规则引入时未同步，HEAD 上既有 14 个 lint error）

@@ -337,6 +337,34 @@ describe('router View Transitions', () => {
     await go('/dir1');
     expect(document.documentElement.dataset.transition).toBe('forward');
   });
+
+  it('go() 接住被抢占 transition 的 ready rejection（不产生 unhandledRejection）', async () => {
+    // 实战场景（ai-todo 反向优化发现）：快速连续导航时，新 transition 抢占旧 transition，
+    // 旧 transition 的 ready reject（DOMException: Transition was skipped）——
+    // 若 startViewTransition 返回值被丢弃且不 catch，浏览器会报 Unhandled Promise rejection
+    const orig = document.startViewTransition;
+    let rejectReady;
+    document.startViewTransition = (cb) => {
+      cb();
+      return {
+        ready: new Promise((_, rej) => { rejectReady = rej; }),
+        finished: Promise.resolve(),
+      };
+    };
+    const handler = vi.fn();
+    process.on('unhandledRejection', handler);
+    try {
+      route('/vt-skip', () => {});
+      start({ outlet: '#app' });
+      await go('/vt-skip');
+      rejectReady(new DOMException('Transition was skipped', 'AbortError'));
+      await new Promise((r) => setTimeout(r, 0));   // 留出 unhandledRejection 的触发时机
+      expect(handler).not.toHaveBeenCalled();
+    } finally {
+      process.off('unhandledRejection', handler);
+      document.startViewTransition = orig;
+    }
+  });
 });
 
 describe('router keep-alive', () => {

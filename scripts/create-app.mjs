@@ -114,11 +114,15 @@ const files = {
 `,
 
   'vite.config.js': `// Vite 仅作打包器，零框架零插件；test 段供 vitest 复用（jsdom 环境 + setup 桩）
+// afMobileTrimLazy：构建期按 register() 实际调用裁剪组件懒注册表，
+// dist 不再产出未注册组件 chunk（OPT-4，ai-todo 实测省约 56.7KB 死重）
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
+import afMobileTrimLazy from '@af-mobile/ui/vite';
 
 export default defineConfig({
   base: './',
+  plugins: [afMobileTrimLazy()],
   build: { target: 'es2022' },
   test: {
     environment: 'jsdom',
@@ -178,7 +182,7 @@ import docsPage from './pages/docs.js';
 // ⚠️ 不要写「入口顶层 await register(...)」：生产构建（Vite/Rollup 分包）会把入口变成
 // TLA 模块，与组件 chunk 形成 entry ↔ chunk 循环依赖 —— 组件永不注册、页面空白且零报错
 // （dev 原生 ESM 不复现）。register() 只负责发起注册，router 首次渲染前会自动等待
-// （start 内部 whenReady），直接调用即可；不使用 router 自绘时才手动 await whenReady()。
+// 所有注册中的组件加载完成，直接调用即可；不使用 router 自绘时才手动 await whenReady()。
 register();
 
 initTheme();

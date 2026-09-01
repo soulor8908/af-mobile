@@ -66,6 +66,8 @@ ai-todo-app 只 `register` 10 个组件，`dist/assets` 仍输出 **32 个文件
 
 **价值**：消费端部署包体积与 CDN 失效面直接下降。
 
+**落地（2026-09-01）**：`@af-mobile/ui/vite` 的 `afMobileTrimLazy()` 已实施（`test/vite-plugin.test.js`）；D-022 补齐最后一环——`create-app.mjs` 脚手架 vite.config 模板接线，新项目开箱即生效。
+
 ---
 
 ## OPT-5 · 穿透选择器零约束，组件无官方扩展点  ⚠️ P0
@@ -135,3 +137,29 @@ ai-todo-app 手写了 114 行（matchMedia/dialog/popover/IO/RO/scrollTo/Touch�
 | 先上 | OPT-5 / OPT-6 | 小 | 防呆 + 无障碍合规 |
 | 跟组件节奏 | OPT-2 / OPT-8 | 中 | 高频交互收敛 |
 | 构建期 | OPT-4 / OPT-7 | 小-中 | 部署体积 + 测试体验 |
+
+---
+
+## 落地记录（2026-09-01，8/8 完成）
+
+| 条目 | 落地 | 实测/说明 |
+|---|---|---|
+| OPT-1 | `withLayout({ title, tabbar }, handler)`（src/lib/layout.js） | navbar/tabbar 一遍渲染，active 按当前路径自动推导（精确>前缀），点击委托导航 + 方向键导航；独立预算 0.860/0.9KB |
+| OPT-2 | `openFormDialog({ title, schema, onSubmit })`（src/lib/form-dialog.js），**无组件方案** | 复用 af-dialog+af-field；schema 与 defineTool parameters 同构；required/number 校验、enum 下拉、textarea/password；实测 1.158KB（重组件方案预估 1.5~2KB，性价比 3 倍） |
+| OPT-3 | bind.js 补 `@click="actions.x"` | 处理器取自 createPage actions（batch 包装）；告警 DEV 门控（生产 tree-shake）；coreRuntime 6.911KB |
+| OPT-4 | `@af-mobile/ui/vite` 的 `afMobileTrimLazy()` | 扫描 register() 字面量调用裁剪 LAZY 表；**真实 vite build 实测 35 chunk → 4 chunk**；动态注册自动全量保底 |
+| OPT-5 | ESLint 第 25 条规则 `no-af-pierce`（error）+ 下方 Light/Shadow 标注 | 修复指引：Shadow 用 `::part()`（af-dialog 已暴露 dialog/header/close/content/footer），Light 用白名单 class |
+| OPT-6 | recipes.css `.seg` 示例补 `role="tablist"/"tab"` | aria-selected 必须配显式 role；键盘导航指引改用 `<af-tabs>` |
+| OPT-7 | starter 接入 vitest + `setupFiles: ['./test/setup.js']` | create-app.mjs 脚手架在评审时（1.9.1 生成物）已具备该链路，本轮仅对齐 starter |
+| OPT-8 | `todayISO()` / `formatDate()`（src/lib/date.js） | `'YYYY-MM-DD'` 一律按本地时区解析（new Date(str) 是 UTC，UTC+8 前 8 小时逾期判断出错的根因） |
+
+预算变更（均已用户确认）：coreRuntime 6.85→6.95（@event 净增）、total 23.3→23.4（index.js 三条 re-export 导出面 +88B）；新增独立条目 layout 0.9 / date 0.4 / formDialog 1.2（tree-shaking 不用不付费）。
+
+### 组件 Light / Shadow 一览（OPT-5 第 3 件套）
+
+**Shadow DOM**（内部不可达，定制走 `::part()` / CSS 变量；穿透选择器为死代码）：
+`af-dialog`（part: dialog/header/close/content/footer）、`af-picker`、`af-cascade-picker`（继承 picker）、`af-calendar`、`af-swiper`、`af-number-keyboard`、`af-password-input`
+
+**Light DOM**（可看到内部节点，但内部 class/结构是实现细节、无稳定性承诺，穿透依赖升级即碎；定制走白名单 class 组合与 CSS 变量）：
+`af-list`、`af-tabs`、`af-toast`、`af-action-sheet`、`af-dropdown`、`af-img`、`af-backtop`、`af-badge`、`af-switch`、`af-search-bar`、`af-skeleton-page`、`af-upload`、`af-navbar`、`af-tabbar`、`af-stepper`、`af-field`、`af-pull-refresh`、`af-swipe-cell`、`af-rate`、`af-notice-bar`、`af-progress`、`af-steps`、`af-countdown`、`af-data`（L3.5 数据源，非注册组件）
+

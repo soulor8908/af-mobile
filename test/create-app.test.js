@@ -43,7 +43,12 @@ describe('create-app scaffold', () => {
     expect(pkg.devDependencies.vitest).toBeDefined();
     expect(pkg.devDependencies.jsdom).toBeDefined();
 
+    // 构建链内置产物裁剪（OPT-4）：vite 插件 afMobileTrimLazy 构建期按 register() 裁剪
+    // LAZY 懒注册表，dist 不再产出未注册组件 chunk（ai-todo 消费端实测死重约 56.7KB）
     const vite = readFileSync(join(dir, 'vite.config.js'), 'utf8');
+    expect(vite).toContain('afMobileTrimLazy()');
+    expect(pkg.scripts.build).toBe('vite build');
+
     expect(vite).toContain("environment: 'jsdom'");
     expect(vite).toContain("setupFiles: ['./test/setup.js']");
 
@@ -68,6 +73,8 @@ describe('create-app scaffold', () => {
     expect(main).toContain("start('#app', { hash: true })");
     // 自定义样式入口必须默认引入：否则 src/styles.css 是死文件，自定义样式静默失效
     expect(main).toContain("import './styles.css';");
+    // issue-21：禁用 API 名描述内部行为（易诱发 M1 类误报），「whenReady」只允许作为 API 使用说明出现
+    expect(main).not.toContain('start 内部 whenReady');
 
     // 页面范式收敛到 createPage（grill 与脚手架同构，AGENTS.md §3）
     const home = readFileSync(join(dir, 'src/pages/home.js'), 'utf8');

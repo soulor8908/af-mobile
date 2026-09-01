@@ -296,7 +296,10 @@ export async function go(path, options = {}) {
   };
   if (transition && document.startViewTransition) {
     return new Promise((resolve, reject) => {
-      document.startViewTransition(() => navigate().then(resolve, reject));
+      const vt = document.startViewTransition(() => navigate().then(resolve, reject));
+      // 新导航抢占时，旧 transition 的 ready 会 reject（DOMException: Transition was skipped），
+      // 不接住会冒成未捕获 rejection。skip 后导航回调与 finished 仍正常进行，结果以上方 resolve/reject 为准
+      vt.ready.catch(() => {});
     });
   }
   return navigate();

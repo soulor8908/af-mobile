@@ -143,6 +143,17 @@ export default [
       'af-mobile/prefer-component': 'off',
       'af-mobile/atomic-duplicate': 'off',
       'af-mobile/no-emoji-icon': 'off',
+      // 规则测试夹具含故意违规用例（同 token-whitelist 夹具例外逻辑）
+      'af-mobile/no-af-pierce': 'off',
+    },
+  },
+  // e2e 测试夹具：断言组件内部渲染结构（Light DOM 内部选择器）正是用例目的本身，
+  // 同上方「规则测试夹具」例外逻辑关闭 pierce 检查（OPT-5 规则引入时 e2e 未同步豁免）
+  {
+    files: ['e2e/**/*.js'],
+    plugins: { 'af-mobile': afMobilePlugin },
+    rules: {
+      'af-mobile/no-af-pierce': 'off',
     },
   },
 ];

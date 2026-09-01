@@ -40,7 +40,13 @@ export class AfSwipeCell extends AfElement {
     this._content = this.$('[data-role="content"]');
     this._right = this.$('[data-role="right"]');
     for (const n of slottedContent) this._content.appendChild(n);
-    for (const n of slottedRight) this._right.appendChild(n);
+    // 摊平 slot="right" 包装层：操作项直接挂到 right 区，参与 flex 拉伸/居中
+    // （<div slot="right"><button>…</button></div> → [data-role="right"] 直接含 button，
+    //   否则按钮被块级包装层包住，align-items:stretch 失效导致按钮不垂直居中）
+    for (const n of slottedRight) {
+      const items = n.children.length ? [...n.children] : [n];
+      for (const it of items) this._right.appendChild(it);
+    }
   }
 
   _bindTouch() {

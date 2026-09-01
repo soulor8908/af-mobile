@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint src/",
+    "test": "vitest run",
     "db:push": "node scripts/db-push.mjs"
   },
   "dependencies": {
@@ -17,6 +18,8 @@
   },
   "devDependencies": {
     "vite": "^5.4.0",
+    "vitest": "^1.6.0",
+    "jsdom": "^24.0.0",
     "eslint": "^9.0.0",
     "@af-mobile/eslint-plugin": "file:../../eslint-plugin-af-mobile"
   }

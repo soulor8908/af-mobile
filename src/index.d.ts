@@ -1231,6 +1231,103 @@ export interface PageInstance {
 export function createPage(config?: PageConfig): PageInstance;
 
 // ============================================================
+// 核心运行时：layout（页面布局包装器）
+// ============================================================
+
+/** tabbar 项：path 用于导航与 active 自动推导 */
+export interface LayoutTabItem {
+  /** 目标路由路径（如 /today） */
+  path: string;
+  /** 标签文案 */
+  label?: string;
+  /** 图标（文本字符，如 ✓） */
+  icon?: string;
+  /** 徽标内容 */
+  badge?: string | number;
+}
+
+/** withLayout 布局配置 */
+export interface LayoutOptions {
+  /** 顶部导航栏标题（缺省不渲染 navbar） */
+  title?: string;
+  /** 底部标签栏配置（缺省不渲染 tabbar）；active 由当前路径自动推导，页面无需手填 */
+  tabbar?: LayoutTabItem[];
+}
+
+/**
+ * 页面布局包装器：navbar + tabbar 只写一遍，tabbar active 由当前路径自动推导
+ * @example
+ * ```js
+ * const mainLayout = { title: '我的应用', tabbar: [{ path: '/today', label: '今天' }] };
+ * route('/today', withLayout(mainLayout, pageToday));
+ * ```
+ */
+export function withLayout(
+  layout: LayoutOptions,
+  handler: RouteHandler
+): RouteHandler;
+
+// ============================================================
+// 核心运行时：date（本地时区日期工具）
+// ============================================================
+
+/**
+ * 格式化日期为本地时区字符串（'YYYY-MM-DD' 输入按本地时区解析，规避 new Date(str) 的 UTC 陷阱）
+ * @param value Date / 'YYYY-MM-DD' / 时间戳
+ * @param fmt 记号：YYYY MM DD HH mm ss（默认 'YYYY-MM-DD'）；无效输入返回 ''
+ */
+export function formatDate(value: Date | string | number, fmt?: string): string;
+
+/** 今天的本地时区日期（YYYY-MM-DD）；"今天"判断统一用它，禁手写 toISOString().slice(0,10)（UTC） */
+export function todayISO(): string;
+
+// ============================================================
+// 核心运行时：form-dialog（schema 表单对话框 helper）
+// ============================================================
+
+/** 表单字段 Schema（defineTool parameters 的 properties 单项） */
+export interface FormFieldSchema {
+  type?: 'string' | 'number';
+  /** 字段显示名（缺省用 key） */
+  title?: string;
+  /** 帮助文本 */
+  description?: string;
+  /** 默认值 */
+  default?: string | number;
+  /** 枚举选项：值或 [值, 显示名]；enum 优先于 type */
+  enum?: Array<string | number | [string | number, string]>;
+  /** 'textarea' 渲染多行；'password' 渲染密码框 */
+  format?: 'textarea' | 'password';
+}
+
+/** openFormDialog 选项 */
+export interface FormDialogOptions {
+  /** 对话框标题 */
+  title?: string;
+  /** JSON Schema 子集（与 defineTool 的 parameters 同构） */
+  schema: {
+    properties?: Record<string, FormFieldSchema>;
+    required?: string[];
+  };
+  /** 确认按钮文案（默认 '确定'） */
+  submitText?: string;
+  /** 取消按钮文案（默认 '取消'） */
+  cancelText?: string;
+  /** 必填校验文案（默认 '必填'） */
+  requiredText?: string;
+  /** 数字校验文案（默认 '请输入数字'） */
+  numberText?: string;
+  /** 提交回调：返回 false 阻止关闭；number 类型字段自动归一为 Number */
+  onSubmit?: (values: Record<string, string | number>) => boolean | void | Promise<boolean | void>;
+}
+
+/**
+ * 打开 schema 驱动的表单对话框（需先 register('af-dialog', 'af-field')）
+ * @returns af-dialog 元素（已挂到 body 并打开；关闭后自动移除）
+ */
+export function openFormDialog(opts: FormDialogOptions): HTMLElement;
+
+// ============================================================
 // 核心运行时：i18n（国际化）
 // ============================================================
 

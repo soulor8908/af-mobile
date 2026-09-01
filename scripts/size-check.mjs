@@ -90,9 +90,12 @@ const BUDGET = {
   css: 7.0,            // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径；v1.6.1 上调 6.0→7.0：新增 40 个高视觉 class，用户已确认，实测 ~6.9KB）
   perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
   base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
-  total: 23.3,         // KB，30 组件 + 基类（v4.3：新增 af-number-keyboard/af-password-input，20.4 上调容纳；v4.5 上调 23.0→23.3，用户已确认：P0 注册死锁修复新增 register 状态中心 + 看门狗诊断，实测 23.230）
+  total: 23.4,         // KB，30 组件 + 基类（v4.3：新增 af-number-keyboard/af-password-input，20.4 上调容纳；v4.5 上调 23.0→23.3，用户已确认：P0 注册死锁修复新增 register 状态中心 + 看门狗诊断，实测 23.230；v4.6 上调 23.3→23.4，用户已确认：index.js 新增 withLayout/todayISO+formatDate/openFormDialog 三条 re-export 的 API 导出面 +88B gzip，实测 23.318）
   onDemand2: 6.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
-  coreRuntime: 6.85,   // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind；v4.5 上调 6.8→6.85，用户已确认：router 渲染前 whenReady 等待注册，实测 6.816）
+  coreRuntime: 6.95,   // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind；v4.5 上调 6.8→6.85，用户已确认：router 渲染前 whenReady 等待注册，实测 6.816；v4.6 上调 6.85→6.95，用户已确认：bind.js @event 声明式事件绑定（OPT-3），三轮实现压缩后净增实测 6.911）
+  layout: 0.9,         // KB，withLayout 页面布局包装器（OPT-1，独立预算不计入 total；router/html 共享模块 external；实测 0.860KB）
+  date: 0.4,           // KB，本地时区日期工具 todayISO/formatDate（OPT-8，独立预算不计入 total；实测 0.345KB）
+  formDialog: 1.2,     // KB，openFormDialog schema 表单对话框 helper（OPT-2 无组件方案，独立预算不计入 total；html 共享模块 external；复用 af-dialog/af-field；实测 1.158KB）
   // charts 子库（charts-sublibrary-detailed-design.md §7）：独立入口 ./charts，不计入 total
   chartsRuntime: 4.5,  // KB，charts 内核（scale+geometry+render+chart-theme+tooltip+chart-base，Phase 2 radar/funnel 复用）
   chartsPerComponent: 2.8, // KB，单图表组件（同主库 perComponent 语义）
@@ -126,7 +129,7 @@ const fmt = (b) => (b / KB).toFixed(3) + 'KB';
 
 // 核心运行时模块：所有组件侧测量（total / 单组件 / 按需 / 基类）一律 external，不计入组件体积
 // 路径变体：index.js 写 './lib/x.js'，组件写 '../lib/x.js'，lib 内部互引写 './x.js'——漏一种就会被误打包（v3.9 前的测量泄漏根源）
-const CORE_MODULES = ['router', 'state', 'fetch', 'i18n', 'resource', 'theme', 'page', 'bind', 'data-ref', 'html'];
+const CORE_MODULES = ['router', 'state', 'fetch', 'i18n', 'resource', 'theme', 'page', 'bind', 'data-ref', 'html', 'layout', 'date', 'form-dialog'];
 const CORE_EXT = CORE_MODULES.flatMap((m) => [`./lib/${m}.js`, `../lib/${m}.js`, `./${m}.js`]);
 
 // esbuild minify 单文件（external 掉基类/theme，只测本组件代码）
@@ -318,6 +321,25 @@ async function measureChatSessions() {
   return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
 }
 
+// layout 包装器（OPT-1，独立预算不计入 total）：withLayout 单函数，router/html 共享模块 external
+async function measureLayout() {
+  const dir = mkdtempSync(join(tmpdir(), 'af-mobile-layout-'));
+  const entry = join(dir, 'entry.js');
+  const toPosix = (p) => p.replace(/\\/g, '/');
+  writeFileSync(entry,
+    `import { withLayout } from '${toPosix(join(SRC, 'lib/layout.js'))}';\n` +
+    `// 引用以防 tree-shake 摇除\n` +
+    `globalThis.__afMobile_layout = [withLayout];\n`
+  );
+  const res = await build({
+    entryPoints: [entry],
+    bundle: true, write: false, format: 'esm', minify: true, legalComments: 'none',
+    absWorkingDir: ROOT,
+    external: CORE_EXT,
+  });
+  return gzipSync(Buffer.from(res.outputFiles[0].text)).length;
+}
+
 // k 渲染层（独立入口 @af-mobile/ui/k，不计入主库 total）：html``+Show/For/Switch+render/clean
 // D-001=B：入口另含 res/route 原语（createResource + router 全套）
 // 共享运行时 lib/state.js、lib/resource.js、lib/router.js 与主库同模块单份，external 掉（防重复计费）
@@ -445,6 +467,22 @@ async function main() {
   const coreOver = coreGz > BUDGET.coreRuntime * KB;
   console.log(`核心运行时（state+fetch+router+i18n+page+bind） ${fmt(coreGz).padStart(4)}  预算 ≤ ${BUDGET.coreRuntime}KB  ${coreOver ? '✗ 超限' : '✓'}`);
   if (coreOver) violations.push(`核心运行时 ${fmt(coreGz)} > ${BUDGET.coreRuntime}KB`);
+
+  // layout 包装器（OPT-1）
+  const layoutGz = await measureLayout();
+  const layoutOver = layoutGz > BUDGET.layout * KB;
+  console.log(`layout 包装器（withLayout）            ${fmt(layoutGz).padStart(7)}  预算 ≤ ${BUDGET.layout}KB  ${layoutOver ? '✗ 超限' : '✓'}`);
+  if (layoutOver) violations.push(`layout 包装器 ${fmt(layoutGz)} > ${BUDGET.layout}KB`);
+
+  // date / form-dialog helpers（OPT-8 / OPT-2，独立预算）
+  const dateGz = (await minifyGz(join(SRC, 'lib/date.js'), CORE_EXT)).gz;
+  const formDialogGz = (await minifyGz(join(SRC, 'lib/form-dialog.js'), CORE_EXT)).gz;
+  const dateOver = dateGz > BUDGET.date * KB;
+  console.log(`date 工具（todayISO/formatDate）      ${fmt(dateGz).padStart(7)}  预算 ≤ ${BUDGET.date}KB  ${dateOver ? '✗ 超限' : '✓'}`);
+  if (dateOver) violations.push(`date 工具 ${fmt(dateGz)} > ${BUDGET.date}KB`);
+  const formDialogOver = formDialogGz > BUDGET.formDialog * KB;
+  console.log(`form-dialog helper（openFormDialog）  ${fmt(formDialogGz).padStart(7)}  预算 ≤ ${BUDGET.formDialog}KB  ${formDialogOver ? '✗ 超限' : '✓'}`);
+  if (formDialogOver) violations.push(`form-dialog helper ${fmt(formDialogGz)} > ${BUDGET.formDialog}KB`);
 
   // charts 子库（独立入口 ./charts，不计入主库 total）
   console.log('\n── charts 子库（@af-mobile/ui/charts，独立预算）──');

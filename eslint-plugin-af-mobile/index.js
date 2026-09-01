@@ -1,5 +1,5 @@
 // af-mobile UI —— eslint-plugin-af-mobile 入口（ESLint 9 flat config 兼容）
-// 24 条规则：L1(2) + L2(8) + L3(6) + L3.5(5) + k(3)
+// 25 条规则：L1(2) + L2(9) + L3(6) + L3.5(5) + k(3)
 // （definePage 消费端 7 条规则已随 definePage 全局单例移除）
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
@@ -13,6 +13,7 @@ import noTailwindSyntax from './rules/no-tailwind-syntax.js';
 import preferComponent from './rules/prefer-component.js';
 import atomicDuplicate from './rules/atomic-duplicate.js';
 import noEmojiIcon from './rules/no-emoji-icon.js';
+import noAfPierce from './rules/no-af-pierce.js';
 import noRegisterAll from './rules/no-register-all.js';
 import wcLightNoStyle from './rules/wc-light-no-style.js';
 import wcShadowUseToken from './rules/wc-shadow-use-token.js';
@@ -44,6 +45,7 @@ const plugin = {
     'prefer-component': preferComponent,
     'atomic-duplicate': atomicDuplicate,
     'no-emoji-icon': noEmojiIcon,
+    'no-af-pierce': noAfPierce,
     // L3（6 条：4 error + 2 warn）
     'wc-light-no-style': wcLightNoStyle,
     'wc-shadow-use-token': wcShadowUseToken,
@@ -86,6 +88,8 @@ Object.assign(plugin.configs, {
       'af-mobile/prefer-component': 'warn',
       'af-mobile/atomic-duplicate': 'warn',
       'af-mobile/no-emoji-icon': 'warn',
+      // L2 error（OPT-5：穿透 af-* 内部 = Shadow 死代码 / Light 契约外依赖，一律 error）
+      'af-mobile/no-af-pierce': 'error',
       // L3 error
       'af-mobile/wc-light-no-style': 'error',
       'af-mobile/wc-shadow-use-token': 'error',

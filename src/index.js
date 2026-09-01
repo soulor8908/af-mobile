@@ -146,6 +146,9 @@ export {
   route, go, back, forward, beforeEach, afterEach, notFound, current, start, RouterError,
 } from './lib/router.js';
 export { createPage } from './lib/page.js';
+export { withLayout } from './lib/layout.js';
+export { todayISO, formatDate } from './lib/date.js';
+export { openFormDialog } from './lib/form-dialog.js';
 
 // ============================================================
 // 核心运行时：i18n（国际化，按需 import，不计入组件体积预算）

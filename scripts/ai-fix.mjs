@@ -80,6 +80,7 @@ export const RULE_HINTS = {
   'af-mobile/no-variant-conflict': '互斥变体只能保留最后一个：btn-sm+btn-lg → 删 btn-sm',
   'af-mobile/no-arbitrary-value': '改用最接近的原子档位：p-[13px] → p-3 (12px)；p-7 → p-6 (32px)',
   'af-mobile/no-emoji-icon': '用 24px stroke SVG 替代 emoji 图标（prompt 图标 path 库可直接复用）；af-tabbar 需要图标时省略 icon 字段用纯文字标签',
+  'af-mobile/no-af-pierce': '禁止穿透 af-* 内部节点：Shadow 组件用 ::part()（af-dialog 已暴露 dialog/header/close/content/footer）或 var(--*) 定制；Light 组件改用白名单 class 组合；querySelector 一律指向宿主或自家元素',
   'af-mobile/no-tailwind-syntax': '不要用 Tailwind 前缀语法（md:/hover:/dark: 等）。响应式请用 @container in recipes.project.css',
   'af-mobile/prefer-component': '改用对应 L3 真组件：.toast → <af-toast>；.sheet → <af-action-sheet>',
   'af-mobile/atomic-duplicate': '同属性原子重复，保留最后一个：p-4 p-2 → 只留 p-2',

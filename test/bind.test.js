@@ -165,3 +165,60 @@ describe('initBind 多实例（ctx）', () => {
     expect(() => initBind()).toThrow(/createPage/);
   });
 });
+
+describe('@event 声明式事件绑定（OPT-3）', () => {
+  it('@click 绑定 actions 方法并透传事件对象', () => {
+    const received = [];
+    const page = createPage({
+      state: {},
+      actions: { inc: (s, e) => received.push(e) },
+    });
+    document.body.innerHTML = `<button @click="actions.inc"></button>`;
+    bind(document.body, page);
+    const btn = document.querySelector('button');
+    btn.click();
+    btn.click();
+    expect(received.length).toBe(2);
+    expect(received[0]).toBeInstanceOf(Event);
+    // 挂接后移除 @attr，防 MutationObserver 重扫重复绑定
+    expect(btn.hasAttribute('@click')).toBe(false);
+  });
+
+  it('与 :attr 绑定共存于同一元素', () => {
+    const page = createPage({
+      state: { n: 1 },
+      actions: { add: (s) => { s.n += 1; } },
+    });
+    document.body.innerHTML = `<button :data-n="state.n" @click="actions.add"></button>`;
+    bind(document.body, page);
+    const btn = document.querySelector('button');
+    expect(btn.getAttribute('data-n')).toBe('1');
+    btn.click();
+    expect(btn.getAttribute('data-n')).toBe('2');
+  });
+
+  it('处理器缺失或表达式非 actions.* 时告警且不绑定', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const page = createPage({ state: {} });
+    document.body.innerHTML = `<button @click="actions.missing" @hover="notActions"></button>`;
+    bind(document.body, page);
+    expect(warnSpy).toHaveBeenCalledWith('[af-mobile] @click 未解析:actions.missing');
+    expect(warnSpy).toHaveBeenCalledWith('[af-mobile] @hover 未解析:notActions');
+    document.querySelector('button').click(); // 不抛错
+    warnSpy.mockRestore();
+  });
+
+  it('动态新增的 @event 元素自动挂接', async () => {
+    const page = createPage({ state: {}, actions: { hit: (s, e) => e.target.dataset.hit = '1' } });
+    bind(document.body, page);
+    // @attr 只能经 HTML 解析进入 DOM（setAttribute 不接受 @ 开头属性名）
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `<button @click="actions.hit"></button>`;
+    document.body.appendChild(wrap);
+    const btn = wrap.querySelector('button');
+    await new Promise(r => queueMicrotask(r));
+    await new Promise(r => setTimeout(r, 0));
+    btn.click();
+    expect(btn.dataset.hit).toBe('1');
+  });
+});

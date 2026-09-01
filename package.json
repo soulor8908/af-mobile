@@ -43,6 +43,7 @@
     },
     "./blocks/*": "./src/blocks/*",
     "./test": "./src/test-setup.js",
+    "./vite": "./src/vite.js",
     "./css": "./src/index.css",
     "./af-mobile.css": "./src/index.css",
     "./tokens.css": "./src/tokens.css",

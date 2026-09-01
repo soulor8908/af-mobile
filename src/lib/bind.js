@@ -1,6 +1,7 @@
 // af-mobile UI —— :bind 响应式绑定管道
 // 语法：:attr="state.field" / :attr="derived.field" / :attr="refName.field"
-// 扫描 [attr^=":"] 元素，用 effect 订阅 signal 变化时自动 setAttribute
+//       @click="actions.save" —— 声明式事件绑定（处理器取自 createPage 实例的 actions，经 batch 包装）
+// 扫描 [attr^=":"] 与 [attr^="@"] 元素：signal 变化自动 setAttribute，事件统一挂接
 // MutationObserver 监听 DOM 新增（router 渲染新页面时自动绑定）
 // ctx 必传：createPage() 实例（definePage 全局单例已移除）；MutationObserver 空闲扫描合并批量变更
 
@@ -21,7 +22,7 @@ export function initBind(root = document, ctx = null) {
   }
   const stateObj = ctx.state;
   const derivedObj = ctx.derived ?? {};
-  scan(root, stateObj, derivedObj);
+  scan(root, stateObj, derivedObj, ctx.actions ?? {});
   if (typeof MutationObserver === 'undefined') return () => {};
 
   // MutationObserver 默认开启（v2.1-Final 默认关闭会导致动态 DOM 不绑定）：
@@ -37,37 +38,59 @@ export function initBind(root = document, ctx = null) {
   const observer = new MutationObserver(() => {
     if (pending) return;
     pending = typeof requestIdleCallback === 'function'
-      ? requestIdleCallback(() => { scan(root, stateObj, derivedObj); pending = null; })
-      : setTimeout(() => { scan(root, stateObj, derivedObj); pending = null; }, 0);
+      ? requestIdleCallback(() => { scan(root, stateObj, derivedObj, ctx.actions ?? {}); pending = null; })
+      : setTimeout(() => { scan(root, stateObj, derivedObj, ctx.actions ?? {}); pending = null; }, 0);
   });
   observer.observe(root, { childList: true, subtree: true });
   return () => { observer.disconnect(); cancelIdle(); };
 }
 
-function scan(root, stateObj, derivedObj) {
-  // root 自身可能带 :attr，子节点也可能带
-  const candidates = root.attributes && [...root.attributes].some(a => a.name.startsWith(':'))
+function scan(root, stateObj, derivedObj, actionsObj = {}) {
+  // root 自身可能带 :attr/@event，子节点也可能带
+  const candidates = root.attributes && [...root.attributes].some((a) => a.name[0] === ':' || a.name[0] === '@')
     ? [root, ...root.querySelectorAll('*')]
     : [...root.querySelectorAll('*')];
   for (const el of candidates) {
     if (_bindings.has(el)) continue;
-    const bindAttrs = [...el.attributes].filter(a => a.name.startsWith(':'));
-    if (bindAttrs.length === 0) continue;
+    const bindAttrs = [...el.attributes].filter((a) => a.name[0] === ':');
+    const eventAttrs = [...el.attributes].filter((a) => a.name[0] === '@');
+    if (!bindAttrs.length && !eventAttrs.length) continue;
     const cleanups = [];
     for (const attr of bindAttrs) {
-      const attrName = attr.name.slice(1);
-      const cleanup = bindOne(el, attrName, attr.value, stateObj, derivedObj);
+      const cleanup = bindOne(el, attr.name.slice(1), attr.value, stateObj, derivedObj);
       if (cleanup) cleanups.push(cleanup);
       el.removeAttribute(attr.name);
     }
-    _bindings.set(el, () => cleanups.forEach(c => c()));
+    // @event 声明式事件绑定：无需 cleanup（元素销毁时监听器随 DOM 一并回收）
+    for (const attr of eventAttrs) {
+      bindEvent(el, attr.name.slice(1), attr.value, actionsObj);
+      el.removeAttribute(attr.name);
+    }
+    _bindings.set(el, () => cleanups.forEach((c) => c()));
   }
 }
+
+// @event="actions.name"：处理器取自 createPage 的 actions（已 batch 包装），挂接即移除属性防重挂
+function bindEvent(el, evName, expr, actionsObj) {
+  const fn = expr.startsWith('actions.') && actionsObj[expr.slice(8)];
+  if (typeof fn !== 'function') {
+    if (DEV) console.warn(`[af-mobile] @${evName} 未解析:${expr}`);
+    return;
+  }
+  el.addEventListener(evName, fn);
+}
+
+// 开发期告警门控（与 router.js warnUnregistered 同惯例）：生产构建 define DEV=false 后整体 tree-shake，
+// 告警文案不进产物。测试环境 vitest 恒 DEV=true，告警用例不受影响
+const DEV = import.meta.env?.DEV;
 
 function bindOne(el, attrName, expr, stateObj, derivedObj) {
   const parsed = parseExpr(expr, stateObj, derivedObj);
   // 未解析表达式不再静默失败：开发期告警，帮助定位拼写错误
-  if (!parsed) return console.warn(`[af-mobile] :bind 未解析:${attrName}="${expr}"`), null;
+  if (!parsed) {
+    if (DEV) console.warn(`[af-mobile] :bind 未解析:${attrName}="${expr}"`);
+    return null;
+  }
   return effect(() => {
     const val = parsed.get();
     applyValue(el, attrName, val);

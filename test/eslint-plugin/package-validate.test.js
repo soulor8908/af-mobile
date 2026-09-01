@@ -1,5 +1,5 @@
 // eslint-plugin-af-mobile 独立包验证：@af-mobile/eslint-plugin 可作为独立 npm 包发布/消费
-// 验证：包元信息 / 24 规则完整性 / recommended 配置自洽 / 端到端集成（Linter 跑通）
+// 验证：包元信息 / 25 规则完整性 / recommended 配置自洽 / 端到端集成（Linter 跑通）
 import { describe, it, expect } from 'vitest';
 import { Linter } from 'eslint';
 import { readFileSync, statSync } from 'node:fs';
@@ -24,11 +24,12 @@ describe('@af-mobile/eslint-plugin 独立包', () => {
     expect(pkg.peerDependencies.eslint).toBe('>=9.0.0');
   });
 
-  it('导出完整 24 条规则（L1(2)+L2(8)+L3(6)+L3.5(5)+k(3)）', () => {
+  it('导出完整 25 条规则（L1(2)+L2(9)+L3(6)+L3.5(5)+k(3)）', () => {
     const names = Object.keys(plugin.rules);
-    expect(names).toHaveLength(24);
+    expect(names).toHaveLength(25);
     // 抽查各层代表规则
     expect(plugin.rules['no-token-modification']).toBeDefined();
+    expect(plugin.rules['no-af-pierce']).toBeDefined();
     expect(plugin.rules['wc-light-no-style']).toBeDefined();
     expect(plugin.rules['wc-block-states']).toBeDefined();
     expect(plugin.rules['k-no-bare-and']).toBeDefined();

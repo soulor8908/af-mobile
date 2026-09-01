@@ -909,12 +909,13 @@
 
   /* === 分段控制器（3） === */
   /* 纯 CSS：iOS 风格分段器，af-tabs 的轻量替代
-     用法：
-       <div class="seg">
-         <button class="seg-it" aria-selected="true">日</button>
-         <button class="seg-it">周</button>
-         <button class="seg-it">月</button>
-       </div> */
+     用法（a11y 必须显式声明 role，aria-selected 才对辅助技术生效）：
+       <div class="seg" role="tablist">
+         <button class="seg-it" role="tab" aria-selected="true">日</button>
+         <button class="seg-it" role="tab" aria-selected="false">周</button>
+         <button class="seg-it" role="tab" aria-selected="false">月</button>
+       </div>
+     键盘导航（←→ 切换选中）需页面自行挂接；需要开箱即用的键盘导航时改用 <af-tabs> 组件 */
   .seg {
     display: inline-flex;
     background: var(--c-muted-bg);

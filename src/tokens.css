@@ -172,7 +172,7 @@
     --ls-display: -0.02em;  --ls-caption: 0.01em;
 
     /* === 圆角：v6 收紧（s 8→6、m 12→8、l 16→12），基准 4/6/8/12 小圆角专业风 === */
-    --r-xs: 4px; --r-s: 6px; --r-m: 8px; --r-l: 12px; --r-f: 9999px; --r-c: 50%;
+    --r-xs: 4px; --r-s: 6px; --r-m: 8px; --r-l: 12px; --r-f: 9999px;
 
     /* === 阴影（从调色板派生） === */
     --shadow-sm: var(--palette-shadow-sm);

@@ -46,6 +46,23 @@ describe('af-swipe-cell', () => {
     expect(el.$('[data-role="right"]').querySelector('button')).not.toBeNull();
   });
 
+  it('slot=right 多同级子元素被摊平为 right 区直接子项（参与 flex 居中）', () => {
+    // makeSwipeCell 会把 right 内容包进 <div slot="right">；此处传多个平级操作项
+    const el = makeSwipeCell({
+      content: '内容',
+      right: '<button data-action="delete">删除</button><span>|</span><button data-action="mark">标记</button>',
+    });
+    const right = el.$('[data-role="right"]');
+    // 包装层被摊平：三个元素都直接挂在 right 下，无包装 div
+    expect(right.children.length).toBe(3);
+    expect([...right.children].map(c => c.tagName)).toEqual(['BUTTON', 'SPAN', 'BUTTON']);
+    // 每个 data-action 仍可触发
+    const handler = vi.fn();
+    el.addEventListener('af-swipe-cell:action', handler);
+    right.querySelector('[data-action="delete"]').click();
+    expect(handler.mock.calls[0][0].detail.action).toBe('delete');
+  });
+
   it('左滑超过阈值后松手吸附到打开状态', () => {
     const el = makeSwipeCell({ content: '内容', right: '<button data-action="delete">删除</button>' });
     // 模拟 right 宽度

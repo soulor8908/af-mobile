@@ -8,7 +8,7 @@
 
 - **颜色** `--c-*`：如 `--c-brand`、`--c-onbrand`、`--c-text`、`--c-muted`、`--c-bg`、`--c-card`、`--c-border`、`--c-danger`、`--c-success`、`--c-warn`
 - **间距** `--s-*`：如 `--s-2: 8px`、`--s-4: 16px`、`--s-5: 24px`
-- **圆角** `--r-*`：如 `--r-s: 4px`、`--r-m: 8px`、`--r-l: 12px`、`--r-f: 9999px`
+- **圆角** `--r-*`：如 `--r-s: 4px`、`--r-m: 8px`、`--r-l: 12px`、`--r-f: 999px`
 - **字号 / 行高 / 字重**：`--t-md: 16px`、`--lh-normal: 1.7`、`--fw-medium: 500`
 - 此外还有阴影 `--shadow-*`、z-index `--z-*`、动效 `--ease-*` / `--dur-*`
 

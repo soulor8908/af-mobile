@@ -9,7 +9,8 @@ const CSS = `
   :host { display: contents; }
   dialog {
     border: none; border-radius: var(--r-l); background: var(--c-card);
-    color: var(--c-text); padding: 0; max-width: 90vw;
+    color: var(--c-text); padding: 0;
+    width: var(--af-dialog-w, 320px); max-width: 90vw;
     box-shadow: var(--shadow-lg);
   }
   dialog::backdrop { background: rgba(0,0,0,.4); backdrop-filter: blur(8px); }
@@ -28,7 +29,7 @@ const CSS = `
     max-width: 100vw; width: 100%;
     margin: auto 0 0 0;
   }
-  :host([variant="center"]) dialog { max-width: 70vw; }
+  :host([variant="center"]) dialog { width: var(--af-dialog-w, 280px); max-width: 90vw; }
 `;
 
 export class AfDialog extends withI18n(AfElement) {

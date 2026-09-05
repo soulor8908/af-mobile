@@ -8,14 +8,16 @@ const CSS = `
   :host { display: contents; }
   .picker {
     border: none;
-    border-radius: var(--r-l) var(--r-l) 0;
+    border-radius: var(--af-picker-radius, 16px) var(--af-picker-radius, 16px) 0;
     max-width: 100vw; width: 100%;
     margin: auto 0 0 0;
     padding: 0 0 env(safe-area-inset-bottom);
     background: var(--c-card);
     box-shadow: var(--shadow-lg);
+    animation: picker-up var(--dur-base) var(--ease-out);
   }
-  .picker::backdrop { background: rgba(0,0,0,.4); }
+  @keyframes picker-up { from { transform: translateY(100%); } }
+  .picker::backdrop { background: rgba(0, 0, 0, .7); }
   .header {
     display: flex; align-items: center; justify-content: space-between;
     padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--c-border);

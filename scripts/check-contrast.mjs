@@ -84,6 +84,7 @@ const PAIRS = [
   ['onbrand/success',     '--c-onbrand', '--c-success', 4.5, 'error'],
   ['onbrand/danger',      '--c-onbrand', '--c-danger', 4.5, 'error'],
   ['标签 onwarn/warn',    '--c-onwarn', '--c-warn',  4.5, 'error'],
+  ['通知栏 notice-text/notice-bg（T0.5 Vant 对齐）', '--c-notice-text', '--c-notice-bg', 4.5, 'error'],
   ['plain按钮/链接 brand/card',      '--c-brand', '--c-card', 4.5, 'error'],
   ['plain按钮/链接 brand/bg',        '--c-brand', '--c-bg',   4.5, 'error'],
   ['ghost active brand/brand-soft',  '--c-brand', '--c-brand-soft', 4.5, 'error'],

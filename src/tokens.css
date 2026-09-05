@@ -25,8 +25,10 @@
     text-rendering: optimizeLegibility;
   }
   [popover] { border: none; background: none; padding: 0; }
-  [popover]::backdrop { background: rgba(0,0,0,.4); backdrop-filter: blur(8px); }
-  dialog::backdrop { background: rgba(0,0,0,.4); backdrop-filter: blur(8px); }
+  /* Vant 对齐（docs/design/vant-style-gap-todo.md T0.1）：遮罩 0.7 无模糊，
+     blur 叠深遮罩会让背景完全不可辨，Vant 市场验证值即 0.7 */
+  [popover]::backdrop { background: rgba(0,0,0,.7); }
+  dialog::backdrop { background: rgba(0,0,0,.7); }
 }
 
 /* === 无障碍：prefers-reduced-motion 降级（骨架 shimmer / 过渡动画归零） === */
@@ -72,6 +74,9 @@
     --palette-warn: oklch(78% 0.16 75);
     /* warn 底上的文字：暖深棕，双主题恒深（黄底配白字/亮字对比度不足，AA 不达标） */
     --palette-onwarn: oklch(22% 0.04 75);
+    /* 通知栏（T0.5 Vant 对齐）：浅奶油底 + 暖棕字，弱提示语义非强警告；dark 反转为暗琥珀底亮字 */
+    --palette-notice-bg: oklch(97% 0.05 100);
+    --palette-notice-text: oklch(25% 0.06 60);
     --palette-shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.03);
     --palette-shadow-md: 0 2px 4px rgba(15,23,42,.04), 0 4px 12px rgba(15,23,42,.05);
     --palette-shadow-lg: 0 4px 12px rgba(15,23,42,.06), 0 16px 48px rgba(15,23,42,.08);
@@ -102,6 +107,9 @@
       --palette-danger: oklch(68% 0.21 25);
       --palette-success: oklch(70% 0.17 145);
       --palette-warn: oklch(82% 0.16 75);
+      --palette-onwarn: oklch(22% 0.04 75);
+      --palette-notice-bg: oklch(28% 0.05 85);
+      --palette-notice-text: oklch(85% 0.12 90);
       --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px rgba(0,0,0,.4);
       --palette-shadow-md: 0 2px 4px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.5);
       --palette-shadow-lg: 0 4px 12px rgba(0,0,0,.5), 0 16px 48px rgba(0,0,0,.6);
@@ -132,6 +140,9 @@
     --palette-danger: oklch(68% 0.21 25);
     --palette-success: oklch(70% 0.17 145);
     --palette-warn: oklch(82% 0.16 75);
+    --palette-onwarn: oklch(22% 0.04 75);
+    --palette-notice-bg: oklch(28% 0.05 85);
+    --palette-notice-text: oklch(85% 0.12 90);
     --palette-shadow-sm: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px rgba(0,0,0,.4);
     --palette-shadow-md: 0 2px 4px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.5);
     --palette-shadow-lg: 0 4px 12px rgba(0,0,0,.5), 0 16px 48px rgba(0,0,0,.6);
@@ -144,6 +155,8 @@
     --c-brand-soft: var(--palette-brand-soft);
     --c-onbrand: var(--palette-onbrand);
     --c-onwarn: var(--palette-onwarn);
+    --c-notice-bg: var(--palette-notice-bg);
+    --c-notice-text: var(--palette-notice-text);
     --c-text: var(--palette-text);    --c-muted: var(--palette-muted);
     --c-card: var(--palette-card);    --c-bg: var(--palette-bg);    --c-muted-bg: var(--palette-muted-bg);
     --c-border: var(--palette-border);

@@ -91,14 +91,16 @@
     padding: var(--s-4);
   }
 
-  /* v6：cell 行高 52→48（对齐 Vant 44-48 区间，padding 12 上下 + 24 行内容 = 48 节拍） */
+  /* v6：cell 行高 52→48；T1.5 Vant 对齐：行高 44（10px 上下 + 24px 行内容）、line-height 24px */
   .cell {
     display: flex;
     align-items: center;
     gap: var(--s-3);
     background: var(--c-card);
-    padding: var(--s-3) var(--s-4);
-    min-height: 48px;
+    padding: 10px var(--s-4);
+    min-height: 44px;
+    line-height: 24px;
+    position: relative;
   }
 
   .center {
@@ -110,6 +112,8 @@
     text-align: center;
   }
 
+  /* T0.9 Vant 对齐：底部弹层通栏贴边（无内边距）、圆角 16px、max-height 80%；
+     radius 走 fallback 变量（同 af-dialog 先例，弹层与卡片圆角解耦） */
   .sheet {
     position: fixed;
     left: 0; right: 0; bottom: 0;
@@ -117,11 +121,77 @@
     /* popover UA 在 dark 模式下强制 color: canvastext（白色），导致子树文本变白
        显式 inherit 让 .sheet 跟随 host（body 的 --c-text），覆盖 UA 默认 */
     color: inherit;
+    display: flex;
+    flex-direction: column;
+    max-height: 80%;
     background: var(--c-card);
-    border-radius: var(--r-l) var(--r-l) 0 0;
-    padding: var(--s-4);
+    border-radius: var(--af-sheet-radius, 16px) var(--af-sheet-radius, 16px) 0 0;
     box-shadow: var(--shadow-lg);
     z-index: var(--z-dropdown);
+    /* T0.1 Vant 对齐：底部弹层进场动画（slide-up；reduced-motion 由 tokens 全局降级） */
+    animation: sheet-up var(--dur-base) var(--ease-out);
+  }
+  @keyframes sheet-up { from { transform: translateY(100%); } }
+  /* T0.9 action-sheet Vant 对齐：标题 48px/16px 居中，项 16px 居中，
+     subname 12px 灰，取消区前 8px 灰底间隔块（--c-bg 页面底色） */
+  .as-header {
+    flex-shrink: 0;
+    min-height: 48px;
+    padding: 0 var(--s-4);
+    font-size: var(--t-input);
+    font-weight: var(--fw-semibold);
+    line-height: 48px;
+    text-align: center;
+    color: var(--c-text);
+  }
+  .as-body {
+    flex: 1;
+    overflow: auto;
+    color: var(--c-text);
+  }
+  .as-item,
+  .as-cancel {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 14px var(--s-4);
+    font: inherit;
+    font-size: var(--t-input);
+    line-height: 22px;
+    text-align: center;
+    background: var(--c-card);
+    border: none;
+    color: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .as-item:active,
+  .as-cancel:active { background: var(--c-muted-bg); }
+  .as-item[disabled] {
+    color: var(--c-muted);
+    background: var(--c-card);
+  }
+  .as-sub {
+    width: 100%;
+    margin-top: var(--s-1);
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+    line-height: 16px;
+    overflow-wrap: break-word;
+  }
+  .as-gap {
+    flex-shrink: 0;
+    height: var(--s-2);
+    background: var(--c-bg);
+  }
+  .as-cancel {
+    flex-shrink: 0;
+    color: var(--c-text);
   }
 
   /* 分区标题：主标题上方的小字眉标，拉开排版层级 */
@@ -197,6 +267,11 @@
     box-shadow: var(--ring-focus);
   }
   .input::placeholder, .textarea::placeholder { color: var(--c-muted); }
+  /* T0.10 Vant 对齐：disabled 文字用 muted 色（Vant field-input-disabled-text-color） */
+  .input:disabled, .textarea:disabled {
+    color: var(--c-muted);
+    background: var(--c-muted-bg);
+  }
   .textarea {
     resize: vertical;
     min-height: 80px;
@@ -217,17 +292,52 @@
     margin-bottom: var(--s-3);
   }
 
+  /* T0.10 Vant 对齐：error-message 12px（原 --t-xs 11px 偏小一档） */
   .form-err {
-    font-size: var(--t-xs);
+    font-size: var(--t-sm);
     color: var(--c-danger);
     line-height: var(--lh-tight);
   }
 
+  /* === af-field 扩展（T0.10 Vant 对齐）===
+     必填星号 f-req / 清除按钮 f-clear（absolute 定位，data-clear 驱动 input 右留白）/
+     字数统计 f-limit（12px 灰，右对齐） */
+  .f-req {
+    margin-right: 2px;
+    color: var(--c-danger);
+  }
+  [data-role="control-wrap"] {
+    position: relative;
+  }
+  [data-role="control-wrap"][data-clear] .input,
+  [data-role="control-wrap"][data-clear] .textarea {
+    padding-right: 36px;
+  }
+  .f-clear {
+    position: absolute;
+    right: var(--s-2);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--c-muted);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .f-limit {
+    margin-top: var(--s-1);
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+    line-height: 16px;
+    text-align: right;
+  }
+
   .search-input {
     width: 100%;
-    /* v6.1：固定高度替代垂直 padding（原 ~40px → 36px），垂直居中由 input 原生行为保证；
-       字号仍用 --t-input(16px)，iOS 聚焦缩放红线不可触碰 */
-    height: 36px;
+    /* T0.11 Vant 对齐：输入高 34px（原 36px）；字号仍用 --t-input(16px)，iOS 聚焦缩放红线不可触碰 */
+    height: 34px;
     padding: 0 var(--s-3) 0 var(--s-5);
     background: var(--c-muted-bg);
     border: 1px solid transparent;
@@ -269,7 +379,8 @@
     border-radius: 50%;
     background: var(--c-card);
     box-shadow: var(--shadow-sm), 0 0 0 1px color-mix(in srgb, var(--c-text) 4%, transparent);
-    transition: transform var(--dur-base) var(--ease-out);
+    /* Vant 对齐（T2.1）：300ms 回弹曲线，开关手感与 iOS/Vant 一致 */
+    transition: transform 300ms cubic-bezier(.3, 1.05, .4, 1.05);
     margin: 0 2px;
     flex-shrink: 0;
   }
@@ -283,6 +394,25 @@
     position: relative;
     display: flex;
     align-items: center;
+  }
+  /* T0.11 Vant 对齐：外层 bar 通栏（padding 10px 12px、card 底），action 取消区在右侧 */
+  .sb-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background: var(--c-card);
+  }
+  .sb-bar .sb-wrap { flex: 1; }
+  .sb-action {
+    flex-shrink: 0;
+    margin-left: var(--s-1);
+    padding: 0 var(--s-1);
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: var(--t-md);
+    color: var(--c-text);
+    cursor: pointer;
   }
   .sb-icon {
     position: absolute;
@@ -314,14 +444,83 @@
   .input:user-invalid, .textarea:user-invalid,
   .input:user-invalid:focus, .textarea:user-invalid:focus { border-color: var(--c-danger); }
 
-  .upload-tg { display: inline-flex; align-items: center; }
+  /* T0.2 Vant 对齐：宫格化——80×80 占位块进网格首项（up-add），预览项 up-item +
+     右上 14px 黑角标删除（up-del），loading/失败遮罩（up-mask）；无独立上传按钮 */
   .upload-gd {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: var(--s-2);
-    margin-top: var(--s-3);
   }
-  .upload-gd:empty { display: none; }
+  .up-add {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--c-muted-bg);
+    border: none;
+    border-radius: var(--r-s);
+    cursor: pointer;
+    font: inherit;
+    color: var(--c-muted);
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .up-add:active { background: var(--c-border); }
+  af-upload[disabled] .up-add {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+  .up-ico { font-size: 24px; line-height: 1; }
+  .up-txt {
+    margin-top: var(--s-1);
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+  }
+  .up-item {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--r-s);
+  }
+  .up-thumb {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: var(--c-muted-bg);
+  }
+  /* 黑角标：恒黑底白字（与主题无关的 overlay 色，toast 先例） */
+  .up-del {
+    position: absolute;
+    top: 0; right: 0;
+    width: 14px;
+    height: 14px;
+    background: rgba(0, 0, 0, .7);
+    border-radius: 0 0 0 12px;
+    border: none;
+    padding: 0;
+    color: #fff;
+    font-size: 14px;
+    line-height: 14px;
+    cursor: pointer;
+  }
+  .up-mask {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(50, 50, 51, .88);
+    color: #fff;
+    font-size: var(--t-sm);
+    line-height: 16px;
+    text-align: center;
+    padding: 0 var(--s-1);
+  }
 
   /* === 列表（6） === */
   .list {
@@ -330,10 +529,18 @@
     border-radius: var(--r-m);
     overflow: hidden;
   }
-  /* v6：列表分隔线 1px → 0.5px hairline（高分屏物理像素线，Vant/Ant 同款做法） */
-  .list > .cell + .cell,
-  .list > .list-item + .list-item {
-    border-top: 0.5px solid var(--c-border);
+  /* v6：分隔线 0.5px hairline；T1.5 Vant 对齐：改 inset 16px（左缩进对齐内容区），
+     ::after + scaleY(.5) 物理像素线，最后一行不画（原 border-top 全宽方案废止） */
+  .list > .cell + .cell::after,
+  .list > .list-item + .list-item::after {
+    content: '';
+    position: absolute;
+    left: var(--s-4);
+    right: 0;
+    bottom: 0;
+    border-bottom: 1px solid var(--c-border);
+    transform: scaleY(.5);
+    pointer-events: none;
   }
 
   .list-item {
@@ -341,8 +548,10 @@
     align-items: center;
     gap: var(--s-3);
     background: var(--c-card);
-    padding: var(--s-3) var(--s-4);
-    min-height: 48px;
+    padding: 10px var(--s-4);
+    min-height: 44px;
+    line-height: 24px;
+    position: relative;
     /* button 宿主需显式覆盖 UA 默认样式（border / color / font / text-align / width / appearance）
        div 宿主这些属性的默认值与显式覆盖等价，不受影响 */
     border: none;
@@ -470,20 +679,22 @@
   .tag-plain-warn   { background: transparent; color: var(--c-onwarn);   border: 1px solid var(--c-warn); }
   .tag-plain-danger { background: transparent; color: var(--c-danger);  border: 1px solid var(--c-danger); }
 
-  /* v5：badge padding 5px → var(--s-1)（修魔数） */
+  /* v5：badge padding 5px → var(--s-1)（修魔数）；
+     T1.9 Vant 对齐：16px 本体 / 12px 字 / 3px 水平 padding / 恒 1px 白描边（防与底图同色粘连） */
   .badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 var(--s-1);
-    font-size: var(--t-xs);
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    font-size: var(--t-sm);
     font-weight: var(--fw-bold);
     line-height: 1;
     border-radius: var(--r-f);
     background: var(--c-danger);
     color: var(--c-onbrand);
+    box-shadow: 0 0 0 1px var(--c-card);
   }
 
   .toast {
@@ -491,16 +702,19 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    padding: var(--s-2) var(--s-4);
+    /* T1.1 Vant 对齐：纯文字态 min-width 96 / padding 8 12 / 14px-20px / max-width 70% */
+    min-width: 96px;
+    padding: var(--s-2) var(--s-3);
     background: rgba(0,0,0,.8);
     color: #fff;
-    font-size: var(--t-sm);
+    font-size: var(--t-md);
+    line-height: 20px;
     border-radius: var(--r-m);
     z-index: var(--z-modal);
     opacity: var(--toast-opacity, 1);
     transition: var(--toast-transition, none);
     pointer-events: var(--toast-pointer-events, none);
-    max-width: 80%;
+    max-width: 70%;
     text-align: center;
   }
   .toast-success { background: var(--c-success); }
@@ -557,10 +771,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    /* T1.2 Vant 对齐：图标/文字间距 4px、文字 12px、行高 1、未激活用正文色（Vant text-color 而非灰） */
+    gap: 4px;
     padding: var(--s-2) var(--s-1);
-    font-size: var(--t-xs);
-    color: var(--c-muted);
+    font-size: var(--t-sm);
+    line-height: 1;
+    color: var(--c-text);
     background: none;
     border: none;
     cursor: pointer;
@@ -701,24 +917,51 @@
   .spinner-lg { width: 40px; height: 40px; border-width: 3px; }
   @keyframes spinner-rotate { to { transform: rotate(360deg); } }
 
-  /* === 进度条（5） === */
-  /* v5：删 ::-webkit-progress-value / ::-moz-progress-bar 双写 hack
-     改用 accent-color（2022+ 浏览器原生），color 变体通过 --progress-color 覆盖 */
+  /* === 进度条（5） ===
+     v5：原生 <progress> 路径（accent-color）；T0.7 Vant 对齐：高度 8→4px，
+     新增 div 路径（.progress-bar 填充条 + .progress-pivot 百分比气泡，af-progress 组件用）。
+     两种宿主共存：div 容器多出的 position:relative / overflow:visible 对原生 progress 无副作用 */
   .progress {
+    position: relative;
     display: block;
     width: 100%;
-    height: 8px;
+    height: 4px;
     border: none;
     border-radius: var(--r-f);
     background: var(--c-muted-bg);
-    overflow: hidden;
+    overflow: visible;
     --progress-color: var(--c-brand);
     accent-color: var(--progress-color);
     -webkit-appearance: none;
     appearance: none;
   }
+  /* div 路径：填充条宽度由 --af-pct 派发（af-progress._render 计算，禁内联 style） */
+  .progress-bar {
+    height: 100%;
+    width: var(--af-pct, 0%);
+    border-radius: inherit;
+    background: var(--progress-color);
+    transition: width var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+  }
+  .progress-pivot {
+    position: absolute;
+    left: var(--af-pct, 0%);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 3.6em;
+    padding: 0 5px;
+    font-size: 10px;
+    line-height: 1.6;
+    color: var(--c-onbrand);
+    text-align: center;
+    background: var(--progress-color);
+    border-radius: 1em;
+    transition: left var(--dur-base) var(--ease-out);
+    pointer-events: none;
+  }
   .progress-sm { height: 4px; }
   .progress-lg { height: 12px; }
+  .progress-inactive { --progress-color: var(--c-muted); }
   .progress::-webkit-progress-bar {
     background: var(--c-muted-bg);
     border-radius: var(--r-f);
@@ -776,20 +1019,41 @@
     line-height: var(--lh-normal);
   }
 
-  /* === 通知栏（3） === */
-  /* 纯 CSS：@keyframes marquee 横向滚动
+  /* === 通知栏（3） ===
+     T0.5 Vant 对齐：浅奶油底 + 暖棕字（--c-notice-* 弱提示语义），高 40px、字 14px/24px；
+     .notice-ico 左图标槽 / .notice-close 关闭按钮 / .notice-wrap 多行不滚动变体；
+     滚动时长经 --notice-dur 派发（af-notice-bar 按文本宽/60px·s 计算，匀速观感）
+     纯 CSS：@keyframes marquee 横向滚动
      用法（滚动）：<div class="notice"><span class="notice-tx"><span class="notice-scr">公告内容</span></span></div>
      用法（截断）：<div class="notice"><span class="notice-tx">公告内容</span></div> */
   .notice {
     display: flex;
     align-items: center;
     gap: var(--s-2);
-    padding: var(--s-2) var(--s-3);
-    background: var(--c-warn);
-    color: var(--c-onwarn);
-    font-size: var(--t-sm);
-    line-height: var(--lh-tight);
+    height: 40px;
+    padding: 0 var(--s-4);
+    background: var(--c-notice-bg);
+    color: var(--c-notice-text);
+    font-size: var(--t-md);
+    line-height: 24px;
     overflow: hidden;
+  }
+  .notice-ico {
+    flex: none;
+    min-width: 24px;
+    font-size: 16px;
+    display: inline-flex;
+  }
+  .notice-close {
+    flex: none;
+    min-width: 24px;
+    font-size: 16px;
+    padding: 0;
+    text-align: right;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: inherit;
   }
   .notice-tx {
     flex: 1;
@@ -800,9 +1064,11 @@
   .notice-scr {
     display: inline-block;
     padding-left: 100%;
-    animation: notice-marquee 12s linear infinite;
+    animation: notice-marquee var(--notice-dur, 12s) linear infinite;
   }
   @keyframes notice-marquee { to { transform: translateX(-100%); } }
+  .notice-wrap { height: auto; padding: var(--s-2) var(--s-4); }
+  .notice-wrap .notice-tx { white-space: normal; text-overflow: clip; }
 
   /* === 评分（5） === */
   /* 纯 CSS：radio + :checked + flex-direction:row-reverse 实现只读+可选
@@ -843,13 +1109,16 @@
   .rate-sm { font-size: var(--t-md); }
   .rate-lg { font-size: var(--t-xl); }
 
-  /* === 步骤条（6） === */
-  /* 纯 CSS：flex + ::before 连线
+  /* === 步骤条（6） ===
+     T0.8 Vant 对齐：24px 数字圆盘 → 5px 实心小圆点 + 1px 连线（水平），
+     done/active 圆点染 brand、未开始 gray-5；active 标题染 brand；标签 12px；
+     全部状态色/背景加 0.3s 过渡（Vant steps 同）。
+     纯 CSS：flex + ::before 连线
      用法：
        <div class="steps">
-         <div class="step step-done"><div class="step-circle">1</div><div class="step-label">完成</div></div>
-         <div class="step step-active"><div class="step-circle">2</div><div class="step-label">进行中</div></div>
-         <div class="step"><div class="step-circle">3</div><div class="step-label">待办</div></div>
+         <div class="step step-done"><div class="step-circle"></div><div class="step-label">完成</div></div>
+         <div class="step step-active"><div class="step-circle"></div><div class="step-label">进行中</div></div>
+         <div class="step"><div class="step-circle"></div><div class="step-label">待办</div></div>
        </div> */
   .steps {
     display: flex;
@@ -862,50 +1131,43 @@
     align-items: center;
     position: relative;
     padding: 0 var(--s-2);
+    padding-bottom: var(--s-3);
   }
   .step:not(:first-child)::before {
     content: '';
     position: absolute;
-    top: 11px;
+    top: 2px;
     left: calc(-50% + var(--s-2));
     width: calc(100% - var(--s-4));
-    height: 2px;
+    height: 1px;
     background: var(--step-line, var(--c-border));
+    transition: background-color var(--dur-base) var(--ease-out);
   }
   .step-done { --step-line: var(--c-brand); }
   .step-active { --step-line: var(--c-brand); }
   .step-circle {
-    width: 24px;
-    height: 24px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
-    background: var(--c-muted-bg);
-    color: var(--c-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--t-xs);
-    font-weight: var(--fw-bold);
+    background: var(--c-gray-5);
+    transition: background-color var(--dur-base) var(--ease-out);
     position: relative;
     z-index: 1;
   }
-  .step-done .step-circle {
-    background: var(--c-brand);
-    color: var(--c-onbrand);
-  }
+  .step-done .step-circle,
   .step-active .step-circle {
-    background: var(--c-card);
-    color: var(--c-brand);
-    border: 2px solid var(--c-brand);
+    background: var(--c-brand);
   }
   .step-label {
-    margin-top: var(--s-1);
-    font-size: var(--t-xs);
+    margin-top: var(--s-2);
+    font-size: var(--t-sm);
     color: var(--c-muted);
     text-align: center;
     line-height: var(--lh-tight);
+    transition: color var(--dur-base) var(--ease-out);
   }
-  .step-done .step-label,
-  .step-active .step-label { color: var(--c-text); }
+  .step-done .step-label { color: var(--c-text); }
+  .step-active .step-label { color: var(--c-brand); font-weight: var(--fw-medium); }
 
   /* === 分段控制器（3） === */
   /* 纯 CSS：iOS 风格分段器，af-tabs 的轻量替代
@@ -1057,9 +1319,44 @@
   af-list, af-img, af-tabs, af-dropdown { display: block; }
   /* af-progress：默认 inline 无宽度，内部 .progress 的 width:100% 在 auto 宽度下解析为 0 → 不可见；宿主撑满 */
   af-progress { display: block; width: 100%; }
-  /* af-tabs 顶部标签：与内容留出间距 + 标题字号加大（仅作用 af-tabs，不影响底部 af-tabbar） */
-  af-tabs .tabbar { margin-bottom: var(--s-4); }
-  af-tabs .tab-item { font-size: var(--t-md); font-weight: var(--fw-medium); }
+  /* af-tabs 顶部标签：与内容留出间距 + 标题字号加大（仅作用 af-tabs，不影响底部 af-tabbar）；
+     T0.3 Vant 对齐：条高 44px、底部 40×3px 品牌色滑块 + transform 位移过渡、
+     激活加粗变深（非变色）、未激活 gray-7、去 .tabbar 继承的 border-top（Vant 顶部标签无分隔线）、
+     禁用态 gray-5；滑块位移由 --af-line-x 驱动（_moveLine 计算） */
+  af-tabs .tabbar {
+    margin-bottom: var(--s-4);
+    border-top: none;
+    position: relative;
+  }
+  af-tabs .tab-item {
+    min-height: 44px;
+    padding: 0 var(--s-3);
+    font-size: var(--t-md);
+    font-weight: var(--fw-normal);
+    color: var(--c-gray-7);
+    flex: none;
+  }
+  af-tabs .tab-item[aria-selected="true"] {
+    font-weight: var(--fw-semibold);
+    color: var(--c-text);
+  }
+  af-tabs .tab-item:disabled { color: var(--c-gray-5); cursor: not-allowed; }
+  af-tabs .tabbar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--c-brand);
+    transform: translateX(var(--af-line-x, 0px));
+    transition: transform var(--dur-base) var(--ease-out);
+    pointer-events: none;
+    visibility: hidden;
+  }
+  /* 有 tab 渲染后才露出滑块（纯 CSS，免去 JS 显隐逻辑） */
+  af-tabs .tabbar:has(.tab-item)::after { visibility: visible; }
   /* af-dropdown 弹层：popover 默认 fit-content 居中，定宽对齐页面容器 */
   af-dropdown .list[popover] { width: min(100%, 640px); }
   af-list { height: var(--af-list-h, auto); }
@@ -1085,50 +1382,102 @@
   af-product-grid[data-variant="two-column"] [data-role="list"] { grid-template-columns: 1fr 1fr; }
   af-product-grid .thumb { width: 96px; height: 96px; border-radius: var(--r-s); object-fit: cover; flex: none; }
   af-product-grid[data-variant="two-column"] .thumb { width: 100%; height: auto; aspect-ratio: 1 / 1; }
+  /* T0.4 Vant 对齐：40×40 全圆实心（brand 底 + 白色 20px/600 图标）+ 阴影；
+     显隐改 scale(0)↔scale(1) 过渡（弃 hidden display:none 硬切）——
+     hidden 时 visibility 延迟生效（动画播完再隐藏，且 visibility:hidden 不可聚焦，保 a11y）；
+     显示侧用 transition-delay:0s 立即恢复可见 */
   af-backtop {
     display: block; position: fixed; z-index: var(--z-dropdown);
     bottom: calc(var(--s-4) + env(safe-area-inset-bottom));
+    transform: scale(0);
+    visibility: hidden;
+    transition: transform var(--dur-base) var(--ease-out), visibility 0s var(--dur-base);
+  }
+  af-backtop:not([hidden]) {
+    transform: scale(1);
+    visibility: visible;
+    transition-delay: 0s;
   }
   af-backtop[position="left-bottom"] { left: calc(var(--s-4) + env(safe-area-inset-left)); }
   af-backtop:not([position="left-bottom"]) { right: calc(var(--s-4) + env(safe-area-inset-right)); }
+  af-backtop button {
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; padding: 0;
+    border: none; border-radius: var(--r-f);
+    background: var(--c-brand);
+    color: #fff;
+    font: inherit; font-size: 20px; font-weight: var(--fw-semibold);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+    transition: opacity var(--dur-fast) var(--ease-out);
+  }
+  af-backtop button:active { opacity: .6; }
 
   /* af-navbar：sticky 顶部导航 + 顶部安全区
      v6.1：左右区绝对定位（sticky 元素即定位基准），标题脱离左右内容宽度差、真正居中；
-     左右区 top 从安全区下沿起算，垂直居中于内容区 */
+     左右区 top 从安全区下沿起算，垂直居中于内容区；
+     T1.3 Vant 对齐：高 46px、左右区 padding 16px、标题 16px/600 */
   af-navbar {
     display: flex; align-items: center; justify-content: center;
     position: sticky; top: 0; z-index: var(--z-sticky);
     background: var(--c-card); border-bottom: 0.5px solid var(--c-border);
     padding-top: env(safe-area-inset-top);
-    min-height: 48px;
+    min-height: 46px;
   }
   af-navbar [data-role="left"], af-navbar [data-role="right"] {
     position: absolute; top: env(safe-area-inset-top); bottom: 0;
     display: inline-flex; align-items: center; gap: var(--s-2);
+    padding: 0 var(--s-4);
   }
   af-navbar [data-role="left"] { left: 0; }
   af-navbar [data-role="right"] { right: 0; }
-  /* v6：标题过长单行截断；v6.1：max-width 约束占宽，防与绝对定位的左右区重叠（对齐 Vant 60%） */
+  /* v6：标题过长单行截断；v6.1：max-width 约束占宽，防与绝对定位的左右区重叠（对齐 Vant 60%）；
+     T1.3：标题字号 16px（Vant nav-bar-title-font-size，库内无 16px 文字 token，借用 --t-input 值） */
   af-navbar [data-role="title"] {
     max-width: 60%; text-align: center;
+    font-size: var(--t-input); font-weight: var(--fw-semibold);
     overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
   }
+  /* T1.3：返回键是图标（Vant arrow 16px）而非 12px 文字按钮；44px 触点保达标 */
+  af-navbar [data-role="back"] {
+    font-size: var(--t-input);
+    min-height: 44px;
+    padding: 0 var(--s-2);
+  }
 
-  /* af-tabbar：底部固定 + 底部安全区 */
+  /* af-tabbar：底部固定 + 底部安全区；T1.2 Vant 对齐：图标 22px/行高 1（icon-size 默认值）；
+     T1.4：badge 挂 icon 右上角 absolute（van-badge--fixed 同款），不占流高度 */
   af-tabbar { display: block; }
+  af-tabbar [data-role="icon"] { position: relative; font-size: 22px; line-height: 1; }
+  af-tabbar [data-role="icon"] .badge {
+    position: absolute; top: 0; right: 0;
+    transform: translate(50%, -50%);
+  }
 
-  /* af-stepper：横向紧凑布局 + 居中数字输入 */
-  af-stepper { display: inline-flex; align-items: center; gap: var(--s-1); }
-  /* v6.1：输入宽 64→40px（对齐 Vant 32px 量级，64px 在紧凑表单中过宽） */
-  af-stepper [data-role="input"] { width: 40px; text-align: center; }
-  /* ±按钮 40px 方形触点（覆盖 btn-sm 的 32px，保触控达标）；
-     v6.1：字号 t-lg→t-md，±符号与正文同级即可，避免喧宾夺主 */
+  /* af-stepper：T0.6 Vant 对齐——三段连体（28×28 灰底方块 ± + 32px 无边框数字同底），
+     外圈 4px 圆角；± 14px，数字保持 --t-input 16px（iOS 聚焦缩放红线，禁令 5）；
+     hover/active/disabled 覆盖 btn-ghost 的品牌色反馈（Vant 是中性灰阶） */
+  af-stepper { display: inline-flex; align-items: stretch; }
   af-stepper [data-role="minus"],
   af-stepper [data-role="plus"] {
-    width: var(--s-7);
-    height: var(--s-7);
-    padding: 0;
+    width: 28px; min-height: 28px; height: 28px; padding: 0;
+    background: var(--c-muted-bg); color: var(--c-text); border-radius: 0;
     font-size: var(--t-md);
+  }
+  af-stepper [data-role="minus"] { border-radius: var(--r-xs) 0 0 var(--r-xs); }
+  af-stepper [data-role="plus"] { border-radius: 0 var(--r-xs) var(--r-xs) 0; }
+  af-stepper [data-role="input"] {
+    width: 32px; height: 28px; min-height: 28px; padding: 0; text-align: center;
+    background: var(--c-muted-bg); border: none; border-radius: 0;
+    font-size: var(--t-input);
+  }
+  af-stepper [data-role="minus"]:hover,
+  af-stepper [data-role="plus"]:hover { background: var(--c-border); }
+  af-stepper [data-role="minus"]:active,
+  af-stepper [data-role="plus"]:active { background: var(--c-border); }
+  af-stepper button:disabled {
+    background: var(--c-muted-bg); color: var(--c-muted);
+    cursor: not-allowed;
   }
 
   /* af-field：图标绝对定位 + 控件容器相对定位 */

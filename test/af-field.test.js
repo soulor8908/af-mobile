@@ -126,3 +126,161 @@ describe('af-field', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
+
+describe('af-field T0.10 Vant 对齐（required/clearable/word-limit/right slot）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('required：label 前渲染红色星号（f-req）+ input required attr', () => {
+    const el = makeField({ label: '手机号', required: true });
+    expect(el.$('.f-req')).not.toBeNull();
+    expect(el.$('.f-req').textContent).toBe('*');
+    expect(el.$('[data-role="input"]').hasAttribute('required')).toBe(true);
+  });
+
+  it('非 required 不渲染星号', () => {
+    const el = makeField({ label: '备注' });
+    expect(el.$('.f-req')).toBeNull();
+  });
+
+  it('clearable：有值时渲染 f-clear，点击清空并派发 input/change', () => {
+    const el = makeField({ label: '搜索', value: 'abc', clearable: true });
+    const clearBtn = el.$('.f-clear');
+    expect(clearBtn).not.toBeNull();
+    const inputSpy = vi.fn();
+    const changeSpy = vi.fn();
+    el.addEventListener('af-field:input', inputSpy);
+    el.addEventListener('af-field:change', changeSpy);
+    clearBtn.click();
+    expect(el.value).toBe('');
+    expect(inputSpy).toHaveBeenCalledTimes(1);
+    expect(changeSpy).toHaveBeenCalledTimes(1);
+    expect(el.$('.f-clear')).toBeNull(); // 空值后按钮移除
+  });
+
+  it('clearable：无值时不渲染按钮', () => {
+    const el = makeField({ label: '搜索', value: '', clearable: true });
+    expect(el.$('.f-clear')).toBeNull();
+  });
+
+  it('clearable：disabled/readonly 时不渲染按钮', () => {
+    expect(makeField({ label: 'a', value: 'x', clearable: true, disabled: true }).$('.f-clear')).toBeNull();
+    expect(makeField({ label: 'b', value: 'x', clearable: true, readonly: true }).$('.f-clear')).toBeNull();
+  });
+
+  it('showWordLimit + maxlength：渲染 n/max 字数统计', () => {
+    const el = makeField({ label: '简介', type: 'textarea', value: 'abc', maxlength: 10, showWordLimit: true });
+    const limit = el.$('[data-role="limit"]');
+    expect(limit).not.toBeNull();
+    expect(limit.textContent).toBe('3/10');
+    expect(el.$('[data-role="input"]').getAttribute('maxlength')).toBe('10');
+  });
+
+  it('字数统计随输入实时同步', () => {
+    const el = makeField({ label: '简介', maxlength: 5, showWordLimit: true });
+    const input = el.$('[data-role="input"]');
+    input.value = 'ab';
+    input.dispatchEvent(new Event('input'));
+    expect(el.$('[data-role="limit"]').textContent).toBe('2/5');
+  });
+
+  it('无 showWordLimit 或 maxlength 不渲染字数统计', () => {
+    expect(makeField({ label: 'a' }).$('[data-role="limit"]')).toBeNull();
+    expect(makeField({ label: 'b', maxlength: 5 }).$('[data-role="limit"]')).toBeNull();
+  });
+
+  it('slot="right" 内容搬入 control-wrap（右侧插槽）', () => {
+    const el = document.createElement('af-field-test');
+    el.setAttribute('label', '验证码');
+    const btn = document.createElement('button');
+    btn.setAttribute('slot', 'right');
+    btn.textContent = '发送';
+    el.appendChild(btn);
+    document.body.appendChild(el);
+    const wrap = el.querySelector('[data-role="control-wrap"]');
+    expect(wrap.contains(btn)).toBe(true);
+  });
+
+  it('maxlength=0 时 input 无 maxlength attr', () => {
+    const el = makeField({ label: 'a' });
+    expect(el.$('[data-role="input"]').hasAttribute('maxlength')).toBe(false);
+  });
+});
+
+describe('af-field T0.10 Vant 对齐（required/clearable/word-limit/right slot）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('required：label 前渲染红色星号（f-req）+ input required attr', () => {
+    const el = makeField({ label: '手机号', required: true });
+    expect(el.$('.f-req')).not.toBeNull();
+    expect(el.$('.f-req').textContent).toBe('*');
+    expect(el.$('[data-role="input"]').hasAttribute('required')).toBe(true);
+  });
+
+  it('非 required 不渲染星号', () => {
+    const el = makeField({ label: '备注' });
+    expect(el.$('.f-req')).toBeNull();
+  });
+
+  it('clearable：有值时渲染 f-clear，点击清空并派发 input/change', () => {
+    const el = makeField({ label: '搜索', value: 'abc', clearable: true });
+    const clearBtn = el.$('.f-clear');
+    expect(clearBtn).not.toBeNull();
+    const inputSpy = vi.fn();
+    const changeSpy = vi.fn();
+    el.addEventListener('af-field:input', inputSpy);
+    el.addEventListener('af-field:change', changeSpy);
+    clearBtn.click();
+    expect(el.value).toBe('');
+    expect(inputSpy).toHaveBeenCalledTimes(1);
+    expect(changeSpy).toHaveBeenCalledTimes(1);
+    expect(el.$('.f-clear')).toBeNull(); // 空值后按钮移除
+  });
+
+  it('clearable：无值时不渲染按钮', () => {
+    const el = makeField({ label: '搜索', value: '', clearable: true });
+    expect(el.$('.f-clear')).toBeNull();
+  });
+
+  it('clearable：disabled/readonly 时不渲染按钮', () => {
+    expect(makeField({ label: 'a', value: 'x', clearable: true, disabled: true }).$('.f-clear')).toBeNull();
+    expect(makeField({ label: 'b', value: 'x', clearable: true, readonly: true }).$('.f-clear')).toBeNull();
+  });
+
+  it('showWordLimit + maxlength：渲染 n/max 字数统计', () => {
+    const el = makeField({ label: '简介', type: 'textarea', value: 'abc', maxlength: 10, showWordLimit: true });
+    const limit = el.$('[data-role="limit"]');
+    expect(limit).not.toBeNull();
+    expect(limit.textContent).toBe('3/10');
+    expect(el.$('[data-role="input"]').getAttribute('maxlength')).toBe('10');
+  });
+
+  it('字数统计随输入实时同步', () => {
+    const el = makeField({ label: '简介', maxlength: 5, showWordLimit: true });
+    const input = el.$('[data-role="input"]');
+    input.value = 'ab';
+    input.dispatchEvent(new Event('input'));
+    expect(el.$('[data-role="limit"]').textContent).toBe('2/5');
+  });
+
+  it('无 showWordLimit 或 maxlength 不渲染字数统计', () => {
+    expect(makeField({ label: 'a' }).$('[data-role="limit"]')).toBeNull();
+    expect(makeField({ label: 'b', maxlength: 5 }).$('[data-role="limit"]')).toBeNull();
+  });
+
+  it('slot="right" 内容搬入 control-wrap（右侧插槽）', () => {
+    const el = document.createElement('af-field-test');
+    el.setAttribute('label', '验证码');
+    const btn = document.createElement('button');
+    btn.setAttribute('slot', 'right');
+    btn.textContent = '发送';
+    el.appendChild(btn);
+    document.body.appendChild(el);
+    const wrap = el.querySelector('[data-role="control-wrap"]');
+    expect(wrap.contains(btn)).toBe(true);
+  });
+
+  it('maxlength=0 时 input 无 maxlength attr', () => {
+    const el = makeField({ label: 'a' });
+    expect(el.$('[data-role="input"]').hasAttribute('maxlength')).toBe(false);
+  });
+});

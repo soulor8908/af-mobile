@@ -1,5 +1,5 @@
 // af-mobile UI —— af-action-sheet：底部操作面板
-// Light DOM，复用 L2 .sheet/.list/.list-item 配方 + 原生 popover API
+// Light DOM，复用 L2 .sheet/.as-* 配方 + 原生 popover API（T0.9 Vant 对齐：通栏贴边、项居中 16px）
 import { AfElement, escapeHtml as esc } from '../lib/af-element.js';
 import { withI18n } from '../lib/with-i18n.js';
 
@@ -27,7 +27,7 @@ export class AfActionSheet extends withI18n(AfElement) {
 
   _bindEvents() {
     this._onClick = (e) => {
-      const item = e.target.closest('.list-item');
+      const item = e.target.closest('.as-item');
       if (!item || item.disabled) return;
       const idx = Number(item.dataset.idx);
       const option = (this.options || []).map(_ni)[idx];
@@ -71,37 +71,38 @@ export class AfActionSheet extends withI18n(AfElement) {
 
   _render() {
     this.innerHTML = `
-      <div class="sheet" popover role="dialog">
-        <div class="list"></div>
-      </div>
+      <div class="sheet" popover role="dialog"></div>
     `;
     this._sheet = this.$('.sheet');
-    this._list = this.$('.list');
     this._renderContent();
   }
 
   // 仅更新标题/列表/取消按钮（保留 .sheet 元素及其 popover 状态 + 事件监听，不关闭已打开的浮层）
   // 与 af-dropdown._renderList 对称：避免属性变化时整树重建导致 popover 关闭、焦点丢失
+  // T0.9 Vant 对齐：项居中 16px（.as-item）、subname 副标题、loading 同 disabled 灰色态、
+  // 取消区前 8px 灰底间隔块（.as-gap）；标题用 .as-header 48px 居中（替代 caption 组合）
   _renderContent() {
     if (!this._sheet) return;
     const opts = (this.options || []).map(_ni);
-    // 危险项用 text-danger 原子类着色（.danger 无 CSS 定义，已移除）
+    // 危险项用 text-danger 原子类着色；loading 项禁用交互（aria-busy）
     const itemsHtml = opts.map((opt, i) => {
-      const labelCls = opt.danger ? 'flex-1 text-danger' : 'flex-1';
-      const disabled = opt.disabled ? ' disabled' : '';
-      return `<button class="list-item" data-idx="${i}"${disabled}><span class="${labelCls}">${esc(opt.label)}</span></button>`;
+      const cls = opt.danger ? 'as-item text-danger' : 'as-item';
+      const disabled = opt.disabled || opt.loading ? ' disabled' : '';
+      const busy = opt.loading ? ' aria-busy="true"' : '';
+      const sub = opt.subname ? `<span class="as-sub">${esc(opt.subname)}</span>` : '';
+      return `<button class="${cls}" data-idx="${i}"${disabled}${busy}>${esc(opt.label)}${sub}</button>`;
     }).join('');
 
     const titleHtml = this.title
-      ? `<div class="caption t-center p-3 text-muted" role="heading" aria-level="2">${esc(this.title)}</div><div class="divider"></div>`
+      ? `<div class="as-header" role="heading" aria-level="2">${esc(this.title)}</div>`
       : '';
 
     const cancelHtml = this.showCancel
-      ? `<div class="p-2"></div><button class="btn btn-ghost btn-block af-action-sheet-cancel"></button>`
+      ? `<div class="as-gap" role="presentation"></div><button class="as-cancel af-action-sheet-cancel"></button>`
       : '';
 
-    this._sheet.innerHTML = `${titleHtml}<div class="list">${itemsHtml}</div>${cancelHtml}`;
-    this._list = this.$('.list');
+    this._sheet.innerHTML = `${titleHtml}<div class="as-body">${itemsHtml}</div>${cancelHtml}`;
+    this._list = this.$('.as-body');
     this._cancelBtn = this.$('.af-action-sheet-cancel');
   }
 

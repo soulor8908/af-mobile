@@ -13,18 +13,25 @@ export class AfSearchBar extends withI18n(AfElement) {
   static i18n = {
     'input.search-input': ['placeholder', 'sb.ph', 'placeholder'],
     '.sb-clear':  ['aria-label',  'sb.clr'],
+    '.sb-action': ['',            'sb.cancel', 'cancelText'],
   };
 
   mounted() {
     const clearBtn = this.clearable ? `<button class="sb-clear" type="button" hidden>${CLEAR_ICON}</button>` : '';
-    this.innerHTML = `<div class="sb-wrap">${ICON}<input class="search-input" type="search" />${clearBtn}</div>`;
+    // T0.11 Vant 对齐：外层 .sb-bar 通栏（padding 10px 12px、card 底）+ 右侧取消区（showAction）
+    const actionHtml = this.showAction
+      ? `<button class="sb-action" type="button">${esc(this.cancelText || '取消')}</button>`
+      : '';
+    this.innerHTML = `<div class="sb-bar"><div class="sb-wrap">${ICON}<input class="search-input" type="search" />${clearBtn}</div>${actionHtml}</div>`;
     this._input = this.$('.search-input');
     this._clear = this.$('.sb-clear');
+    this._action = this.$('.sb-action');
     this._input.value = this.value;
     this._debounceTimer = null;
     this._bindInput();
     this._bindKeydown();
     this._bindClear();
+    this._bindAction();
     this._syncClear();
   }
 
@@ -75,12 +82,26 @@ export class AfSearchBar extends withI18n(AfElement) {
     this._listen(this._clear, 'click', this._onClear);
   }
 
+  _bindAction() {
+    if (!this._action) return;
+    this._onAction = () => {
+      this.emit('af-search-bar:cancel', { value: this.value });
+    };
+    this._listen(this._action, 'click', this._onAction);
+  }
+
   focus() { this._input?.focus(); }
 
   onAttributeChange(name) {
     if (!this._input) return;
     if (name === 'value') this._input.value = this.value;
-    if (name === 'placeholder') this._applyI18n();
+    if (name === 'placeholder' || name === 'cancel-text') {
+      this._applyI18n();
+      // cancel-text 优先级高于字典：直接写 textContent（i18n 回退字典值）
+      if (name === 'cancel-text' && this._action && this.cancelText) {
+        this._action.textContent = this.cancelText;
+      }
+    }
   }
 
   unmounted() {
@@ -92,3 +113,5 @@ AfElement.defineProp(AfSearchBar.prototype, 'value', '');
 AfElement.defineProp(AfSearchBar.prototype, 'placeholder', null);
 AfElement.defineProp(AfSearchBar.prototype, 'clearable', true);
 AfElement.defineProp(AfSearchBar.prototype, 'debounce', 300);
+AfElement.defineProp(AfSearchBar.prototype, 'showAction', false);
+AfElement.defineProp(AfSearchBar.prototype, 'cancelText', null);

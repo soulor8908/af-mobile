@@ -8,24 +8,24 @@ import { withI18n } from '../lib/with-i18n.js';
 const CSS = `
   :host { display: contents; }
   dialog {
-    border: none; border-radius: var(--r-l); background: var(--c-card);
+    border: none; border-radius: var(--af-dialog-radius, 16px); background: var(--c-card);
     color: var(--c-text); padding: 0;
     width: var(--af-dialog-w, 320px); max-width: 90vw;
     box-shadow: var(--shadow-lg);
   }
-  dialog::backdrop { background: rgba(0,0,0,.4); backdrop-filter: blur(8px); }
-  header { padding: var(--s-4); border-bottom: 1px solid var(--c-border); position: relative; }
-  .title { margin: 0; font-size: var(--t-lg); font-weight: var(--fw-semibold); line-height: var(--lh-tight); }
+  dialog::backdrop { background: rgba(0,0,0,.7); }
+  header { padding: var(--s-5) var(--s-4) 0; position: relative; text-align: center; }
+  .title { margin: 0; font-size: var(--t-input); font-weight: var(--fw-semibold); line-height: 24px; }
   .close-btn {
     position: absolute; top: var(--s-2); right: var(--s-2);
     background: none; border: none; color: var(--c-muted);
     font-size: var(--t-lg); cursor: pointer; padding: var(--s-1); line-height: 1;
   }
-  .body { padding: var(--s-4); }
-  footer { display: flex; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-top: 1px solid var(--c-border); }
-  footer > ::slotted(*) { flex: 1; display: flex; gap: var(--s-2); width: 100%; }
+  .body { padding: var(--s-4) var(--s-5); line-height: 20px; max-height: 60vh; overflow: auto; }
+  footer { display: flex; }
+  footer > ::slotted(*) { flex: 1; display: flex; gap: var(--s-2); width: 100%; min-height: 48px; border-radius: 0; }
   :host([variant="bottom"]) dialog {
-    border-radius: var(--r-l) var(--r-l) 0 0;
+    border-radius: var(--af-dialog-radius, 16px) var(--af-dialog-radius, 16px) 0 0;
     max-width: 100vw; width: 100%;
     margin: auto 0 0 0;
   }

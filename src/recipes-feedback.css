@@ -77,20 +77,22 @@
   /* v6 新增：plain 描边式标签（浅底场景弱强调，不与实心彩底争抢视觉层级） */
   .tag-plain  { background: transparent; color: var(--c-brand); border: 1px solid var(--c-brand); }
 
-  /* v5：badge padding 5px → var(--s-1)（修魔数） */
+  /* v5：badge padding 5px → var(--s-1)（修魔数）；
+     T1.9 Vant 对齐：16px 本体 / 12px 字 / 3px 水平 padding / 恒 1px 白描边（防与底图同色粘连） */
   .badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 var(--s-1);
-    font-size: var(--t-xs);
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    font-size: var(--t-sm);
     font-weight: var(--fw-bold);
     line-height: 1;
     border-radius: var(--r-f);
     background: var(--c-danger);
     color: var(--c-onbrand);
+    box-shadow: 0 0 0 1px var(--c-card);
   }
 
   .toast {
@@ -98,17 +100,20 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    padding: var(--s-2) var(--s-4);
+    /* T1.1 Vant 对齐：纯文字态 min-width 96 / padding 8 12 / 14px-20px / max-width 70% */
+    min-width: 96px;
+    padding: var(--s-2) var(--s-3);
     background: rgba(0,0,0,.8);
     /* v6：黑底 Toast 恒用纯白——onbrand 在 dark 主题是深色，浮于黑底不可读 */
     color: #fff;
-    font-size: var(--t-sm);
+    font-size: var(--t-md);
+    line-height: 20px;
     border-radius: var(--r-m);
     z-index: var(--z-modal);
     opacity: var(--toast-opacity, 1);
     transition: var(--toast-transition, none);
     pointer-events: var(--toast-pointer-events, none);
-    max-width: 80%;
+    max-width: 70%;
     text-align: center;
   }
   .toast-success { background: var(--c-success); }
@@ -132,24 +137,51 @@
   .spinner-lg { width: 40px; height: 40px; border-width: 3px; }
   @keyframes spinner-rotate { to { transform: rotate(360deg); } }
 
-  /* === 进度条（5） === */
-  /* v5：新增 accent-color（2022+ 浏览器原生），保留 ::-webkit-progress-value / ::-moz-progress-bar 双写兜底
-     颜色变体通过 --progress-color 覆盖 */
+  /* === 进度条（5） ===
+     v5：原生 <progress> 路径（accent-color）；T0.7 Vant 对齐：高度 8→4px，
+     新增 div 路径（.progress-bar 填充条 + .progress-pivot 百分比气泡，af-progress 组件用）。
+     两种宿主共存：div 容器多出的 position:relative / overflow:visible 对原生 progress 无副作用 */
   .progress {
+    position: relative;
     display: block;
     width: 100%;
-    height: 8px;
+    height: 4px;
     border: none;
     border-radius: var(--r-f);
     background: var(--c-muted-bg);
-    overflow: hidden;
+    overflow: visible;
     --progress-color: var(--c-brand);
     accent-color: var(--progress-color);
     -webkit-appearance: none;
     appearance: none;
   }
+  /* div 路径：填充条宽度由 --af-pct 派发（af-progress._render 计算，禁内联 style） */
+  .progress-bar {
+    height: 100%;
+    width: var(--af-pct, 0%);
+    border-radius: inherit;
+    background: var(--progress-color);
+    transition: width var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+  }
+  .progress-pivot {
+    position: absolute;
+    left: var(--af-pct, 0%);
+    top: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 3.6em;
+    padding: 0 5px;
+    font-size: 10px;
+    line-height: 1.6;
+    color: var(--c-onbrand);
+    text-align: center;
+    background: var(--progress-color);
+    border-radius: 1em;
+    transition: left var(--dur-base) var(--ease-out);
+    pointer-events: none;
+  }
   .progress-sm { height: 4px; }
   .progress-lg { height: 12px; }
+  .progress-inactive { --progress-color: var(--c-muted); }
   .progress::-webkit-progress-bar {
     background: var(--c-muted-bg);
     border-radius: var(--r-f);
@@ -166,20 +198,41 @@
   .progress-success { --progress-color: var(--c-success); }
   .progress-danger { --progress-color: var(--c-danger); }
 
-  /* === 通知栏（3） === */
-  /* 纯 CSS：@keyframes marquee 横向滚动
+  /* === 通知栏（3） ===
+     T0.5 Vant 对齐：浅奶油底 + 暖棕字（--c-notice-* 弱提示语义），高 40px、字 14px/24px；
+     .notice-ico 左图标槽 / .notice-close 关闭按钮 / .notice-wrap 多行不滚动变体；
+     滚动时长经 --notice-dur 派发（af-notice-bar 按文本宽/60px·s 计算，匀速观感）
+     纯 CSS：@keyframes marquee 横向滚动
      用法（滚动）：<div class="notice"><span class="notice-tx"><span class="notice-scr">公告内容</span></span></div>
      用法（截断）：<div class="notice"><span class="notice-tx">公告内容</span></div> */
   .notice {
     display: flex;
     align-items: center;
     gap: var(--s-2);
-    padding: var(--s-2) var(--s-3);
-    background: var(--c-warn);
-    color: var(--c-onwarn);
-    font-size: var(--t-sm);
-    line-height: var(--lh-tight);
+    height: 40px;
+    padding: 0 var(--s-4);
+    background: var(--c-notice-bg);
+    color: var(--c-notice-text);
+    font-size: var(--t-md);
+    line-height: 24px;
     overflow: hidden;
+  }
+  .notice-ico {
+    flex: none;
+    min-width: 24px;
+    font-size: 16px;
+    display: inline-flex;
+  }
+  .notice-close {
+    flex: none;
+    min-width: 24px;
+    font-size: 16px;
+    padding: 0;
+    text-align: right;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: inherit;
   }
   .notice-tx {
     flex: 1;
@@ -190,7 +243,72 @@
   .notice-scr {
     display: inline-block;
     padding-left: 100%;
-    animation: notice-marquee 12s linear infinite;
+    animation: notice-marquee var(--notice-dur, 12s) linear infinite;
   }
   @keyframes notice-marquee { to { transform: translateX(-100%); } }
+  .notice-wrap { height: auto; padding: var(--s-2) var(--s-4); }
+  .notice-wrap .notice-tx { white-space: normal; text-overflow: clip; }
+
+  /* === 操作面板（T0.9 Vant 对齐） ===
+     标题 48px/16px 居中，项 16px 居中，subname 12px 灰，
+     取消区前 8px 灰底间隔块（--c-bg 页面底色）；容器 .sheet 在 core 子集 */
+  .as-header {
+    flex-shrink: 0;
+    min-height: 48px;
+    padding: 0 var(--s-4);
+    font-size: var(--t-input);
+    font-weight: var(--fw-semibold);
+    line-height: 48px;
+    text-align: center;
+    color: var(--c-text);
+  }
+  .as-body {
+    flex: 1;
+    overflow: auto;
+    color: var(--c-text);
+  }
+  .as-item,
+  .as-cancel {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 14px var(--s-4);
+    font: inherit;
+    font-size: var(--t-input);
+    line-height: 22px;
+    text-align: center;
+    background: var(--c-card);
+    border: none;
+    color: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .as-item:active,
+  .as-cancel:active { background: var(--c-muted-bg); }
+  .as-item[disabled] {
+    color: var(--c-muted);
+    background: var(--c-card);
+  }
+  .as-sub {
+    width: 100%;
+    margin-top: var(--s-1);
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+    line-height: 16px;
+    overflow-wrap: break-word;
+  }
+  .as-gap {
+    flex-shrink: 0;
+    height: var(--s-2);
+    background: var(--c-bg);
+  }
+  .as-cancel {
+    flex-shrink: 0;
+    color: var(--c-text);
+  }
 }

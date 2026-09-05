@@ -30,6 +30,11 @@
     box-shadow: var(--ring-focus);
   }
   .input::placeholder, .textarea::placeholder { color: var(--c-muted); }
+  /* T0.10 Vant 对齐：disabled 文字用 muted 色（Vant field-input-disabled-text-color） */
+  .input:disabled, .textarea:disabled {
+    color: var(--c-muted);
+    background: var(--c-muted-bg);
+  }
   .textarea {
     resize: vertical;
     min-height: 80px;
@@ -50,17 +55,52 @@
     margin-bottom: var(--s-3);
   }
 
+  /* T0.10 Vant 对齐：error-message 12px（原 --t-xs 11px 偏小一档） */
   .form-err {
-    font-size: var(--t-xs);
+    font-size: var(--t-sm);
     color: var(--c-danger);
     line-height: var(--lh-tight);
   }
 
+  /* === af-field 扩展（T0.10 Vant 对齐）===
+     必填星号 f-req / 清除按钮 f-clear（absolute 定位，data-clear 驱动 input 右留白）/
+     字数统计 f-limit（12px 灰，右对齐） */
+  .f-req {
+    margin-right: 2px;
+    color: var(--c-danger);
+  }
+  [data-role="control-wrap"] {
+    position: relative;
+  }
+  [data-role="control-wrap"][data-clear] .input,
+  [data-role="control-wrap"][data-clear] .textarea {
+    padding-right: 36px;
+  }
+  .f-clear {
+    position: absolute;
+    right: var(--s-2);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--c-muted);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .f-limit {
+    margin-top: var(--s-1);
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+    line-height: 16px;
+    text-align: right;
+  }
+
   .search-input {
     width: 100%;
-    /* v6.1：固定高度替代垂直 padding（原 ~40px → 36px），垂直居中由 input 原生行为保证；
-       字号仍用 --t-input(16px)，iOS 聚焦缩放红线不可触碰 */
-    height: 36px;
+    /* T0.11 Vant 对齐：输入高 34px（原 36px）；字号仍用 --t-input(16px)，iOS 聚焦缩放红线不可触碰 */
+    height: 34px;
     padding: 0 var(--s-3) 0 var(--s-5);
     background: var(--c-muted-bg);
     border: 1px solid transparent;
@@ -103,7 +143,8 @@
     border-radius: 50%;
     background: var(--c-card);
     box-shadow: var(--shadow-sm), 0 0 0 1px color-mix(in srgb, var(--c-text) 4%, transparent);
-    transition: transform var(--dur-base) var(--ease-out);
+    /* Vant 对齐（T2.1）：300ms 回弹曲线，开关手感与 iOS/Vant 一致 */
+    transition: transform 300ms cubic-bezier(.3, 1.05, .4, 1.05);
     margin: 0 2px;
     flex-shrink: 0;
   }
@@ -117,6 +158,25 @@
     position: relative;
     display: flex;
     align-items: center;
+  }
+  /* T0.11 Vant 对齐：外层 bar 通栏（padding 10px 12px、card 底），action 取消区在右侧 */
+  .sb-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background: var(--c-card);
+  }
+  .sb-bar .sb-wrap { flex: 1; }
+  .sb-action {
+    flex-shrink: 0;
+    margin-left: var(--s-1);
+    padding: 0 var(--s-1);
+    border: none;
+    background: none;
+    font: inherit;
+    font-size: var(--t-md);
+    color: var(--c-text);
+    cursor: pointer;
   }
   .sb-icon {
     position: absolute;
@@ -149,14 +209,82 @@
   .input:user-invalid, .textarea:user-invalid { border-color: var(--c-danger); }
   .input:user-invalid:focus, .textarea:user-invalid:focus { border-color: var(--c-danger); }
 
-  .upload-tg { display: inline-flex; align-items: center; }
+  /* T0.2 Vant 对齐：宫格化——80×80 占位块进网格首项（up-add），预览项 up-item +
+     右上 14px 黑角标删除（up-del），loading/失败遮罩（up-mask）；无独立上传按钮 */
   .upload-gd {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: var(--s-2);
-    margin-top: var(--s-3);
   }
-  .upload-gd:empty { display: none; }
+  .up-add {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--c-muted-bg);
+    border: none;
+    border-radius: var(--r-s);
+    cursor: pointer;
+    font: inherit;
+    color: var(--c-muted);
+    appearance: none;
+    -webkit-appearance: none;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .up-add:active { background: var(--c-border); }
+  af-upload[disabled] .up-add {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+  .up-ico { font-size: 24px; line-height: 1; }
+  .up-txt {
+    margin-top: var(--s-1);
+    color: var(--c-muted);
+    font-size: var(--t-sm);
+  }
+  .up-item {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: var(--r-s);
+  }
+  .up-thumb {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: var(--c-muted-bg);
+  }
+  .up-del {
+    position: absolute;
+    top: 0; right: 0;
+    width: 14px;
+    height: 14px;
+    background: rgba(0, 0, 0, .7);
+    border-radius: 0 0 0 12px;
+    border: none;
+    padding: 0;
+    color: #fff;
+    font-size: 14px;
+    line-height: 14px;
+    cursor: pointer;
+  }
+  .up-mask {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(50, 50, 51, .88);
+    color: #fff;
+    font-size: var(--t-sm);
+    line-height: 16px;
+    text-align: center;
+    padding: 0 var(--s-1);
+  }
 
   /* === Checkbox / Radio（4） === */
   /* v5：删 appearance:none + ::after 自绘勾选（魔数 + 对齐 bug）
@@ -192,10 +320,31 @@
   }
 
   /* === af-stepper / af-field 宿主样式（form 子集，表单页才引） === */
-  /* af-stepper：横向紧凑布局 + 居中数字输入 */
-  af-stepper { display: inline-flex; align-items: center; gap: var(--s-1); }
-  /* v6.1：输入宽 64→40px（对齐 Vant 32px 量级，64px 在紧凑表单中过宽） */
-  af-stepper [data-role="input"] { width: 40px; text-align: center; }
+  /* af-stepper：T0.6 Vant 对齐——三段连体（28×28 灰底方块 ± + 32px 无边框数字同底），
+     外圈 4px 圆角；± 14px，数字保持 --t-input 16px（iOS 聚焦缩放红线，禁令 5）；
+     hover/active/disabled 覆盖 btn-ghost 的品牌色反馈（Vant 是中性灰阶） */
+  af-stepper { display: inline-flex; align-items: stretch; }
+  af-stepper [data-role="minus"],
+  af-stepper [data-role="plus"] {
+    width: 28px; min-height: 28px; height: 28px; padding: 0;
+    background: var(--c-muted-bg); color: var(--c-text); border-radius: 0;
+    font-size: var(--t-md);
+  }
+  af-stepper [data-role="minus"] { border-radius: var(--r-xs) 0 0 var(--r-xs); }
+  af-stepper [data-role="plus"] { border-radius: 0 var(--r-xs) var(--r-xs) 0; }
+  af-stepper [data-role="input"] {
+    width: 32px; height: 28px; min-height: 28px; padding: 0; text-align: center;
+    background: var(--c-muted-bg); border: none; border-radius: 0;
+    font-size: var(--t-input);
+  }
+  af-stepper [data-role="minus"]:hover,
+  af-stepper [data-role="plus"]:hover { background: var(--c-border); }
+  af-stepper [data-role="minus"]:active,
+  af-stepper [data-role="plus"]:active { background: var(--c-border); }
+  af-stepper button:disabled {
+    background: var(--c-muted-bg); color: var(--c-muted);
+    cursor: not-allowed;
+  }
 
   /* af-field：图标绝对定位 + 控件容器相对定位 */
   af-field { display: block; }

@@ -78,13 +78,16 @@
     padding: var(--s-4);
   }
 
+  /* v6：cell 行高 52→48；T1.5 Vant 对齐：行高 44（10px 上下 + 24px 行内容）、line-height 24px */
   .cell {
     display: flex;
     align-items: center;
     gap: var(--s-3);
     background: var(--c-card);
-    padding: var(--s-3) var(--s-4);
-    min-height: 48px;
+    padding: 10px var(--s-4);
+    min-height: 44px;
+    line-height: 24px;
+    position: relative;
   }
 
   .center {
@@ -96,6 +99,8 @@
     text-align: center;
   }
 
+  /* T0.9 Vant 对齐：底部弹层通栏贴边（无内边距）、圆角 16px、max-height 80%；
+     radius 走 fallback 变量（同 af-dialog 先例，弹层与卡片圆角解耦） */
   .sheet {
     position: fixed;
     left: 0; right: 0; bottom: 0;
@@ -103,9 +108,11 @@
     /* popover UA 在 dark 模式下强制 color: canvastext（白色），导致子树文本变白
        显式 inherit 让 .sheet 跟随 host（body 的 --c-text），覆盖 UA 默认 */
     color: inherit;
+    display: flex;
+    flex-direction: column;
+    max-height: 80%;
     background: var(--c-card);
-    border-radius: var(--r-l) var(--r-l) 0 0;
-    padding: var(--s-4);
+    border-radius: var(--af-sheet-radius, 16px) var(--af-sheet-radius, 16px) 0 0;
     box-shadow: var(--shadow-lg);
     z-index: var(--z-dropdown);
   }
@@ -134,10 +141,17 @@
     border-radius: var(--r-m);
     overflow: hidden;
   }
-  /* v6：列表分隔线 1px → 0.5px hairline */
-  .list > .cell + .cell,
-  .list > .list-item + .list-item {
-    border-top: 0.5px solid var(--c-border);
+  /* v6：分隔线 0.5px hairline；T1.5 Vant 对齐：inset 16px + ::after scaleY(.5)，最后一行不画 */
+  .list > .cell + .cell::after,
+  .list > .list-item + .list-item::after {
+    content: '';
+    position: absolute;
+    left: var(--s-4);
+    right: 0;
+    bottom: 0;
+    border-bottom: 1px solid var(--c-border);
+    transform: scaleY(.5);
+    pointer-events: none;
   }
 
   .list-item {
@@ -145,8 +159,10 @@
     align-items: center;
     gap: var(--s-3);
     background: var(--c-card);
-    padding: var(--s-3) var(--s-4);
-    min-height: 48px;
+    padding: 10px var(--s-4);
+    min-height: 44px;
+    line-height: 24px;
+    position: relative;
     /* button 宿主需显式覆盖 UA 默认样式（border / color / font / text-align / width / appearance）
        div 宿主这些属性的默认值与显式覆盖等价，不受影响 */
     border: none;
@@ -232,10 +248,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    /* T1.2 Vant 对齐：图标/文字间距 4px、文字 12px、行高 1、未激活用正文色 */
+    gap: 4px;
     padding: var(--s-2) var(--s-1);
-    font-size: var(--t-xs);
-    color: var(--c-muted);
+    font-size: var(--t-sm);
+    line-height: 1;
+    color: var(--c-text);
     background: none;
     border: none;
     cursor: pointer;
@@ -302,8 +320,36 @@
 
   /* === Light DOM 组件宿主样式（非表单类，替代 JS setProperty，遵守 wc-light-no-style） === */
   af-list, af-img, af-tabs, af-dropdown { display: block; }
-  af-tabs .tabbar { margin-bottom: var(--s-4); }
-  af-tabs .tab-item { font-size: var(--t-md); font-weight: var(--fw-medium); }
+  /* T0.3 Vant 对齐：条高 44px、底部 40×3px 品牌色滑块 + transform 位移过渡、
+     激活加粗变深（非变色）、未激活 gray-7、去 .tabbar 继承的 border-top、禁用态 gray-5；
+     滑块位移由 --af-line-x 驱动（af-tabs._moveLine 计算） */
+  af-tabs .tabbar { margin-bottom: var(--s-4); border-top: none; position: relative; }
+  af-tabs .tab-item {
+    min-height: 44px;
+    padding: 0 var(--s-3);
+    font-size: var(--t-md);
+    font-weight: var(--fw-normal);
+    color: var(--c-gray-7);
+    flex: none;
+  }
+  af-tabs .tab-item[aria-selected="true"] { font-weight: var(--fw-semibold); color: var(--c-text); }
+  af-tabs .tab-item:disabled { color: var(--c-gray-5); cursor: not-allowed; }
+  af-tabs .tabbar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--c-brand);
+    transform: translateX(var(--af-line-x, 0px));
+    transition: transform var(--dur-base) var(--ease-out);
+    pointer-events: none;
+    visibility: hidden;
+  }
+  /* 有 tab 渲染后才露出滑块（纯 CSS，免去 JS 显隐逻辑） */
+  af-tabs .tabbar:has(.tab-item)::after { visibility: visible; }
   af-dropdown .list[popover] { width: min(100%, 640px); }
   af-list { height: var(--af-list-h, auto); }
   af-list > .list { overflow: auto; height: 100%; }
@@ -332,28 +378,44 @@
   af-backtop:not([position="left-bottom"]) { right: calc(var(--s-4) + env(safe-area-inset-right)); }
 
   /* af-navbar：sticky 顶部导航 + 顶部安全区
-     v6.1：左右区绝对定位，标题脱离左右内容宽度差、真正居中 */
+     v6.1：左右区绝对定位，标题脱离左右内容宽度差、真正居中；
+     T1.3 Vant 对齐：高 46px、左右区 padding 16px、标题 16px/600 */
   af-navbar {
     display: flex; align-items: center; justify-content: center;
     position: sticky; top: 0; z-index: var(--z-sticky);
     background: var(--c-card); border-bottom: 0.5px solid var(--c-border);
     padding-top: env(safe-area-inset-top);
-    min-height: 48px;
+    min-height: 46px;
   }
   af-navbar [data-role="left"], af-navbar [data-role="right"] {
     position: absolute; top: env(safe-area-inset-top); bottom: 0;
     display: inline-flex; align-items: center; gap: var(--s-2);
+    padding: 0 var(--s-4);
   }
   af-navbar [data-role="left"] { left: 0; }
   af-navbar [data-role="right"] { right: 0; }
-  /* v6：标题过长单行截断；v6.1：max-width 约束占宽，防与绝对定位的左右区重叠（对齐 Vant 60%） */
+  /* v6：标题过长单行截断；v6.1：max-width 约束占宽，防与绝对定位的左右区重叠（对齐 Vant 60%）；
+     T1.3：标题字号 16px（Vant nav-bar-title-font-size，库内无 16px 文字 token，借用 --t-input 值） */
   af-navbar [data-role="title"] {
     max-width: 60%; text-align: center;
+    font-size: var(--t-input); font-weight: var(--fw-semibold);
     overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
   }
+  /* T1.3：返回键是图标（Vant arrow 16px）而非 12px 文字按钮；44px 触点保达标 */
+  af-navbar [data-role="back"] {
+    font-size: var(--t-input);
+    min-height: 44px;
+    padding: 0 var(--s-2);
+  }
 
-  /* af-tabbar：底部固定 + 底部安全区 */
+  /* af-tabbar：底部固定 + 底部安全区；T1.2 Vant 对齐：图标 22px/行高 1（icon-size 默认值）；
+     T1.4：badge 挂 icon 右上角 absolute（van-badge--fixed 同款），不占流高度 */
   af-tabbar { display: block; }
+  af-tabbar [data-role="icon"] { position: relative; font-size: 22px; line-height: 1; }
+  af-tabbar [data-role="icon"] .badge {
+    position: absolute; top: 0; right: 0;
+    transform: translate(50%, -50%);
+  }
 
   /* af-pull-refresh：相对定位 + 指示器高度由 --af-pull-h 驱动 */
   af-pull-refresh { display: block; position: relative; overflow: hidden; }

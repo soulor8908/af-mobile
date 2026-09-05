@@ -28,10 +28,12 @@ export class AfTabbar extends withI18n(AfElement) {
     return this.tabs.map((tab, i) => {
       const selected = i === this.activeIndex ? 'true' : 'false';
       const tabindex = i === this.activeIndex ? '0' : '-1';
+      // T1.4（Vant 对齐）：badge 挂在 icon 容器内 absolute 右上角（van-badge--fixed 同款），
+      // 不再作为 .tab-item（flex column）的流内子项——此前 badge 从无到有会把 label 下推一整行
       const badge = tab.badge != null && tab.badge !== '' ? `<span class="badge">${esc(tab.badge)}</span>` : '';
-      const icon = tab.icon ? `<span data-role="icon">${esc(tab.icon)}</span>` : '';
+      const icon = tab.icon || badge ? `<span data-role="icon">${esc(tab.icon || '')}${badge}</span>` : '';
       const label = tab.label ? `<span data-role="label">${esc(tab.label)}</span>` : '';
-      return `<button class="tab-item" role="tab" type="button" aria-selected="${selected}" tabindex="${tabindex}" data-index="${i}">${icon}${badge}${label}</button>`;
+      return `<button class="tab-item" role="tab" type="button" aria-selected="${selected}" tabindex="${tabindex}" data-index="${i}">${icon}${label}</button>`;
     }).join('');
   }
 

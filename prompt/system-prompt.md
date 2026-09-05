@@ -18,23 +18,20 @@
 
 # L2 白名单（构建时注入）
 
-## L2 配方（137 个，按用途分组）
+## L2 配方（160 个，按用途分组）
 
 **按钮（10）：** `btn` `btn-sm` `btn-lg` `btn-mini` `btn-ghost` `btn-plain` `btn-danger` `btn-success` `btn-block` `btn-round`
-**容器（9）：** `page` `app-shell` `card` `cell` `center` `sheet` `eyebrow` `section` `section-tt`
+**容器（15）：** `page` `app-shell` `card` `cell` `center` `sheet` `as-header` `as-body` `as-item` `as-cancel` `as-sub` `as-gap` `eyebrow` `section` `section-tt`
 **文本（8）：** `display` `title` `subtitle` `body` `caption` `meta` `price` `price-del`
-**表单（18）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `search-input` `switch` `switch-sm` `switch-on` `switch-ldg` `switch-th` `sb-wrap` `sb-icon` `sb-clear` `input-err` `upload-tg` `upload-gd`
+**表单（29）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `f-req` `f-clear` `f-limit` `search-input` `switch` `switch-sm` `switch-on` `switch-ldg` `switch-th` `sb-wrap` `sb-bar` `sb-action` `sb-icon` `sb-clear` `input-err` `upload-gd` `up-add` `up-ico` `up-txt` `up-item` `up-thumb` `up-del` `up-mask`
 **列表（6）：** `list` `list-item` `list-item-cp` `divider` `thumb` `avatar`
 **反馈（26）：** `empty` `sk` `sk-ln` `sk-blk` `sk-blk-h-sm` `sk-blk-h-md` `sk-w-40` `sk-w-60` `sk-w-80` `sk-cir` `sk-pg` `tag` `tag-md` `tag-lg` `tag-ok` `tag-warn` `tag-danger` `tag-plain` `tag-plain-ok` `tag-plain-warn` `tag-plain-danger` `badge` `toast` `toast-success` `toast-error` `toast-warning`
 **导航（7）：** `navbar` `navbar-fixed` `page-col` `scroll-y` `tabbar` `tabbar-fixed` `tab-item`
 **布局（9）：** `hero` `stats-grid` `actions` `input-bar` `cob` `input-bar-fx` `cob-fx` `safe-top` `safe-bottom`
 **Checkbox / Radio（4）：** `checkbox` `radio` `checkbox-sm` `radio-sm`
-**加载指示器（3）：** `spinner` `spinner-sm` `spinner-lg`
-**进度条（5）：** `progress` `progress-sm` `progress-lg` `progress-success` `progress-danger`
-**折叠面板（3）：** `clp` `clp-sum` `clp-ct`
-**通知栏（3）：** `notice` `notice-tx` `notice-scr`
-**评分（5）：** `rate` `rate-star` `rate-ro` `rate-sm` `rate-lg`
-**步骤条（6）：** `steps` `step` `step-done` `step-active` `step-circle` `step-label`
+**加载指示器（11）：** `spinner` `spinner-sm` `spinner-lg` `progress` `progress-bar` `progress-pivot` `progress-sm` `progress-lg` `progress-inactive` `progress-success` `progress-danger`
+**折叠面板（9）：** `clp` `clp-sum` `clp-ct` `notice` `notice-ico` `notice-close` `notice-tx` `notice-scr` `notice-wrap`
+**评分（11）：** `rate` `rate-star` `rate-ro` `rate-sm` `rate-lg` `steps` `step` `step-done` `step-active` `step-circle` `step-label`
 **分段控制器（4）：** `seg` `seg-it` `seg-blk` `seg-brand`
 **主视觉（2）：** `hero-grad` `nav-transparent`
 **媒体卡（2）：** `card-media` `card-shadow`
@@ -92,9 +89,9 @@
 
 `<af-action-sheet>` `<af-backtop>` `<af-badge>` `<af-calendar>` `<af-cascade-picker>` `<af-chart-bar>` `<af-chart-funnel>` `<af-chart-line>` `<af-chart-pie>` `<af-chart-radar>` `<af-chat>` `<af-countdown>` `<af-dialog>` `<af-dropdown>` `<af-field>` `<af-img>` `<af-list>` `<af-navbar>` `<af-notice-bar>` `<af-number-keyboard>` `<af-password-input>` `<af-picker>` `<af-progress>` `<af-pull-refresh>` `<af-rate>` `<af-search-bar>` `<af-skeleton-page>` `<af-stepper>` `<af-steps>` `<af-swipe-cell>` `<af-swiper>` `<af-switch>` `<af-tabbar>` `<af-tabs>` `<af-toast>` `<af-upload>`
 
-## L1 Token 变量（92 个，必须用 var(--*) 引用）
+## L1 Token 变量（96 个，必须用 var(--*) 引用）
 
-`--c-bg` `--c-border` `--c-brand` `--c-brand-soft` `--c-brand-strong` `--c-card` `--c-danger` `--c-gray-1` `--c-gray-2` `--c-gray-3` `--c-gray-4` `--c-gray-5` `--c-gray-6` `--c-gray-7` `--c-gray-8` `--c-muted` `--c-muted-bg` `--c-onbrand` `--c-onwarn` `--c-success` `--c-text` `--c-warn` `--dur-base` `--dur-fast` `--dur-slow` `--ease-in-out` `--ease-out` `--fw-bold` `--fw-medium` `--fw-normal` `--fw-semibold` `--lh-display` `--lh-normal` `--lh-tight` `--ls-caption` `--ls-display` `--palette-bg` `--palette-border` `--palette-brand` `--palette-brand-soft` `--palette-brand-strong` `--palette-card` `--palette-color-scheme` `--palette-danger` `--palette-gray-1` `--palette-gray-2` `--palette-gray-3` `--palette-gray-4` `--palette-gray-5` `--palette-gray-6` `--palette-gray-7` `--palette-gray-8` `--palette-muted` `--palette-muted-bg` `--palette-onbrand` `--palette-onwarn` `--palette-shadow-lg` `--palette-shadow-md` `--palette-shadow-sm` `--palette-success` `--palette-text` `--palette-warn` `--r-f` `--r-l` `--r-m` `--r-s` `--r-xs` `--ring-focus` `--s-1` `--s-2` `--s-3` `--s-4` `--s-5` `--s-6` `--s-7` `--s-8` `--shadow-brand` `--shadow-lg` `--shadow-md` `--shadow-sm` `--t-display` `--t-input` `--t-lg` `--t-md` `--t-sm` `--t-xl` `--t-xs` `--tabbar-h` `--z-base` `--z-dropdown` `--z-modal` `--z-sticky`
+`--c-bg` `--c-border` `--c-brand` `--c-brand-soft` `--c-brand-strong` `--c-card` `--c-danger` `--c-gray-1` `--c-gray-2` `--c-gray-3` `--c-gray-4` `--c-gray-5` `--c-gray-6` `--c-gray-7` `--c-gray-8` `--c-muted` `--c-muted-bg` `--c-notice-bg` `--c-notice-text` `--c-onbrand` `--c-onwarn` `--c-success` `--c-text` `--c-warn` `--dur-base` `--dur-fast` `--dur-slow` `--ease-in-out` `--ease-out` `--fw-bold` `--fw-medium` `--fw-normal` `--fw-semibold` `--lh-display` `--lh-normal` `--lh-tight` `--ls-caption` `--ls-display` `--palette-bg` `--palette-border` `--palette-brand` `--palette-brand-soft` `--palette-brand-strong` `--palette-card` `--palette-color-scheme` `--palette-danger` `--palette-gray-1` `--palette-gray-2` `--palette-gray-3` `--palette-gray-4` `--palette-gray-5` `--palette-gray-6` `--palette-gray-7` `--palette-gray-8` `--palette-muted` `--palette-muted-bg` `--palette-notice-bg` `--palette-notice-text` `--palette-onbrand` `--palette-onwarn` `--palette-shadow-lg` `--palette-shadow-md` `--palette-shadow-sm` `--palette-success` `--palette-text` `--palette-warn` `--r-f` `--r-l` `--r-m` `--r-s` `--r-xs` `--ring-focus` `--s-1` `--s-2` `--s-3` `--s-4` `--s-5` `--s-6` `--s-7` `--s-8` `--shadow-brand` `--shadow-lg` `--shadow-md` `--shadow-sm` `--t-display` `--t-input` `--t-lg` `--t-md` `--t-sm` `--t-xl` `--t-xs` `--tabbar-h` `--z-base` `--z-dropdown` `--z-modal` `--z-sticky`
 
 ## 禁止内联 style 的属性（17 个）
 

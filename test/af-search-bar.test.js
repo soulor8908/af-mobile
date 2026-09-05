@@ -147,3 +147,89 @@ describe('af-search-bar 属性变化与清理', () => {
     expect(el.querySelector('img')).toBeNull();
   });
 });
+
+describe('af-search-bar T0.11 Vant 对齐（sb-bar 外层 + action 取消区）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('默认渲染 .sb-bar 外层容器包裹 .sb-wrap', () => {
+    const el = makeSearchBar();
+    expect(el.$('.sb-bar')).not.toBeNull();
+    expect(el.$('.sb-bar .sb-wrap')).not.toBeNull();
+    expect(el.$('.sb-bar .search-input')).not.toBeNull();
+  });
+
+  it('默认无 action 取消区（showAction=false）', () => {
+    const el = makeSearchBar();
+    expect(el.$('.sb-action')).toBeNull();
+  });
+
+  it('showAction=true 渲染取消按钮，默认文案"取消"', () => {
+    const el = makeSearchBar({ showAction: true });
+    const action = el.$('.sb-action');
+    expect(action).not.toBeNull();
+    expect(action.textContent).toBe('取消');
+  });
+
+  it('cancelText 自定义取消文案', () => {
+    const el = makeSearchBar({ showAction: true, cancelText: '关闭' });
+    expect(el.$('.sb-action').textContent).toBe('关闭');
+  });
+
+  it('点击取消区触发 af-search-bar:cancel（携带当前值）', () => {
+    const el = makeSearchBar({ showAction: true, value: '手机' });
+    const handler = vi.fn();
+    el.addEventListener('af-search-bar:cancel', handler);
+    el.$('.sb-action').click();
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail).toEqual({ value: '手机' });
+  });
+
+  it('cancelText 属性变化同步按钮文案', () => {
+    const el = makeSearchBar({ showAction: true });
+    el.setAttribute('cancel-text', '返回');
+    expect(el.$('.sb-action').textContent).toBe('返回');
+  });
+});
+
+describe('af-search-bar T0.11 Vant 对齐（sb-bar 外层 + action 取消区）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('默认渲染 .sb-bar 外层容器包裹 .sb-wrap', () => {
+    const el = makeSearchBar();
+    expect(el.$('.sb-bar')).not.toBeNull();
+    expect(el.$('.sb-bar .sb-wrap')).not.toBeNull();
+    expect(el.$('.sb-bar .search-input')).not.toBeNull();
+  });
+
+  it('默认无 action 取消区（showAction=false）', () => {
+    const el = makeSearchBar();
+    expect(el.$('.sb-action')).toBeNull();
+  });
+
+  it('showAction=true 渲染取消按钮，默认文案"取消"', () => {
+    const el = makeSearchBar({ showAction: true });
+    const action = el.$('.sb-action');
+    expect(action).not.toBeNull();
+    expect(action.textContent).toBe('取消');
+  });
+
+  it('cancelText 自定义取消文案', () => {
+    const el = makeSearchBar({ showAction: true, cancelText: '关闭' });
+    expect(el.$('.sb-action').textContent).toBe('关闭');
+  });
+
+  it('点击取消区触发 af-search-bar:cancel（携带当前值）', () => {
+    const el = makeSearchBar({ showAction: true, value: '手机' });
+    const handler = vi.fn();
+    el.addEventListener('af-search-bar:cancel', handler);
+    el.$('.sb-action').click();
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail).toEqual({ value: '手机' });
+  });
+
+  it('cancelText 属性变化同步按钮文案', () => {
+    const el = makeSearchBar({ showAction: true });
+    el.setAttribute('cancel-text', '返回');
+    expect(el.$('.sb-action').textContent).toBe('返回');
+  });
+});

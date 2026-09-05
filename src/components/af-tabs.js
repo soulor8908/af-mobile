@@ -84,11 +84,15 @@ export class AfTabs extends withI18n(AfElement) {
 
     // 抽出 DOM 切换：供 View Transitions 回调与降级路径共用，保证两条路径行为一致
     const swap = () => {
-      this.$$('.tab-item').forEach((tab, i) => {
+      const items = this.$$('.tab-item');
+      items.forEach((tab, i) => {
         const selected = i === idx;
         tab.setAttribute('aria-selected', String(selected));
         tab.setAttribute('tabindex', selected ? '0' : '-1');
       });
+      // T0.3 滑块：定位到选中 tab 水平中心（Vant 固定 40px 宽，translateX 跟随 300ms 过渡；滑块本体是 CSS ::after）
+      const cur = items[idx];
+      cur && this._tabbar.style.setProperty('--af-line-x', cur.offsetLeft + cur.offsetWidth / 2 - 20 + 'px');
       // 切换面板显隐：renderPanel 模式与 slot 模式都给面板加了 .af-tabs-panel + id
       // 用 id 精确匹配（避免两种模式并存时 index 串扰）
       const activePanel = this.$(`#af-tabs-panel-${idx}`);

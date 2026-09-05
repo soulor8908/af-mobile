@@ -82,14 +82,11 @@
   .rate-sm { font-size: var(--t-md); }
   .rate-lg { font-size: var(--t-xl); }
 
-  /* === 步骤条（6） === */
-  /* 纯 CSS：flex + ::before 连线
-     用法：
-       <div class="steps">
-         <div class="step step-done"><div class="step-circle">1</div><div class="step-label">完成</div></div>
-         <div class="step step-active"><div class="step-circle">2</div><div class="step-label">进行中</div></div>
-         <div class="step"><div class="step-circle">3</div><div class="step-label">待办</div></div>
-       </div> */
+  /* === 步骤条（6） ===
+     T0.8 Vant 对齐：24px 数字圆盘 → 5px 实心小圆点 + 1px 连线（水平），
+     done/active 圆点染 brand、未开始 gray-5；active 标题染 brand；标签 12px；
+     全部状态色/背景加 0.3s 过渡（Vant steps 同）
+     纯 CSS：flex + ::before 连线 */
   .steps {
     display: flex;
     align-items: flex-start;
@@ -101,50 +98,43 @@
     align-items: center;
     position: relative;
     padding: 0 var(--s-2);
+    padding-bottom: var(--s-3);
   }
   .step:not(:first-child)::before {
     content: '';
     position: absolute;
-    top: 11px;
+    top: 2px;
     left: calc(-50% + var(--s-2));
     width: calc(100% - var(--s-4));
-    height: 2px;
+    height: 1px;
     background: var(--step-line, var(--c-border));
+    transition: background-color var(--dur-base) var(--ease-out);
   }
   .step-done { --step-line: var(--c-brand); }
   .step-active { --step-line: var(--c-brand); }
   .step-circle {
-    width: 24px;
-    height: 24px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
-    background: var(--c-muted-bg);
-    color: var(--c-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--t-xs);
-    font-weight: var(--fw-bold);
+    background: var(--c-gray-5);
+    transition: background-color var(--dur-base) var(--ease-out);
     position: relative;
     z-index: 1;
   }
-  .step-done .step-circle {
-    background: var(--c-brand);
-    color: var(--c-onbrand);
-  }
+  .step-done .step-circle,
   .step-active .step-circle {
-    background: var(--c-card);
-    color: var(--c-brand);
-    border: 2px solid var(--c-brand);
+    background: var(--c-brand);
   }
   .step-label {
-    margin-top: var(--s-1);
-    font-size: var(--t-xs);
+    margin-top: var(--s-2);
+    font-size: var(--t-sm);
     color: var(--c-muted);
     text-align: center;
     line-height: var(--lh-tight);
+    transition: color var(--dur-base) var(--ease-out);
   }
-  .step-done .step-label,
-  .step-active .step-label { color: var(--c-text); }
+  .step-done .step-label { color: var(--c-text); }
+  .step-active .step-label { color: var(--c-brand); font-weight: var(--fw-medium); }
 
   /* === 分段控制器（3） === */
   /* 纯 CSS：iOS 风格分段器，af-tabs 的轻量替代

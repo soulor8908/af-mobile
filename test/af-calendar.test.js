@@ -141,3 +141,67 @@ describe('af-calendar DSD 水合', () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('af-calendar popup 弹层变体（T0.12）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('默认（无 popup）为内联卡片：无 dialog', () => {
+    const el = makeCalendar();
+    expect(el.$('.calendar')).not.toBeNull();
+    expect(el.$('.cal-pop')).toBeNull();
+  });
+
+  it('popup=true 渲染 dialog + 标题 + close 图标 + confirm 按钮', () => {
+    const el = makeCalendar({ popup: true, title: '选择日期' });
+    expect(el.$('.cal-pop')).not.toBeNull();
+    expect(el.$('.cal-title').textContent).toBe('选择日期');
+    expect(el.$('[data-cal-close]')).not.toBeNull();
+    expect(el.$('[data-cal-confirm]').textContent).toBe('确定');
+    expect(el.$('.cal-body .calendar')).not.toBeNull();
+  });
+
+  it('confirm-text 自定文案；close 图标调用 close()（未 open 时不抛错）', () => {
+    const el = makeCalendar({ popup: true, confirmText: '完成' });
+    expect(el.$('[data-cal-confirm]').textContent).toBe('完成');
+    expect(() => el.$('[data-cal-close]').click()).not.toThrow();
+  });
+
+  it('open() 调用 showModal，close() 调用 close', () => {
+    const el = makeCalendar({ popup: true });
+    const dlg = el.$('.cal-pop');
+    const showSpy = vi.spyOn(dlg, 'showModal');
+    const closeSpy = vi.spyOn(dlg, 'close');
+    el.open();
+    expect(showSpy).toHaveBeenCalledTimes(1);
+    el.close();
+    expect(closeSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('非 popup 形态 open() 为空操作', () => {
+    const el = makeCalendar();
+    expect(() => el.open()).not.toThrow();
+  });
+
+  it('confirm 点击派发 af-calendar:confirm（携带当前值）', () => {
+    const el = makeCalendar({ popup: true, value: '2026-09-05' });
+    const handler = vi.fn();
+    el.addEventListener('af-calendar:confirm', handler);
+    el.$('[data-cal-confirm]').click();
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail).toEqual({ value: '2026-09-05' });
+  });
+
+  it('popup 属性切换触发重渲染（内联 ↔ 弹层）', () => {
+    const el = makeCalendar();
+    expect(el.$('.cal-pop')).toBeNull();
+    el.setAttribute('popup', '');
+    expect(el.$('.cal-pop')).not.toBeNull();
+    el.setAttribute('popup', 'false');
+    expect(el.$('.cal-pop')).toBeNull();
+  });
+
+  it('XSS：title 含 HTML 被转义', () => {
+    const el = makeCalendar({ popup: true, title: '<img src=x onerror=alert(1)>' });
+    expect(el.shadowRoot.querySelector('img')).toBeNull();
+  });
+});

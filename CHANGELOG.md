@@ -1,5 +1,41 @@
 # Changelog
 
+## 1.10.0
+
+### Minor Changes
+
+- 9cf78ac: af-dialog 弹框宽度可定制：新增 `--af-dialog-w` 官方扩展点
+  
+  - **新增扩展点 `--af-dialog-w`**：对话框宽度默认值由 CSS 变量提供（default/bottom 变体 `320px`，center 变体 `280px`），消费端一行覆盖：
+  
+    ```css
+    af-dialog { --af-dialog-w: 300px; }
+    ```
+  
+    仍受 `max-width: 90vw` 约束，窄屏不会被撑破。
+  
+  - **行为变更（center 变体）**：居中弹框宽度由 `max-width: 70vw`（内容决定实际宽度）改为 `width: var(--af-dialog-w, 280px) + max-width: 90vw`。此前 center 变体宽度随内容浮动，同结构不同文案宽度不一致；现统一为固定值，需要更宽/更窄时覆盖变量即可。若此前依赖 center 弹框随内容自适应，升级后请显式设置 `--af-dialog-w`。
+  
+  - **default/bottom 变体**：此前仅有 `max-width: 90vw` 无宽度声明，现补 `width: var(--af-dialog-w, 320px)`。窄屏（≤355px）下 90vw 小于 320px，实际表现不变；宽屏下由此前的"内容宽度"收敛为 320px。
+- 5113dfb: 框架优化 backlog 落地（docs/framework-optimizations.md，来自 ai-todo-app 消费端评审）：
+  
+  - **OPT-1 布局包装器**：新增 `withLayout({ title, tabbar }, handler)`，navbar/tabbar 只写一遍，tabbar active 由当前路径自动推导（含点击导航与方向键导航），消灭页面手填 activeIndex 的一类静默 bug
+  - **OPT-2 表单对话框**：新增 `openFormDialog({ title, schema, onSubmit })`，defineTool parameters 同构的 JSON Schema 直接渲染 af-dialog 表单（required/number 校验、enum 下拉、textarea/password），1 行调用替代 ~60 行手写
+  - **OPT-3 事件绑定**：`:bind` 管道补 `@click="actions.x"` 声明式事件绑定（处理器取自 createPage actions，经 batch 包装），消除"渲染后忘挂事件"类 bug
+  - **OPT-4 LAZY 裁剪**：新增 `@af-mobile/ui/vite` 的 `afMobileTrimLazy()` 插件，构建期按实际 `register()` 字面量调用裁剪懒注册表（实测消费端 35 chunk → 4 chunk；动态注册自动全量保底）
+  - **OPT-5 穿透防呆**：eslint-plugin 新增 `no-af-pierce`（error，第 25 条规则），禁止消费端选择器穿透 af-* 内部节点（Shadow 死代码 / Light 契约外依赖），修复指引走 ::part() 与 CSS 变量
+  - **OPT-6 .seg a11y**：`.seg` 官方示例补 `role="tablist"/"tab"` 用法说明（aria-selected 需显式 role 才生效）
+  - **OPT-7 测试桩对齐**：starter 模板接入 vitest + `setupFiles: ['./test/setup.js']`（1 行 `import '@af-mobile/ui/test'`），与脚手架 create-app.mjs 既有链路对齐
+  - **OPT-8 日期工具**：新增 `todayISO()` / `formatDate()`，统一本地时区口径（'YYYY-MM-DD' 按本地解析，规避 new Date(str) 的 UTC 逾期判断 bug）
+
+### Patch Changes
+
+- 9cf78ac: af-swipe-cell 左滑操作按钮垂直居中修复 + `--r-f` 圆角上限收紧
+  
+  - **修复 af-swipe-cell 左滑按钮不垂直居中**：`slot="right"` 的包装层（如 `<div slot="right"><button>…</button></div>`）此前被整体搬进 `[data-role="right"]`，块级包装层使 `align-items: stretch` 落到 wrapper 而非按钮上，按钮高度不跟随行高。现摊平包装层，操作项直接挂到 right 区参与 flex 拉伸。
+  
+  - **`--r-f` 由 `9999px` 收紧为 `999px`**：移动端元素短边 ≤~430px，border-radius 超过短边一半即被钳成完整圆角，`9999px` 是冗余魔数。移动端视觉完全等价，非移动端（元素短边 >1998px）场景下不再等效全圆角——超出本库目标平台，如需绝对全圆角请显式设置更大的值。
+
 ## 1.9.1
 
 ### Patch Changes

@@ -205,3 +205,57 @@ describe('af-calendar popup 弹层变体（T0.12）', () => {
     expect(el.shadowRoot.querySelector('img')).toBeNull();
   });
 });
+
+
+describe('af-calendar T0.12 range 范围选择 + 64px 格子', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('range 两态状态机：首点设起点、二点成区间、三点重置', () => {
+    const el = makeCalendar({ month: '2026-08', type: 'range' });
+    el.$('.day[data-date="2026-08-10"]').click();
+    expect(el.value).toEqual(['2026-08-10']);
+    el.$('.day[data-date="2026-08-20"]').click();
+    expect(el.value).toEqual(['2026-08-10', '2026-08-20']);
+    el.$('.day[data-date="2026-08-25"]').click();
+    expect(el.value).toEqual(['2026-08-25']);
+  });
+
+  it('range：早于起点的点击重设起点', () => {
+    const el = makeCalendar({ month: '2026-08', type: 'range', value: ['2026-08-15'] });
+    el.$('.day[data-date="2026-08-10"]').click();
+    expect(el.value).toEqual(['2026-08-10']);
+  });
+
+  it('range：起止实心 + 中间日 day-inrange + 文案位 开始/结束/今天', () => {
+    const el = makeCalendar({ month: '2026-08', type: 'range', value: ['2026-08-10', '2026-08-14'] });
+    expect(el.$('.day[data-date="2026-08-10"]').classList.contains('day-selected')).toBe(true);
+    expect(el.$('.day[data-date="2026-08-10"]').textContent).toContain('开始');
+    expect(el.$('.day[data-date="2026-08-12"]').classList.contains('day-inrange')).toBe(true);
+    expect(el.$('.day[data-date="2026-08-14"]').textContent).toContain('结束');
+    expect(el.$('.day[data-date="2026-08-13"]').textContent).not.toContain('结束');
+  });
+
+  it('range select 事件携带数组 value', () => {
+    const el = makeCalendar({ month: '2026-08', type: 'range' });
+    const handler = vi.fn();
+    el.addEventListener('af-calendar:select', handler);
+    el.$('.day[data-date="2026-08-10"]').click();
+    expect(handler.mock.calls[0][0].detail).toEqual({ value: ['2026-08-10'] });
+  });
+
+  it('单选模式行为不回归（默认 type=single）', () => {
+    const el = makeCalendar({ month: '2026-08' });
+    el.$('.day[data-date="2026-08-10"]').click();
+    expect(el.$('.day[data-date="2026-08-10"]').classList.contains('day-inrange')).toBe(false);
+    el.$('.day[data-date="2026-08-20"]').click();
+    expect(el.value).toBe('2026-08-20');
+  });
+
+  it('64px 格子 + 数字/文案双层结构 + type 属性切换重渲染', () => {
+    const el = makeCalendar({ month: '2026-08' });
+    expect(el.$('.day-num')).not.toBeNull();
+    expect(el.$('.day .day-txt')).not.toBeNull();
+    el.setAttribute('type', 'range');
+    expect(el.$('.day[data-date="2026-08-10"][data-date]')).not.toBeNull();
+  });
+});

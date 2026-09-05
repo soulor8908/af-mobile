@@ -1251,6 +1251,22 @@
   }
   .step-done .step-label { color: var(--c-text); }
   .step-active .step-label { color: var(--c-brand); font-weight: var(--fw-medium); }
+  /* T0.12 垂直模式：圆点左/标签右、竖向连线（宿主属性选择器，无新增白名单 class） */
+  af-steps[direction="vertical"] .steps { flex-direction: column; }
+  af-steps[direction="vertical"] .step {
+    flex-direction: row;
+    gap: 8px;
+    padding: 0 0 var(--s-4);
+  }
+  af-steps[direction="vertical"] .step:not(:first-child)::before {
+    top: 0;
+    bottom: calc(-1*var(--s-4));
+    left: 2px;
+    width: 1px;
+    height: auto;
+  }
+  af-steps[direction="vertical"] .step-circle { margin-top: 4px; }
+  af-steps[direction="vertical"] .step-label { margin-top: 0; text-align: left; }
 
   /* === 分段控制器（3） === */
   /* 纯 CSS：iOS 风格分段器，af-tabs 的轻量替代

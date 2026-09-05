@@ -14,16 +14,21 @@ const CSS = `
   .weekdays, .grid { display: grid; grid-template-columns: repeat(7, 1fr); }
   .weekdays { color: var(--c-muted); font-size: var(--t-xs); text-align: center; padding: var(--s-1) 0 var(--s-2); }
   .blank { height: var(--af-day-h); }
+  /* T0.12 Vant 对齐：64px 大格子（数字 + 底部文案位），列 flex */
   .day {
-    display: flex; align-items: center; justify-content: center;
-    height: var(--af-day-h); font-size: var(--t-sm); color: var(--c-text);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-1);
+    height: var(--af-day-h); font-size: var(--af-day-fs, 16px); color: var(--c-text);
     background: none; border: none; border-radius: var(--r-s); cursor: pointer;
     transition: background var(--dur-fast) var(--ease-out);
   }
   .day:hover:not(:disabled) { background: var(--c-muted-bg); }
   .day:disabled { color: var(--c-border); cursor: default; }
+  .day-txt { font-size: var(--af-day-txt-fs, 10px); line-height: 1; }
   .day-today { outline: 1px solid var(--c-brand); outline-offset: -1px; }
+  .day-inrange { background: var(--c-brand-soft); border-radius: 0; }
+  .day-inrange:hover { background: var(--c-brand-soft); }
   .day-selected { background: var(--c-brand); color: var(--c-onbrand); font-weight: var(--fw-medium); }
+  .day-selected .day-txt { color: var(--c-onbrand); }
   .day-selected:hover { background: var(--c-brand); }
   /* popup 变体（T0.12）：80% 高底部弹层，结构与 af-picker 的 dialog 模式对称 */
   :host([popup]) { display: contents; }
@@ -69,7 +74,8 @@ export class AfCalendar extends AfElement {
   static useShadow = true;
 
   mounted() {
-    this.style.setProperty('--af-day-h', '40px');
+    // T0.12 Vant 对齐：64px 大格子（底部文案位承载 开始/结束/今天）
+    this.style.setProperty('--af-day-h', '64px');
     // DSD 已在解析阶段挂载 shadow root 时不再覆盖初始渲染
     if (!this._dsdPrepopulated()) this._render();
     this._onClick = (e) => {
@@ -131,6 +137,17 @@ export class AfCalendar extends AfElement {
   }
 
   _select(date) {
+    // T0.12：range 模式两态状态机（无起点/已有完整区间 → 重设起点；有起点 → 补终点或早于起点重开）
+    if (this.type === 'range') {
+      const v = Array.isArray(this.value) ? this.value : [];
+      let next;
+      if (!v[0] || v[1]) next = [date];
+      else if (date >= v[0]) next = [v[0], date];
+      else next = [date];
+      this.value = next;
+      this.emit('af-calendar:select', { value: next });
+      return;
+    }
     if (date === this.value) return;
     this.value = date;
     this.emit('af-calendar:select', { date });
@@ -150,12 +167,26 @@ export class AfCalendar extends AfElement {
 
     let cells = '';
     for (let i = 0; i < firstDay; i++) cells += '<span class="blank"></span>';
+    // T0.12 range 模式选中态：起止实心 + 中间日浅 brand；文案位 开始/结束/今天
+    const isRange = this.type === 'range';
+    const sel = isRange ? (Array.isArray(this.value) ? this.value : []) : [this.value];
+    const start = sel[0];
+    const end = sel[1];
     for (let d = 1; d <= dim; d++) {
       const dateStr = fmtDate(y, m, d);
       const dt = new Date(y, m, d);
       const disabled = (minD && dt < minD) || (maxD && dt > maxD);
-      const cls = ['day', dateStr === this.value ? 'day-selected' : '', dateStr === today ? 'day-today' : ''].filter(Boolean).join(' ');
-      cells += `<button type="button" class="${cls}" data-date="${dateStr}"${disabled ? ' disabled' : ''}${dateStr === this.value ? ' aria-current="date"' : ''}>${d}</button>`;
+      const isStart = dateStr === start;
+      const isEnd = dateStr === end && end != null;
+      const inRange = isRange && start && end && dateStr > start && dateStr < end;
+      const isToday = dateStr === today;
+      const cls = ['day',
+        (isStart || isEnd) ? 'day-selected' : '',
+        inRange ? 'day-inrange' : '',
+        isToday ? 'day-today' : '',
+      ].filter(Boolean).join(' ');
+      const txt = (isStart && isEnd) ? '开始/结束' : isStart ? '开始' : isEnd ? '结束' : isToday ? '今天' : '';
+      cells += `<button type="button" class="${cls}" data-date="${dateStr}"${disabled ? ' disabled' : ''}${(isStart || isEnd) ? ' aria-current="date"' : ''}><span class="day-num">${d}</span>${txt ? `<span class="day-txt">${txt}</span>` : '<span class="day-txt"></span>'}</button>`;
     }
     const trailing = (7 - ((firstDay + dim) % 7)) % 7;
     for (let i = 0; i < trailing; i++) cells += '<span class="blank"></span>';
@@ -186,7 +217,7 @@ export class AfCalendar extends AfElement {
   }
 
   onAttributeChange(name) {
-    if (name === 'popup') { this._render(); return; }
+    if (name === 'popup' || name === 'type') { this._render(); return; }
     if (name === 'month' || name === 'value' || name === 'min' || name === 'max'
       || name === 'title' || name === 'confirm-text') {
       this._render();
@@ -195,6 +226,7 @@ export class AfCalendar extends AfElement {
 }
 
 AfElement.defineProp(AfCalendar.prototype, 'value', null);
+AfElement.defineProp(AfCalendar.prototype, 'type', 'single');
 AfElement.defineProp(AfCalendar.prototype, 'month', null);
 AfElement.defineProp(AfCalendar.prototype, 'min', null);
 AfElement.defineProp(AfCalendar.prototype, 'max', null);

@@ -53,3 +53,25 @@ describe('af-steps', () => {
     expect(() => document.body.removeChild(el)).not.toThrow();
   });
 });
+
+describe('af-steps T0.12 垂直模式', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('direction=vertical 渲染相同结构（布局由宿主属性选择器驱动），状态色不变', () => {
+    const el = new AfSteps();
+    el.setAttribute('direction', 'vertical');
+    el.steps = ['已完成', '进行中', '待办'];
+    el.current = 1;
+    document.body.appendChild(el);
+    expect(el.$$('.step').length).toBe(3);
+    expect(el.$('.step-done')).not.toBeNull();
+    expect(el.$('.step-active')).not.toBeNull();
+  });
+
+  it('direction defineProp 默认 horizontal', () => {
+    const el = new AfSteps();
+    expect(el.direction).toBe('horizontal');
+    el.direction = 'vertical';
+    expect(el.getAttribute('direction')).toBe('vertical');
+  });
+});

@@ -17,7 +17,12 @@
 - [x] T0.9 af-action-sheet：去卡片边框改全宽贴边；项 16px 字居中、:active muted-bg；取消项同款 + 8px 灰色实底间隔块；max-height 80% 内滚动；补 subname / danger / loading
 - [x] T0.10 af-field：补 word-limit 字数统计、必填星号、clear 图标、右侧插槽；error-message 12px；disabled 文字色
 - [x] T0.11 af-search-bar：补外层 bar（padding 10px 12px、card 底）与 action 取消区（af-search-bar:cancel）；输入高 34px
-- [ ] T0.12 af-cascade-picker / af-calendar 形态级改造：**单独立项评估**（滚轮 vs 平铺级联、内联卡片 vs 80% 弹层），本清单先不动
+- [x] T0.12 形态级改造（2026-09-05 评估收口）：
+  - **calendar 范围选择 ✓**：type=range 两态状态机（无起点/完整区间→重设起点；有起点→补终点；早于起点→重开）、跨月中间日 day-inrange 浅 brand、confirm 携带数组 value；单选行为不回归
+  - **calendar 64px 格子 ✓**：--af-day-h 40→64px、字 16px（--af-day-fs）、数字/文案双层结构（day-num + day-txt：开始/结束/今天），对齐 Vant 底部文案位（64px 大格的观感前提）
+  - **steps 垂直模式 ✓**：direction=vertical（宿主属性选择器驱动，圆点左/标签右、竖向连线），零渲染结构变化
+  - **cascade-picker 平铺 ✗ 评估后不做**：滚轮级联本身就是 Vant Picker 的合法级联形态（Vant Area 同款）；Vant 平铺是独立组件 Cascader，若未来需要应新建 af-cascader 而非改造现有（重写成本 ~200 行 vs 复用滚轮内核 46 行）
+  - **dropdown 多列容器 ✗ 不做**：组合两个 af-dropdown 可近似实现，性价比低
 
 ## P1（数值校准，成本低收益高）
 

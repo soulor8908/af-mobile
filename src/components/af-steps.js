@@ -28,3 +28,5 @@ export class AfSteps extends AfElement {
 
 AfElement.defineProp(AfSteps.prototype, 'steps', []);
 AfElement.defineProp(AfSteps.prototype, 'current', 0);
+// T0.12 垂直模式：direction=vertical（CSS 属性选择器驱动布局，渲染结构无需变化）
+AfElement.defineProp(AfSteps.prototype, 'direction', 'horizontal');

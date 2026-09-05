@@ -284,18 +284,18 @@
 - **理由**：豆包自认严格验证的慢是质量保证——目标是消除纯摩擦（来回试/读源码/规则散落），不是降低验证标准；demo 是 AI 学习素材（D-011 同构），门禁管住不漂移
 - **放弃了什么**：环境摩擦项不立项（非框架职责）；mock server 不进 npm 包（浏览器库不背 Node 脚本）；脚手架 `--template chat` 模板变体（分叉成本，等真实需求触发）；.d.ts 生成式改造（手工 JSDoc 已满足）
 
-## D-020 �ⲿ review ������ 6 ��������2026-08-31���Ѿ���
+## D-020 外部 review 第三批 6 项评估（2026-08-31，已决）
 
-�������ⲿ��ƣ�ai-todo ���Ѷ���Ŀ review �ĺ��� review �嵥����� 6 ��飺P0��src/components.css + exports ./components.css����P1�����ּܼ� Service Worker / extraClass �Զ�ɨ�貹ȫ���� / ƾ�ݷ��վ��桹��P2����̬ע�����ʵ���̿� / ������� CSS �� tree-shake ��������
+背景：外部审计（ai-todo 消费端项目 review 的后续 review 清单）提出 6 项建议：P0「src/components.css + exports ./components.css」；P1「脚手架加 Service Worker / extraClass 自动扫描补全工具 / 凭据风险警告」；P2「静态注册最佳实践铺开 / 组件自引 CSS 的 tree-shake 方案」。
 
-- **����**��
-  1. **�ܾ� components.css ���㵼��**��`./dist/components.css` �Ѵ��ڣ�build.mjs 3.5��Shadow ��� CSS �ⲿ������� `AfElement.cssMode='external'` + cssBaseUrl ���� CSP external ģʽ���������ǡ��ⲿ����ʽ�����ǡ���������ʽ�������Ѷ���ʽ�ַ���·�� `./css`��ȫ����ռ�����Դ�뼶 `./tokens.css`+`./recipes.css`+`./atomic.css` ��ϡ�Shadow �����ʽ�������� JS ����� Tree Shaking�����赥�� import
-  2. **�ܾ�������� CSS �� tree-shake ����**��������ӲԼ����ͻ��L1+L2 ȫ����̬���� / ��������ռ���Դͬ�� / sideEffects ȫ CSS ע�ᣩ��CSS �ü����й����� shakeCss ���ߣ�test/css-tree-shake.test.js������
-  3. **���ɣ�����������**��P2a `demo/apps/ai-todo/app.js` ���ȥ TLA��register-state �޸� 02cfca2 ��Ĺٷ�д���̿����̲����������ֲ㣺��ڽ� await / ģ��Ƭ�ν��� property ������ await��+ P1c ���ּ� docs ҳ��������Կ��ƾ�ݡ����棨��Ӧ���� 26��
-  4. **������backlog�����ݴ��������**�����ּ� Service Worker�����������������뻺����ԣ�ai-todo ʵ�� manifest + icons �����㾲̬�йܲ��𣩣�extraClass �Զ�ɨ�貹ȫ���ߣ�eslint ������Ϣ�Ѹ���ճ��Ƭ�Σ�ʹ���ʣһ���ֶ�ճ����
-- **����**��components.css ����Դ�ڰ� CSP external �������Ϊ������ʽ��ڣ�������� CSS �� Vue/React ����ⳣ����ʽ�����뱾��Ŀ����ռ� + ȫ�����롹��ȫģ�ͳ�ͻ�������������������ѡ�����ɶȣ�����ʱ��������ʽ���ؿ�Ư����
-- **������ʲô**�����ṩ���� `./components.css` ������`./dist/components.css` �ѿ��ã�·���Գ�����CSS �ü��������ڣ�������ʱ���裻���ּ��ݲ��� PWA ��������
-- **����**��D-019��ͬԴ�ⲿ��������02cfca2��register-state �޸����������д�����ݣ�
+- **决策**：
+  1. **拒绝 components.css 顶层导出**：`./dist/components.css` 已存在（build.mjs 3.5，Shadow 组件 CSS 外部化产物，配 `AfElement.cssMode='external'` + cssBaseUrl 用于 CSP external 模式），语义是「外部化样式」而非「按需引样式」；消费端样式分发正路是 `./css`（全量封闭集）或源码级 `./tokens.css`+`./recipes.css`+`./atomic.css` 组合。Shadow 组件样式本就内联 JS 随组件 Tree Shaking，无需单独 import
+  2. **拒绝组件自引 CSS 的 tree-shake 方案**：与三条硬约束冲突（L1+L2 全量静态导入 / 白名单封闭集三源同步 / sideEffects 全 CSS 注册）；CSS 裁剪已有构建期 shakeCss 工具（test/css-tree-shake.test.js）覆盖
+  3. **采纳（本次已做）**：P2a `demo/apps/ai-todo/app.js` 入口去 TLA（register-state 修复 02cfca2 后的官方写法铺开，教材与入口语义分层：入口禁 await / 模块片段紧跟 property 操作才 await）+ P1c 脚手架 docs 页新增「密钥与凭据」警告（呼应禁令 26）
+  4. **缓做（backlog，数据触发再立项）**：脚手架 Service Worker（新能力需独立设计与缓存策略；ai-todo 实测 manifest + icons 已满足静态托管部署）；extraClass 自动扫描补全工具（eslint 报错信息已给可粘贴片段，痛点仅剩一次手动粘贴）
+- **理由**：components.css 提议源于把 CSP external 产物误解为按需样式入口；组件自引 CSS 是 Vue/React 组件库常见范式，但与本项目「封闭集 + 全量导入」安全模型冲突白名单的意义就是消除选择自由度，运行时按需引样式会重开漂移面
+- **放弃了什么**：不提供顶层 `./components.css` 别名（`./dist/components.css` 已可用，路径略长）；CSS 裁剪仅构建期，无运行时按需；脚手架暂不带 PWA 离线能力
+- **回链**：D-019（同源外部反馈）；02cfca2（register-state 修复，本条入口写法依据）
 
 ## D-021 OPT-2 表单对话框采用无组件 helper 方案（2026-09-01，已决）
 

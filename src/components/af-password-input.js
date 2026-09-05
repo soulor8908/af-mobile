@@ -9,10 +9,10 @@ const CSS = `
   :host {
     /* 结构尺寸走组件级变量：消费端可覆盖 --af-pi-cell-w 等定制格子 */
     --af-pi-cell-w: 44px;
-    --af-pi-cell-h: 52px;
+    --af-pi-cell-h: 50px;
     --af-pi-gap: var(--s-3);
     --af-pi-dot: 10px;
-    --af-pi-caret-w: 2px;
+    --af-pi-caret-w: 1px;
     --af-pi-border-w: 1px;
     display: inline-block;
   }
@@ -27,12 +27,16 @@ const CSS = `
   }
   .dot { width: var(--af-pi-dot); height: var(--af-pi-dot); border-radius: var(--r-f); background: var(--c-text); }
   .caret {
-    width: var(--af-pi-caret-w); height: 55%;
+    width: var(--af-pi-caret-w); height: 40%;
     background: var(--c-brand);
     animation: af-pi-blink 1s step-end infinite;
   }
   @keyframes af-pi-blink { 50% { opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+  /* T1.12 Vant 对齐：info 提示行（error-info 红色优先）；：empty 时隐藏 */
+  .info { margin-top: var(--s-2); font-size: var(--t-md); color: var(--c-muted); }
+  .info.error { color: var(--c-danger); }
+  .info:empty { display: none; }
 `;
 
 export class AfPasswordInput extends withI18n(AfElement) {
@@ -44,7 +48,7 @@ export class AfPasswordInput extends withI18n(AfElement) {
 
   // 完整 shadow 模板（DSD 声明式封装 + mounted 动态渲染共用同一结构；cell 动态填充）
   shadowHTML() {
-    return `${AfElement.cssTag(CSS, 'af-password-input')}<div class="cells" part="cells" role="group"></div>`;
+    return `${AfElement.cssTag(CSS, 'af-password-input')}<div class="cells" part="cells" role="group"></div><div class="info" part="info"></div>`;
   }
 
   mounted() {
@@ -52,6 +56,16 @@ export class AfPasswordInput extends withI18n(AfElement) {
     this.shadowRoot.innerHTML ||= this.shadowHTML();
     this._cellsEl = this.$('.cells');
     this._render();
+    this._renderInfo();
+  }
+
+  // T1.12：info/error-info 提示行（error 优先，红色）；空文案时 ：empty 隐藏
+  _renderInfo() {
+    const el = this.$('.info');
+    if (!el) return;
+    const err = this.errorInfo;
+    el.textContent = err || this.info || '';
+    el.classList.toggle('error', Boolean(err));
   }
 
   _render() {
@@ -80,6 +94,8 @@ export class AfPasswordInput extends withI18n(AfElement) {
       if (name === 'value' && (newVal || '').length === this.length) {
         this.emit('af-password-input:complete', { value: newVal });
       }
+    } else if (name === 'info' || name === 'error-info') {
+      this._renderInfo();
     }
   }
 }
@@ -89,3 +105,5 @@ AfElement.defineProp(AfPasswordInput.prototype, 'value', '');
 AfElement.defineProp(AfPasswordInput.prototype, 'length', 6);
 AfElement.defineProp(AfPasswordInput.prototype, 'mask', true);
 AfElement.defineProp(AfPasswordInput.prototype, 'focused', false);
+AfElement.defineProp(AfPasswordInput.prototype, 'info', '');
+AfElement.defineProp(AfPasswordInput.prototype, 'errorInfo', '');

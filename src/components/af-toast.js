@@ -35,11 +35,18 @@ export class AfToast extends AfElement {
     const duration = opts.duration ?? this.duration;
     const closeOnClick = opts.closeOnClick === true;
     this._closeOnClick = closeOnClick;
-    // type 经 setAttribute 写入（不做 HTML 解析），esc 后的字面 &lt; 等保留在 className 中，
+    // T1.11 Vant 对齐：icon / loading 态切图标布局（88×88 盒、36px 图标、8px 间距）
+    // icon 仅接受纯文本（emoji/字符），esc 后渲染；loading 态复用 CSS spinner 结构
+    const loading = type === 'loading';
+    const icon = opts.icon;
+    const cls = 'toast' + (icon || loading ? ' toast-ico-box' : '') + ' toast-' + esc(type);
+    const iconHtml = loading
+      ? '<span class="toast-loading-ico" aria-hidden="true"></span>'
+      : icon ? `<span class="toast-ico" aria-hidden="true">${esc(icon)}</span>` : '';
+    // type 经模板写入（不做 HTML 解析），esc 后的字面 &lt; 等保留在 className 中，
     // 即使 type 含 <img> 也无法注入节点或逃逸 class 属性
-    this.innerHTML = `<div class="toast" role="status" aria-live="polite">${esc(message)}</div>`;
+    this.innerHTML = `<div class="${cls}" role="status" aria-live="polite">${iconHtml}${esc(message)}</div>`;
     const toastEl = this.$('.toast');
-    toastEl.setAttribute('class', 'toast toast-' + esc(type));
     // closeOnClick：通过 CSS 变量切换 hit-testing（Light DOM 组件禁止内联 style 属性）
     toastEl.style.setProperty('--toast-pointer-events', closeOnClick ? 'auto' : 'none');
     clearTimeout(this._timer);

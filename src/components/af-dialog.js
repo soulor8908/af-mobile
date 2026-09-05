@@ -24,6 +24,9 @@ const CSS = `
   .body { padding: var(--s-4) var(--s-5); line-height: 20px; max-height: 60vh; overflow: auto; }
   footer { display: flex; }
   footer > ::slotted(*) { flex: 1; display: flex; gap: var(--s-2); width: 100%; min-height: 48px; border-radius: 0; }
+  footer > ::slotted(*:not(:first-child)) { box-shadow: var(--af-dialog-sep, -1px 0 0 0 var(--c-border)); }
+  :host([round-button]) footer { padding: var(--s-2) var(--s-4) var(--s-4); gap: var(--s-3); }
+  :host([round-button]) footer > ::slotted(*) { border-radius: var(--r-f); box-shadow: none; }
   :host([variant="bottom"]) dialog {
     border-radius: var(--af-dialog-radius, 16px) var(--af-dialog-radius, 16px) 0 0;
     max-width: 100vw; width: 100%;

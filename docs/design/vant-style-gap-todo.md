@@ -25,14 +25,14 @@
 - [x] T1.2 tabbar：文字 12px、图标 22px、gap 4px、行高 1、未激活色 text
 - [x] T1.3 navbar：标题 16px/600、左右区 padding 0 16px、min-height 46px、返回键 16px/44px 触点；disabled 态未做（组件无此逻辑，待需求）
 - [x] T1.4 tabbar badge 移入 icon 内 absolute 定位（消除整栏跳动）
-- [ ] T1.5 cell/list（部分）：行高 44px、padding 10px 16px、行高 24px、分隔线 inset 16px（::after + scaleY(.5)）已完成；value 右对齐灰字 + 右箭头槽位、.list 默认去边框未做（涉及 JS 渲染层）
-- [ ] T1.6 af-list 状态文案：14px/行高 50px；loading 加 spinner；补 error 态（danger + 点击重试）
-- [ ] T1.7 af-dialog（部分）：圆角 16px（--af-dialog-radius）、标题居中 16px、body max-height 60vh、footer 通栏等分 48px 已完成；按钮间分隔线（被体积挤掉，待预算调整后补）；round-button 变体未做
-- [ ] T1.8 af-picker：选项行高 44px、字 16px；标题 16px/600 绝对居中 max-width 50%；工具栏按钮整高热区；指示框去边线 inset 16px；禁用选项 opacity .3
-- [ ] T1.9 badge/tag 数值（部分）：badge 16px/dot 8px/恒 1px 白描边已完成；tag padding/圆角/字号、mark/round 变体未做
-- [ ] T1.10 af-number-keyboard：键白底 + 容器灰底（反色）、键字 28px、圆角 8px、gap 6px、容器 padding-bottom 22px；标题 16px normal；close 改主题色文字按钮
-- [ ] T1.11 af-toast 图标布局：带图标时 88×88 flex column、图标 36px、间距 8px；进场淡入 200ms
-- [ ] T1.12 af-password-input：光标 1px/高 40%；cell 高 50px、明文 20px；补 info/error 文本行
+- [x] T1.5 cell/list（部分）：行高 44px、padding 10px 16px、行高 24px、分隔线 inset 16px（::after + scaleY(.5)）；value 右对齐灰字（.cell-value）+ 右箭头槽位（.cell-arrow 纯 CSS 边框 chevron，.cell-value + .cell-arrow 联动）已完成；.list 默认去边框未做（涉及 JS 渲染层）
+- [x] T1.6 af-list 状态文案：14px/行高 50px；loading 加 spinner（spin-dot 复用）；补 error 态（setError API + _renderError danger 文案 + 重试按钮 af-list:retry）
+- [x] T1.7 af-dialog（部分）：圆角 16px（--af-dialog-radius）、标题居中 16px、body max-height 60vh、footer 通栏等分 48px；按钮间分隔线（box-shadow 穿透 slotted，文档样式不可覆盖）+ round-button 变体（:host([round-button]) footer padding/gap + slotted 圆角）已完成
+- [x] T1.8 af-picker（部分）：选项行高 44px（默认 itemHeight 36→44）、字 16px（--af-item-fs）；标题绝对居中 max-width 50%（ellipsis）；禁用选项 opacity .3（.item-disabled + 滚轮停禁用项弹开 + 键盘跳过）；工具栏按钮整高热区、指示框去边线未做
+- [x] T1.9 badge/tag 数值：badge 16px/dot 8px/恒 1px 白描边 + tag padding/圆角/字号/tag-round/tag-mark 全部完成
+- [x] T1.10 af-number-keyboard（部分）：键白底 + 容器灰底（反色）、键字 28px（--af-key-fs）、圆角 8px（--r-m）、close 改主题色文字按钮已完成；gap 6px（现 8px）、容器 padding-bottom 22px、标题 16px normal 未做
+- [x] T1.11 af-toast 图标布局：icon 选项 / type=loading 切图标态（toast-ico-box 88×88 flex column、图标 36px、间距 8px、toast-loading-ico 白色 spinner）；进场淡入 200ms
+- [x] T1.12 af-password-input（部分）：光标 1px/高 40%、cell 高 50px、info/error-info 文本行（error 红色优先、:empty 隐藏）已完成；明文 20px 未做（现 t-xl 22px）
 
 ## P2（打磨）
 

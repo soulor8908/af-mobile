@@ -295,3 +295,25 @@ describe('af-dialog DSD 水合', () => {
     expect(el.returnValue).toBe('confirm');
   });
 });
+
+
+describe('af-dialog T1.7 按钮分隔线 + round-button 变体', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('CSS 含分隔线与 round-button 覆盖规则', () => {
+    const el = new AfDialog();
+    document.body.appendChild(el);
+    const css = el.shadowRoot.querySelector('style').textContent;
+    expect(css).toContain('box-shadow: var(--af-dialog-sep, -1px 0 0 0 var(--c-border))');
+    expect(css).toContain(':host([round-button]) footer');
+    expect(css).toContain('box-shadow: none');
+  });
+
+  it('round-button 属性纯 CSS 生效（无需 JS defineProp）', () => {
+    const el = new AfDialog();
+    el.setAttribute('round-button', '');
+    document.body.appendChild(el);
+    expect(el.hasAttribute('round-button')).toBe(true);
+    expect(el.$('footer')).not.toBeNull();
+  });
+});

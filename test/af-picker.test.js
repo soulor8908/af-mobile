@@ -118,7 +118,7 @@ describe('af-picker Shadow DOM', () => {
     const el = makePicker({ columns: COLUMNS, values: ['bj', 'dc'] });
     const col0 = el.$$('.column')[0];
     col0.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
-    expect(col0.scrollTop).toBe(36); // 移到第 2 项
+    expect(col0.scrollTop).toBe(44); // 移到第 2 项（T1.8 默认行高 44）
   });
 
   it('键盘 ArrowUp 边界处理', () => {
@@ -257,5 +257,33 @@ describe('af-picker DSD 水合', () => {
     expect(hideSpy).toHaveBeenCalledTimes(1);
     el.$('.btn-confirm').click();
     expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('T1.8: disabled 项渲染 item-disabled + aria-disabled', () => {
+    const el = makePicker({ columns: [[{ label: 'A', value: 'a' }, { label: 'B', value: 'b', disabled: true }]] });
+    const items = el.$$('.item');
+    expect(items[1].classList.contains('item-disabled')).toBe(true);
+    expect(items[1].getAttribute('aria-disabled')).toBe('true');
+  });
+
+  it('T1.8: 滚轮停在 disabled 项弹到最近可用项，不派发 change', () => {
+    vi.useFakeTimers();
+    const el = makePicker({ columns: [['A', { label: 'B', value: 'b', disabled: true }, 'C']], values: ['a'] });
+    const col0 = el.$$('.column')[0];
+    const handler = vi.fn();
+    el.addEventListener('af-picker:change', handler);
+    col0.scrollTop = 1 * 44;
+    col0.dispatchEvent(new Event('scroll'));
+    vi.advanceTimersByTime(100);
+    expect(col0.scrollTop).toBe(0);
+    expect(handler).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
+  it('T1.8: 键盘导航跳过 disabled 项', () => {
+    const el = makePicker({ columns: [['A', { label: 'B', value: 'b', disabled: true }, 'C']], values: ['a'] });
+    const col0 = el.$$('.column')[0];
+    col0.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }));
+    expect(col0.scrollTop).toBe(2 * 44);
   });
 });

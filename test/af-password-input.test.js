@@ -107,4 +107,30 @@ describe('af-password-input Shadow DOM', () => {
     el.focused = true;
     expect(el.$$('.cell')[1].querySelector('.caret')).not.toBeNull();
   });
+
+  it('T1.12: info 提示行渲染灰字，error-info 红色优先', () => {
+    const el = makePi({ info: '密码为 6 位数字' });
+    const info = el.$('.info');
+    expect(info.textContent).toBe('密码为 6 位数字');
+    expect(info.classList.contains('error')).toBe(false);
+    el.setAttribute('error-info', '密码错误');
+    expect(info.textContent).toBe('密码错误');
+    expect(info.classList.contains('error')).toBe(true);
+    el.setAttribute('error-info', '');
+    expect(info.textContent).toBe('密码为 6 位数字');
+    expect(info.classList.contains('error')).toBe(false);
+  });
+
+  it('T1.12: 无提示文案时 info 行为空（:empty 隐藏）', () => {
+    const el = makePi();
+    expect(el.$('.info').textContent).toBe('');
+  });
+
+  it('T1.12: 光标 1px 宽 / 40% 高，cell 高 50px（CSS 变量）', () => {
+    const el = makePi({ focused: true });
+    const css = el.shadowRoot.querySelector('style').textContent;
+    expect(css).toContain('--af-pi-caret-w: 1px');
+    expect(css).toContain('height: 40%');
+    expect(css).toContain('--af-pi-cell-h: 50px');
+  });
 });

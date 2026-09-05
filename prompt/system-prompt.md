@@ -18,14 +18,14 @@
 
 # L2 白名单（构建时注入）
 
-## L2 配方（160 个，按用途分组）
+## L2 配方（170 个，按用途分组）
 
 **按钮（10）：** `btn` `btn-sm` `btn-lg` `btn-mini` `btn-ghost` `btn-plain` `btn-danger` `btn-success` `btn-block` `btn-round`
-**容器（15）：** `page` `app-shell` `card` `cell` `center` `sheet` `as-header` `as-body` `as-item` `as-cancel` `as-sub` `as-gap` `eyebrow` `section` `section-tt`
+**容器（17）：** `page` `app-shell` `card` `cell` `cell-value` `cell-arrow` `center` `sheet` `as-header` `as-body` `as-item` `as-cancel` `as-sub` `as-gap` `eyebrow` `section` `section-tt`
 **文本（8）：** `display` `title` `subtitle` `body` `caption` `meta` `price` `price-del`
 **表单（29）：** `label` `input` `textarea` `form-row` `form-row-h` `form-err` `f-req` `f-clear` `f-limit` `search-input` `switch` `switch-sm` `switch-on` `switch-ldg` `switch-th` `sb-wrap` `sb-bar` `sb-action` `sb-icon` `sb-clear` `input-err` `upload-gd` `up-add` `up-ico` `up-txt` `up-item` `up-thumb` `up-del` `up-mask`
 **列表（6）：** `list` `list-item` `list-item-cp` `divider` `thumb` `avatar`
-**反馈（26）：** `empty` `sk` `sk-ln` `sk-blk` `sk-blk-h-sm` `sk-blk-h-md` `sk-w-40` `sk-w-60` `sk-w-80` `sk-cir` `sk-pg` `tag` `tag-md` `tag-lg` `tag-ok` `tag-warn` `tag-danger` `tag-plain` `tag-plain-ok` `tag-plain-warn` `tag-plain-danger` `badge` `toast` `toast-success` `toast-error` `toast-warning`
+**反馈（34）：** `empty` `list-state` `spin-dot` `list-retry` `sk` `sk-ln` `sk-blk` `sk-blk-h-sm` `sk-blk-h-md` `sk-w-40` `sk-w-60` `sk-w-80` `sk-cir` `sk-pg` `tag` `tag-round` `tag-mark` `tag-md` `tag-lg` `tag-ok` `tag-warn` `tag-danger` `tag-plain` `tag-plain-ok` `tag-plain-warn` `tag-plain-danger` `badge` `toast` `toast-success` `toast-error` `toast-warning` `toast-ico-box` `toast-ico` `toast-loading-ico`
 **导航（7）：** `navbar` `navbar-fixed` `page-col` `scroll-y` `tabbar` `tabbar-fixed` `tab-item`
 **布局（9）：** `hero` `stats-grid` `actions` `input-bar` `cob` `input-bar-fx` `cob-fx` `safe-top` `safe-bottom`
 **Checkbox / Radio（4）：** `checkbox` `radio` `checkbox-sm` `radio-sm`

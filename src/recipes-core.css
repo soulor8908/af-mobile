@@ -89,6 +89,18 @@
     line-height: 24px;
     position: relative;
   }
+  /* T1.5 Vant 对齐：右侧值文字（右对齐、次级灰）+ chevron 箭头（纯 CSS 边框画法，无 icon 依赖） */
+  .cell-value { margin-left: auto; text-align: right; color: var(--c-muted); font-size: var(--t-md); }
+  .cell-arrow {
+    margin-left: auto;
+    width: 8px;
+    height: 8px;
+    border-top: 1.5px solid var(--c-muted);
+    border-right: 1.5px solid var(--c-muted);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .cell-value + .cell-arrow { margin-left: 0; }
 
   .center {
     display: flex;

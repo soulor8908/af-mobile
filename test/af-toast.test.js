@@ -108,6 +108,35 @@ describe('af-toast', () => {
     vi.useRealTimers();
   });
 
+  it('T1.11: icon 选项切图标布局（toast-ico-box + toast-ico）', () => {
+    const el = makeToast();
+    el.show('已收藏', { icon: '★', duration: 999999 });
+    expect(el.$('.toast.toast-ico-box')).not.toBeNull();
+    const ico = el.$('.toast-ico');
+    expect(ico).not.toBeNull();
+    expect(ico.getAttribute('aria-hidden')).toBe('true');
+    expect(ico.textContent).toBe('★');
+    el.dismiss();
+  });
+
+  it('T1.11: type=loading 自动渲染 CSS spinner 图标', () => {
+    const el = makeToast();
+    el.show('加载中', { type: 'loading', duration: 0 });
+    expect(el.$('.toast.toast-ico-box')).not.toBeNull();
+    const spin = el.$('.toast-loading-ico');
+    expect(spin).not.toBeNull();
+    expect(spin.getAttribute('aria-hidden')).toBe('true');
+    el.dismiss();
+  });
+
+  it('T1.11: icon 含 HTML 被转义，不注入节点', () => {
+    const el = makeToast();
+    el.show('hi', { icon: '<img src=x onerror=alert(1)>', duration: 999999 });
+    expect(el.$('.toast').querySelector('img[onerror]')).toBeNull();
+    expect(el.$('.toast-ico').textContent).toBe('<img src=x onerror=alert(1)>');
+    el.dismiss();
+  });
+
   it('duration: 0 表示常驻，不自动消失（loading 场景）', () => {
     vi.useFakeTimers();
     const el = makeToast();
@@ -146,7 +175,8 @@ describe('af-toast', () => {
     const el = makeToast();
     el.show('hi', { type: '<img src=x onerror=alert(1)>' });
     expect(el.$('.toast').querySelector('img[onerror]')).toBeNull();
-    expect(el.$('.toast').className).toContain('toast-&lt;img');
+    // class 走 innerHTML 属性路径：&lt; 被属性解析器解码回 <，但仍只是 class token，无节点注入
+    expect(el.$('.toast').className).toContain('toast-<img');
   });
 
   it('unmounted：清理 timer + 重置单例', () => {

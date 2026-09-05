@@ -13,7 +13,7 @@ const CSS = `
     max-width: 100vw; width: 100%;
     margin: auto 0 0 0;
     padding: 0 0 env(safe-area-inset-bottom);
-    background: var(--c-card);
+    background: var(--c-muted-bg);
     box-shadow: var(--shadow-lg);
   }
   .kb::backdrop { background: rgba(0,0,0,.4); }
@@ -24,19 +24,19 @@ const CSS = `
   .title { font-size: var(--t-md); font-weight: var(--fw-medium); color: var(--c-text); }
   .close {
     position: absolute; right: var(--s-3); top: 50%; transform: translateY(-50%);
-    background: none; border: none; color: var(--c-muted);
+    background: none; border: none; color: var(--c-brand);
     font-size: var(--t-lg); cursor: pointer; padding: var(--s-1); line-height: 1;
   }
   .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2); padding: var(--s-3); }
   .key {
     height: var(--af-key-h, 48px);
     display: flex; align-items: center; justify-content: center;
-    font-size: var(--t-xl); font-weight: var(--fw-medium); color: var(--c-text); font-family: inherit;
-    background: var(--c-muted-bg); border: none;
-    border-radius: var(--r-s); cursor: pointer;
+    font-size: var(--af-key-fs, 28px); font-weight: var(--fw-medium); color: var(--c-text); font-family: inherit;
+    background: var(--c-card); border: none;
+    border-radius: var(--r-m); cursor: pointer;
     transition: background var(--dur-fast) var(--ease-out);
   }
-  .key:active { background: var(--c-border); }
+  .key:active { background: var(--c-muted-bg); }
   .key:focus-visible { outline: 2px solid var(--c-brand); outline-offset: -2px; }
   .key.blank { visibility: hidden; pointer-events: none; }
   .key-del { font-size: var(--t-md); }

@@ -74,7 +74,8 @@ export class AfList extends withI18n(AfElement) {
         <div data-role="spacer-before"></div>
         <div data-role="viewport"></div>
         <div data-role="spacer-after"></div>
-        <div data-role="loadmore" class="caption t-center p-2"></div>
+        <div data-role="loadmore" class="list-state"></div>
+        <div data-role="error-row" class="list-state" hidden></div>
       </div>
     `;
     this._scroller = this.$('.list');
@@ -185,7 +186,8 @@ export class AfList extends withI18n(AfElement) {
     if (distanceToBottom < this.itemHeight * LOADINGMORE_DISTANCE) {
       this._isLoadingMore = true;
       this._page += 1;
-      this._loadmoreEl.textContent = t('ls.ld');
+      // T1.6：loading 态加 spinner（纯 CSS 转圈）
+      this._loadmoreEl.innerHTML = `<span class="spin-dot" aria-hidden="true"></span>${esc(t('ls.ld'))}`;
       this.emit('af-list:loadmore', { page: this._page });
     }
   }
@@ -256,6 +258,29 @@ export class AfList extends withI18n(AfElement) {
       }
     };
     this._listen(this._scroller, 'click', this._onClick);
+    // T1.6：error 态点击重试（委托，重渲染后仍有效）
+    this._onRetry = (e) => {
+      if (e.target.closest('[data-role="retry"]')) this.emit('af-list:retry', {});
+    };
+    this._listen(this, 'click', this._onRetry);
+  }
+
+  // T1.6 Vant 对齐补强：error 态（danger 文案 + 重试按钮），由消费端监听 af-list:retry 拉取
+  setError(msg) {
+    this.error = msg || '';
+    this._renderError();
+  }
+
+  _renderError() {
+    const row = this.$('[data-role="error-row"]');
+    if (!row) return;
+    if (this.error) {
+      row.innerHTML = `${esc(this.error)} <button class="list-retry" type="button" data-role="retry">${esc(t('ls.rt'))}</button>`;
+      row.hidden = false;
+    } else {
+      row.hidden = true;
+      row.textContent = '';
+    }
   }
 
   // 键盘导航：↑↓ 移动活跃项（滚动入视）+ Enter 触发 itemclick
@@ -316,6 +341,8 @@ export class AfList extends withI18n(AfElement) {
     }
     if (name === 'height') {
       this._applyHeight();
+    } else if (name === 'error') {
+      this._renderError();
     } else {
       this._render();
     }
@@ -336,5 +363,6 @@ AfElement.defineProp(AfList.prototype, 'buffer', 5);
 AfElement.defineProp(AfList.prototype, 'mode', 'normal');
 AfElement.defineProp(AfList.prototype, 'refresh', true);
 AfElement.defineProp(AfList.prototype, 'loading', false);
+AfElement.defineProp(AfList.prototype, 'error', '');
 AfElement.defineProp(AfList.prototype, 'emptyText', null);
 AfElement.defineProp(AfList.prototype, 'height', '');

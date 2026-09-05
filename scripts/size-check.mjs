@@ -87,10 +87,10 @@ const SRC = join(ROOT, 'src');
 //   escapeHtml/html 拆分至 lib/html.js（共享运行时模块，非生命周期核心），CORE_MODULES 登记 'html'，
 //   基类一行再导出保持全部既有 import 路径兼容——base 回落 ≤ 2KB，total 不升（lib 共享模块本就不计入 total）
 const BUDGET = {
-  css: 7.8,            // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径；v1.6.1 上调 6.0→7.0：新增 40 个高视觉 class，用户已确认，实测 ~6.9KB；v4.8 上调 7.0→7.8，用户已确认：Vant 对齐批次3（docs/design/vant-style-gap-todo.md）——action-sheet as-* 全宽贴边体系 + upload up-* 宫格化（占位块/黑角标/遮罩）+ field f-req/f-clear/f-limit + search-bar sb-bar/sb-action，实测 7.602KB）
-  perComponent: 2.8,   // KB，单组件 JS（+i18n 映射表）
+  css: 8.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径；v4.8 上调 7.0→7.8，用户已确认：Vant 对齐批次3（docs/design/vant-style-gap-todo.md），实测 7.602KB；v4.9 上调 7.8→8.2，用户已确认：Vant 对齐 P1（toast 图标态/toast 进场动画/number-keyboard 反色/list-state/cell-value/cell-arrow），实测 7.978KB）
+  perComponent: 3.0,   // KB，单组件 JS（+i18n 映射表；v4.9 上调 2.8→3.0，用户已确认：af-picker T1.8 disabled 选项——渲染+滚轮停禁用项弹开+键盘跳过，实测 2.912KB）
   base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
-  total: 24.8,         // KB，30 组件 + 基类（v4.3：新增 af-number-keyboard/af-password-input，20.4 上调容纳；v4.5 上调 23.0→23.3，用户已确认：P0 注册死锁修复新增 register 状态中心 + 看门狗诊断，实测 23.230；v4.6 上调 23.3→23.4，用户已确认：index.js 新增 withLayout/todayISO+formatDate/openFormDialog 三条 re-export 的 API 导出面 +88B gzip，实测 23.318；v4.7 上调 23.4→23.5，用户已确认：Vant 对齐批次2（docs/design/vant-style-gap-todo.md）——af-tabs 底部滑块 + af-dialog 通栏 footer/居中标题/60vh 滚动 + af-tabbar badge 绝对定位，实现压缩后净增 +27B gzip，实测 23.427；v4.8 上调 23.5→24.8，用户已确认：Vant 对齐批次3——af-upload 宫格化重写 + af-action-sheet as-* 体系 + af-field required/clearable/word-limit/right-slot + af-search-bar sb-bar/sb-action + af-notice-bar icon/closeable/wrapable，实测 24.577KB）
+  total: 26.2,         // KB，30 组件 + 基类（v4.8 上调 23.5→24.8，用户已确认：Vant 对齐批次3，实测 24.577KB；v4.9 上调 24.8→26.2，用户已确认：Vant 对齐 P1——af-toast 图标态+进场动画 + af-number-keyboard 反色 + af-password-input info/error 行 + af-picker 行高44/disabled + af-dialog 分隔线/round-button，实测 25.965KB，其中 ~0.56KB 为 Trae 并行运行时改动非本批次）
   onDemand2: 6.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 6.95,   // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind；v4.5 上调 6.8→6.85，用户已确认：router 渲染前 whenReady 等待注册，实测 6.816；v4.6 上调 6.85→6.95，用户已确认：bind.js @event 声明式事件绑定（OPT-3），三轮实现压缩后净增实测 6.911）
   layout: 0.9,         // KB，withLayout 页面布局包装器（OPT-1，独立预算不计入 total；router/html 共享模块 external；实测 0.860KB）

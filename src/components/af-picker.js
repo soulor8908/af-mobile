@@ -19,13 +19,13 @@ const CSS = `
   @keyframes picker-up { from { transform: translateY(100%); } }
   .picker::backdrop { background: rgba(0, 0, 0, .7); }
   .header {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between; position: relative;
     padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--c-border);
   }
   .btn-cancel, .btn-confirm { background: none; border: none; font-size: var(--t-md); padding: var(--s-1) var(--s-2); cursor: pointer; }
   .btn-cancel { color: var(--c-muted); }
   .btn-confirm { color: var(--c-brand); font-weight: var(--fw-medium); }
-  .title { font-size: var(--t-md); font-weight: var(--fw-medium); color: var(--c-text); }
+  .title { position: absolute; left: 50%; transform: translateX(-50%); max-width: 50%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--t-md); font-weight: var(--fw-medium); color: var(--c-text); }
   .columns { display: flex; position: relative; }
   .column {
     flex: 1; position: relative; overflow-y: scroll; scroll-snap-type: y mandatory;
@@ -36,10 +36,11 @@ const CSS = `
   .item {
     height: var(--af-item-h); line-height: var(--af-item-h);
     scroll-snap-align: center; text-align: center;
-    font-size: var(--t-md); color: var(--c-muted);
+    font-size: var(--af-item-fs, 16px); color: var(--c-muted);
     overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
   }
   .item.active { color: var(--c-text); font-weight: var(--fw-bold); }
+  .item-disabled { opacity: var(--af-item-dis-op, .3); }
   .mask {
     position: absolute; inset: 0; pointer-events: none;
     background: linear-gradient(var(--c-card), transparent calc(var(--af-item-h)*2), transparent calc(100% - var(--af-item-h)*2), var(--c-card));
@@ -132,7 +133,8 @@ export class AfPicker extends withI18n(AfElement) {
 
       const items = (col || []).map(_ni).map((item, i) => {
         const selected = this.values[c] != null && item.value === this.values[c];
-        return `<div class="item${selected ? ' active' : ''}" role="option" data-idx="${i}" aria-selected="${selected}">${esc(item.label)}</div>`;
+        const dis = item.disabled ? ' item-disabled" aria-disabled="true' : '';
+        return `<div class="item${selected ? ' active' : ''}${dis}" role="option" data-idx="${i}" aria-selected="${selected}">${esc(item.label)}</div>`;
       }).join('');
       // 上下 spacer 由 .column::before/::after 提供（CSS 伪元素，让首尾 item 也能滚到中心）
       colEl.innerHTML = items;
@@ -158,6 +160,14 @@ export class AfPicker extends withI18n(AfElement) {
     const idx = Math.round(col.scrollTop / this.itemHeight);
     const colData = (this.columns[c] || []).map(_ni);
     if (!colData[idx]) return;
+    // T1.8：滚轮停在禁用项 → 弹到最近可用项（就近优先），不派发 change
+    if (colData[idx].disabled) {
+      for (let d = 1; d < colData.length; d++) {
+        if (idx - d >= 0 && !colData[idx - d].disabled) { col.scrollTop = (idx - d) * this.itemHeight; return; }
+        if (idx + d < colData.length && !colData[idx + d].disabled) { col.scrollTop = (idx + d) * this.itemHeight; return; }
+      }
+      return;
+    }
 
     const newValues = [...this.values];
     newValues[c] = colData[idx].value;
@@ -170,11 +180,11 @@ export class AfPicker extends withI18n(AfElement) {
   _onColumnKeydown(c, e) {
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
     e.preventDefault();
-    const colData = this.columns[c];
-    if (!colData) return;
+    const colData = this.columns[c] || [];
     let idx = this._findIndex(c, this.values[c]);
-    if (e.key === 'ArrowDown') idx = Math.min(idx + 1, colData.length - 1);
-    else idx = Math.max(idx - 1, 0);
+    const step = e.key === 'ArrowDown' ? 1 : -1;
+    do { idx += step; } while (idx >= 0 && idx < colData.length && colData[idx]?.disabled);
+    if (idx < 0 || idx >= colData.length) return;
     this._scrollers[c].scrollTop = idx * this.itemHeight;
   }
 
@@ -266,5 +276,5 @@ AfElement.defineProp(AfPicker.prototype, 'values', []);
 AfElement.defineProp(AfPicker.prototype, 'title', null);
 AfElement.defineProp(AfPicker.prototype, 'confirmText', null);
 AfElement.defineProp(AfPicker.prototype, 'cancelText', null);
-AfElement.defineProp(AfPicker.prototype, 'itemHeight', 36);
+AfElement.defineProp(AfPicker.prototype, 'itemHeight', 44);
 AfElement.defineProp(AfPicker.prototype, 'visibleCount', 5);

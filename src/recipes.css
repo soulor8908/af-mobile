@@ -102,6 +102,18 @@
     line-height: 24px;
     position: relative;
   }
+  /* T1.5 Vant 对齐：右侧值文字（右对齐、次级灰）+ chevron 箭头（纯 CSS 边框画法，无 icon 依赖） */
+  .cell-value { margin-left: auto; text-align: right; color: var(--c-muted); font-size: var(--t-md); }
+  .cell-arrow {
+    margin-left: auto;
+    width: 8px;
+    height: 8px;
+    border-top: 1.5px solid var(--c-muted);
+    border-right: 1.5px solid var(--c-muted);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+  }
+  .cell-value + .cell-arrow { margin-left: 0; }
 
   .center {
     display: flex;
@@ -612,6 +624,36 @@
     text-align: center;
   }
 
+  /* T1.6 Vant 对齐：加载/错误状态行 14px、行高 50px；loading spinner；error 重试按钮 */
+  .list-state {
+    min-height: 50px;
+    line-height: 50px;
+    font-size: var(--t-md);
+    text-align: center;
+    color: var(--c-muted);
+  }
+  .spin-dot {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: var(--s-1);
+    border: 2px solid var(--c-brand);
+    border-top-color: transparent;
+    border-radius: var(--r-f);
+    vertical-align: -3px;
+    animation: spin-rot .8s linear infinite;
+  }
+  @keyframes spin-rot { to { transform: rotate(360deg); } }
+  .list-retry {
+    background: none;
+    border: none;
+    padding: 0 var(--s-1);
+    color: var(--c-danger);
+    font: inherit;
+    font-size: var(--t-md);
+    cursor: pointer;
+  }
+
   /* v5：shimmer 加强——三色饱和度提升 + 中段宽度收窄，"光扫过"更清晰可见 */
   .sk {
     background: linear-gradient(
@@ -654,18 +696,21 @@
     padding: var(--s-3);
   }
 
-  /* v5：tag padding 3px → var(--s-1)（修魔数，4px 间距体系内） */
+  /* T1.9 Vant 对齐：padding 0 4px、字号 12px、radius 2px、行高 16px */
   .tag {
     display: inline-flex;
     align-items: center;
-    padding: var(--s-1) var(--s-2);
-    font-size: var(--t-xs);
+    padding: 0 var(--s-1);
+    font-size: var(--t-sm);
     font-weight: var(--fw-medium);
-    line-height: var(--lh-tight);
-    border-radius: var(--r-s);
+    line-height: 16px;
+    border-radius: 2px;
     background: var(--c-muted-bg);
     color: var(--c-muted);
   }
+  /* T1.9 Vant 对齐：round 全圆 / mark 左直角右圆变体 */
+  .tag-round { border-radius: var(--r-f); }
+  .tag-mark  { border-radius: 0 var(--r-f) var(--r-f) 0; }
   /* v6.1 新增：尺寸阶梯（此前只有颜色变体）。基础 .tag 即小号，颜色变体与尺寸可自由组合 */
   .tag-md { padding: var(--s-1) var(--s-2); font-size: var(--t-sm); }
   .tag-lg { padding: var(--s-1) var(--s-3); font-size: var(--t-md); }
@@ -716,10 +761,32 @@
     pointer-events: var(--toast-pointer-events, none);
     max-width: 70%;
     text-align: center;
+    animation: toast-in 200ms var(--ease-out);
   }
+  @keyframes toast-in { from { opacity: 0; } }
   .toast-success { background: var(--c-success); }
   .toast-error { background: var(--c-danger); }
   .toast-warning { background: var(--c-warn); color: var(--c-onwarn); }
+  /* T1.11 Vant 对齐：图标态 88×88 盒（icon 36px、间距 8px） */
+  .toast-ico-box {
+    min-width: 88px;
+    min-height: 88px;
+    padding: var(--s-4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s-2);
+  }
+  .toast-ico { width: 36px; height: 36px; font-size: 36px; line-height: 36px; }
+  .toast-loading-ico {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spinner-rotate .8s linear infinite;
+  }
 
   /* === 导航（5） === */
   /* v6：导航/标签栏去投影，改 0.5px hairline 分隔（扁平 + 物理像素线，暗色下不发灰） */

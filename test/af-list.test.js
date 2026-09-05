@@ -253,3 +253,44 @@ describe('af-list 属性变更与下拉刷新（补充分支）', () => {
     expect(el._refreshIndicator.style.getPropertyValue('--af-refresh-h')).toBe('0px');
   });
 });
+
+describe('af-list T1.6 状态行（list-state/spinner/error 重试）', () => {
+  beforeEach(() => { document.body.innerHTML = ''; });
+
+  it('loadmore 容器用 list-state 类（14px/行高 50px 规格）', () => {
+    const el = makeList({ data: Array.from({ length: 20 }, (_, i) => i), height: 400 });
+    expect(el.$('[data-role="loadmore"]').classList.contains('list-state')).toBe(true);
+  });
+
+  it('error 行默认隐藏', () => {
+    const el = makeList({ data: [1, 2] });
+    expect(el.$('[data-role="error-row"]').hidden).toBe(true);
+  });
+
+  it('setError 显示 danger 文案 + 重试按钮；点击触发 af-list:retry', () => {
+    const el = makeList({ data: [1, 2] });
+    const handler = vi.fn();
+    el.addEventListener('af-list:retry', handler);
+    el.setError('网络失败');
+    const row = el.$('[data-role="error-row"]');
+    expect(row.hidden).toBe(false);
+    expect(row.textContent).toContain('网络失败');
+    expect(row.textContent).toContain('重试');
+    el.$('[data-role="retry"]').click();
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('setError(null) 隐藏错误行', () => {
+    const el = makeList({ data: [1] });
+    el.setError('x');
+    el.setError('');
+    expect(el.$('[data-role="error-row"]').hidden).toBe(true);
+  });
+
+  it('error 属性变化同步错误行', () => {
+    const el = makeList({ data: [1] });
+    el.setAttribute('error', '加载失败');
+    expect(el.$('[data-role="error-row"]').hidden).toBe(false);
+    expect(el.$('[data-role="error-row"]').textContent).toContain('加载失败');
+  });
+});

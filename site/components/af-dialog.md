@@ -66,3 +66,34 @@
 | `open(): void` | 打开对话框 |
 | `close(action?: string): void` | 关闭对话框 |
 <!-- gen:end:api -->
+
+## 定制
+
+`af-dialog` 是 Shadow DOM 组件，内部节点**不可**从外部选择器穿透（`af-dialog [data-role="body"]` 这类写法是死代码，ESLint 规则 `no-af-pierce` 会直接报错）。官方扩展点只有下面两类。
+
+### CSS 自定义属性
+
+| 变量 | 默认值 | 说明 |
+| --- | --- | --- |
+| `--af-dialog-w` | `320px`（center 变体 `280px`） | 对话框宽度，受 `max-width: 90vw` 约束，窄屏不会被撑破 |
+
+```css
+/* 全局或按实例覆盖 */
+af-dialog { --af-dialog-w: 300px; }
+af-dialog[variant="center"] { --af-dialog-w: 260px; }
+```
+
+### ::part()
+
+| part | 说明 |
+| --- | --- |
+| `dialog` | 对话框容器（宽度、圆角、背景在此改） |
+| `header` | 标题栏 |
+| `close` | 右上角关闭按钮 |
+| `content` | 内容区（对应 `slot="body"`） |
+| `footer` | 底部操作区（对应 `slot="footer"`） |
+
+```css
+af-dialog::part(content) { padding: 24px; }
+af-dialog::part(footer)  { gap: 12px; }
+```

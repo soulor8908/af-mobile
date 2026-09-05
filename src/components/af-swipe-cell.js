@@ -22,6 +22,7 @@ export class AfSwipeCell extends AfElement {
     this._render();
     this._bindTouch();
     this._bindClick();
+    this._bindGlobalClose();
     this._bindKeydown();
     if (this.disabled) this.setAttribute('aria-disabled', 'true');
   }
@@ -115,6 +116,15 @@ export class AfSwipeCell extends AfElement {
       this.close();
     };
     this._listen(this, 'click', this._onClick);
+  }
+
+  // T2.2 Vant 对齐：全局点击关闭——打开态下点击组件外任意区域自动收起
+  // （多实例共存：各自 document 监听，_listen 登记 unmounted 自动解绑）
+  _bindGlobalClose() {
+    this._onDocClick = (e) => {
+      if (this._offset !== 0 && !this.contains(e.target)) this.close();
+    };
+    this._listen(document, 'click', this._onDocClick);
   }
 
   _bindKeydown() {

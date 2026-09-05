@@ -9,6 +9,35 @@ function makeCountdown(props = {}) {
   return el;
 }
 
+describe('af-countdown T2.5 format 与粒度', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    vi.useFakeTimers();
+  });
+  afterEach(() => { vi.useRealTimers(); });
+
+  it('显式 format 使用分量 token（DD/HH/mm/ss）', () => {
+    const el = makeCountdown({ time: 90061, autostart: false, format: 'DD天HH:mm:ss' });
+    // 1天 + 1时 + 1分 + 1秒
+    expect(el.$('[data-role="countdown"]').textContent).toBe('01天01:01:01');
+  });
+
+  it('mm:ss 超 1 时自动升粒度到 HH:mm:ss', () => {
+    const el = makeCountdown({ time: 5400, autostart: false });
+    expect(el.$('[data-role="countdown"]').textContent).toBe('01:30:00');
+  });
+
+  it('mm:ss 超 1 天自动升粒度到 DD天HH:mm:ss', () => {
+    const el = makeCountdown({ time: 90000, autostart: false });
+    expect(el.$('[data-role="countdown"]').textContent).toBe('01天01:00:00');
+  });
+
+  it('无 HH 的显式 format：mm 承载总分钟（兼容旧行为）', () => {
+    const el = makeCountdown({ time: 5400, autostart: false, format: 'ss秒' });
+    expect(el.$('[data-role="countdown"]').textContent).toBe('00秒');
+  });
+});
+
 describe('af-countdown', () => {
   beforeEach(() => {
     document.body.innerHTML = '';

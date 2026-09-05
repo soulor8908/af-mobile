@@ -16,7 +16,8 @@
     padding: var(--s-2) var(--s-3);
     background: var(--c-card);
     border: 1px solid var(--c-border);
-    border-radius: var(--r-m);
+    /* T2.10 Vant 对齐：输入圆角 8→4px 级 */
+    border-radius: var(--r-xs);
     /* v6：--t-input(16px)——iOS Safari 聚焦 <16px 输入框会自动放大整页，禁止更小字号 */
     font-size: var(--t-input);
     color: var(--c-text);
@@ -104,7 +105,8 @@
     padding: 0 var(--s-3) 0 var(--s-5);
     background: var(--c-muted-bg);
     border: 1px solid transparent;
-    border-radius: var(--r-f);
+    /* T2.10 Vant 对齐：search 圆角改小（全圆→4px 级） */
+    border-radius: var(--r-xs);
     font-size: var(--t-input);
     color: var(--c-text);
     transition: border-color var(--dur-fast) var(--ease-out),
@@ -321,20 +323,19 @@
 
   /* === af-stepper / af-field 宿主样式（form 子集，表单页才引） === */
   /* af-stepper：T0.6 Vant 对齐——三段连体（28×28 灰底方块 ± + 32px 无边框数字同底），
-     外圈 4px 圆角；± 14px，数字保持 --t-input 16px（iOS 聚焦缩放红线，禁令 5）；
-     hover/active/disabled 覆盖 btn-ghost 的品牌色反馈（Vant 是中性灰阶） */
-  af-stepper { display: inline-flex; align-items: stretch; }
+     gap 2px + 各段 4px 独立圆角；± 14px，数字保持 --t-input 16px（iOS 聚焦缩放红线，禁令 5）；
+     hover/active/disabled 覆盖 btn-ghost 的品牌色反馈（Vant 是中性灰阶，禁用底=--c-bg）；
+     round 变体（af-stepper[round]）：± 圆形 brand 底白字，disabled 回灰阶 */
+  af-stepper { display: inline-flex; align-items: stretch; gap: 2px; }
   af-stepper [data-role="minus"],
   af-stepper [data-role="plus"] {
     width: 28px; min-height: 28px; height: 28px; padding: 0;
-    background: var(--c-muted-bg); color: var(--c-text); border-radius: 0;
+    background: var(--c-muted-bg); color: var(--c-text); border-radius: var(--r-xs);
     font-size: var(--t-md);
   }
-  af-stepper [data-role="minus"] { border-radius: var(--r-xs) 0 0 var(--r-xs); }
-  af-stepper [data-role="plus"] { border-radius: 0 var(--r-xs) var(--r-xs) 0; }
   af-stepper [data-role="input"] {
     width: 32px; height: 28px; min-height: 28px; padding: 0; text-align: center;
-    background: var(--c-muted-bg); border: none; border-radius: 0;
+    background: var(--c-muted-bg); border: none; border-radius: var(--r-xs);
     font-size: var(--t-input);
   }
   af-stepper [data-role="minus"]:hover,
@@ -342,9 +343,17 @@
   af-stepper [data-role="minus"]:active,
   af-stepper [data-role="plus"]:active { background: var(--c-border); }
   af-stepper button:disabled {
-    background: var(--c-muted-bg); color: var(--c-muted);
+    background: var(--c-bg); color: var(--c-muted);
     cursor: not-allowed;
   }
+  af-stepper[round] [data-role="minus"],
+  af-stepper[round] [data-role="plus"] {
+    border-radius: var(--r-f);
+    background: var(--c-brand); color: var(--c-onbrand);
+  }
+  af-stepper[round] [data-role="minus"]:hover,
+  af-stepper[round] [data-role="plus"]:hover { background: color-mix(in srgb, var(--c-brand) 92%, white); }
+  af-stepper[round] button:disabled { background: var(--c-muted-bg); }
 
   /* af-field：图标绝对定位 + 控件容器相对定位 */
   af-field { display: block; }

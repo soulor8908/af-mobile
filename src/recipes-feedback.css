@@ -53,7 +53,7 @@
       var(--c-muted-bg) 100%
     );
     background-size: 200% 100%;
-    animation: skeleton-shimmer 1.5s infinite var(--ease-in-out);
+    animation: skeleton-shimmer 1.2s infinite var(--ease-in-out);
     border-radius: var(--r-s);
   }
   @keyframes skeleton-shimmer {
@@ -61,10 +61,11 @@
     100% { background-position: -200% 0; }
   }
 
+  /* T2.4 Vant 对齐：行高 16px、行距 12px */
   .sk-ln {
-    height: var(--t-md);
+    height: 16px;
     line-height: var(--lh-tight);
-    margin-bottom: var(--s-1);
+    margin-bottom: var(--s-3);
   }
   .sk-ln:last-child {
     margin-bottom: 0;
@@ -81,7 +82,7 @@
   .sk-w-40 { width: 40%; }
   .sk-w-60 { width: 60%; }
   .sk-w-80 { width: 80%; }
-  .sk-cir { width: 64px; height: 64px; border-radius: 50%; }
+  .sk-cir { width: 32px; height: 32px; border-radius: 50%; }
   .sk-pg {
     padding: var(--s-3);
   }
@@ -225,7 +226,7 @@
     transform: translate(-50%, -50%);
     min-width: 3.6em;
     padding: 0 5px;
-    font-size: 10px;
+    font-size: var(--t-sm);
     line-height: 1.6;
     color: var(--c-onbrand);
     text-align: center;

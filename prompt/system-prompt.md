@@ -18,7 +18,7 @@
 
 # L2 白名单（构建时注入）
 
-## L2 配方（170 个，按用途分组）
+## L2 配方（172 个，按用途分组）
 
 **按钮（10）：** `btn` `btn-sm` `btn-lg` `btn-mini` `btn-ghost` `btn-plain` `btn-danger` `btn-success` `btn-block` `btn-round`
 **容器（17）：** `page` `app-shell` `card` `cell` `cell-value` `cell-arrow` `center` `sheet` `as-header` `as-body` `as-item` `as-cancel` `as-sub` `as-gap` `eyebrow` `section` `section-tt`
@@ -31,7 +31,7 @@
 **Checkbox / Radio（4）：** `checkbox` `radio` `checkbox-sm` `radio-sm`
 **加载指示器（11）：** `spinner` `spinner-sm` `spinner-lg` `progress` `progress-bar` `progress-pivot` `progress-sm` `progress-lg` `progress-inactive` `progress-success` `progress-danger`
 **折叠面板（9）：** `clp` `clp-sum` `clp-ct` `notice` `notice-ico` `notice-close` `notice-tx` `notice-scr` `notice-wrap`
-**评分（11）：** `rate` `rate-star` `rate-ro` `rate-sm` `rate-lg` `steps` `step` `step-done` `step-active` `step-circle` `step-label`
+**评分（13）：** `rate` `rate-star` `rate-ro` `rate-dis` `rate-half` `rate-sm` `rate-lg` `steps` `step` `step-done` `step-active` `step-circle` `step-label`
 **分段控制器（4）：** `seg` `seg-it` `seg-blk` `seg-brand`
 **主视觉（2）：** `hero-grad` `nav-transparent`
 **媒体卡（2）：** `card-media` `card-shadow`

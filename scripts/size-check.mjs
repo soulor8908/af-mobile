@@ -87,10 +87,10 @@ const SRC = join(ROOT, 'src');
 //   escapeHtml/html 拆分至 lib/html.js（共享运行时模块，非生命周期核心），CORE_MODULES 登记 'html'，
 //   基类一行再导出保持全部既有 import 路径兼容——base 回落 ≤ 2KB，total 不升（lib 共享模块本就不计入 total）
 const BUDGET = {
-  css: 8.2,            // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径；v4.8 上调 7.0→7.8，用户已确认：Vant 对齐批次3（docs/design/vant-style-gap-todo.md），实测 7.602KB；v4.9 上调 7.8→8.2，用户已确认：Vant 对齐 P1（toast 图标态/toast 进场动画/number-keyboard 反色/list-state/cell-value/cell-arrow），实测 7.978KB）
+  css: 8.35,           // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径；v4.9 上调 7.8→8.2，用户已确认：Vant 对齐 P1，实测 7.978KB；v5.0 上调 8.2→8.35，用户已确认：Vant 对齐 P0 收尾 + P2 打磨（stepper round/progress pivot 字号/swipe-cell 通栏/skeleton 16px/rate 20px 半星/dropdown 菜单条/cell-value-arrow），实测 8.276KB）
   perComponent: 3.0,   // KB，单组件 JS（+i18n 映射表；v4.9 上调 2.8→3.0，用户已确认：af-picker T1.8 disabled 选项——渲染+滚轮停禁用项弹开+键盘跳过，实测 2.912KB）
   base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
-  total: 26.2,         // KB，30 组件 + 基类（v4.8 上调 23.5→24.8，用户已确认：Vant 对齐批次3，实测 24.577KB；v4.9 上调 24.8→26.2，用户已确认：Vant 对齐 P1——af-toast 图标态+进场动画 + af-number-keyboard 反色 + af-password-input info/error 行 + af-picker 行高44/disabled + af-dialog 分隔线/round-button，实测 25.965KB，其中 ~0.56KB 为 Trae 并行运行时改动非本批次）
+  total: 27.3,         // KB，30 组件 + 基类（v4.9 上调 24.8→26.2，用户已确认：Vant 对齐 P1，实测 25.965KB，其中 ~0.56KB 为 Trae 并行运行时改动非本批次；v5.0 上调 26.2→27.3，用户已确认：Vant 对齐 P0 收尾 + P2 打磨——af-swiper 500ms/autoplay3000/悬浮圆点、af-swipe-cell 通栏直角65px+全局点击关闭、af-countdown format 升粒度、af-img fit+淡入+SVG 错误态、af-list transform 驱动下拉刷新+success 态、af-rate 半星+disabled、af-countdown/img JS 增量，实测 26.731KB，其中 ~0.56KB 仍为 Trae 并行改动）
   onDemand2: 6.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
   coreRuntime: 6.95,   // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind；v4.5 上调 6.8→6.85，用户已确认：router 渲染前 whenReady 等待注册，实测 6.816；v4.6 上调 6.85→6.95，用户已确认：bind.js @event 声明式事件绑定（OPT-3），三轮实现压缩后净增实测 6.911）
   layout: 0.9,         // KB，withLayout 页面布局包装器（OPT-1，独立预算不计入 total；router/html 共享模块 external；实测 0.860KB）

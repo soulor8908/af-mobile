@@ -56,8 +56,8 @@
     display: inline-flex;
     flex-direction: row-reverse;
     align-items: center;
-    gap: 2px;
-    font-size: var(--t-lg);
+    gap: var(--s-2);
+    font-size: 20px;
     line-height: 1;
   }
   .rate input {
@@ -79,8 +79,21 @@
   .rate-star:hover,
   .rate-star:hover ~ .rate-star { color: var(--c-warn); }
   .rate-ro { cursor: default; pointer-events: none; }
-  .rate-sm { font-size: var(--t-md); }
-  .rate-lg { font-size: var(--t-xl); }
+  /* T2.8 Vant 对齐：disabled 星变灰且不可点；半星（rate-half：半宽溢出裁切叠橙星） */
+  .rate-dis { pointer-events: none; }
+  .rate-dis .rate-star { color: var(--c-muted); }
+  .rate-half { position: relative; }
+  .rate-half::after {
+    content: '★';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    overflow: hidden;
+    color: var(--c-warn);
+  }
+  .rate-sm { font-size: var(--t-lg); }
+  .rate-lg { font-size: var(--t-display); }
 
   /* === 步骤条（6） ===
      T0.8 Vant 对齐：24px 数字圆盘 → 5px 实心小圆点 + 1px 连线（水平），

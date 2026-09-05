@@ -88,7 +88,7 @@ export class AfDropdown extends withI18n(AfElement) {
     this.innerHTML = `
       <button class="${esc(this.triggerClass)} af-dropdown-trigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="${this._listboxId}"${disabledAttr}>
         <span class="flex-1"></span>
-        <span aria-hidden="true">▾</span>
+        <span data-role="arrow" aria-hidden="true"></span>
       </button>
       <div class="list" popover role="listbox" id="${this._listboxId}"></div>
     `;
@@ -152,5 +152,5 @@ export class AfDropdown extends withI18n(AfElement) {
 AfElement.defineProp(AfDropdown.prototype, 'options', []);
 AfElement.defineProp(AfDropdown.prototype, 'value', '');
 AfElement.defineProp(AfDropdown.prototype, 'placeholder', null);
-AfElement.defineProp(AfDropdown.prototype, 'triggerClass', 'input');
+AfElement.defineProp(AfDropdown.prototype, 'triggerClass', '');
 AfElement.defineProp(AfDropdown.prototype, 'disabled', false);

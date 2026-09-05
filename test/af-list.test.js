@@ -247,10 +247,44 @@ describe('af-list 属性变更与下拉刷新（补充分支）', () => {
     const handler = vi.fn();
     el.addEventListener('af-list:refresh', handler);
     el._onTouchStart({ touches: [{ clientY: 200 }] });
-    el._onTouchMove({ touches: [{ clientY: 215 }], preventDefault() {} }); // delta 15 → h=7.5<40
+    el._onTouchMove({ touches: [{ clientY: 215 }], preventDefault() {} }); // delta 15 → y=7.5<50
     el._onTouchEnd();
     expect(handler).not.toHaveBeenCalled();
-    expect(el._refreshIndicator.style.getPropertyValue('--af-refresh-h')).toBe('0px');
+    // T2.7：transform 驱动，变量改 --af-refresh-y（indicator/body 同步归零）
+    expect(el._refreshIndicator.style.getPropertyValue('--af-refresh-y')).toBe('0px');
+    expect(el._refreshBody.style.getPropertyValue('--af-refresh-y')).toBe('0px');
+  });
+
+  it('T2.7：阈值 50px、超阈值吸附露出 head 且显示刷新中文案', () => {
+    const el = makeList({ data: makeData(5), refresh: true });
+    el._scroller.scrollTop = 0;
+    const handler = vi.fn();
+    el.addEventListener('af-list:refresh', handler);
+    el._onTouchStart({ touches: [{ clientY: 200 }] });
+    el._onTouchMove({ touches: [{ clientY: 320 }], preventDefault() {} }); // delta 120 → y=60>50
+    el._onTouchEnd();
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(el._refreshIndicator.style.getPropertyValue('--af-refresh-y')).toBe('50px');
+    expect(el._refreshIndicator.textContent).toContain('正在刷新');
+  });
+
+  it('T2.7：endRefresh(text) success 态——停留后收起并清文案', () => {
+    vi.useFakeTimers();
+    const el = makeList({ data: makeData(5), refresh: true });
+    el._scroller.scrollTop = 0;
+    el._onTouchStart({ touches: [{ clientY: 200 }] });
+    el._onTouchMove({ touches: [{ clientY: 320 }], preventDefault() {} });
+    el._onTouchEnd();
+    el.endRefresh('刷新成功');
+    expect(el._refreshIndicator.hasAttribute('data-success')).toBe(true);
+    expect(el._refreshIndicator.textContent).toContain('刷新成功');
+    vi.advanceTimersByTime(500);
+    // 500ms 后开始收起（y=0），300ms 过渡后清文案
+    expect(el._refreshIndicator.style.getPropertyValue('--af-refresh-y')).toBe('0px');
+    vi.advanceTimersByTime(300);
+    expect(el._refreshIndicator.textContent).toBe('');
+    expect(el._refreshIndicator.hasAttribute('data-success')).toBe(false);
+    vi.useRealTimers();
   });
 });
 

@@ -2,6 +2,20 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { AfSwiper } from '../src/components/af-swiper.js';
 customElements.define('af-swiper', AfSwiper);
 
+describe('af-swiper T2.3 Vant 默认值', () => {
+  it('duration 500ms / autoplay 3000ms / 圆点 6px 白色悬浮', () => {
+    expect(AfSwiper.prototype).toHaveProperty('duration');
+    const el = new AfSwiper();
+    expect(el.duration).toBe(500);
+    expect(el.autoplay).toBe(3000);
+    document.body.appendChild(el);
+    const css = el.shadowRoot.querySelector('style').textContent;
+    expect(css).toContain('--af-dot-s, 6px');
+    expect(css).toContain('--af-dots-b, 12px');
+    expect(css).toContain('--af-dot-o, .3');
+  });
+});
+
 function makeSwiper(slides = 3, props = {}) {
   const el = new AfSwiper();
   for (const [k, v] of Object.entries(props)) el[k] = v;

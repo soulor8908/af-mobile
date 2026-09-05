@@ -265,7 +265,8 @@
     padding: var(--s-2) var(--s-3);
     background: var(--c-card);
     border: 1px solid var(--c-border);
-    border-radius: var(--r-m);
+    /* T2.10 Vant 对齐：输入圆角 8→4px 级 */
+    border-radius: var(--r-xs);
     /* v6：--t-input(16px)——iOS Safari 聚焦 <16px 输入框会自动放大整页，禁止更小字号 */
     font-size: var(--t-input);
     color: var(--c-text);
@@ -353,7 +354,8 @@
     padding: 0 var(--s-3) 0 var(--s-5);
     background: var(--c-muted-bg);
     border: 1px solid transparent;
-    border-radius: var(--r-f);
+    /* T2.10 Vant 对齐：search 圆角改小（全圆→4px 级） */
+    border-radius: var(--r-xs);
     font-size: var(--t-input);
     color: var(--c-text);
     transition: border-color var(--dur-fast) var(--ease-out),
@@ -663,7 +665,7 @@
       var(--c-muted-bg) 100%
     );
     background-size: 200% 100%;
-    animation: skeleton-shimmer 1.5s infinite var(--ease-in-out);
+    animation: skeleton-shimmer 1.2s infinite var(--ease-in-out);
     border-radius: var(--r-s);
   }
   @keyframes skeleton-shimmer {
@@ -671,10 +673,11 @@
     100% { background-position: -200% 0; }
   }
 
+  /* T2.4 Vant 对齐：行高 16px、行距 12px */
   .sk-ln {
-    height: var(--t-md);
+    height: 16px;
     line-height: var(--lh-tight);
-    margin-bottom: var(--s-1);
+    margin-bottom: var(--s-3);
   }
   .sk-ln:last-child {
     margin-bottom: 0;
@@ -691,7 +694,7 @@
   .sk-w-40 { width: 40%; }
   .sk-w-60 { width: 60%; }
   .sk-w-80 { width: 80%; }
-  .sk-cir { width: 64px; height: 64px; border-radius: 50%; }
+  .sk-cir { width: 32px; height: 32px; border-radius: 50%; }
   .sk-pg {
     padding: var(--s-3);
   }
@@ -1017,7 +1020,7 @@
     transform: translate(-50%, -50%);
     min-width: 3.6em;
     padding: 0 5px;
-    font-size: 10px;
+    font-size: var(--t-sm);
     line-height: 1.6;
     color: var(--c-onbrand);
     text-align: center;
@@ -1150,8 +1153,8 @@
     display: inline-flex;
     flex-direction: row-reverse;
     align-items: center;
-    gap: 2px;
-    font-size: var(--t-lg);
+    gap: var(--s-2);
+    font-size: 20px;
     line-height: 1;
   }
   .rate input {
@@ -1173,8 +1176,21 @@
   .rate-star:hover,
   .rate-star:hover ~ .rate-star { color: var(--c-warn); }
   .rate-ro { cursor: default; pointer-events: none; }
-  .rate-sm { font-size: var(--t-md); }
-  .rate-lg { font-size: var(--t-xl); }
+  /* T2.8 Vant 对齐：disabled 星变灰且不可点；半星（rate-half：半宽溢出裁切叠橙星） */
+  .rate-dis { pointer-events: none; }
+  .rate-dis .rate-star { color: var(--c-muted); }
+  .rate-half { position: relative; }
+  .rate-half::after {
+    content: '★';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    overflow: hidden;
+    color: var(--c-warn);
+  }
+  .rate-sm { font-size: var(--t-lg); }
+  .rate-lg { font-size: var(--t-display); }
 
   /* === 步骤条（6） ===
      T0.8 Vant 对齐：24px 数字圆盘 → 5px 实心小圆点 + 1px 连线（水平），
@@ -1424,20 +1440,53 @@
   }
   /* 有 tab 渲染后才露出滑块（纯 CSS，免去 JS 显隐逻辑） */
   af-tabs .tabbar:has(.tab-item)::after { visibility: visible; }
-  /* af-dropdown 弹层：popover 默认 fit-content 居中，定宽对齐页面容器 */
-  af-dropdown .list[popover] { width: min(100%, 640px); }
+  /* af-dropdown 弹层：popover 默认 fit-content 居中，定宽对齐页面容器；T2.9 面板 max-height 80% 内滚 */
+  af-dropdown .list[popover] { width: min(100%, 640px); max-height: 80vh; overflow: auto; }
+  /* T2.9 Vant 对齐：菜单条触发器（48px 无描边 + 投影）、箭头边框 chevron 旋转过渡、展开标题染品牌色
+     （用 role 属性选择器而非组件内部 trigger class，避免 JS 内部 class 混入白名单分组） */
+  af-dropdown button[role="combobox"] {
+    display: flex; align-items: center; justify-content: center; gap: var(--s-1);
+    width: 100%; min-height: 48px; padding: 0 var(--s-3);
+    background: var(--c-card); border: none; border-radius: 0;
+    font-size: var(--t-md); color: var(--c-text); cursor: pointer;
+    transition: color var(--dur-base) var(--ease-out);
+  }
+  af-dropdown button[role="combobox"]:disabled { color: var(--c-muted); cursor: not-allowed; }
+  af-dropdown button[role="combobox"][aria-expanded="true"] { color: var(--c-brand); }
+  af-dropdown [data-role="arrow"] {
+    width: 8px; height: 8px; flex: none;
+    border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  af-dropdown button[role="combobox"][aria-expanded="true"] [data-role="arrow"] { transform: rotate(-135deg); }
   af-list { height: var(--af-list-h, auto); }
   af-list > .list { overflow: auto; height: 100%; }
   af-list [data-role="spacer-before"] { height: var(--af-spacer-before-h, 0px); }
   af-list [data-role="spacer-after"] { height: var(--af-spacer-after-h, 0px); }
+  /* T2.7 Vant 对齐：下拉刷新改 transform 驱动——head 固定 50px 悬浮藏于容器上方，
+     --af-refresh-y 露出量；body 同步下移推内容（Vant track 模式），替代 height 逐帧 reflow */
   af-list [data-role="refresh-indicator"] {
-    height: var(--af-refresh-h, 0px); overflow: hidden;
-    transition: height var(--dur-fast) var(--ease-out);
+    height: var(--af-refresh-head, 50px);
+    display: flex; align-items: center; justify-content: center; gap: var(--s-2);
+    transform: translateY(-100%) translateY(var(--af-refresh-y, 0px));
+    transition: transform var(--dur-base) var(--ease-out);
   }
+  af-list [data-role="refresh-indicator"][data-success] { color: var(--c-success); }
+  af-list [data-role="body"] {
+    transform: translateY(var(--af-refresh-y, 0px));
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  af-list > .list[data-dragging] [data-role="refresh-indicator"],
+  af-list > .list[data-dragging] [data-role="body"] { transition: none; }
   /* af-img 尺寸：thumb/avatar 宿主有固定尺寸，inner/placeholder 撑满；default 用 aspect-ratio 防塌陷 */
   /* 用 data-role 属性选择器（同 af-list），避免内部类污染白名单 */
+  /* T2.6：object-fit 经 --af-img-fit 通道（fit 属性派发）；img 加载完成 300ms 淡入（data-loaded 态） */
   af-img img,
-  af-img [data-role="placeholder"] { width: 100%; object-fit: cover; }
+  af-img [data-role="placeholder"] { width: 100%; }
+  af-img img { object-fit: var(--af-img-fit, cover); opacity: 0; transition: opacity 300ms var(--ease-out); }
+  af-img[data-loaded] img { opacity: 1; }
+  af-img [data-role="placeholder"] { object-fit: cover; }
   af-img.thumb img,
   af-img.thumb [data-role="placeholder"],
   af-img.avatar img,
@@ -1522,20 +1571,19 @@
   }
 
   /* af-stepper：T0.6 Vant 对齐——三段连体（28×28 灰底方块 ± + 32px 无边框数字同底），
-     外圈 4px 圆角；± 14px，数字保持 --t-input 16px（iOS 聚焦缩放红线，禁令 5）；
-     hover/active/disabled 覆盖 btn-ghost 的品牌色反馈（Vant 是中性灰阶） */
-  af-stepper { display: inline-flex; align-items: stretch; }
+     gap 2px + 各段 4px 独立圆角；± 14px，数字保持 --t-input 16px（iOS 聚焦缩放红线，禁令 5）；
+     hover/active/disabled 覆盖 btn-ghost 的品牌色反馈（Vant 是中性灰阶，禁用底=--c-bg）；
+     round 变体（af-stepper[round]）：± 圆形 brand 底白字，disabled 回灰阶 */
+  af-stepper { display: inline-flex; align-items: stretch; gap: 2px; }
   af-stepper [data-role="minus"],
   af-stepper [data-role="plus"] {
     width: 28px; min-height: 28px; height: 28px; padding: 0;
-    background: var(--c-muted-bg); color: var(--c-text); border-radius: 0;
+    background: var(--c-muted-bg); color: var(--c-text); border-radius: var(--r-xs);
     font-size: var(--t-md);
   }
-  af-stepper [data-role="minus"] { border-radius: var(--r-xs) 0 0 var(--r-xs); }
-  af-stepper [data-role="plus"] { border-radius: 0 var(--r-xs) var(--r-xs) 0; }
   af-stepper [data-role="input"] {
     width: 32px; height: 28px; min-height: 28px; padding: 0; text-align: center;
-    background: var(--c-muted-bg); border: none; border-radius: 0;
+    background: var(--c-muted-bg); border: none; border-radius: var(--r-xs);
     font-size: var(--t-input);
   }
   af-stepper [data-role="minus"]:hover,
@@ -1543,9 +1591,17 @@
   af-stepper [data-role="minus"]:active,
   af-stepper [data-role="plus"]:active { background: var(--c-border); }
   af-stepper button:disabled {
-    background: var(--c-muted-bg); color: var(--c-muted);
+    background: var(--c-bg); color: var(--c-muted);
     cursor: not-allowed;
   }
+  af-stepper[round] [data-role="minus"],
+  af-stepper[round] [data-role="plus"] {
+    border-radius: var(--r-f);
+    background: var(--c-brand); color: var(--c-onbrand);
+  }
+  af-stepper[round] [data-role="minus"]:hover,
+  af-stepper[round] [data-role="plus"]:hover { background: color-mix(in srgb, var(--c-brand) 92%, white); }
+  af-stepper[round] button:disabled { background: var(--c-muted-bg); }
 
   /* af-field：图标绝对定位 + 控件容器相对定位 */
   af-field { display: block; }
@@ -1573,15 +1629,16 @@
   af-swipe-cell [data-role="track"] {
     position: relative; display: flex;
     transform: translateX(var(--af-swipe-x, 0px));
-    transition: transform var(--dur-fast) var(--ease-out);
+    transition: transform var(--dur-base) var(--ease-out);
   }
   af-swipe-cell [data-role="track"][data-dragging] { transition: none; }
   af-swipe-cell [data-role="content"] { flex: 1 0 auto; width: 100%; background: var(--c-card); }
+  /* T2.2 Vant 对齐：操作区通栏直角（无 padding/gap/圆角），按钮 min-width 65px 全高 */
   af-swipe-cell [data-role="right"] {
     display: flex; align-items: stretch; justify-content: flex-end;
-    gap: 2px; padding: var(--s-1); background: var(--c-card); flex-shrink: 0;
+    background: var(--c-card); flex-shrink: 0;
   }
-  af-swipe-cell [data-role="right"] > * { border-radius: var(--r-s); }
+  af-swipe-cell [data-role="right"] > * { border-radius: 0; min-width: 65px; }
 
   /* af-badge：宿主相对定位；包裹内容时角标绝对定位（data-corner 由组件切换），color/dot 变体 */
   af-badge { display: inline-block; position: relative; }
@@ -1594,4 +1651,7 @@
   af-badge[data-color="warn"]  [data-role="badge"] { background: var(--c-warn);    color: var(--c-onwarn); }
   af-badge[data-color="ok"]    [data-role="badge"] { background: var(--c-success); color: var(--c-onbrand); }
   af-badge[data-color="muted"] [data-role="badge"] { background: var(--c-muted);   color: var(--c-onbrand); }
+
+  /* af-countdown：T2.5 tabular-nums 数字等宽，秒跳动不抖动 */
+  af-countdown [data-role="countdown"] { font-variant-numeric: tabular-nums; }
 }

@@ -10,13 +10,14 @@ const CSS = `
   .track { display: flex; transition: transform var(--af-swipe-dur, var(--dur-base)) var(--ease-out); will-change: transform; }
   .track.dragging { transition: none; }
   .track > *, ::slotted(*) { flex-shrink: 0; width: 100%; }
-  .dots { display: flex; gap: var(--s-1); justify-content: center; padding: var(--s-2); }
+  .dots { display: flex; gap: var(--s-1); justify-content: center; position: absolute; left: 0; right: 0; bottom: var(--af-dots-b, 12px); }
+  /* T2.3 Vant 对齐：圆点 6px 白色悬浮，opacity .3/1 驱动显隐 */
   .dot {
-    width: var(--s-2); height: var(--s-2); border-radius: var(--r-f);
-    background: var(--c-border); border: none; cursor: pointer; padding: 0;
-    transition: background var(--dur-fast) var(--ease-out);
+    width: var(--af-dot-s, 6px); height: var(--af-dot-s, 6px); border-radius: var(--r-f);
+    background: var(--af-dot-c, #fff); opacity: var(--af-dot-o, .3); border: none; cursor: pointer; padding: 0;
+    transition: opacity var(--dur-fast) var(--ease-out);
   }
-  .dot.active { background: var(--c-brand); }
+  .dot.active { opacity: 1; }
   :host(:not([show-dots])) .dots { display: none; }
   @media (prefers-reduced-motion: reduce) {
     .track, .dot { transition: none; }
@@ -335,8 +336,8 @@ export class AfSwiper extends withI18n(AfElement) {
 
 // 属性定义（必须在 customElements.define 之前）
 AfElement.defineProp(AfSwiper.prototype, 'activeIndex', 0);
-AfElement.defineProp(AfSwiper.prototype, 'autoplay', 0);
+AfElement.defineProp(AfSwiper.prototype, 'autoplay', 3000);
 AfElement.defineProp(AfSwiper.prototype, 'loop', false);
-AfElement.defineProp(AfSwiper.prototype, 'duration', 250);
+AfElement.defineProp(AfSwiper.prototype, 'duration', 500);
 AfElement.defineProp(AfSwiper.prototype, 'showDots', true);
 AfElement.defineProp(AfSwiper.prototype, 'disabled', false);

@@ -367,10 +367,21 @@
   af-list > .list { overflow: auto; height: 100%; }
   af-list [data-role="spacer-before"] { height: var(--af-spacer-before-h, 0px); }
   af-list [data-role="spacer-after"] { height: var(--af-spacer-after-h, 0px); }
+  /* T2.7 Vant 对齐：下拉刷新改 transform 驱动——head 固定 50px 悬浮藏于容器上方，
+     --af-refresh-y 露出量；body 同步下移推内容（Vant track 模式），替代 height 逐帧 reflow */
   af-list [data-role="refresh-indicator"] {
-    height: var(--af-refresh-h, 0px); overflow: hidden;
-    transition: height var(--dur-fast) var(--ease-out);
+    height: var(--af-refresh-head, 50px);
+    display: flex; align-items: center; justify-content: center; gap: var(--s-2);
+    transform: translateY(-100%) translateY(var(--af-refresh-y, 0px));
+    transition: transform var(--dur-base) var(--ease-out);
   }
+  af-list [data-role="refresh-indicator"][data-success] { color: var(--c-success); }
+  af-list [data-role="body"] {
+    transform: translateY(var(--af-refresh-y, 0px));
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  af-list > .list[data-dragging] [data-role="refresh-indicator"],
+  af-list > .list[data-dragging] [data-role="body"] { transition: none; }
   /* af-img 尺寸：thumb/avatar 宿主有固定尺寸，inner/placeholder 撑满；default 用 aspect-ratio 防塌陷 */
   af-img img,
   af-img [data-role="placeholder"] { width: 100%; object-fit: cover; }

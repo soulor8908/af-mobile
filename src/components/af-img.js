@@ -40,9 +40,11 @@ export class AfImg extends AfElement {
   }
 
   _buildShell() {
-    // 尺寸（width/height/object-fit/aspect-ratio）由 recipes.css af-img 宿主规则提供，
+    // 尺寸（width/height/aspect-ratio）由 recipes.css af-img 宿主规则提供，
     // 按宿主 variant class（thumb/avatar/default）区分，遵守 Light DOM 不可设内联样式的约束
+    // object-fit 经 --af-img-fit 变量通道由 fit 属性派发（T2.6）
     // 内部元素用 data-role 定位（同 af-list），避免内部类污染白名单
+    this.style.setProperty('--af-img-fit', this.fit);
     const placeholderHtml = this.placeholderSrc
       ? `<img data-role="placeholder" src="${esc(this.placeholderSrc)}" alt="" aria-hidden="true">`
       : `<div class="sk" data-role="placeholder" aria-hidden="true"></div>`;
@@ -62,6 +64,8 @@ export class AfImg extends AfElement {
       this._loaded = true;
       this._img.removeAttribute('hidden');
       this._placeholder?.remove();
+      // T2.6：加载完成 300ms 淡入（CSS data-loaded 态驱动，rAF 保证过渡触发）
+      this._fadeInRaf = requestAnimationFrame(() => this.setAttribute('data-loaded', ''));
       this.emit('af-img:load', {});
     };
     this._img.onerror = () => {
@@ -89,15 +93,21 @@ export class AfImg extends AfElement {
       this.insertAdjacentHTML('beforeend', `<div class="empty" data-role="error" role="alert" aria-live="assertive"></div>`);
       err = this.$('[data-role="error"]');
     }
-    err.innerHTML = `<p class="caption">${t('im.fail')}</p>`;
+    // T2.6：错误态 32px 图片裂图图标（inline SVG，currentColor 跟随主题）
+    err.innerHTML = `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="4.5" y="6.5" width="23" height="19" rx="2" stroke="currentColor"/><circle cx="12" cy="13" r="2" fill="currentColor"/><path d="M5 24l6.5-6.5 4.5 4.5 4-4 7 6" stroke="currentColor" stroke-linejoin="round"/></svg><p class="caption">${t('im.fail')}</p>`;
   }
 
   onAttributeChange(name, oldVal, newVal) {
     if (!this._img) return;
     if (name === 'src') {
-      if (this._loaded || this._error || !this.lazy) this._load();
+      if (this._loaded || this._error || !this.lazy) {
+        this.removeAttribute('data-loaded');
+        this._load();
+      }
     } else if (name === 'alt') {
       if (this._img) this._img.setAttribute('alt', newVal);
+    } else if (name === 'fit') {
+      this.style.setProperty('--af-img-fit', this.fit);
     } else if (name === 'variant') {
       this.classList.remove('thumb', 'avatar');
       if (newVal === 'thumb') this.classList.add('thumb');
@@ -107,6 +117,7 @@ export class AfImg extends AfElement {
 
   unmounted() {
     this._observer?.disconnect();
+    if (this._fadeInRaf != null) cancelAnimationFrame(this._fadeInRaf);
     if (this._img) {
       this._img.onload = null;
       this._img.onerror = null;
@@ -117,6 +128,7 @@ export class AfImg extends AfElement {
 // 属性定义（必须在 customElements.define 之前）
 AfElement.defineProp(AfImg.prototype, 'src', '');
 AfElement.defineProp(AfImg.prototype, 'alt', '');
+AfElement.defineProp(AfImg.prototype, 'fit', 'cover');
 AfElement.defineProp(AfImg.prototype, 'placeholderSrc', '');
 AfElement.defineProp(AfImg.prototype, 'failSrc', '');
 AfElement.defineProp(AfImg.prototype, 'variant', 'default');

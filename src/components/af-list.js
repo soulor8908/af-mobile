@@ -6,8 +6,9 @@ import { t } from '../lib/i18n.js';
 import { withI18n } from '../lib/with-i18n.js';
 
 const LOADINGMORE_DISTANCE = 2; // 距底 N 项触发
-const REFRESH_THRESHOLD = 40;
-const REFRESH_MAX = 60;
+const REFRESH_THRESHOLD = 50;   // T2.7 Vant 对齐：head 高 50px，超过即吸附
+const REFRESH_MAX = 80;
+const REFRESH_SUCCESS_MS = 500; // success 态停留时长
 
 export class AfList extends withI18n(AfElement) {
   static useShadow = false;
@@ -71,15 +72,18 @@ export class AfList extends withI18n(AfElement) {
     this.innerHTML = `
       <div class="list" role="list" tabindex="0">
         <div data-role="refresh-indicator" aria-live="polite"></div>
-        <div data-role="spacer-before"></div>
-        <div data-role="viewport"></div>
-        <div data-role="spacer-after"></div>
-        <div data-role="loadmore" class="list-state"></div>
-        <div data-role="error-row" class="list-state" hidden></div>
+        <div data-role="body">
+          <div data-role="spacer-before"></div>
+          <div data-role="viewport"></div>
+          <div data-role="spacer-after"></div>
+          <div data-role="loadmore" class="list-state"></div>
+          <div data-role="error-row" class="list-state" hidden></div>
+        </div>
       </div>
     `;
     this._scroller = this.$('.list');
     this._refreshIndicator = this.$('[data-role="refresh-indicator"]');
+    this._refreshBody = this.$('[data-role="body"]');
     this._spacerBefore = this.$('[data-role="spacer-before"]');
     this._viewport = this.$('[data-role="viewport"]');
     this._spacerAfter = this.$('[data-role="spacer-after"]');
@@ -198,8 +202,30 @@ export class AfList extends withI18n(AfElement) {
     this._loadmoreEl.textContent = hasMore ? '' : t('ls.nm');
   }
 
-  endRefresh() {
-    this._refreshIndicator.style.setProperty('--af-refresh-h', '0px');
+  endRefresh(successText) {
+    // T2.7：success 态——显示成功文案停留 500ms 后收起；无参保持旧行为直接收起
+    clearTimeout(this._refreshT1);
+    clearTimeout(this._refreshT2);
+    if (successText) {
+      this._refreshIndicator.innerHTML = `<span class="spin-dot" aria-hidden="true"></span>${esc(successText)}`;
+      this._refreshIndicator.setAttribute('data-success', '');
+      this._refreshT1 = setTimeout(() => {
+        this._setRefreshY(0);
+        this._refreshT2 = setTimeout(() => {
+          this._refreshIndicator.textContent = '';
+          this._refreshIndicator.removeAttribute('data-success');
+        }, 300);
+      }, REFRESH_SUCCESS_MS);
+      return;
+    }
+    this._refreshIndicator.textContent = '';
+    this._setRefreshY(0);
+  }
+
+  // T2.7：transform 驱动（indicator 露出 y px + body 同步下移，替代 height 布局抖动）
+  _setRefreshY(y) {
+    this._refreshIndicator.style.setProperty('--af-refresh-y', y + 'px');
+    this._refreshBody.style.setProperty('--af-refresh-y', y + 'px');
   }
 
   _bindScroll() {
@@ -222,6 +248,8 @@ export class AfList extends withI18n(AfElement) {
       if (this._scroller.scrollTop > 0) return;
       startY = e.touches[0].clientY;
       dragging = true;
+      // 拖拽中关闭过渡，实时跟手（松手恢复过渡吸附/收起）
+      this._scroller.setAttribute('data-dragging', '');
     };
     this._onTouchMove = (e) => {
       if (!dragging) return;
@@ -229,18 +257,21 @@ export class AfList extends withI18n(AfElement) {
       if (deltaY > 0) {
         e.preventDefault();
         const h = Math.min(deltaY * 0.5, REFRESH_MAX);
-        this._refreshIndicator.style.setProperty('--af-refresh-h', h + 'px');
+        this._setRefreshY(h);
       }
     };
     this._onTouchEnd = () => {
       if (!dragging) return;
       dragging = false;
-      const h = parseFloat(this._refreshIndicator.style.getPropertyValue('--af-refresh-h')) || 0;
-      if (h > REFRESH_THRESHOLD) {
-        this._refreshIndicator.style.setProperty('--af-refresh-h', REFRESH_THRESHOLD + 'px');
+      this._scroller.removeAttribute('data-dragging');
+      const y = parseFloat(this._refreshIndicator.style.getPropertyValue('--af-refresh-y')) || 0;
+      if (y > REFRESH_THRESHOLD) {
+        this._setRefreshY(REFRESH_THRESHOLD);
+        // 刷新中：spinner + 文案（i18n ls.rf）
+        this._refreshIndicator.innerHTML = `<span class="spin-dot" aria-hidden="true"></span>${esc(t('ls.rf'))}`;
         this.emit('af-list:refresh', {});
       } else {
-        this._refreshIndicator.style.setProperty('--af-refresh-h', '0px');
+        this._setRefreshY(0);
       }
     };
     this._listen(this._scroller, 'touchstart', this._onTouchStart, { passive: true });
@@ -352,6 +383,8 @@ export class AfList extends withI18n(AfElement) {
 
   unmounted() {
     if (this._scrollRaf) { cancelAnimationFrame(this._scrollRaf); this._scrollRaf = null; }
+    clearTimeout(this._refreshT1);
+    clearTimeout(this._refreshT2);
   }
 }
 

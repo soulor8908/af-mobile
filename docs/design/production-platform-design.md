@@ -348,7 +348,7 @@ app.post('/api/tool/:name', async (c) => {
 
 ### 4.6 API 契约铁律：后端绝不返回样式
 
-aiflow-ui 的 L2 是**228 个 class 的封闭集**，由 ESLint 强制。因此：
+aiflow-ui 的 L2 是**262 个 class 的封闭集**（172 配方 + 90 原子），由 ESLint 强制。因此：
 
 - ✅ 后端返回**语义**：`{ status: 'overdue', priority: 'high' }`
 - ❌ 后端返回**表现**：`{ className: 'text-danger', color: '#f00', style: {...} }`

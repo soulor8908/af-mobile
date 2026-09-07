@@ -2,8 +2,8 @@
 
 Mobile-first Web Components library with **L1/L2/L3/L4 四层分层设计体系**。
 
-- **L1 Token**：92 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效，含 8 档灰阶，关键组合 WCAG AA 对比度由 CI 断言）
-- **L2 配方 + 原子**：228 个白名单封闭集 class（136 配方 + 92 原子，`btn`/`card`/`p-4`/...）
+- **L1 Token**：96 个 CSS 变量（颜色/间距/字号/圆角/阴影/动效，含 8 档灰阶，关键组合 WCAG AA 对比度由 CI 断言）
+- **L2 配方 + 原子**：262 个白名单封闭集 class（172 配方 + 90 原子，`btn`/`card`/`p-4`/...）
 - **L3 真组件**：36 个原生 Custom Elements（30 通用组件 + 5 图表组件 + 1 会话组件，`af-list`/`af-dialog`/`...`），ESM 命名导出 + Tree Shaking
 - **L4 AI 约束层**：System Prompt 引导 + ESLint 24 条规则兜底 + CI 保护
 
@@ -495,7 +495,7 @@ toggleTheme();            // 切换并持久化
 
 1. `tokens.css` 以外不可重定义 `--c-*/--s-*/--r-*/--t-*/--lh-*/--fw-*/--shadow-*/--z-*/--ease-*/--dur-*`
 2. `style=""` 不可设置 `color/background*/padding*/margin*/font-size/border-radius/box-shadow`
-3. 不可使用 228 个白名单之外的 class 名或自定义组件标签
+3. 不可使用 262 个白名单之外的 class 名或自定义组件标签
 4. `.btn`（非 ghost）不可叠加 `text-brand/text-danger/text-success`
 5. `.input` 不可叠加 `t-sm/t-xs`（iOS 聚焦 < 16px 自动放大页面）
 6. `.cell/.list-item` 不可叠加 `f/fc` 原子
@@ -504,7 +504,7 @@ toggleTheme();            // 切换并持久化
 9. `.list-item/.list-item-cp` 自带 border-top 由 `.list` 容器管理，不要单独设
 10. `.sheet` 显隐必须走原生 popover API `showPopover/hidePopover`
 11. `.tab-item` 选中态单一真相源是 `aria-selected="true"`（视觉由属性选择器驱动，不可用 `active` class）
-12. **Light DOM 组件**（`af-list`/`af-tabs`/`af-toast`/`af-action-sheet`/`af-dropdown`/`af-backtop`/`af-img`/`af-switch`/`af-search-bar`/`af-skeleton-page`/`af-navbar`/`af-tabbar`/`af-stepper`/`af-field`/`af-upload`/`af-pull-refresh`/`af-swipe-cell`/`af-badge`/`af-rate`/`af-notice-bar`/`af-progress`/`af-steps`/`af-countdown` 共 23 个）不可含 `<style>` 或 `this.style.xxx=`
+12. **Light DOM 组件**（`af-list`/`af-tabs`/`af-toast`/`af-action-sheet`/`af-dropdown`/`af-backtop`/`af-img`/`af-switch`/`af-search-bar`/`af-skeleton-page`/`af-navbar`/`af-tabbar`/`af-stepper`/`af-field`/`af-upload`/`af-pull-refresh`/`af-swipe-cell`/`af-badge`/`af-rate`/`af-notice-bar`/`af-progress`/`af-steps`/`af-countdown`/`af-data` 共 24 个）不可含 `<style>` 或 `this.style.xxx=`
 13. **Shadow 组件** CSS 字符串不可硬编码颜色/间距/字号/圆角（`::backdrop` 遮罩 rgba(0,0,0,.5) 例外）
 14. 事件名必须 `af-{组件}:{动作}` 格式；`emit` 必须 `composed:true`
 15. `af-dialog/af-action-sheet` 必须有焦点陷阱（Tab 不逃出，关闭还原焦点）

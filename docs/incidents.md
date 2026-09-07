@@ -75,7 +75,7 @@
   // recipes.css
   af-img[data-role="placeholder"] { width: 100%; object-fit: cover; }
   ```
-- 适用范围：所有 Light DOM 组件（af-list / af-tabs / af-toast / af-dropdown / af-backtop / af-img / af-switch / af-search-bar / af-skeleton-page / af-upload / af-action-sheet）
+- 适用范围：所有 Light DOM 组件（af-action-sheet / af-backtop / af-badge / af-countdown / af-data / af-dropdown / af-field / af-img / af-list / af-navbar / af-notice-bar / af-progress / af-pull-refresh / af-rate / af-search-bar / af-skeleton-page / af-stepper / af-steps / af-swipe-cell / af-switch / af-tabbar / af-tabs / af-toast / af-upload，共 24 个）
 - 例外：`setProperty('--css-var', val)` 设置 CSS 自定义属性允许（非视觉属性）
 
 ### 工程规范

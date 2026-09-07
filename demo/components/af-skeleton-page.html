@@ -17,10 +17,10 @@
 
     <af-skeleton-page id="sk" variant="list"></af-skeleton-page>
 
-    <p class="caption" id="log">模拟数据加载完成</p>
+    <p class="caption" id="log">骨架屏为纯展示态，切换变体即重新渲染</p>
 
     <div class="actions">
-      <button class="btn" id="reload">重新加载骨架屏</button>
+      <button class="btn" id="reload">切换下一个布局变体</button>
     </div>
 
     <section id="props" class="card"></section>
@@ -32,18 +32,16 @@
     import { createPropsPanel } from '../props-panel.js';
 
     const sk = document.getElementById('sk');
+    const VARIANTS = ['list', 'card', 'profile', 'article'];
     document.getElementById('reload').addEventListener('click', () => {
-      sk.loading = true;
-      document.getElementById('log').textContent = '加载中...';
-      setTimeout(() => {
-        sk.loading = false;
-        document.getElementById('log').textContent = '加载完成';
-      }, 2000);
+      // 骨架屏是纯展示态，无 loading 属性：重新加载即切换 variant 触发重渲染
+      const next = VARIANTS[(VARIANTS.indexOf(sk.variant) + 1) % VARIANTS.length];
+      sk.variant = next;
+      document.getElementById('log').textContent = `已切换变体：${next}`;
     });
 
     createPropsPanel(document.getElementById('props'), [
       { prop: 'variant', label: '变体', type: 'select', options: ['list', 'card', 'profile', 'article'] },
-      { prop: 'loading', label: '加载中', type: 'boolean' },
     ], sk);
   </script>
 </body>

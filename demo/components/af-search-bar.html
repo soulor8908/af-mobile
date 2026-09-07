@@ -17,7 +17,7 @@
 
     <af-search-bar id="search" placeholder="搜索商品"></af-search-bar>
 
-    <p class="caption" id="log">输入触发 change，回车触发 submit</p>
+    <p class="caption" id="log">输入触发 input，回车触发 search</p>
 
     <section id="props" class="card"></section>
   </main>
@@ -28,11 +28,11 @@
     import { createPropsPanel } from '../props-panel.js';
 
     const search = document.getElementById('search');
-    search.addEventListener('af-search-bar:change', (e) => {
-      document.getElementById('log').textContent = `change: ${e.detail.value}`;
+    search.addEventListener('af-search-bar:input', (e) => {
+      document.getElementById('log').textContent = `input: ${e.detail.value}`;
     });
-    search.addEventListener('af-search-bar:submit', (e) => {
-      document.getElementById('log').textContent = `submit: ${e.detail.value}`;
+    search.addEventListener('af-search-bar:search', (e) => {
+      document.getElementById('log').textContent = `search: ${e.detail.value}`;
     });
 
     createPropsPanel(document.getElementById('props'), [

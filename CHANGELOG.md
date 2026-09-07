@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.1
+
+### Patch Changes
+
+- **修复 af-action-sheet 关闭态遮挡页面**：`.sheet` 的开放态样式改挂 `:popover-open`。此前 author `display: flex` 覆盖了 popover UA 的关闭态 `display: none`，未打开的 action-sheet 也以 fixed 浮层渲染在视口底部，拦截页面点击（e2e picker 用例超时的根因）。升级后关闭态不再渲染浮层，无 API 变更。
+
 ## 1.10.0
 
 ### Minor Changes

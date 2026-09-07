@@ -129,6 +129,44 @@ ai-todo-app 手写了 114 行（matchMedia/dialog/popover/IO/RO/scrollTo/Touch�
 
 ---
 
+## OPT-9 · CSS 只能全量引入，无按需能力  ⚠️ P1
+
+**问题**：JS 侧早已按需（`register()` 只加载用到的组件），CSS 侧却只有 `@af-mobile/ui/css`
+一个全量入口（L1 tokens + L2 recipes + atomic 的 `@import` 聚合，无 Tree Shaking）。
+消费端用 10 个组件和用 41 个组件，付的 CSS 完全一样——「按需」叙事里唯一的破口。
+
+**证据**：全量 CSS gzip 8.32KB（esbuild minify + zlib L9，与 size-check 同口径）；
+其中 recipes 6.32KB(76%) / tokens 1.50KB(18%) / atomic 0.99KB(12%)。
+
+**建议**：构建期按消费端实际用到的 class 裁剪 L1+L2，做成 Vite 插件与 `afMobileTrimLazy` 并列。
+
+**落地**（2026-09-07，`src/vite.js` 的 `afMobileShakeCss()` + `src/css-shake.js`）：
+
+| 项 | 说明 |
+|---|---|
+| 实测收益 | ai-todo 8.32→4.36KB（**-47.6%**）、starter 8.32→3.87KB（-53.5%）、demo/components -50.2% |
+| 真源 | `src/css-shake.js`（零依赖，随包发布）；`scripts/css-tree-shake.mjs` 退化为 CLI 薄壳，两者同一套裁剪语义 |
+| postcss 来源 | 由 **Vite 自身的 CSS 管道提供**（插件只往 `css.postcss.plugins` 塞插件对象），包不新增运行时依赖 |
+| 仅 build | `apply: 'build'`；dev 下 CSS 的 postcss 只跑一次，裁剪后新增 class 不重跑 → 会「样式莫名消失」 |
+| 保底一 | 扫描不到任何 class 时不裁剪（否则等于把样式全删光），并 console.warn |
+| 保底二 | 只处理本包 `src/` 下的 CSS，绝不碰消费端自有 CSS |
+| 保底三 | `css.postcss` 若为配置文件路径则不注入，避免静默覆盖用户既有 postcss 链路 |
+| 动态 class | 静态 `class="..."` 扫描抓不到 `class="a ${x ? 'b' : ''}"` 里的 `b` → 用「源码引号字符串字面量 ∩ CSS 里出现过的 class」做 safelist 兜底；代价不对称（误报多留几十字节 vs 漏报样式静默失效），故宁可保守。实测加固成本 +0.01~0.58KB |
+
+逃生舱：`afMobileShakeCss({ safelist: ['rate'] })` 强制保留；`{ enabled: false }` 整体关闭；
+`{ include: '/linked/pkg/' }` 自定义命中路径特征（混合 symlink 解析时的兜底）；`{ verbose: true }`
+打印统计，且整轮没命中任何 CSS 时告警（把「静默不生效」变成可见）。
+
+回归：`npm run css:e2e`（真实 vite build 比对开关插件的产物 CSS，实测 -54.2%）+
+`test/vite-css-shake.test.js`（11 条，含「救回三元里的 class」「不碰消费端 CSS」）。
+
+**放弃了什么**：① 不裁 tokens（`:root` 变量是设计系统根基，收益 1.5KB 不值得引入风险）；
+② 不做 tag 维度裁剪（`af-xxx [data-role]` 规则按组件归属可再省约 0.95KB），需改
+`shouldKeepSelector` 语义，误判会静默破样式，留待有人真喊 CSS 大时再做；
+③ 不支持 dev 裁剪（见上）。
+
+---
+
 ## 推进建议
 
 | 优先级 | 条目 | 工作量 | 影响面 |
@@ -136,7 +174,7 @@ ai-todo-app 手写了 114 行（matchMedia/dialog/popover/IO/RO/scrollTo/Touch�
 | 先上 | OPT-1 / OPT-3 | 中 | 每个新页面都受益 |
 | 先上 | OPT-5 / OPT-6 | 小 | 防呆 + 无障碍合规 |
 | 跟组件节奏 | OPT-2 / OPT-8 | 中 | 高频交互收敛 |
-| 构建期 | OPT-4 / OPT-7 | 小-中 | 部署体积 + 测试体验 |
+| 构建期 | OPT-4 / OPT-7 / **OPT-9** | 小-中 | 部署体积 + 测试体验 |
 
 ---
 
@@ -152,6 +190,7 @@ ai-todo-app 手写了 114 行（matchMedia/dialog/popover/IO/RO/scrollTo/Touch�
 | OPT-6 | recipes.css `.seg` 示例补 `role="tablist"/"tab"` | aria-selected 必须配显式 role；键盘导航指引改用 `<af-tabs>` |
 | OPT-7 | starter 接入 vitest + `setupFiles: ['./test/setup.js']` | create-app.mjs 脚手架在评审时（1.9.1 生成物）已具备该链路，本轮仅对齐 starter |
 | OPT-8 | `todayISO()` / `formatDate()`（src/lib/date.js） | `'YYYY-MM-DD'` 一律按本地时区解析（new Date(str) 是 UTC，UTC+8 前 8 小时逾期判断出错的根因） |
+| OPT-9 | `@af-mobile/ui/vite` 的 `afMobileShakeCss()`（src/css-shake.js 为真源） | 构建期按实际用到的 class 裁剪 L1+L2 CSS；**真实 vite build 实测 -54.2%**、gzip 口径 -47.6%；三条保底 + safelist 兜底动态 class；回归 `npm run css:e2e`。2026-09-07 落地，见上 OPT-9 章节 |
 
 预算变更（均已用户确认）：coreRuntime 6.85→6.95（@event 净增）、total 23.3→23.4（index.js 三条 re-export 导出面 +88B）；新增独立条目 layout 0.9 / date 0.4 / formDialog 1.2（tree-shaking 不用不付费）。
 

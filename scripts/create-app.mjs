@@ -116,13 +116,14 @@ const files = {
   'vite.config.js': `// Vite 仅作打包器，零框架零插件；test 段供 vitest 复用（jsdom 环境 + setup 桩）
 // afMobileTrimLazy：构建期按 register() 实际调用裁剪组件懒注册表，
 // dist 不再产出未注册组件 chunk（OPT-4，ai-todo 实测省约 56.7KB 死重）
+// afMobileShakeCss：构建期按实际用到的 class 裁剪 L1+L2 CSS（OPT-9，gzip 8.32→4.36KB）
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
-import afMobileTrimLazy from '@af-mobile/ui/vite';
+import afMobileTrimLazy, { afMobileShakeCss } from '@af-mobile/ui/vite';
 
 export default defineConfig({
   base: './',
-  plugins: [afMobileTrimLazy()],
+  plugins: [afMobileTrimLazy(), afMobileShakeCss()],
   build: { target: 'es2022' },
   test: {
     environment: 'jsdom',

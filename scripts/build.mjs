@@ -30,7 +30,7 @@ await build({
   outfile: join(DIST, 'index.js'),
   format: 'esm',
   platform: 'browser',
-  target: ['es2020'],
+  target: ['es2022'],
   legalComments: 'none',
   sourcemap: false,
   minify: true, // 生产产物压缩；ESM minify 不影响打包器 Tree Shaking
@@ -49,7 +49,7 @@ await build({
   outfile: join(DIST, 'blocks.js'),
   format: 'esm',
   platform: 'browser',
-  target: ['es2020'],
+  target: ['es2022'],
   legalComments: 'none',
   sourcemap: false,
   minify: true,
@@ -70,7 +70,7 @@ for (const f of cssFiles) {
   const cleaned = content.replace(/@import\s+['"][^'"]+['"]\s*;?\s*/g, '');
   cssConcat += cleaned + '\n';
 }
-const { code: cssMin } = await transform(cssConcat, { loader: 'css', minify: true, target: ['es2020'] });
+const { code: cssMin } = await transform(cssConcat, { loader: 'css', minify: true, target: ['es2022'] });
 writeFileSync(join(DIST, 'index.css'), cssMin);
 console.log('✓ dist/index.css (CSS inlined + minified)');
 
@@ -101,7 +101,7 @@ for (const { file, code } of shadowEntries) {
   compCssConcat += `/* ${basename(file, '.js')} */\n${m[1]}\n`;
 }
 if (shadowEntries.length === 0) throw new Error('[build] 未扫描到任何 Shadow CSS 组件，dist/components.css 将为空——检查扫描逻辑');
-const { code: compCssMin } = await transform(compCssConcat, { loader: 'css', minify: true, target: ['es2020'] });
+const { code: compCssMin } = await transform(compCssConcat, { loader: 'css', minify: true, target: ['es2022'] });
 writeFileSync(join(DIST, 'components.css'), compCssMin);
 console.log(`✓ dist/components.css (Shadow component CSS × ${shadowEntries.length}, CSP external mode)`);
 

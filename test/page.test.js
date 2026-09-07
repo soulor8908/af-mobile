@@ -133,3 +133,45 @@ describe('createPage 实例化工厂', () => {
     expect(() => createPage({ effects: { scroll: () => {} } })).not.toThrow();
   });
 });
+
+// 反向审计（cam-scanner-h5，2026-09-05）新增：refresh 同步重扫 + unmount 幂等
+describe('createPage refresh（同步重扫绑定）', () => {
+  it('innerHTML 重绘后 refresh 立即生效（不等 MutationObserver 空闲去抖）', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    const page = createPage({ state: { name: '初始' } });
+    page.mount(root);
+    // 重绘一段带 :attr 的 DOM：MutationObserver 走 requestIdleCallback/setTimeout 去抖，同步读不到
+    root.innerHTML = '<span id="nm" :text-content="state.name"></span>';
+    page.refresh();
+    const el = root.querySelector('#nm');
+    expect(el.getAttribute('text-content')).toBe('初始');
+  });
+
+  it('refresh 可指定 root，默认用 mount 时的 root', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    const other = document.createElement('div');
+    document.body.appendChild(other);
+    other.innerHTML = '<span :title="state.t"></span>';
+    const page = createPage({ state: { t: '标题' } });
+    page.mount(root);
+    page.refresh(other);
+    expect(other.querySelector('span').getAttribute('title')).toBe('标题');
+  });
+
+  it('refresh 对非法 root 静默返回（不抛错）', () => {
+    const page = createPage({ state: { a: 1 } });
+    expect(() => page.refresh(null)).not.toThrow();
+  });
+});
+
+describe('createPage unmount 幂等', () => {
+  it('重复 unmount 不重复清理、不抛错（router 自动接管 + 消费端手写监听会双触发）', () => {
+    const cleanup = vi.fn();
+    const page = createPage({ effects: { unmount: cleanup } });
+    page.mount(document.createElement('div'));
+    expect(() => { page.unmount(); page.unmount(); page.unmount(); }).not.toThrow();
+    expect(cleanup).toHaveBeenCalledTimes(1);
+  });
+});

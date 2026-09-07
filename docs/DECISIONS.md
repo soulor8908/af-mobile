@@ -318,3 +318,21 @@
 - **理由**：插件在 transform 阶段裁剪 LAZY 表，打包器根本不为未用组件出 chunk，且带保底（无 register 字面量 / 动态注册时全量保留，宁大勿错）；事后脚本要自己维护引用图判定，脆弱且多一次扫描
 - **放弃了什么**：脚手架内置 prune-dist.mjs（已回退）；已存在的消费端项目仍需手动接线插件或用事后脚本（升级 `@af-mobile/ui` 到含 `./vite` 导出的版本后接线即可）
 - **关联**：ai-todo 同批反向优化还修复了库端 router 的 ViewTransition ready 未接 rejection（`Transition was skipped` 未捕获 rejection，`src/lib/router.js`，test/router.test.js 有回归测试）；根 eslint.config.js 为 e2e 夹具补了 no-af-pierce 豁免块（OPT-5 规则引入时未同步，HEAD 上既有 14 个 lint error）
+
+## D-023 消费端反向审计落地：路由错误兜底 + 生命周期接管 + 发布漂移根治（2026-09-05，已决）
+
+背景：cam-scanner-h5（豆包生成器项目）反向审计发现三类框架级缺口：(1) 页面函数抛错 → outlet 已清空 → 白屏且只有控制台有痕；(2) 未注册 notFound 时非法 URL 白屏；(3) 每个页面重复 `ctx.signal.addEventListener('abort', () => page.unmount())`（实测 9 处样板）；(4) 守卫重定向用 push 形成「被弹回 → 返回键又回原页再被弹回」后退陷阱；(5) **已发布 1.9.1 与仓库 1.9.1 内容漂移**——已发布版缺 `./vite` 导出（D-022 的修复未发布），`scripts/create-app.mjs` 模板 `import '@af-mobile/ui/vite'` → 新工程构建必崩（实证 ERR_PACKAGE_PATH_NOT_EXPORTED）。
+
+- **决策**：a. router render() 捕获页面函数抛错 → 渲染错误面板（dev 堆栈/prod 仅 message），go() 仍 reject 且 URL 照常提交（「不白屏」与「错误可感知」兼顾）；b. notFound 未注册时渲染默认面板，注册即覆盖；c. 页面函数返回带 unmount() 的对象 → 框架在导航 abort 时自动调用，createPage.unmount() 加幂等保护；d. 守卫重定向改 `replace: true`；e. publish-check 新增内容级校验（exports 目标文件存在性 + 已发布 exports 键集合 diff，防「同号不同内容」与「隐性删除已发布导出」两类翻车）；f. 版本 bump 1.10.0（changeset 消费积压 3 条 + 本次 1 条）+ mcp Server version 1.7.0→1.10.0 同步
+- **理由**：五项均为消费端真实返工来源；错误面板不用 recipes 新 class（empty/title/body/caption 既有 class，零白名单变更）；生命周期接管与守卫 replace 是「框架有原语但没接/没写文档」，成本一个 if；内容级校验把版本闸门的「点检查」升级为「内容可比对」，1.9.1 漂移若早有此检查会在发布后第一次重跑时直接指出差异是 `./vite`
+- **放弃了什么**：go() 类型签名 `Promise<void>` 未改为 `Promise<boolean>`（实测返回 boolean，另案处理）；错误面板不做 i18n（跟随既有 console 文案惯例，中文硬编码）；`recipes-core/display/feedback/form.css` 不暴露为按需入口（人工镜像无同步闸门，暴露即引入漂移风险——CSS 按需需真正的 recipes 分层重构，另立项）
+- **关联**：cam-scanner-h5 反向审计报告（.workbuddy/reports/cam-scanner-h5-反向审计-2026-09-05.md）；D-022（./vite 导出未发布是本次漂移直接成因）；test/router.test.js +10 回归、test/page.test.js +4 回归
+
+## D-024 删除 recipes 四子集死文件 + CSS 优化空间审计收口（2026-09-05，已决）
+
+背景：CSS 优化排查（用户两轮追问）逐角度量化实验后确认无产物级优化空间——① 死规则扫描：262 个定义 class 与白名单一比一、全语料零死规则；② 重复合并类手段（双 dark 主题块 / rotate keyframes 三合一 / disabled 态分组）gzip 后合计仅省 ~50B（滑窗字典已把重复文本压到近零，raw 2.8KB 的 dark 块 gzip 后仅 23B）；③ `light-dark()` 单源化可解 dark 双块结构重复但需基线 Safari 17.5（现 popover 基线 17.0）且 shadow token 不适用，收益 45B，判负；④ minify 无漏压（oklch 前导零已剥）、前缀全为 Safari 功能必需、achromatic oklch 改命名色反 +1B；⑤ 逐规则成本排名确认最贵 15 条全是 Vant 对齐批次的真实 UI 态。
+
+- **决策**：删除 `src/recipes-core.css` / `recipes-display.css` / `recipes-feedback.css` / `recipes-form.css` 四个子集文件（D-023 已判「不暴露为按需入口」的人工镜像，实测不在 index.css / exports / build / gen-whitelist 任何链路，内容 100%~98% 已被 recipes.css 覆盖）；唯一漂移规则 `af-data { display: none }` 收编进 recipes.css 宿主样式区（af-data.js 注释本就声称在 recipes.css——借机修正注释与事实的漂移）；`af-backtop[hidden]` 由 `:not([hidden])` 反向写法 + tokens reset `[hidden]!important` 双覆盖、`.sb-clear[hidden]` 由 tokens reset 覆盖，均无需收编
+- **理由**：四文件是零引用死代码但持续产生「注释声称 A 实际在 B」类漂移风险（af-data 即实证）；CSS 产物零字节变化（它们不进构建），省的是仓库心智与未来同步成本
+- **放弃了什么**：`light-dark()` 迁移（基线 +0.5 个 Safari 大版本换 45B 不值，待 popover 基线自然上移后随批次重估）；CSS 压缩器换 lightningcss（门禁口径须与消费端 vite/esbuild 一致，换测量工具=改口径非优化）
+- **关联**：D-023（「不暴露为按需入口」为本条的前置决策）；D-020（拒绝 components.css 顶层导出——同构的「CSS 分层按需」否决先例）

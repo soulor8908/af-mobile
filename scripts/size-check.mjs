@@ -5,7 +5,7 @@
 //   基类 AfElement gzip     ≤ 2.0KB  PR 阻断
 //   全部 30 组件 + 基类 gzip ≤ 23.0KB PR 阻断
 //   按需引入 2 组件 gzip    ≤ 6.5KB   warn
-//   (核心运行时 state+fetch+router+i18n+page+bind ≤ 6.8KB，独立预算不计入 total)
+//   (核心运行时 state+fetch+router+i18n+page+bind ≤ 7.3KB，独立预算不计入 total)
 // 实现：esbuild 打包+minify，Node zlib 测 gzip（原生，无 gzip-size 依赖）
 import { build, transform } from 'esbuild';
 import { gzipSync } from 'node:zlib';
@@ -87,12 +87,12 @@ const SRC = join(ROOT, 'src');
 //   escapeHtml/html 拆分至 lib/html.js（共享运行时模块，非生命周期核心），CORE_MODULES 登记 'html'，
 //   基类一行再导出保持全部既有 import 路径兼容——base 回落 ≤ 2KB，total 不升（lib 共享模块本就不计入 total）
 const BUDGET = {
-  css: 8.35,           // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径；v4.9 上调 7.8→8.2，用户已确认：Vant 对齐 P1，实测 7.978KB；v5.0 上调 8.2→8.35，用户已确认：Vant 对齐 P0 收尾 + P2 打磨（stepper round/progress pivot 字号/swipe-cell 通栏/skeleton 16px/rate 20px 半星/dropdown 菜单条/cell-value-arrow），实测 8.276KB）
+  css: 8.36,           // KB，L1+L2 CSS（tokens+recipes+atomic，minify 后 gzip 口径；v4.9 上调 7.8→8.2，用户已确认：Vant 对齐 P1，实测 7.978KB；v5.0 上调 8.2→8.35，用户已确认：Vant 对齐 P0 收尾 + P2 打磨（stepper round/progress pivot 字号/swipe-cell 通栏/skeleton 16px/rate 20px 半星/dropdown 菜单条/cell-value-arrow），实测 8.276KB；v5.1 上调 8.35→8.36，用户已确认：T0.12 形态级改造批次 6（calendar 范围选择/steps 垂直模式）带入，实测 8.352KB）
   perComponent: 3.0,   // KB，单组件 JS（+i18n 映射表；v4.9 上调 2.8→3.0，用户已确认：af-picker T1.8 disabled 选项——渲染+滚轮停禁用项弹开+键盘跳过，实测 2.912KB）
   base: 2.0,           // KB，AfElement 基类（焦点陷阱/滚动锁/_listen 事件登记下沉，v3.9）
   total: 27.3,         // KB，30 组件 + 基类（v4.9 上调 24.8→26.2，用户已确认：Vant 对齐 P1，实测 25.965KB，其中 ~0.56KB 为 Trae 并行运行时改动非本批次；v5.0 上调 26.2→27.3，用户已确认：Vant 对齐 P0 收尾 + P2 打磨——af-swiper 500ms/autoplay3000/悬浮圆点、af-swipe-cell 通栏直角65px+全局点击关闭、af-countdown format 升粒度、af-img fit+淡入+SVG 错误态、af-list transform 驱动下拉刷新+success 态、af-rate 半星+disabled、af-countdown/img JS 增量，实测 26.731KB，其中 ~0.56KB 仍为 Trae 并行改动）
   onDemand2: 6.5,      // KB，按需 2 组件（warn，含 ARIA + 安全增强）
-  coreRuntime: 6.95,   // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind；v4.5 上调 6.8→6.85，用户已确认：router 渲染前 whenReady 等待注册，实测 6.816；v4.6 上调 6.85→6.95，用户已确认：bind.js @event 声明式事件绑定（OPT-3），三轮实现压缩后净增实测 6.911）
+  coreRuntime: 7.30,   // KB，router+state+fetch+i18n+page+bind，独立预算不计入 total（v3.9 纳入 page/bind；v4.5 上调 6.8→6.85，用户已确认：router 渲染前 whenReady 等待注册，实测 6.816；v4.6 上调 6.85→6.95，用户已确认：bind.js @event 声明式事件绑定（OPT-3），三轮实现压缩后净增实测 6.911；v5.1 上调 6.95→7.30，用户已确认：router 页面函数抛错兜底面板（防白屏）+ 默认 404 兜底 + 守卫重定向 replace 防后退陷阱，反向审计 cam-scanner-h5 四项；现代语法优化对冲后实测 7.279KB）
   layout: 0.9,         // KB，withLayout 页面布局包装器（OPT-1，独立预算不计入 total；router/html 共享模块 external；实测 0.860KB）
   date: 0.4,           // KB，本地时区日期工具 todayISO/formatDate（OPT-8，独立预算不计入 total；实测 0.345KB）
   formDialog: 1.2,     // KB，openFormDialog schema 表单对话框 helper（OPT-2 无组件方案，独立预算不计入 total；html 共享模块 external；复用 af-dialog/af-field；实测 1.158KB）

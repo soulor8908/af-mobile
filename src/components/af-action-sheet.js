@@ -45,7 +45,7 @@ export class AfActionSheet extends withI18n(AfElement) {
       this.emit('af-action-sheet:close', {});
     };
     this._cancelBtn = this.$('.af-action-sheet-cancel');
-    this._listen(this._cancelBtn, 'click', this._onCancelClick);
+    this._unbindCancel = this._listen(this._cancelBtn, 'click', this._onCancelClick);
 
     this._onToggle = (e) => {
       if (e.newState === 'open') {
@@ -117,10 +117,10 @@ export class AfActionSheet extends withI18n(AfElement) {
   onAttributeChange(name, oldVal, newVal) {
     if (!this._sheet) return;
     this._renderContent();
-    // cancelBtn 引用变了需重绑；列表/标题项变化不涉及事件绑定（click 委托在 _sheet 上）
-    // 先解绑旧节点（避免同节点双触发），新节点经 _listen 登记、断开时统一解绑
-    this._cancelBtn?.removeEventListener('click', this._onCancelClick);
-    this._listen(this._cancelBtn, 'click', this._onCancelClick);
+    // cancelBtn 引用变了需重绑：用 _listen 返回的定向解绑先解旧节点（同节点重复 add 由 DOM 原生去重）；
+    // 列表/标题项变化不涉及事件绑定（click 委托在 _sheet 上）
+    this._unbindCancel?.();
+    this._unbindCancel = this._listen(this._cancelBtn, 'click', this._onCancelClick);
     // 重渲染后重新应用 i18n（.sheet aria-label + cancelBtn textContent 由 _applyI18n 设置）
     this._applyI18n();
   }

@@ -26,24 +26,57 @@ console.log('╚═════════════════════�
 
 // 0. 版本闸门：repo version 必须大于 npm 已发布版本
 // 防再犯：脚手架/模板引用包内新增文件，但版本号与已发布版相同 → 消费端装到旧包（278efd4 教训）
+// 0.5 内容级校验：版本号相同≠内容相同。1.9.1 实测漂移：仓库已合入 ./vite 导出（D-022）而已发布
+// 1.9.1 没有——版本闸门只能发现「同号」，本节把差异的具体内容说清楚，并反向拦截破坏性删除。
 console.log('\n── 0. 版本闸门 ──');
-function versionGate() {
-  const local = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
-  let published;
+function getPublishedVersion() {
   try {
-    published = execSync('npm view @af-mobile/ui version', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+    return execSync('npm view @af-mobile/ui version', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
   } catch {
-    check('npm registry 可达', false, '无法查询已发布版本（离线时也无法 publish）');
-    return;
+    return null;
   }
+}
+const localVersion = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).version;
+const publishedVersion = getPublishedVersion();
+if (publishedVersion === null) {
+  check('npm registry 可达', false, '无法查询已发布版本（离线时也无法 publish）');
+} else {
   const gt = (a, b) => {
     const [a1, a2, a3] = a.split('.').map(Number);
     const [b1, b2, b3] = b.split('.').map(Number);
     return a1 !== b1 ? a1 > b1 : a2 !== b2 ? a2 > b2 : a3 > b3;
   };
-  check(`本地版本 ${local} 高于已发布 ${published}`, gt(local, published), gt(local, published) ? '' : '需 bump version（同号两内容，消费端会装到旧包）');
+  check(`本地版本 ${localVersion} 高于已发布 ${publishedVersion}`, gt(localVersion, publishedVersion), gt(localVersion, publishedVersion) ? '' : '需 bump version（同号两内容，消费端会装到旧包）');
 }
-versionGate();
+
+// 0.5 内容级校验
+console.log('\n── 0.5 发布内容校验 ──');
+function contentGate() {
+  const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
+  const localKeys = Object.keys(pkg.exports || {});
+  // (a) 本地 exports 指向的文件必须存在：防「脚手架模板 import 包内子路径，而发布包没带该文件」
+  //     （1.9.1 漂移的镜像翻车：resolve → ERR_PACKAGE_PATH_NOT_EXPORTED，新工程构建必崩）
+  const missing = [];
+  for (const [k, v] of Object.entries(pkg.exports || {})) {
+    const target = typeof v === 'string' ? v : (v?.import || v?.default);
+    if (target && !target.includes('*') && !existsSync(join(ROOT, target))) {
+      missing.push(`${k} → ${target}`);
+    }
+  }
+  check('exports 目标文件全部存在', missing.length === 0, missing.length ? missing.join('; ') : `${localKeys.length} 项`);
+  // (b) 与已发布版比对 exports 键集合：本地不得删除已发布导出（隐性破坏性变更）
+  if (publishedVersion) {
+    try {
+      const raw = execSync(`npm view @af-mobile/ui@${publishedVersion} exports --json`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+      const publishedKeys = Object.keys(JSON.parse(raw) || {});
+      const removed = publishedKeys.filter(k => !localKeys.includes(k));
+      check('已发布导出无删除（破坏性变更检测）', removed.length === 0, removed.length ? `本地将移除: ${removed.join(', ')}` : `${publishedKeys.length} → ${localKeys.length} 项`);
+      const added = localKeys.filter(k => !publishedKeys.includes(k));
+      if (added.length) console.log(`  ℹ 本地新增导出（随新版本发布）: ${added.join(', ')}`);
+    } catch { /* 老版本无 exports 字段或查询失败时跳过比对 */ }
+  }
+}
+contentGate();
 
 // 1. npm pack 内容检查
 console.log('── 1. npm pack 内容 ──');

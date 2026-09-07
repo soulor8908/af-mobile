@@ -13,9 +13,17 @@ function pkgVersion() {
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'src');
 
+// CSS 注释剥离：注释正文同样会被下方 .class / --token 正则扫中，
+// 曾把注释里的 "recipes-core.css"、"af-list" 误当成类名，向白名单塞入
+// 实际不存在的 'css' / 'list' / 'navbar'（三源比对因此误报不同步）。
+// 提取一律在「剥离注释后」的文本上进行，注释永远不是样式真相源。
+function stripComments(css) {
+  return css.replace(/\/\*[\s\S]*?\*\//g, '');
+}
+
 // 从 CSS 文件提取所有 .class 名
 export function extractClasses(file) {
-  const css = readFileSync(file, 'utf8');
+  const css = stripComments(readFileSync(file, 'utf8'));
   const set = new Set();
   const re = /\.([a-z][a-z0-9-]*)/g;
   let m;
@@ -25,7 +33,7 @@ export function extractClasses(file) {
 
 // 从 tokens.css 提取所有 --token 名
 export function extractTokens(file) {
-  const css = readFileSync(file, 'utf8');
+  const css = stripComments(readFileSync(file, 'utf8'));
   const set = new Set();
   const re = /(--[a-z][a-z0-9-]+)/g;
   let m;

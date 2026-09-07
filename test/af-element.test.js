@@ -40,17 +40,17 @@ describe('AfElement 基类', () => {
     expect(el.unmountedCalls).toBe(1);
   });
 
-  it('_listen 登记：断开统一解绑并清空登记表，重连不残留旧监听（F）', () => {
+  // 监听生命周期走 AbortController（挂载期 signal），故断言以「事件是否触发」为准，
+  // 不再断言登记表的内部结构——解绑机制换了，行为契约不变
+  it('_listen 断开统一解绑：断开后事件不再触发，重连未重绑则仍不触发（F）', () => {
     const el = new TestEl();
     document.body.appendChild(el);
     const log = [];
     el._listen(window, 'test-listen-event', () => log.push(1));
-    expect(el._listeners.some(([t, type]) => t === window && type === 'test-listen-event')).toBe(true);
     window.dispatchEvent(new Event('test-listen-event'));
     expect(log.length).toBe(1);
+    // 断开：AbortController 一次性解绑本轮全部监听，事件不再触发
     document.body.removeChild(el);
-    // 断开后登记表清空，事件不再触发（自动解绑）
-    expect(el._listeners).toBe(null);
     window.dispatchEvent(new Event('test-listen-event'));
     expect(log.length).toBe(1);
     // 重连后未重新 _listen 则不触发（由 mounted 重新绑定）
@@ -62,46 +62,39 @@ describe('AfElement 基类', () => {
   it('_listen 空目标安全跳过（对齐 ?. 调用点）', () => {
     const el = new TestEl();
     document.body.appendChild(el);
-    const before = el._listeners.length; // onThemeChange 已登记 1 条
-    el._listen(null, 'click', () => {});
-    expect(el._listeners.length).toBe(before);
+    // 空目标不抛错，且返回可安全调用的解绑函数
+    const unbind = el._listen(null, 'click', () => {});
+    expect(typeof unbind).toBe('function');
+    expect(() => unbind()).not.toThrow();
   });
 
-  it('_listen 去重：同 (target,type,handler) 重复绑定只留一条登记且不重复触发', () => {
+  it('_listen 去重：同 (target,type,handler) 重复绑定不重复触发（DOM 原生去重）', () => {
     const el = new TestEl();
     document.body.appendChild(el);
     const log = [];
     const h = () => log.push(1);
     el._listen(window, 'test-listen-event', h);
     el._listen(window, 'test-listen-event', h);
-    expect(el._listeners.filter(([t, ty]) => t === window && ty === 'test-listen-event')).toHaveLength(1);
     window.dispatchEvent(new Event('test-listen-event'));
     expect(log.length).toBe(1);
   });
 
-  it('_listen 惰性回收：innerHTML 重渲染后脱离文档的旧目标条目被清除', () => {
+  it('_listen 返回定向解绑函数：单独解绑某条监听，不影响同组件其他监听', () => {
     const el = new TestEl();
     document.body.appendChild(el);
-    const btn1 = document.createElement('button');
-    el.appendChild(btn1);
-    el._listen(btn1, 'click', () => {});
-    expect(el._listeners.some(([t]) => t === btn1)).toBe(true);
-    el.innerHTML = '';
-    const btn2 = document.createElement('button');
-    el.appendChild(btn2);
-    el._listen(btn2, 'click', () => {});
-    expect(el._listeners.some(([t]) => t === btn1)).toBe(false);
-    expect(el._listeners.some(([t]) => t === btn2)).toBe(true);
-  });
+    const log = [];
+    const unbindWindow = el._listen(window, 'test-listen-event', () => log.push('win'));
+    el._listen(document.documentElement, 'test-doc-event', () => log.push('doc'));
 
-  it('_listen 回收不误伤：window 与 documentElement 条目保留', () => {
-    const el = new TestEl();
-    document.body.appendChild(el);
-    const before = el._listeners.length; // onThemeChange 登记的 documentElement 条目
-    el._listen(window, 'test-listen-event', () => {});
-    expect(el._listeners.some(([t]) => t === window)).toBe(true);
-    expect(el._listeners.some(([t]) => t === document.documentElement)).toBe(true);
-    expect(el._listeners.length).toBe(before + 1);
+    window.dispatchEvent(new Event('test-listen-event'));
+    document.documentElement.dispatchEvent(new Event('test-doc-event'));
+    expect(log).toEqual(['win', 'doc']);
+
+    // 定向解绑 window 那条：documentElement 的监听与 onThemeChange 的登记均不受影响
+    unbindWindow();
+    window.dispatchEvent(new Event('test-listen-event'));
+    document.documentElement.dispatchEvent(new Event('test-doc-event'));
+    expect(log).toEqual(['win', 'doc', 'doc']);
   });
 
   it('defineProp 双向同步：property → attribute', () => {

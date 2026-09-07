@@ -45,6 +45,18 @@ export function initBind(root = document, ctx = null) {
   return () => { observer.disconnect(); cancelIdle(); };
 }
 
+/**
+ * 同步重扫 :attr/@event 绑定（createPage().refresh() 的底层实现）
+ * 存在理由：initBind() 的 MutationObserver 走空闲去抖（requestIdleCallback / setTimeout 0），
+ * 所以 innerHTML 重绘后「同步」读取绑定结果会拿到尚未绑定的 DOM。需要立刻生效时显式调用本函数。
+ * 静默失败：root 非法或 ctx 无 state 时直接返回，不抛错
+ */
+export function scanBind(root = document, ctx = null) {
+  if (!root || typeof root.querySelectorAll !== 'function') return;
+  if (!ctx?.state) return;
+  scan(root, ctx.state, ctx.derived ?? {}, ctx.actions ?? {});
+}
+
 function scan(root, stateObj, derivedObj, actionsObj = {}) {
   // root 自身可能带 :attr/@event，子节点也可能带
   const candidates = root.attributes && [...root.attributes].some((a) => a.name[0] === ':' || a.name[0] === '@')

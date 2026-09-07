@@ -150,6 +150,22 @@ describe('fetchPage 重试', () => {
     expect(data).toEqual({ ok: true });
     expect(_fetch).toHaveBeenCalledTimes(2);
   });
+
+  it('重试后超时仍生效（timeout 定时器不因首轮清理失效）', async () => {
+    // 回归：定时器曾挂循环外，首轮 finally 清掉后重试轮次无超时保护（fetch 挂起即无限等待）
+    _fetch
+      .mockRejectedValueOnce(new TypeError('network error'))
+      .mockImplementation((_url, opts) => new Promise((resolve, reject) => {
+        if (opts.signal?.aborted) { reject(opts.signal.reason); return; }
+        const timer = setTimeout(() => resolve(mockResponse({})), 500);
+        opts.signal?.addEventListener('abort', () => {
+          clearTimeout(timer);
+          reject(opts.signal.reason);
+        });
+      }));
+    await expect(fetchPage('/api/retry-timeout', { retries: 1, retryDelay: 1, timeout: 50 }))
+      .rejects.toBeInstanceOf(TimeoutError);
+  });
 });
 
 describe('fetchPage 去重', () => {

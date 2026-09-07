@@ -115,30 +115,15 @@ export const messages = {
   },
 };
 
-// CLDR plural rules（轻量 ICU 子集；按 '-' 前的主语言匹配，未知语言回退 en）
-// 注：仅计算可数整数 n 的语法复数类别；中文/日语恒为 'other'
-const _twoForm = n => (n === 0 || n === 1) ? 'one' : 'other';   // fr/es/pt/it 等
-const _slavicForm = n => {                                      // ru/uk/pl 等
-  const m10 = n % 10, m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return 'one';
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return 'few';
-  return 'many';
-};
-const PLURAL_RULES = {
-  en: n => n === 1 ? 'one' : 'other',
-  zh: () => 'other',
-  ja: () => 'other',
-  ar: n => {
-    if (n === 0) return 'zero';
-    if (n === 1) return 'one';
-    if (n === 2) return 'two';
-    if (n % 100 >= 3 && n % 100 <= 10) return 'few';
-    if (n % 100 >= 11 && n % 100 <= 99) return 'many';
-    return 'other';
-  },
-  fr: _twoForm, es: _twoForm, pt: _twoForm,
-  ru: _slavicForm, uk: _slavicForm,
-};
+// 复数类别：原生 Intl.PluralRules 按 CLDR 规则选形（全语系精确，Safari 10+），
+// 按 '-' 前主语言缓存实例；中文/日语等无复数语言恒为 'other'，n 缺失（NaN）亦为 'other'
+const _prCache = new Map();
+function pluralCategory(locale, n) {
+  const lang = locale.split('-')[0];
+  let pr = _prCache.get(lang);
+  if (!pr) _prCache.set(lang, pr = new Intl.PluralRules(lang));
+  return pr.select(n);
+}
 
 /** 翻译：回退链 当前→zh-CN→key 自身；复数条目按 CLDR 规则选形（无 n 时用 other） */
 export function t(key, vars) {
@@ -146,7 +131,7 @@ export function t(key, vars) {
   let s = dict[key];
   if (s == null) s = messages['zh-CN'][key] ?? key;
   if (s && typeof s === 'object') {
-    const rule = (PLURAL_RULES[_locale.split('-')[0]] || PLURAL_RULES.en)(vars && vars.n);
+    const rule = pluralCategory(_locale, vars && vars.n);
     s = s[rule] ?? s.other;
     if (s == null) s = key;
   }

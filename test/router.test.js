@@ -703,3 +703,117 @@ describe('DEV 漏注册告警', () => {
     warn.mockRestore();
   });
 });
+
+// 反向审计（cam-scanner-h5，2026-09-05）引入的四项行为，逐条回归锁定
+describe('router 页面函数抛错兜底（防白屏）', () => {
+  it('页面函数抛错 → 渲染错误面板而非白屏', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    route('/boom', () => { throw new Error('读取草稿失败'); });
+    start({ outlet: '#app' });
+    await expect(go('/boom')).rejects.toThrow('读取草稿失败');
+    const panel = document.querySelector('#app [data-router-error]');
+    expect(panel).toBeTruthy();
+    expect(panel.textContent).toContain('页面出错了');
+    expect(panel.textContent).toContain('读取草稿失败');
+    expect(panel.getAttribute('role')).toBe('alert');
+    err.mockRestore();
+  });
+
+  it('错误面板同时提交 URL（URL 与视图一致，不停在上一页）', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    route('/ok', () => {});
+    route('/boom2', () => { throw new Error('x'); });
+    start({ outlet: '#app' });
+    await go('/ok');
+    await expect(go('/boom2')).rejects.toThrow('x');
+    expect(location.pathname).toBe('/boom2');
+    err.mockRestore();
+  });
+
+  it('错误传播保留：go() 仍 reject，消费端可 catch 做重试/上报', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    route('/lazy-fail-2', () => Promise.reject(new Error('chunk load failed')));
+    start({ outlet: '#app' });
+    await expect(go('/lazy-fail-2')).rejects.toThrow('chunk load failed');
+    err.mockRestore();
+  });
+
+  it('抛错的路由仍触发 afterEach（页面 effects 不被静默跳过）', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const hook = vi.fn();
+    routerAfterEach(hook);
+    route('/boom3', () => { throw new Error('y'); });
+    start({ outlet: '#app' });
+    await expect(go('/boom3')).rejects.toThrow('y');
+    expect(hook).toHaveBeenCalled();
+    err.mockRestore();
+  });
+
+  it('已被新导航抢占时不渲染错误面板（让位给新导航）', async () => {
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    route('/slow-boom', () => new Promise((_, rej) => setTimeout(() => rej(new Error('late')), 10)));
+    route('/final', (p, ctx) => { ctx.outlet.innerHTML = '<p>最终页</p>'; });
+    start({ outlet: '#app' });
+    const p = go('/slow-boom').catch(() => {});   // 抢占它
+    await go('/final');
+    await p;
+    expect(document.querySelector('#app').textContent).toContain('最终页');
+    expect(document.querySelector('#app [data-router-error]')).toBeNull();
+    err.mockRestore();
+  });
+});
+
+describe('router 默认 404 兜底（未注册 notFound 时）', () => {
+  it('未注册 notFound 时渲染默认面板而非白屏', async () => {
+    start({ outlet: '#app' });
+    await go('/definitely-not-a-route');
+    const panel = document.querySelector('#app [data-router-error="not-found"]');
+    expect(panel).toBeTruthy();
+    expect(panel.textContent).toContain('页面不存在');
+  });
+
+  it('注册了 notFound 时不走默认面板', async () => {
+    notFound((path) => {
+      document.querySelector('#app').innerHTML = `<p>自定义404:${path}</p>`;
+    });
+    start({ outlet: '#app' });
+    await go('/nope');
+    expect(document.querySelector('#app').textContent).toContain('自定义404');
+    expect(document.querySelector('#app [data-router-error]')).toBeNull();
+  });
+});
+
+describe('router 页面生命周期自动接管', () => {
+  it('页面函数返回带 unmount 的对象 → 导航离开自动清理', async () => {
+    const unmount = vi.fn();
+    route('/p1', () => ({ unmount }));
+    route('/p2', () => {});
+    start({ outlet: '#app' });
+    await go('/p1');
+    expect(unmount).not.toHaveBeenCalled();
+    await go('/p2');
+    expect(unmount).toHaveBeenCalledOnce();
+  });
+
+  it('返回的页面对象未调 mount 也能正常导航（不误抛）', async () => {
+    route('/p3', () => ({ unmount: () => {} }));
+    start({ outlet: '#app' });
+    // 注：go() 声明为 Promise<void>，实际 resolve 为 boolean（true=导航成立）。
+    // 此处按实际行为断言，类型签名的偏差另案处理，不在本次改动范围。
+    await expect(go('/p3')).resolves.toBe(true);
+  });
+});
+
+describe('router 守卫重定向不留历史痕迹', () => {
+  it('守卫返回字符串 → 以 replace 提交，不产生后退陷阱', async () => {
+    const before = history.length;
+    routerBeforeEach((to, params, path) => (path === '/protected' ? '/' : undefined));
+    route('/', () => {});
+    route('/protected', () => {});
+    start({ outlet: '#app' });
+    await go('/protected');
+    // 守卫重定向走 replace：历史栈不增长（push 会让返回键回到被拦下的 /protected 再被弹回）
+    expect(history.length).toBe(before);
+    expect(location.pathname).toBe('/');
+  });
+});

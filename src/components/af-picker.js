@@ -81,7 +81,7 @@ export class AfPicker extends withI18n(AfElement) {
   }
 
   mounted() {
-    this.shadowRoot.innerHTML ||= this.shadowHTML();
+    this._mountShadow();   // adoptedStyleSheets 共享样式表（DSD 预填充时仅 hydrate）
     this._picker = this.$('.picker');
     this._columnsEl = this.$('.columns');
 

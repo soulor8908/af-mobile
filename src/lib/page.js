@@ -6,13 +6,13 @@
 
 import { signal, computed, effect, batch, createRoot } from './state.js';
 import * as router from './router.js';
-import { initBind } from './bind.js';
+import { initBind, scanBind } from './bind.js';
 
-// effects 白名单处理器：每个 key 对应一个 EventTarget 订阅
+// effects/onError 的事件订阅统一挂到页面级 AbortController：unmount 时一次 abort 全解绑，
+// 替代逐条 removeEventListener 的 cleanup 登记（extraCleanup 仍走 cleanups）
 function subscribe(target, event, handler, ctx, extraCleanup) {
   if (typeof target?.addEventListener !== 'function') return;
-  target.addEventListener(event, handler);
-  ctx.cleanups.push(() => target.removeEventListener(event, handler));
+  target.addEventListener(event, handler, { signal: ctx.signal });
   if (extraCleanup) ctx.cleanups.push(extraCleanup);
 }
 
@@ -65,6 +65,8 @@ export function createPage(config = {}) {
   const derived = {};
   const actions = {};
   const cleanups = [];
+  const subsAc = new AbortController();   // 页面级事件订阅解绑器（subscribe 专用）
+  const ctx = { cleanups, signal: subsAc.signal };   // 二者引用恒定，全页共用一份
 
   const dispose = createRoot((rootDispose) => {
     // 1. state：字段转 signal，读写走响应式
@@ -96,7 +98,7 @@ export function createPage(config = {}) {
 
     // 4. effects：白名单 key 订阅，cleanup 注册到页面 cleanups
     if (config.effects) {
-      const ctx = { cleanups };
+      // ctx：cleanups 数组 + 页面级 abort signal（订阅统一挂此 signal，unmount 一次 abort 全解绑）
       for (const key in config.effects) EFFECT_HANDLERS[key]?.(config.effects[key], ctx);
     }
 
@@ -109,7 +111,6 @@ export function createPage(config = {}) {
 
     // 6. onError：错误边界，捕获 window error + unhandledrejection
     if (typeof config.onError === 'function') {
-      const ctx = { cleanups };
       subscribe(window, 'error', config.onError, ctx);
       subscribe(window, 'unhandledrejection', (e) => config.onError(e.reason), ctx);
     }
@@ -123,11 +124,23 @@ export function createPage(config = {}) {
     transition: config.transition || null,
     keepAlive: config.keepAlive || null,
     mount(root) {
+      this._root = root;
       this._unbind = initBind(root, this);   // 保存断开函数，unmount 时清理 observer
     },
+    // 同步重扫 :attr/@event 绑定。innerHTML 重绘后需要「立刻」拿到绑定结果时调用
+    // （initBind 的 MutationObserver 是空闲去抖的，重绘后同步读取会拿到未绑定的 DOM）
+    refresh(root = this._root) {
+      scanBind(root, this);
+      return this;
+    },
     unmount() {
+      // 幂等：router 会为「返回了本对象」的页面自动注册 abort → unmount（消掉消费端重复样板），
+      // 消费端若仍手写 ctx.signal 监听就是两次调用，重复 dispose 会误清上游依赖。
+      if (this._unmounted) return;
+      this._unmounted = true;
       this._unbind?.();   // 断开 :bind 的 MutationObserver
       this._unbind = null;
+      subsAc.abort();      // 一次性解绑全部事件订阅（effects/onError）
       while (cleanups.length) { try { cleanups.pop()(); } catch { /* 清理失败忽略 */ } }
       dispose();
     },

@@ -1,8 +1,9 @@
-# af-mobile v2.0 迁移指南
+# af-mobile 迁移指南
 
-> 适用范围：v1.3.x → v2.0.0（运行时）+ v1.5.0 → v1.5.1（白名单类名简写，见「UI v7」章节）
-> 目标：L0 运行时架构修复（Owner pattern / createPage 实例化 / router 增强 / i18n 复数 / theme 系统主题）。
-> 本文档只覆盖**行为变化与迁移动作**；完整设计见 `docs/design/af-mobile-evolution-v3.md`。
+> 适用范围：v1.3.x → v1.x 运行时变更（Owner pattern / createPage 实例化 / router 增强 / i18n 复数 / theme 系统主题）+ v1.5.0 → v1.5.1（白名单类名简写，见「UI v7」章节）+ v1.10.0（路由错误兜底与生命周期接管，见文末）。
+> 目标读者：从 1.3/1.4 升级的消费端项目。
+> ⚠️ 历史说明：本文最初按「v2.0.0 发布计划」撰写，**v2.0.0 从未发布**——下列运行时变更实际随 1.x 系列落地（`definePage` 已在 1.x 直接移除，未走文末旧计划表的三阶段）。
+> 本文档只覆盖**行为变化与迁移动作**；逐版本完整变更见 `CHANGELOG.md`，完整设计见 `docs/design/af-mobile-evolution-v3.md`。
 
 ---
 
@@ -87,13 +88,15 @@
 
 ## 0. 兼容性策略
 
+> ⚠️ 下表为最初的 v2.0 计划，**未按此执行**：`definePage` 实际已随 1.x 系列直接移除（一步到位，未走三阶段）。保留本表仅作历史记录。
+
 | 版本 | definePage | createPage | 说明 |
 |------|-----------|------------|------|
 | v2.0.0 | 保留（内部委托 createPage） | 推荐，文档主推 | 兼容层无功能损失 |
 | v2.1.0 | 标记 deprecated，控制台警告 | 主推 | 引导迁移 |
 | v3.0.0 | 移除 | 唯一 API | 全面实例化 |
 
-**建议**：新页面直接用 `createPage`；存量页面可在 v2.0 继续用 `definePage`，按计划迁移。
+**现状**：新页面必须用 `createPage`；存量页面若仍引用 `definePage`，升级后为编译期错误（import 不存在导出），按第 1 节迁移即可。
 
 ---
 
@@ -272,3 +275,24 @@ npm test          # 单元测试（vitest）
 npm run test:e2e  # 浏览器 E2E（Playwright）
 npm run size      # 体积预算（L0 运行时 ≤ 8.0KB gzip）
 ```
+
+---
+
+## 7. UI v8（v1.10.0，路由错误兜底与生命周期接管）
+
+> 来源：cam-scanner-h5（AI 生成器项目）反向审计（D-023）。多数条目是**新增兜底能力**，存量代码无需改动即可受益；标 ⚠️ 的才需要检查。
+
+### 需要检查的存量代码
+
+| 场景 | 变化 | 迁移动作 |
+|------|------|----------|
+| ⚠️ `catch` 了 `go()` 的 rejection 但假设「reject = URL 未变」 | 页面函数抛错时：错误面板已渲染、**URL 已提交**、之后才 reject | 检查 catch 分支里是否有「恢复上一页 URL」的逻辑，现在通常应直接删掉（视图已降级为错误面板） |
+| ⚠️ 每页手写 `ctx.signal.addEventListener('abort', () => page.unmount())` 且页面函数**返回了** page 对象 | 框架接管后导航离开会自动调 `unmount()`（幂等，双触发安全） | 手写监听可删（样板收敛）；`createPage.unmount()` 已幂等，不删也不会出错 |
+| ⚠️ 依赖「非法 URL → outlet 清空白屏」的特殊行为 | 未注册 `notFound()` 时框架渲染默认「页面不存在」面板 | 需要自定义 404 时调 `notFound(handler)`；无特殊逻辑则无需动作 |
+| ⚠️ 守卫重定向后按返回键预期回到被拦截页 | `beforeEach` 返回字符串的重定向改以 **replace** 提交，不留历史痕迹 | 这是后退陷阱的修复；若确有「返回到被拦截页」的需求（罕见），改用页面内显式导航 |
+
+### 新增能力（无需迁移，直接可用）
+
+- **`createPage().refresh(root?)`**：同步重扫 `:attr`/`@event` 绑定。innerHTML 重绘后绑定由 MutationObserver 空闲去抖兜底，「重绘后立刻读绑定结果」的场景用它
+- **路由错误面板**：dev 显示堆栈 + 路由上下文，prod 只显示 message；`go()` 仍 reject 供消费端重试/上报
+- **路由文档**：`site/guide/routing.md`（beforeEach 重定向、流程页 replace、生命周期接管等完整契约）

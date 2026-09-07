@@ -43,6 +43,10 @@ export class AfElement extends HTMLElement {
     if (this._mounted) return;
     this._mounted = true;
     this._ensureShadow();
+    // 每次挂载新建 AbortController：断开时 abort 一次性解绑本轮 _listen 全部监听
+    // （_ac 在 disconnectedCallback 已 abort 并置空，此处无需再 abort；listener 由各 target 自行
+    // 持有，脱离文档的节点不再被本组件强引用，天然无泄漏）
+    this._ac = new AbortController();
     if (this.onThemeChange) {
       this._listen(document.documentElement, 'themechange', (e) => this.onThemeChange(e.detail));
     }
@@ -53,9 +57,9 @@ export class AfElement extends HTMLElement {
 
   disconnectedCallback() {
     this.unmounted?.();
-    // 统一解绑 _listen 登记的监听并清空登记表：重连时由 mounted 重新绑定
-    this._listeners?.forEach((e) => e[0].removeEventListener(e[1], e[2], e[3]));
-    this._listeners = null;
+    // 一次性解绑本轮 _listen 全部监听：重连时由 connectedCallback 新建 controller、mounted 重绑
+    this._ac?.abort();
+    this._ac = null;
     // 复位挂载标志：下次 connectedCallback 重新执行 mounted，重建监听与 DOM
     this._mounted = false;
   }
@@ -77,20 +81,42 @@ export class AfElement extends HTMLElement {
     this.dispatchEvent(new CustomEvent(name, { detail, bubbles: true, composed: true }));
   }
 
-  // 事件绑定登记：断开时由 disconnectedCallback 统一解绑，组件重连由 mounted 重新绑定，
-  // 杜绝重复监听；子类不再需要在 unmounted() 手写 removeEventListener。target 为空时安全跳过。
-  // 已挂载时惰性回收脱离文档的死条目（innerHTML 重渲染后旧节点不再被登记表强引用）；
-  // 同一 (target,type,handler,capture) 去重（DOM 原生合并相同监听，登记表不去重随重复绑定膨胀）
+  // 事件绑定：统一挂到本轮挂载的 AbortController signal 上，断开时由 disconnectedCallback
+  // 一次 abort 全解绑，组件重连由 mounted 重新绑定；子类不再需要在 unmounted() 手写
+  // removeEventListener。同一 (target,type,handler) 重复绑定由 DOM 原生去重，无叠加风险。
+  // target 为空时安全跳过；返回定向解绑函数（供「运行中更换绑定目标」场景使用，如 af-backtop）
   _listen(target, type, handler, opts) {
-    if (!target) return;
-    const reg = (this._listeners ??= []);
-    if (this.isConnected)
-      for (let i = reg.length; i--;)
-        reg[i][0].isConnected === false && reg.splice(i, 1);
-    const cap = !!opts?.capture;
-    const idx = reg.findIndex((e) => e[0] === target && e[1] === type && e[2] === handler && !!e[3]?.capture === cap);
-    target.addEventListener(type, handler, opts);
-    idx < 0 ? reg.push([target, type, handler, opts]) : (reg[idx][3] = opts);
+    if (!target) return () => {};   // 空目标：返回空解绑函数，调用点无需判空
+    // _ac 可能尚未建立：attributeChangedCallback 会先于 connectedCallback 触发（setAttribute 后置入文档），
+    // 此时 signal 为 undefined → 该监听不纳入统一解绑（首次挂载后 mounted 会重新绑定）
+    target.addEventListener(type, handler, { ...opts, signal: this._ac?.signal });
+    return () => target.removeEventListener(type, handler, opts);
+  }
+
+  // === Shadow 挂载（adoptedStyleSheets 样式表共享） ===
+  // 每个组件类一份已解析 CSSStyleSheet（hasOwn 判断，子类不继承父类的样式表），
+  // 消除「每实例 innerHTML 内联 <style> 重复解析同一份 CSS」的开销
+  // （实测 6KB CSS × 300 实例：创建 16.3ms → 2.9ms，5.6x）
+
+  // Shadow 挂载统一入口（mounted 首行调用，替代 `shadowRoot.innerHTML ||= shadowHTML()`）：
+  // - DSD 已由解析器预填充（含内联 <style>）：直接 hydrate，不动 DOM（移除会让 SSR 首帧闪烁）
+  // - JS 挂载路径：渲染后把 <style data-css-id> 迁移到共享 adoptedStyleSheets 并移除原节点
+  // - cssMode='external' 时 cssTag 产出 <link>，无 <style> 可迁移，自然回落原行为
+  _mountShadow() {
+    const sr = this.shadowRoot;
+    if (sr.children.length) return;
+    sr.innerHTML = this.shadowHTML();
+    const st = sr.querySelector('style');   // external 模式产出 <link>，此处为 null → 自然回落
+    // constructable stylesheet 不可用（jsdom / 老浏览器）时保留内联 <style>，行为回落旧版
+    const CSS = globalThis.CSSStyleSheet;
+    if (!st || !CSS?.prototype.replaceSync) return;
+    const C = this.constructor;
+    if (!Object.hasOwn(C, '_sheet')) {
+      C._sheet = new CSS();
+      C._sheet.replaceSync(st.textContent);
+    }
+    sr.adoptedStyleSheets = [C._sheet];
+    st.remove();
   }
 
   // === 渲染监控（P2：onRender/onUpdate 钩子 + DevTools 集成） ===
@@ -161,7 +187,11 @@ export class AfElement extends HTMLElement {
     const sel = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
     const els = [...root.querySelectorAll(sel)];
     if (this.constructor.useShadow) els.push(...this.querySelectorAll(sel));
-    return els.filter(el => !el.disabled && (el.offsetParent !== null || el.getClientRects().length > 0));
+    // checkVisibility（Baseline 2024）：零强制布局且额外覆盖 visibility/content-visibility；
+    // jsdom / 老浏览器回落 offsetParent 探测（行为兼容）
+    // 回退链路保留 offsetParent 判据：jsdom 无布局（getClientRects 恒空），测试与 SSR 场景靠它放行
+    return els.filter(el => !el.disabled && (el.checkVisibility?.({ checkVisibilityCSS: true })
+      ?? (el.offsetParent !== null || el.getClientRects().length > 0)));
   }
 
   _focusFirst(root = this.$root) {
@@ -176,7 +206,7 @@ export class AfElement extends HTMLElement {
     const focusable = this._getFocusable(root);
     if (focusable.length < 2) { e.preventDefault(); return; }
     const first = focusable[0];
-    const last = focusable[focusable.length - 1];
+    const last = focusable.at(-1);
     if (e.shiftKey && document.activeElement === first) {
       e.preventDefault(); last.focus();
     } else if (!e.shiftKey && document.activeElement === last) {
@@ -224,11 +254,11 @@ export class AfElement extends HTMLElement {
     const ctor = proto.constructor;
     // 子类定义属性时继承父类已声明的 observedAttributes/_propMeta（复制避免影子覆盖，
     // 否则父类属性在子类实例上不再触发 attributeChangedCallback）
-    if (!ctor.hasOwnProperty('observedAttributes')) ctor.observedAttributes = ctor.observedAttributes ? [...ctor.observedAttributes] : [];
+    if (!Object.hasOwn(ctor, 'observedAttributes')) ctor.observedAttributes = ctor.observedAttributes ? [...ctor.observedAttributes] : [];
     if (!ctor.observedAttributes.includes(attrName)) {
       ctor.observedAttributes.push(attrName);
     }
-    if (!ctor.hasOwnProperty('_propMeta')) ctor._propMeta = ctor._propMeta ? { ...ctor._propMeta } : {};
+    if (!Object.hasOwn(ctor, '_propMeta')) ctor._propMeta = ctor._propMeta ? { ...ctor._propMeta } : {};
     ctor._propMeta[attrName] = { symbol: privateName, parse: null };
 
     const parse = (val) => {

@@ -47,16 +47,27 @@ function warnUnregistered(root) {
   }
 }
 
+// 页面级兜底面板（错误 / 默认 404）：render() 在调 handler 前已 detachCurrent() 清空 outlet，
+// 不渲染就是「白屏且只有控制台有痕」——prod 下用户只看到空白、无任何可反馈的信息。
+// 静态骨架 innerHTML + 动态内容 textContent（天然转义，零依赖 escapeHtml，html.js 不进核心产物）；
+// 只用 recipes 既有 class（empty/title/body/caption），不新增白名单条目。
+function renderFallback(outlet, kind, title, body, path, stack = '') {
+  if (!outlet) return;
+  outlet.innerHTML = `<div class="empty" role="alert" data-router-error="${kind}"><p class="title"></p><p class="body"></p>${stack ? '<pre class="caption"></pre>' : ''}<p class="caption"></p></div>`;
+  const p = outlet.querySelectorAll('p');
+  p[0].textContent = title;
+  p[1].textContent = body;
+  p[p.length - 1].textContent = path;   // NodeList 非数组无 at()，用索引取末位（stack 用 <pre>，不占位）
+  if (stack) outlet.querySelector('pre').textContent = stack;
+}
+
 // 应用 scrollBehavior 返回值：{ x, y } | { el, top } | false | null
 function applyScroll(position) {
   if (!position || position === false) return;
-  if (position.el) {
-    const el = typeof position.el === 'string' ? document.querySelector(position.el) : position.el;
-    if (el) el.scrollIntoView({ block: 'start' });
-  } else {
-    const { x = 0, y = 0 } = position;
-    if (typeof scrollTo !== 'undefined') scrollTo(x, y);
-  }
+  const el = position.el && (typeof position.el === 'string' ? document.querySelector(position.el) : position.el);
+  if (el) return el.scrollIntoView({ block: 'start' });
+  // NaN/undefined 一并归零：scrollTo 收到非数字会静默失效
+  if (typeof scrollTo !== 'undefined') scrollTo(position.x || 0, position.y || 0);
 }
 
 // 归一化路由为 scrollBehavior 的 to/from 对象（含 meta）
@@ -180,14 +191,16 @@ function detachCurrent() {
   const cur = _currentRoute;
   if (cur?.keepAlive && cur.outlet && cur.outlet.parentNode === _rootOutlet && _cache.has(cur.path)) {
     _cache.get(cur.path).scrollTop = window.scrollY || 0;
-    _rootOutlet.removeChild(cur.outlet);
+    cur.outlet.remove();
     return;
   }
   _rootOutlet.innerHTML = '';
 }
 
 // 返回 true = 导航成立（渲染完成或进入 404，可提交 URL）；返回 false = 被守卫阻止（不提交 URL）
-async function render(path) {
+// errRef：出参。页面函数抛错时把 error 传出去——视图已降级为错误面板、URL 已提交，
+// 但错误仍要传播给 go() 的调用方（消费端需 catch 做重试/上报，如懒加载 chunk 拉取失败）。
+async function render(path, errRef = {}) {
   // 渲染前统一等待按需注册的组件到位：入口因此无需顶层 await register(...)（TLA 会与生产分包
   // 形成 entry ↔ chunk 循环依赖 → 组件永不注册且零报错）；见 lib/register-state.js。
   // hasPending 短路：无待办注册时零额外 await，保持原有渲染时序。
@@ -206,11 +219,13 @@ async function render(path) {
 
   // 守卫前置：无论 keep-alive 命中与否，导航必须先过守卫
   if (matches.length > 0) {
-    const lastMatch = matches[matches.length - 1];
+    const lastMatch = matches.at(-1);
     if (_beforeEachGuard) {
       const result = await _beforeEachGuard(lastMatch.route, lastMatch.params, path);
       if (result === false) return false;   // 阻止导航：不渲染、不提交 URL
-      if (typeof result === 'string') { await go(result, { transition: false }); return false; }  // 重定向
+      // 重定向。必须 replace：被守卫拦下的导航不该在历史里留下痕迹，
+      // 否则「直接访问受保护页 → 被弹回首页 → 按返回键又回受保护页再被弹回」= 后退陷阱
+      if (typeof result === 'string') { await go(result, { transition: false, replace: true }); return false; }
     }
     if (nav.aborted) return false;
   }
@@ -231,12 +246,14 @@ async function render(path) {
   // 404：清空 outlet，让 notFound 渲染到干净容器（404 也是有效导航，提交 URL）
   if (matches.length === 0) {
     detachCurrent();
-    _notFoundHandler?.(path);
+    // 未注册 notFound 时兜底渲染：否则 outlet 已清空却什么都没画 = 白屏且无任何提示
+    if (_notFoundHandler) _notFoundHandler(path);
+    else renderFallback(_rootOutlet, 'not-found', '页面不存在', '未匹配到路由', path);
     _currentRoute = { path, params: {}, query, route: null, outlet: _rootOutlet };
     return true;
   }
 
-  const lastMatch = matches[matches.length - 1];
+  const lastMatch = matches.at(-1);
   const node = document.createElement('div');
   node.setAttribute('data-router-view', '');
   detachCurrent();
@@ -247,12 +264,32 @@ async function render(path) {
   let lastParams = null;
   for (const m of matches) {
     const ctx = { outlet: currentOutlet, signal: nav.controller.signal, go };
-    let ret = await m.route.handler(m.params, ctx);
-    // 路由懒加载：handler 返回动态 import 的模块（default 为渲染函数，可带 meta 并入路由）
-    if (ret && typeof ret === 'object' && typeof ret.default === 'function') {
-      if (ret.meta) m.route.meta = { ...m.route.meta, ...ret.meta };
-      ret = await ret.default(m.params, ctx);
+    let ret;
+    try {
+      ret = await m.route.handler(m.params, ctx);
+      // 路由懒加载：handler 返回动态 import 的模块（default 为渲染函数，可带 meta 并入路由）
+      if (ret?.default) {   // 动态 import 的模块：default 为渲染函数（可带 meta 并入路由）
+        if (ret.meta) m.route.meta = { ...m.route.meta, ...ret.meta };
+        ret = await ret.default(m.params, ctx);
+      }
+    } catch (err) {
+      // 页面函数抛错（请求失败 / 空值解引用 / 模板语法错）：此处 outlet 已被 detachCurrent() 清空，
+      // 不兜底就是白屏且只有控制台有痕。渲染错误面板并 return true（提交 URL，保持 URL 与视图一致）。
+      // dev 显示堆栈 + 路由上下文；prod 只显示 message（不泄漏堆栈）。
+      if (nav.aborted) return false;   // 已被新导航抢占，让位给新导航
+      const errRoute = lastRoute || m.route;
+      renderFallback(currentOutlet, 'error', '页面出错了', String(err?.message || err), path, import.meta.env?.DEV ? String(err?.stack || '') : '');
+      console.error(`[@af-mobile/ui] 路由 ${path} 页面函数抛错（已渲染错误面板）：`, err);
+      _currentRoute = { path, params: lastParams || m.params, query, route: errRoute, outlet: node, meta: errRoute.meta || {}, keepAlive: false };
+      callAfterEach(errRoute, lastParams || m.params, path);
+      errRef.error = err;   // 交由 go() 在提交 URL 后抛出，保留错误传播
+      return true;
     }
+    // 框架接管页面生命周期：页面函数返回带 unmount() 的对象（createPage 实例或自定义清理对象）时，
+    // 导航 abort 时自动清理。消费端不再需要每页重复
+    // ctx.signal.addEventListener('abort', () => page.unmount())（cam-scanner 实测 9 处样板）。
+    // 已 aborted 的 signal 上 addEventListener 不会触发——正是期望行为（该页面已被弃用）。
+    if (ret?.unmount) nav.controller.signal.addEventListener('abort', () => ret.unmount());
     if (typeof ret === 'string') {
       const sub = currentOutlet.querySelector(ret);
       if (!sub) throw new RouterError(`router 嵌套 outlet 未找到: ${ret}`);
@@ -284,23 +321,28 @@ async function render(path) {
 }
 
 export async function go(path, options = {}) {
-  if (typeof history === 'undefined') return Promise.resolve(false);
+  if (typeof history === 'undefined') return false;   // async 函数自动包装 Promise
   const { replace = false, transition = true } = options;
   document.documentElement.dataset.transition = 'forward';
   const navigate = async () => {
-    const ok = await render(path);
+    const errRef = {};
+    const ok = await render(path, errRef);
     if (!ok) return false;   // 守卫阻止：不提交 URL（避免 URL 与视图不一致）
     if (replace) history.replaceState({}, '', _hashMode ? '#' + path : path);
     else history.pushState({}, '', _hashMode ? '#' + path : path);
+    // 页面函数抛错：错误面板已渲染、URL 已提交，此刻再抛出——
+    // 「不白屏」与「错误可感知」两者都要，调用方仍可 catch 做重试/上报
+    if (errRef.error) throw errRef.error;
     return true;
   };
   if (transition && document.startViewTransition) {
-    return new Promise((resolve, reject) => {
-      const vt = document.startViewTransition(() => navigate().then(resolve, reject));
-      // 新导航抢占时，旧 transition 的 ready 会 reject（DOMException: Transition was skipped），
-      // 不接住会冒成未捕获 rejection。skip 后导航回调与 finished 仍正常进行，结果以上方 resolve/reject 为准
-      vt.ready.catch(() => {});
-    });
+    // Promise.withResolvers（Baseline 2024）：替代 new Promise((resolve, reject) => {...}) 手工包装
+    const { promise, resolve, reject } = Promise.withResolvers();
+    const vt = document.startViewTransition(() => navigate().then(resolve, reject));
+    // 新导航抢占时，旧 transition 的 ready 会 reject（DOMException: Transition was skipped），
+    // 不接住会冒成未捕获 rejection。skip 后导航回调与 finished 仍正常进行，结果以上方 resolve/reject 为准
+    vt.ready.catch(() => {});
+    return promise;
   }
   return navigate();
 }

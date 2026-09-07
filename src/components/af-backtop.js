@@ -33,7 +33,8 @@ export class AfBacktop extends withI18n(AfElement) {
       this._scrollTimer = setTimeout(() => this._updateVisibility(), 100);
     };
 
-    this._listen(this._scrollTarget, 'scroll', this._onScroll);
+    // passive: scroll 监听不调 preventDefault，浏览器可并行合成滚动，不阻塞滚动线程
+    this._unbindScroll = this._listen(this._scrollTarget, 'scroll', this._onScroll, { passive: true });
     // 用 hidden 属性控制显隐，遵守 Light DOM 不可设内联样式的约束
     this._updateVisibility();
 
@@ -70,10 +71,10 @@ export class AfBacktop extends withI18n(AfElement) {
     if (name === 'threshold') {
       this._updateVisibility();
     } else if (name === 'target') {
-      // 外部滚动目标切换需立即解绑旧目标（新监听经 _listen 登记，断开时统一解绑）
-      this._scrollTarget?.removeEventListener('scroll', this._onScroll);
+      // 外部滚动目标切换：用 _listen 返回的定向解绑先解旧目标（新监听仍随断开统一解绑）
+      this._unbindScroll?.();
       this._scrollTarget = this.target ? document.querySelector(this.target) : window;
-      this._listen(this._scrollTarget, 'scroll', this._onScroll);
+      this._unbindScroll = this._listen(this._scrollTarget, 'scroll', this._onScroll, { passive: true });
       this._updateVisibility();
     } else if (name === 'text') {
       const btn = this.$('button');

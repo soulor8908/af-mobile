@@ -1,6 +1,6 @@
 {
   "version": "v1",
-  "af-mobileVersion": "1.9.1",
+  "af-mobileVersion": "1.10.0",
   "classes": {
     "recipe": [
       "actions",
@@ -212,7 +212,6 @@
       "jcsb",
       "lh-normal",
       "lh-tight",
-      "list",
       "m-0",
       "m-1",
       "m-2",
@@ -220,7 +219,6 @@
       "m-4",
       "m-5",
       "min-w-0",
-      "navbar",
       "p-0",
       "p-1",
       "p-10",

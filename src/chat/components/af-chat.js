@@ -76,7 +76,7 @@ export class AfChat extends withI18n(AfElement) {
   }
 
   mounted() {
-    this.shadowRoot.innerHTML ||= this.shadowHTML();
+    this._mountShadow();   // adoptedStyleSheets 共享样式表（DSD 预填充时仅 hydrate）
     this._listen(this.$('.sd'), 'click', () => (this.busy ? this._abort() : this._send()));
     // busy 时 Enter 不再吞掉：绑定模式入队（_send 内分流），受控模式维持忽略
     this._listen(this.$('.in'), 'keydown', (e) => {

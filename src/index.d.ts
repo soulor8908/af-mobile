@@ -1118,7 +1118,7 @@ export function createResource<T = unknown>(
 export interface RouteContext {
   outlet: HTMLElement;
   signal: AbortSignal;
-  go: (path: string, options?: { replace?: boolean; transition?: boolean }) => Promise<void>;
+  go: (path: string, options?: { replace?: boolean; transition?: boolean }) => Promise<boolean>;
 }
 
 /** 路由懒加载模块：default 为渲染函数，可选 meta 并入路由 */
@@ -1127,11 +1127,20 @@ export interface RouteModule {
   meta?: Record<string, unknown>;
 }
 
-/** 路由 handler：可返回子 outlet 选择器（嵌套）或懒加载模块（() => import(...)） */
+/**
+ * 页面函数可返回的页面实例（createPage() 返回值，或任何带 unmount() 的自定义清理对象）。
+ * 返回它即由框架接管生命周期：导航离开（AbortSignal abort）时自动调用 unmount()，
+ * 消费端无需再手写 ctx.signal.addEventListener('abort', () => page.unmount())。
+ */
+export interface DisposablePage {
+  unmount(): void;
+}
+
+/** 路由 handler：可返回子 outlet 选择器（嵌套）、懒加载模块（() => import(...)）或页面实例 */
 export type RouteHandler = (
   params: Record<string, string>,
   ctx: RouteContext
-) => void | string | RouteModule | Promise<void | string | RouteModule>;
+) => void | string | RouteModule | DisposablePage | Promise<void | string | RouteModule | DisposablePage>;
 
 /** 路由注册选项 */
 export interface RouteOptions {
@@ -1145,15 +1154,23 @@ export interface RouteOptions {
 /** 注册路由 */
 export function route(path: string, handler: RouteHandler, options?: RouteOptions): void;
 
-/** 导航到指定路径 */
-export function go(path: string, options?: { replace?: boolean; transition?: boolean }): Promise<void>;
+/**
+ * 导航到指定路径。resolve 值为 boolean：true = 导航成立（URL 已提交），false = 被守卫阻止。
+ * 页面函数抛错时：视图降级为错误面板（不白屏）、URL 正常提交，但返回的 Promise 仍 reject——
+ * 「不白屏」与「错误可感知」两者兼顾，调用方可 catch 做重试/上报（如懒加载 chunk 拉取失败）。
+ */
+export function go(path: string, options?: { replace?: boolean; transition?: boolean }): Promise<boolean>;
 
 /** history.back() */
 export function back(): void;
 /** history.forward() */
 export function forward(): void;
 
-/** 全局前置守卫：返回 false 阻止，返回 string 重定向，返回 void/true 继续 */
+/**
+ * 全局前置守卫：返回 false 阻止导航（不提交 URL），返回 string 重定向，返回 void/true 继续。
+ * 重定向以 replace 提交：被守卫拦下的导航不留历史痕迹，避免
+ * 「访问受保护页 → 被弹回 → 按返回键又回受保护页再被弹回」的后退陷阱。
+ */
 export function beforeEach(
   guard: (route: any, params: Record<string, string>, path: string) => Promise<boolean | string | void> | boolean | string | void
 ): void;
@@ -1163,7 +1180,10 @@ export function afterEach(
   hook: (route: any, params: Record<string, string>, path: string) => void
 ): () => void;
 
-/** 404 处理 */
+/**
+ * 404 处理。未注册时框架渲染默认「页面不存在」面板——
+ * 未匹配路由会先清空 outlet，不兜底就是白屏且无任何提示。
+ */
 export function notFound(handler: (path: string) => void): void;
 
 /** 获取当前路由信息 */
@@ -1223,7 +1243,13 @@ export interface PageInstance {
   transition: unknown;
   keepAlive: boolean;
   mount(root: HTMLElement): void;
-  /** 级联清理所有 effect/computed/上游订阅 */
+  /**
+   * 同步重扫 :attr/@event 绑定。
+   * initBind 的 MutationObserver 是空闲去抖的，innerHTML 重绘后同步读取会拿到未绑定的 DOM，
+   * 需要「立刻生效」时调用本方法（默认重扫 mount 时的 root）。
+   */
+  refresh(root?: HTMLElement): PageInstance;
+  /** 级联清理所有 effect/computed/上游订阅；幂等，重复调用安全 */
   unmount(): void;
 }
 

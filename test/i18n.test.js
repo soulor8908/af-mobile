@@ -174,10 +174,11 @@ describe('i18n', () => {
       expect(t('test.items', { n: 21 })).toBe('21 элемент');
     });
 
-    it('未知语言回退 en 规则', () => {
+    it('表外语言不回退 en，按真实 CLDR 规则（ko 无复数恒 other）', () => {
       addMessages('ko-KR', { 'test.items': enItems });
       setLocale('ko-KR');
-      expect(t('test.items', { n: 1 })).toBe('1 item');
+      // Intl.PluralRules('ko') 恒 other（韩语无单复数之分）——比旧版「表外回退 en」更正确
+      expect(t('test.items', { n: 1 })).toBe('1 items');
       expect(t('test.items', { n: 7 })).toBe('7 items');
     });
 

@@ -58,7 +58,7 @@ export class AfDialog extends withI18n(AfElement) {
 
   mounted() {
     // DSD 已在解析阶段挂载 shadow root 时不再覆盖，仅接管事件（hydrate）
-    this.shadowRoot.innerHTML ||= this.shadowHTML();
+    this._mountShadow();   // adoptedStyleSheets 共享样式表（DSD 预填充时仅 hydrate）
     this._dialog = this.$('dialog');
 
     // Esc 关闭

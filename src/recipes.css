@@ -1532,6 +1532,8 @@
   }
   af-backtop[position="left-bottom"] { left: calc(var(--s-4) + env(safe-area-inset-left)); }
   af-backtop:not([position="left-bottom"]) { right: calc(var(--s-4) + env(safe-area-inset-right)); }
+  /* af-data：数据源组件，无视觉渲染，隐藏自身（原 recipes-core.css 规则，子集文件删除后收编于此） */
+  af-data { display: none; }
   af-backtop button {
     display: flex; align-items: center; justify-content: center;
     width: 40px; height: 40px; padding: 0;

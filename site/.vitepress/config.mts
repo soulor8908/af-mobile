@@ -28,6 +28,7 @@ export default defineConfig({
           text: '指南',
           items: [
             { text: '快速开始', link: '/guide/quick-start' },
+            { text: '路由与页面', link: '/guide/routing' },
             { text: '架构理念', link: '/guide/architecture' },
             { text: '主题定制', link: '/guide/theming' },
             { text: 'AI 协作', link: '/guide/ai-collaboration' },

@@ -40,7 +40,7 @@
 **指示器（3）：** `dots` `dot` `dot-on`
 **图标底座（1）：** `icon-badge`
 
-## L2 原子（92 个，按用途分组）
+## L2 原子（90 个，按用途分组）
 
 **间距 padding（10）：** `p-0` `p-1` `p-2` `p-3` `p-4` `p-5` `p-6` `p-7` `p-8` `p-10`
 **间距 margin（6）：** `m-0` `m-1` `m-2` `m-3` `m-4` `m-5`
@@ -62,7 +62,6 @@
 **渐变（2）：** `bg-grad-brand` `bg-grad-brand-soft`
 **边框（2）：** `border` `border-brand`
 **比例（3）：** `aspect-1` `aspect-4-3` `aspect-16-9`
-**其他（2）：** `list` `navbar`
 
 ### 易漏 class 语义速查
 

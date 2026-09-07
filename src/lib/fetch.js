@@ -95,7 +95,6 @@ export async function fetchPage(url, opts = {}) {
 
 async function _doFetch(url, { method, headers, body, timeout, retries, retryDelay, responseType, signal }) {
   const ctrl = new AbortController();
-  const timeoutId = timeout > 0 ? setTimeout(() => ctrl.abort(new TimeoutError()), timeout) : null;
 
   if (signal) {
     signal.addEventListener('abort', () => ctrl.abort(new AbortError()));
@@ -103,6 +102,8 @@ async function _doFetch(url, { method, headers, body, timeout, retries, retryDel
 
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt++) {
+    // 超时定时器每轮重挂：挂循环外会被首轮 finally 清掉，重试轮次将失去超时保护（无限等待）
+    const timeoutId = timeout > 0 ? setTimeout(() => ctrl.abort(new TimeoutError()), timeout) : null;
     try {
       // request 阶段：拦截器返回新 opts 继续，或返回 Response 短路
       let finalOpts = { method, headers, body, signal: ctrl.signal };
@@ -116,7 +117,6 @@ async function _doFetch(url, { method, headers, body, timeout, retries, retryDel
         const errBody = await res.text().catch(() => null);
         throw new HttpError(res.status, url, errBody);
       }
-      if (timeoutId) clearTimeout(timeoutId);
       return await _runResponsePhase(url, await _parseResponse(res, responseType));
     } catch (err) {
       // error 阶段：拦截器返回数据即恢复错误（短路），未恢复则走原重试/抛出逻辑
@@ -163,7 +163,7 @@ async function _parseResponse(res, responseType) {
       const text = await res.text();
       if (!text) return null;
       try { return JSON.parse(text); }
-      catch (e) { throw new FetchError(`Invalid JSON: ${e.message}`); }
+      catch (e) { throw new FetchError(`Invalid JSON: ${e.message}`, { cause: e }); }   // cause（ES2022）保留原始解析错误栈
   }
 }
 

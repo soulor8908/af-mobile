@@ -126,7 +126,9 @@
 
   /* T0.9 Vant 对齐：底部弹层通栏贴边（无内边距）、圆角 16px、max-height 80%；
      radius 走 fallback 变量（同 af-dialog 先例，弹层与卡片圆角解耦） */
-  .sheet {
+  /* 关闭态由 popover UA 的 display:none 隐藏；样式挂 :popover-open，防止
+     author display:flex 覆盖 UA 隐藏规则导致关闭态浮层挡住页面（e2e picker 教训） */
+  .sheet:popover-open {
     position: fixed;
     left: 0; right: 0; bottom: 0;
     width: 100%; /* 覆盖 popover UA 的 width:fit-content，避免底部面板只撑内容宽 */
@@ -179,7 +181,6 @@
     border: none;
     color: inherit;
     appearance: none;
-    -webkit-appearance: none;
     transition: background var(--dur-fast) var(--ease-out);
   }
   .as-item:active,
@@ -479,7 +480,6 @@
     font: inherit;
     color: var(--c-muted);
     appearance: none;
-    -webkit-appearance: none;
     transition: background var(--dur-fast) var(--ease-out);
   }
   .up-add:active { background: var(--c-border); }
@@ -574,7 +574,6 @@
     text-align: left;
     width: 100%;
     appearance: none;
-    -webkit-appearance: none;
     transition: background var(--dur-fast) var(--ease-out);
   }
   .list-item:active { background: var(--c-muted-bg); }
@@ -1002,7 +1001,6 @@
     overflow: visible;
     --progress-color: var(--c-brand);
     accent-color: var(--progress-color);
-    -webkit-appearance: none;
     appearance: none;
   }
   /* div 路径：填充条宽度由 --af-pct 派发（af-progress._render 计算，禁内联 style） */

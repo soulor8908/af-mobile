@@ -17,7 +17,7 @@ test.describe('af-action-sheet popover', () => {
       sheet.addEventListener('af-action-sheet:close', () => res(select));
     }));
     await page.click('#open-sheet');
-    await page.locator('af-action-sheet .list-item:has-text("微博")').click();
+    await page.locator('af-action-sheet .as-item:has-text("微博")').click();
     expect(await evt).toEqual({ index: 1, value: 'weibo' });
   });
 

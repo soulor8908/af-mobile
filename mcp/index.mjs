@@ -207,7 +207,7 @@ export async function flywheelReport({ since, topN = 10 } = {}) {
 // ===== MCP Server =====
 const server = new Server(
   // version 与主包同步（曾停在 1.7.0 而主包已 1.10.0，客户端版本探测会被误导）
-  { name: 'af-mobile-mcp', version: '1.10.0' },
+  { name: 'af-mobile-mcp', version: '1.11.0' },
   { capabilities: { tools: {} } },
 );
 

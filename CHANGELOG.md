@@ -45,6 +45,29 @@
   - **i18n 复数规则原生化**：手写 CLDR 子集（9 语言近似值）替换为原生 `Intl.PluralRules`（Safari 10+），全语系精确选形。行为变更：表外语言（如 ko-KR）不再回退 en 规则，按真实 CLDR 选形。
   
   - **体积**：核心运行时预算 6.95→7.30KB（新增 router 兜底三项，经现代语法优化对冲后实测 7.279KB）；L1+L2 CSS 预算 8.35→8.36KB（T0.12 批次带入，实测 8.352KB）。
+- Vant 对齐改造收口（P0/P1/P2 三批，清单见 `docs/design/vant-style-gap-todo.md`、审计见 `vant-style-gap-audit.md`）：系统性对齐 Vant 视觉与交互基线，涉及 20+ 组件。
+
+  **形态级能力新增**
+
+  - `af-calendar` **范围选择**：`type="range"` 两态状态机（无起点→设起点；有起点→补终点；早于起点→重开），跨月中间日 `day-inrange` 浅 brand，confirm 携带数组 value；单选行为不回归
+  - `af-calendar` **弹层变体**（popup）
+  - `af-steps` **垂直模式**：`direction="vertical"`，圆点左/标签右 + 竖向连线，零渲染结构变化
+
+  **P0 组件改造（T0.1–T0.11）**：弹层 backdrop 统一 `rgba(0,0,0,.7)` + 底部弹层圆角 16px + slide-up 0.3s（reduced-motion 全局降级）；`af-upload` 宫格化（80×80 占位进网格首项、删除角标、loading/失败遮罩、disabled）；`af-tabs` 条高 44px + 激活加粗 + 底部品牌色滑块 + disabled；`af-backtop` 40×40 全圆实心 + 阴影 + scale 显隐过渡；`af-notice-bar` 配色反转 + icon/closeable/wrapable；`af-stepper` 连体化 + `round` 变体；`af-progress` 高 8→4px + pivot 文字气泡 + inactive 置灰；`af-steps` 24px 数字圆盘→5px 实心圆点 + 1px 连线；`af-action-sheet` 全宽贴边 + subname/danger/loading；`af-field` word-limit 字数统计 + 必填星号 + clear 图标 + 右侧插槽；`af-search-bar` 外层 bar + action 取消区
+
+  **P1 数值校准（T1.1–T1.12）**：toast 字号/行高/min-max-width；tabbar 文字 12px + 图标 22px + badge 移入 icon 内（消除整栏跳动）；navbar 标题 16px/600 + 返回键 44px 触点；cell/list 行高 44px + 分隔线 inset 16px + `.cell-value`/`.cell-arrow`；`af-list` 状态文案 + **error 态**（`setError()` + 重试按钮 `af-list:retry`）；`af-dialog` 圆角 16px + body `max-height: 60vh` + footer 通栏等分 + `round-button` 变体；`af-picker` 行高 36→44 + 禁用选项 + 标题绝对居中；badge/tag 数值；`af-number-keyboard` 键白底/容器灰底反色 + 键字 28px；`af-toast` 图标布局 + loading 图标态；`af-password-input` 光标 1px/40% + 格高 50px + info/error-info 文本行
+
+  **P2 打磨（T2.1–T2.10）**：`af-switch` 300ms 回弹曲线；`af-swipe-cell` 回弹 250ms + 按钮通栏 65px + 全局点击关闭；`af-swiper` 圆点 6px 悬浮 + 时长 500ms；`af-skeleton` 行高/行距/avatar/动画 1.2s；`af-countdown` `format` 属性（DD/HH/mm/ss）+ 自动升粒度 + tabular-nums；`af-img` 错误态裂图图标 + `fit` 通道 + 加载淡入；`af-pull-refresh` 改 transform 驱动（阈值 50/max 80）+ success 态；`af-rate` 20px + 半星 + disabled；`af-dropdown` 菜单条触发器 + 箭头旋转过渡 + 面板 80vh 内滚；输入类圆角对齐
+
+  **⚠ 破坏性 / 行为变更（升级务必检查）**
+
+  - `af-calendar` 日格高度 **40→64px**（`--af-day-h`）、字号 16px（`--af-day-fs`），新增数字/文案双层结构；需还原请覆盖变量
+  - `af-picker` 默认 `itemHeight` **36→44**
+  - `af-swiper` 默认 `autoplay` 改为 **3000ms**（此前默认不自动轮播）；禁用需显式 `autoplay="0"`
+  - `af-dialog` center 变体宽度由「随内容自适应」改为固定 `var(--af-dialog-w, 280px)`（见上条 `--af-dialog-w`）
+  - `af-notice-bar` 配色反转为浅奶油底 + 橙字（新增 `--c-notice-bg` / `--c-notice-text`，双主题）
+
+  **评估后明确不做**：cascade-picker 平铺（滚轮级联本身即 Vant Picker 的合法级联形态；若未来需要应新建 `af-cascader` 而非改造，重写 ~200 行 vs 复用滚轮内核 46 行）、dropdown 多列容器（组合两个 `af-dropdown` 可近似，性价比低）
 
 ### Patch Changes
 
@@ -53,6 +76,7 @@
   - **修复 af-swipe-cell 左滑按钮不垂直居中**：`slot="right"` 的包装层（如 `<div slot="right"><button>…</button></div>`）此前被整体搬进 `[data-role="right"]`，块级包装层使 `align-items: stretch` 落到 wrapper 而非按钮上，按钮高度不跟随行高。现摊平包装层，操作项直接挂到 right 区参与 flex 拉伸。
   
   - **`--r-f` 由 `9999px` 收紧为 `999px`**：移动端元素短边 ≤~430px，border-radius 超过短边一半即被钳成完整圆角，`9999px` 是冗余魔数。移动端视觉完全等价，非移动端（元素短边 >1998px）场景下不再等效全圆角——超出本库目标平台，如需绝对全圆角请显式设置更大的值。
+- 文档统计数字校正（对齐源码真值，无代码变更）：L1 Token 92→**96**（28 `--palette-*` L0 + 68 语义 L1；light/dark 双主题致声明重复，唯一变量 96）、L2 白名单 228→**262**（172 recipe + 90 atomic）、Light DOM 组件 23→**24**（补 `af-data`）。同步修订 `README.md`、`prompt/system-prompt(.template).md`、`docs/incidents.md`、`docs/design/production-platform-design.md`——此前 AI guardrail 的 Light DOM 枚举停在 20 个，漏 `af-progress`/`af-steps`/`af-countdown`/`af-data`，会误导 AI 生成约束。
 
 ## 1.9.1
 
@@ -231,16 +255,17 @@
 
 > 早期版本（v1.0.0 ~ v1.3.x）未维护本文件，变更记录自 v1.4.0 起。
 
-## [Unreleased]
+## [1.6.0 期变更 · 追记]
+
+> 归档说明：本节为 **v1.6.0 期变更的追记**。1.6.x 从未单独发版，实际随 1.7.0（2026-08-26）首次推送 registry，
+> 见下方 `## [1.7.0]` 的汇总说明。此处只保留 1.7.0 / 1.8.0 条目**未覆盖**的独有记录；
+> chat 富内容（D-013）、chat 多会话（D-014）、blocks 五态基座均已归入 `## 1.8.0`，不再重复。
 
 ### Added
-- **chat 多会话**（D-014，无组件方案）：`src/chat/sessions.js` 单文件三合一——`createSessions()`（创建/删除/切换 + localStorage 防抖 300ms 落盘 + 恢复）、`sessionsHTML()`（全 L2 白名单 class 列表，active 走 aria-current）、`bindSessions(el, store, target?)`（渲染 + 委托 + af-chat 自动换绑）；弹层交给原生 Popover API。新预算线 chatSessions ≤ 0.9KB（实测 0.883KB，tree-shaking 不用不付费）
-- **chat 富内容升级**（D-013，局部推翻 D-012 的 markdown/regenerate 禁令）：`src/chat/lib/md.js` 安全子集渲染（escape-first：h1-h3/ul/ol/围栏代码/粗斜体/行内码/http(s) 链接）+ 代码块复制；`session.regenerate()/resend()` 与气泡操作行（复制全文/重新生成）；`delta.reasoning_content` → `think` 块 + 原生 `<details>` 思考折叠（不回传 API）；绑定模式忙碌排队（`af-chat:queued`）+ `af-chat:draft` 草稿事件。chatUI 预算 3.3→4.6KB（实测 4.514KB），chatRuntime 不变（实测 2.157KB）；主库 23KB 红线零影响（设计文档 docs/design/af-chat-rich-features-design.md）
 - **i18n 治理闸门**：`scripts/check-i18n.mjs` 静态扫描组件/blocks 的字典定义（messages 对象与 addMessages 两种形态）与引用，校验 key 已注册且 zh-CN ↔ en-US 对齐；npm script `i18n:check` + CI Step 1f（11 单测）
 
 ### Changed
 - **监听器注册表防膨胀**：`AfElement._listen` 新增已挂载期死条目惰性回收与 `(target, type, handler, capture)` 去重，innerHTML 重渲染不再使登记表膨胀；`escapeHtml`/`html` 拆分至 `lib/html.js`（基类一行再导出，全部 import 路径兼容），基类 gzip 回落 1.969KB ≤ 2KB 预算
-- **blocks 五态渲染收敛**：新增 `list-block.js` 的 `withBlockList(Base, tag)` 工厂统一 loading/error(重试)/empty/success 骨架与列表键盘导航，af-product-card / af-setting-group 改为差异化渲染，净删约 150 行
 - **escapeHtml 转义结果缓存**：有界 Map（256 条满即清空、超 512 字符不入缓存防内存膨胀），html 模板插值与手动 esc() 共用单一咽喉点；列表重渲染热路径实测约 16x 加速（200 标签 ×51 轮基准），新增缓存命中/互不污染行为测试 ×2
 
 ## [1.7.0] - 2026-08-26

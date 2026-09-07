@@ -311,8 +311,7 @@ kb.open(); // 弹层组件（原生 dialog），默认关闭，必须调用 open
 
 ```js
 const pi = document.getElementById('pi');
-pi.addEventListener('af-password-input:complete', () => console.log('输入完成，可发起校验'));
-pi.addEventListener('af-password-input:change', (e) => console.log(e.detail.value));
+pi.addEventListener('af-password-input:complete', (e) => console.log('输入完成，可发起校验', e.detail.value));
 ```
 
 - length/mask/focused 属性；输满 length 触发 complete；值经 e.detail.value 外发；配 af-number-keyboard 使用
